@@ -24,3 +24,5 @@ hs_err_pid*
 
 # database and server config
 src/main/resources/application.properties
+
+.idea/
