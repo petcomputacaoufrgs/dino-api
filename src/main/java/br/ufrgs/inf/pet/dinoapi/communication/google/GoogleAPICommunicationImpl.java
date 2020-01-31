@@ -21,42 +21,29 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     private String REDIRECT_URI = "";
 
     public GoogleTokenResponse getGoogleToken(String token){
-        final ClassLoader classLoader = getClass().getClassLoader();
+        try {
+            GoogleClientSecrets clientSecrets = getClientSecrets();
 
-        final URL resource = classLoader.getResource("google_client.json");
-        final String path = resource.getPath();
+            ArrayList<String> scopes = new ArrayList<>();
 
-        if (path != null) {
-            try {
-                GoogleClientSecrets clientSecrets = getClientSecrets();
+            scopes.add(GoogleScopes.CALENDAR.getScope());
 
-                ArrayList<String> scopes = new ArrayList<>();
-
-                scopes.add(GoogleScopes.CALENDAR.getScope());
-
-                GoogleTokenResponse tokenResponse = 
-                        new GoogleAuthorizationCodeTokenRequest(
-                                new NetHttpTransport(),
-                                JacksonFactory.getDefaultInstance(),
-                                "https://oauth2.googleapis.com/token",
-                                clientSecrets.getDetails().getClientId(),
-                                clientSecrets.getDetails().getClientSecret(),
-                                token,
-                                REDIRECT_URI)  // Specify the same redirect URI that you use with your web
-                                // app. If you don't have a web version of your app, you can
-                                // specify an empty string.
-                                .setScopes(scopes)
-                                .execute();
-
-                return tokenResponse;
-            } catch (FileNotFoundException ex) {
-                //TO-DO Tratar erro
-            } catch (IOException e) {
-                //TO-DO Tratar erro
-            }
-        } else {
-            //TO-DO Tratar erron
+            return new GoogleAuthorizationCodeTokenRequest(
+                    new NetHttpTransport(),
+                    JacksonFactory.getDefaultInstance(),
+                    "https://oauth2.googleapis.com/token",
+                    clientSecrets.getDetails().getClientId(),
+                    clientSecrets.getDetails().getClientSecret(),
+                    token,
+                    REDIRECT_URI)   // Specify the same redirect URI that you use with your web
+                                    // app. If you don't have a web version of your app, you can
+                                    // specify an empty string.
+                    .setScopes(scopes)
+                    .execute();
+        } catch (IOException ex) {
+            //TO-DO Tratar erro
         }
+
         //TO-DO Tratar erro
         return null;
     }
@@ -91,21 +78,13 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     }
 
     private GoogleClientSecrets getClientSecrets() {
-        final ClassLoader classLoader = getClass().getClassLoader();
+        GoogleClientSecrets secrets = new GoogleClientSecrets();
+        secrets.getDetails().setAuthUri("https://accounts.google.com/o/oauth2/auth");
+        secrets.getDetails().setClientId("467762039422-lgajbj314vd4ehfq51n8h7abear3pcjk.apps.googleusercontent.com");
+        secrets.getDetails().setClientSecret("W8RsPL9SDhIqJKwsTIUxMx5K");
+        secrets.getDetails().setTokenUri("https://oauth2.googleapis.com/token");
 
-        final URL resource = classLoader.getResource("google_client.json");
-        final String path = resource.getPath();
-
-        try {
-            return  GoogleClientSecrets.load(
-                            JacksonFactory.getDefaultInstance(), new FileReader(path));
-        } catch (FileNotFoundException ex) {
-            //TO-DO Tratar erro
-        } catch (IOException e) {
-            //TO-DO Tratar erro
-        }
-
-        return null;
+        return secrets;
     }
 
 }
