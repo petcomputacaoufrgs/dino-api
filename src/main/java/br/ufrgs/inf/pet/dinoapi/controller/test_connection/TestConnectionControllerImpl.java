@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.test_connection;
 
-import br.ufrgs.inf.pet.dinoapi.model.TestModel;
-import br.ufrgs.inf.pet.dinoapi.service.test_connection.TestConnectionService;
+import br.ufrgs.inf.pet.dinoapi.model.test_connection.TestModel;
 import br.ufrgs.inf.pet.dinoapi.service.test_connection.TestConnectionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

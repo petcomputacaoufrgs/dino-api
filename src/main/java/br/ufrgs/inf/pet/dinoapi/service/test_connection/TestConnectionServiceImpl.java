@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.test_connection;
 
-import br.ufrgs.inf.pet.dinoapi.model.TestModel;
+import br.ufrgs.inf.pet.dinoapi.model.test_connection.TestModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
