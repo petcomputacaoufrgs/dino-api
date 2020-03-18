@@ -19,6 +19,13 @@ public interface AuthController {
     ResponseEntity<?> authRequestGoogleSign(AuthRequestModel token);
 
     /**
+     * Requisita um token de acesso Google pelo token de autenticação
+     *
+     * @return http response com o resultado da requisição
+     */
+    ResponseEntity<?> logoutGoogleSign();
+
+    /**
      * Retorna o nome do usuário se autenticado
      *
      * @return Nome do usuário autenticado

@@ -67,7 +67,9 @@ public class AuthFilter extends OncePerRequestFilter {
                         String newToken = authService.refreshGoogleAuth(userDB);
 
                         // Busca ele no banco
-                        httpServletResponse.addHeader( "Refresh","Bearer " + newToken);
+                        httpServletResponse.addHeader("Refresh", "Bearer " + newToken);
+
+                        httpServletResponse.setHeader("Refresh", "Bearer " + newToken);
                     }
 
                     // Cria o userDetails do usuário logado

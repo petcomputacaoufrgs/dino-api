@@ -81,12 +81,20 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
+    public ResponseEntity<?> logoutGoogleSign() {
+        // Pega o usuário atual
+        User userDB = getCurrentUser();
+
+        // Limpa seu token de acesso
+        userDB.setAccessToken("");
+
+        return new ResponseEntity<>("Deslogado com sucesso.", HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<?> getName() {
         // Pega o usuário atual
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        // Busca seus dados no banco pelo id externo
-        User userDB = userService.findOneUserByExternalId(userDetails.getUsername());
+        User userDB = getCurrentUser();
 
         if (userDB != null) {
             // Monta o retorno da requisição
@@ -126,7 +134,7 @@ public class AuthServiceImpl implements AuthService{
 
         if (auth != null) {
             // Pega o usuário atual
-            UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
             if (userDetails != null) {
                 // Busca seus dados no banco pelo id externo
@@ -201,7 +209,7 @@ public class AuthServiceImpl implements AuthService{
             String refreshToken = tokenResponse.getRefreshToken();
 
             // Salva o refresh token caso aja um
-            if (tokenResponse.getRefreshToken() != null && tokenResponse.getRefreshToken() != ""){
+            if (tokenResponse.getRefreshToken() != null && !tokenResponse.getRefreshToken().isEmpty()){
                 user.setRefreshToken(refreshToken);
             }
         }

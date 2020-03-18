@@ -6,7 +6,7 @@ package br.ufrgs.inf.pet.dinoapi.enumerable;
  * @author joao.silva
  */
 public enum GoogleScopes {
-    CALENDAR("https://www.googleapis.com/auth/calendar.events");
+    CALENDAR("https://www.googleapis.com/auth/calendar");
 
     private String scope;
 

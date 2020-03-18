@@ -19,6 +19,13 @@ public interface AuthService {
     ResponseEntity<?> authRequestGoogleSign(AuthRequestModel token);
 
     /**
+     * Realiza o logout do usuário com a conta do Google na API
+     *
+     * @return http response com o resultado da requisição
+     */
+    ResponseEntity<?> logoutGoogleSign();
+
+    /**
      * Retorna o nome do usuário
      */
     ResponseEntity<?> getName();
@@ -26,7 +33,7 @@ public interface AuthService {
     /**
      * Atualiza o token de acesso expirado
      *
-     * @param token - Token de acesso do Google
+     * @param userDB - Usuário logado
      * @return token atualizado
      */
      String refreshGoogleAuth(User userDB);
