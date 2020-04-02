@@ -25,12 +25,6 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    @PutMapping("google/logout")
-    public ResponseEntity<?> logoutGoogleSign() {
-        return authService.logoutGoogleSign();
-    }
-
-    @Override
     @GetMapping("name/")
     public ResponseEntity<?> getName() {
         return authService.getName();

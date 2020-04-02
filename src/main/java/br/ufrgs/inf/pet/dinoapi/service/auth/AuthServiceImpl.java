@@ -81,17 +81,6 @@ public class AuthServiceImpl implements AuthService{
     }
 
     @Override
-    public ResponseEntity<?> logoutGoogleSign() {
-        // Pega o usuário atual
-        User userDB = getCurrentUser();
-
-        // Limpa seu token de acesso
-        userDB.setAccessToken("");
-
-        return new ResponseEntity<>("Deslogado com sucesso.", HttpStatus.OK);
-    }
-
-    @Override
     public ResponseEntity<?> getName() {
         // Pega o usuário atual
         User userDB = getCurrentUser();
