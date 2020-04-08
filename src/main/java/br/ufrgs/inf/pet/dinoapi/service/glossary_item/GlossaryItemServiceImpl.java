@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Implementação de {@link GlossaryItemService}
@@ -37,15 +38,16 @@ public class GlossaryItemServiceImpl implements GlossaryItemService {
                 for (GlossaryItemModel glossaryItemModel : glossaryItemModelList) {
                     if(glossaryItemModel.isValid()) {
 
-                        GlossaryItem glossaryItem;
+                        Optional<GlossaryItem> glossarySearchResult;
 
                         // Verifica se há um id
                         if(glossaryItemModel.getId() != null) {
                             // Verifica se o dado já existe em banco
-                            glossaryItem = glossaryItemRepository.findOneById(glossaryItemModel.getId());
+                            glossarySearchResult = glossaryItemRepository.findById(glossaryItemModel.getId());
 
                             // Se existir, atualiza os dados quando houver modificações
-                            if (glossaryItem != null) {
+                            if (glossarySearchResult.isPresent()) {
+                                GlossaryItem glossaryItem = glossarySearchResult.get();
                                 // Verifica se houver atualização de dados
                                 if (glossaryItem.update(glossaryItemModel)) {
                                     // Se houver, salva as atualizações no banco
@@ -53,11 +55,11 @@ public class GlossaryItemServiceImpl implements GlossaryItemService {
                                 }
                             }
                         } else {
-                            glossaryItem = glossaryItemRepository.findOneByTitle(glossaryItemModel.getTitle());
+                            glossarySearchResult = glossaryItemRepository.findByTitle(glossaryItemModel.getTitle());
 
                             // Se não existir um registro com o mesmo título salva
-                            if (glossaryItem == null) {
-                                glossaryItem = new GlossaryItem(glossaryItemModel.getTitle(), glossaryItemModel.getText());
+                            if (!glossarySearchResult.isPresent()) {
+                                GlossaryItem glossaryItem = new GlossaryItem(glossaryItemModel.getTitle(), glossaryItemModel.getText());
                                 this.saveGlossaryItem(glossaryItem, glossaryItemModel, savedItems);
                             }
                         }

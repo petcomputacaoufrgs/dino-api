@@ -43,7 +43,7 @@ public class GlossaryItem implements Serializable {
 
     @Basic(optional = false)
     @NotNull(message = "Dado de existencia não pode ser nulo.")
-    @Column(name = "exists")
+    @Column(name = "exist")
     private Boolean exists;
 
     public GlossaryItem() {}

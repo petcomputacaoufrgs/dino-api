@@ -23,7 +23,7 @@ public class GlossaryVersion implements Serializable {
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
     @Basic(optional = false)
-    @Column(name = "glossary_id")
+    @Column(name = "glossary_version_id")
     private Long id;
 
     @Basic(optional = false)
