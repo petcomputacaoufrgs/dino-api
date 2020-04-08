@@ -4,6 +4,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 /**
  * Repositório da entidade: {@link User}
  *
@@ -12,8 +14,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
-    User findOneByExternalId(String externalId);
+    Optional<User> findByExternalId(String externalId);
 
-    User findFirstByAccessToken(String accessToken);
+    Optional<User> findFirstByAccessToken(String accessToken);
 
 }

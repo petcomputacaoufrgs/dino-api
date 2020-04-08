@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findOneUserByAccessToken(String token) {
         if (token != null && token != "") {
-            return userRepository.findFirstByAccessToken(token);
+            return userRepository.findFirstByAccessToken(token).get();
         }
         return null;
     }
@@ -49,7 +49,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findOneUserByExternalId(String externalId) {
         if (externalId != null) {
-            return userRepository.findOneByExternalId(externalId);
+            return userRepository.findByExternalId(externalId).get();
         }
         return null;
     }
