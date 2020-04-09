@@ -11,6 +11,7 @@ public class GlossaryItemResponseModel {
     private Long id;
     private String title;
     private String text;
+    private Boolean exists;
 
     public GlossaryItemResponseModel() {}
 
@@ -18,6 +19,7 @@ public class GlossaryItemResponseModel {
         this.id = glossaryItem.getId();
         this.title = glossaryItem.getTitle();
         this.text = glossaryItem.getText();
+        this.exists = glossaryItem.getExists();
     }
 
     public Long getId() {
@@ -30,5 +32,9 @@ public class GlossaryItemResponseModel {
 
     public String getText() {
         return text;
+    }
+
+    public Boolean getExists() {
+        return exists;
     }
 }
