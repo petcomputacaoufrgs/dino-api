@@ -37,7 +37,7 @@ public class GlossaryControllerImpl implements GlossaryController {
     }
 
     @Override
-    @GetMapping()
+    @GetMapping("get/")
     public ResponseEntity<GlossaryResponseModel> get() {
         return glossaryItemService.get();
     }
