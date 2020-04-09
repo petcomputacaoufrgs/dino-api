@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * Implementação de {@link UserService}
  *
@@ -48,8 +50,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findOneUserByExternalId(String externalId) {
+        Optional<User> queryResult;
         if (externalId != null) {
-            return userRepository.findByExternalId(externalId).get();
+            queryResult = userRepository.findByExternalId(externalId);
+            if (queryResult.isPresent()){
+                return queryResult.get();
+            }
         }
         return null;
     }
