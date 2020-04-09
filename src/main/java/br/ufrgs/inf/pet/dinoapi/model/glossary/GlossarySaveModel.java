@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class GlossarySaveModel {
 
-    List<GlossaryItemSaveModel> itemList;
+    private List<GlossaryItemSaveModel> itemList;
 
     public GlossarySaveModel(){
         itemList = new ArrayList<>();

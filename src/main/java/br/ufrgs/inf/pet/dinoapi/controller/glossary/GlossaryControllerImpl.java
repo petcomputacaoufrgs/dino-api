@@ -32,7 +32,7 @@ public class GlossaryControllerImpl implements GlossaryController {
 
     @Override
     @PutMapping()
-    public ResponseEntity<GlossaryResponseModel> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
+    public ResponseEntity<?> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
         return glossaryItemService.update(glossaryUpdateModel);
     }
 

@@ -76,9 +76,13 @@ public class GlossaryServiceImpl implements GlossaryService {
     }
 
     @Override
-    public ResponseEntity<GlossaryResponseModel> update(GlossaryUpdateModel glossaryUpdateModel) {
+    public ResponseEntity<?> update(GlossaryUpdateModel glossaryUpdateModel) {
         GlossaryResponseModel response = new GlossaryResponseModel();
-        Long glossaryVersion;
+        Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
+
+        if (glossaryUpdateModel.getVersion() != glossaryVersion) {
+            return new ResponseEntity<>("Versão do glossário desatualizada", HttpStatus.BAD_REQUEST);
+        }
 
         if (glossaryUpdateModel != null) {
             List<GlossaryItemUpdateModel> updatedItemsList = glossaryUpdateModel.getItemList();
@@ -116,8 +120,6 @@ public class GlossaryServiceImpl implements GlossaryService {
 
         if (response.getSize() > 0) {
             glossaryVersion = glossaryVersionService.updateGlossaryVersion();
-        } else {
-            glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
         }
 
         response.setVersion(glossaryVersion);

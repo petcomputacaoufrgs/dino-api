@@ -12,9 +12,9 @@ import java.util.List;
  */
 public class GlossaryResponseModel {
 
-    Long version;
+    private Long version;
 
-    List<GlossaryItemResponseModel> itemList;
+    private List<GlossaryItemResponseModel> itemList;
 
     public GlossaryResponseModel(){
         itemList = new ArrayList<>();

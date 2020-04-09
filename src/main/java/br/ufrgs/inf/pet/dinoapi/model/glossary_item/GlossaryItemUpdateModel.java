@@ -8,10 +8,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  * @author joao.silva
  */
 public class GlossaryItemUpdateModel {
-    Long id;
-    String title;
-    String text;
-    Boolean exists;
+    private Long id;
+    private String title;
+    private String text;
+    private Boolean exists;
 
     public GlossaryItemUpdateModel() {}
 

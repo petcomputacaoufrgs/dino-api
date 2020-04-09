@@ -12,13 +12,15 @@ import java.util.List;
  */
 public class GlossaryUpdateModel {
 
-    Long version;
+    private Long version;
 
-    List<GlossaryItemUpdateModel> itemList;
+    private List<GlossaryItemUpdateModel> itemList;
 
     public GlossaryUpdateModel(){
         itemList = new ArrayList<>();
     }
+
+    public Long getVersion() { return version; }
 
     public List<GlossaryItemUpdateModel> getItemList() {
         return itemList;

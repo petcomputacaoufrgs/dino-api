@@ -28,7 +28,7 @@ public interface GlossaryService {
      * @param glossaryUpdateModel - Model com os dados para atualização de itens do glossário
      * @return lista com os itens atualizados com sucesso ou erro
      */
-    ResponseEntity<GlossaryResponseModel> update(GlossaryUpdateModel glossaryUpdateModel);
+    ResponseEntity<?> update(GlossaryUpdateModel glossaryUpdateModel);
 
     /**
      * Retorna todos os itens do glossário existentes

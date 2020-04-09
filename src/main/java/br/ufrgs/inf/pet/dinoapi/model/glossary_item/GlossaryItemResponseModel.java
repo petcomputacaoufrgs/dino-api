@@ -8,9 +8,9 @@ import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
  * @author joao.silva
  */
 public class GlossaryItemResponseModel {
-    Long id;
-    String title;
-    String text;
+    private Long id;
+    private String title;
+    private String text;
 
     public GlossaryItemResponseModel() {}
 
