@@ -25,13 +25,13 @@ public class GlossaryControllerImpl implements GlossaryController {
     GlossaryVersionServiceImpl glossaryVersionService;
 
     @Override
-    @PostMapping()
+    @PostMapping("save/")
     public ResponseEntity<GlossaryResponseModel> save(@RequestBody GlossarySaveModel glossarySaveModel) {
         return glossaryItemService.save(glossarySaveModel);
     }
 
     @Override
-    @PutMapping()
+    @PutMapping("update/")
     public ResponseEntity<?> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
         return glossaryItemService.update(glossaryUpdateModel);
     }
