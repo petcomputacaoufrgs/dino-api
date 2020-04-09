@@ -7,7 +7,6 @@ import br.ufrgs.inf.pet.dinoapi.service.glossary.GlossaryServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.glossary_version.GlossaryVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -26,14 +25,12 @@ public class GlossaryControllerImpl implements GlossaryController {
     GlossaryVersionServiceImpl glossaryVersionService;
 
     @Override
-    @Secured("permitAll")
     @PostMapping()
     public ResponseEntity<GlossaryResponseModel> save(@RequestBody GlossarySaveModel glossarySaveModel) {
         return glossaryItemService.save(glossarySaveModel);
     }
 
     @Override
-    @Secured("permitAll")
     @PutMapping()
     public ResponseEntity<?> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
         return glossaryItemService.update(glossaryUpdateModel);

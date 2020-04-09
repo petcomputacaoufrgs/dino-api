@@ -4,7 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.model.test_connection.TestModel;
 import br.ufrgs.inf.pet.dinoapi.service.test_connection.TestConnectionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -20,21 +19,18 @@ public class TestConnectionControllerImpl implements TestConnectionController{
     TestConnectionServiceImpl testConnectionService;
 
     @Override
-    @Secured("permitAll")
     @GetMapping
     public ResponseEntity<TestModel> get(@RequestParam("entry") String entry) {
         return testConnectionService.getTest(entry);
     }
 
     @Override
-    @Secured("permitAll")
     @PutMapping
     public ResponseEntity<TestModel> put(@RequestParam("entry") String entry) {
         return testConnectionService.putTest(entry);
     }
 
     @Override
-    @Secured("permitAll")
     @PostMapping
     public ResponseEntity<TestModel> post(@RequestParam("entry") String entry) {
         return testConnectionService.postTest(entry);
