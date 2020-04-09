@@ -35,5 +35,5 @@ public interface GlossaryService {
      *
      * @return retorna todos os dados do glossario ativos (exists)
      */
-    ResponseEntity<?> get();
+    ResponseEntity<GlossaryResponseModel> get();
 }

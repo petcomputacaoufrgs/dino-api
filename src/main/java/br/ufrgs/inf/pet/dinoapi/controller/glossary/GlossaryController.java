@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.glossary;
 
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary_version.GlossaryVersionResponseModel;
@@ -20,7 +21,7 @@ public interface GlossaryController {
      * @param glossarySaveModel - Model com os dados para a criação de items do glossário
      * @return lista com os itens salvos com sucesso ou erro
      */
-    ResponseEntity<?> save(GlossarySaveModel glossarySaveModel);
+    ResponseEntity<GlossaryResponseModel> save(GlossarySaveModel glossarySaveModel);
 
     /**
      * Recebe itens do glossário, verifica sua existencia e atualiza seus dados.
@@ -28,14 +29,14 @@ public interface GlossaryController {
      * @param glossaryUpdateModel - Model com os dados para atualização de itens do glossário
      * @return lista com os itens atualizados com sucesso ou erro
      */
-    ResponseEntity<?> update(GlossaryUpdateModel glossaryUpdateModel);
+    ResponseEntity<GlossaryResponseModel> update(GlossaryUpdateModel glossaryUpdateModel);
 
     /**
      * Retorna todos os itens do glossário existentes
      *
      * @return retorna todos os dados do glossario ativos (exists)
      */
-    ResponseEntity<?> get();
+    ResponseEntity<GlossaryResponseModel> get();
 
     /**
      * Retorna a versão atual do glossário

@@ -126,7 +126,7 @@ public class GlossaryServiceImpl implements GlossaryService {
     }
 
     @Override
-    public ResponseEntity<?> get() {
+    public ResponseEntity<GlossaryResponseModel> get() {
         GlossaryResponseModel response = new GlossaryResponseModel();
         GlossaryItemResponseModel responseItem;
 

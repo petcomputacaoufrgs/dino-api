@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.glossary;
 
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.service.glossary.GlossaryServiceImpl;
@@ -25,20 +26,20 @@ public class GlossaryControllerImpl implements GlossaryController {
 
     @Override
     @PostMapping()
-    public ResponseEntity<?> save(@RequestBody GlossarySaveModel glossarySaveModel) {
+    public ResponseEntity<GlossaryResponseModel> save(@RequestBody GlossarySaveModel glossarySaveModel) {
         return glossaryItemService.save(glossarySaveModel);
     }
 
     @Override
     @PutMapping()
-    public ResponseEntity<?> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
+    public ResponseEntity<GlossaryResponseModel> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
         return glossaryItemService.update(glossaryUpdateModel);
     }
 
     @Override
     @GetMapping()
-    public ResponseEntity<?> get() {
-        return glossaryItemService.getGlossary();
+    public ResponseEntity<GlossaryResponseModel> get() {
+        return glossaryItemService.get();
     }
 
     @Override
