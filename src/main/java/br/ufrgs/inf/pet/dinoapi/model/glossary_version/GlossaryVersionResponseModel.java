@@ -1,16 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary_version;
 
-import java.util.Date;
-
 /**
  * Model para envio da versão do glossário
  *
  * @author joao.silva
  */
-public class GlossaryVersionModel {
+public class GlossaryVersionResponseModel {
     Long version;
 
-    public GlossaryVersionModel(){}
+    public GlossaryVersionResponseModel(){}
 
     public Long getVersion() {
         return version;

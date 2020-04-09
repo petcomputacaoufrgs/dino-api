@@ -17,11 +17,4 @@ public interface AuthController {
      * @return token validado
      */
     ResponseEntity<?> authRequestGoogleSign(AuthRequestModel token);
-
-    /**
-     * Retorna o nome do usuário se autenticado
-     *
-     * @return Nome do usuário autenticado
-     */
-    ResponseEntity<?> getName();
 }

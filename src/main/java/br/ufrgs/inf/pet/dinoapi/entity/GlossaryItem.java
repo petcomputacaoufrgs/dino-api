@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemSaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemUpdateModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -48,14 +50,10 @@ public class GlossaryItem implements Serializable {
 
     public GlossaryItem() {}
 
-    public GlossaryItem(String title, String text) {
-        this.title = title;
-        this.text = text;
+    public void setByGlossarySaveModel(GlossaryItemSaveModel glossaryItemSaveModel) {
+        this.title = glossaryItemSaveModel.getTitle();
+        this.text = glossaryItemSaveModel.getText();
         this.exists = true;
-    }
-
-    public void setText(String text) {
-        this.text = text;
     }
 
     public Long getId() {
@@ -66,14 +64,6 @@ public class GlossaryItem implements Serializable {
         return this.title;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
     public String getText() {
         return text;
     }
@@ -82,28 +72,29 @@ public class GlossaryItem implements Serializable {
         return exists;
     }
 
-    public void setExists(Boolean exists) {
-        this.exists = exists;
-    }
-
     /**
-     * Atualiza o GlossaryItem baseado na {@link GlossaryItemModel} se houverem mudanças aplicaveis.
-     * Só atualiza se os títulos forem iguais!
-     * @param model {@link GlossaryItemModel} com os novos dados
+     * Atualiza o GlossaryItem baseado na {@link GlossaryItemUpdateModel} se houverem mudanças aplicaveis.
+     * @param updateModel {@link GlossaryItemUpdateModel} com as atualizações dados
      * @return True se houver modificações e False se não houver modificações
      */
-    public Boolean update(GlossaryItemModel model) {
+    public Boolean update(GlossaryItemUpdateModel updateModel) {
         Boolean updated = false;
-        if (this.title.equals(model.getTitle())){
-            if (!this.text.equals(model.getText())){
-                this.text = model.getText();
-                updated = true;
-            }
-            if (this.exists != model.getExists()) {
-                this.exists = model.getExists();
-                updated = true;
-            }
+
+        if (!this.text.equals(updateModel.getText())) {
+            this.text = updateModel.getText();
+            updated = true;
         }
+
+        if (!this.title.equals(updateModel.getTitle())) {
+            this.title = updateModel.getTitle();
+            updated = true;
+        }
+
+        if (this.exists != updateModel.getExists()) {
+            this.exists = updateModel.getExists();
+            updated = true;
+        }
+
         return updated;
     }
 }

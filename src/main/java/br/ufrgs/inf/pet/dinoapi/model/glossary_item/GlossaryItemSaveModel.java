@@ -7,16 +7,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  *
  * @author joao.silva
  */
-public class GlossaryItemModel {
-    Long id;
+public class GlossaryItemSaveModel {
     String title;
     String text;
     Boolean exists;
 
-    public GlossaryItemModel() {}
+    public GlossaryItemSaveModel() {}
 
-    public GlossaryItemModel(Long id, String title, String text, Boolean exists) {
-        this.id = id;
+    public GlossaryItemSaveModel(Long id, String title, String text, Boolean exists) {
         this.title = title;
         this.text = text;
         this.exists = exists;
@@ -26,10 +24,6 @@ public class GlossaryItemModel {
         return title;
     }
 
-    public Long getId() {
-        return id;
-    }
-
     public String getText() {
         return text;
     }
@@ -37,10 +31,6 @@ public class GlossaryItemModel {
     @JsonIgnore
     public Boolean isValid() {
         return this.text != null && this.title != null && this.title != "";
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Boolean getExists() {

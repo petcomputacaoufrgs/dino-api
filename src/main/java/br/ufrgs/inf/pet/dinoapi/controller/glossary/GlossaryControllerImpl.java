@@ -1,7 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.controller.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryModel;
-import br.ufrgs.inf.pet.dinoapi.service.glossary_item.GlossaryItemServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.service.glossary.GlossaryServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.glossary_version.GlossaryVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,26 +18,34 @@ import org.springframework.web.bind.annotation.*;
 public class GlossaryControllerImpl implements GlossaryController {
 
     @Autowired
-    GlossaryItemServiceImpl glossaryItemService;
+    GlossaryServiceImpl glossaryItemService;
 
     @Autowired
     GlossaryVersionServiceImpl glossaryVersionService;
 
     @Override
-    @PostMapping("update/")
-    public ResponseEntity<?> save(@RequestBody GlossaryModel glossaryModel) {
-        return glossaryItemService.save(glossaryModel);
+    @PostMapping()
+    public ResponseEntity<?> save(@RequestBody GlossarySaveModel glossarySaveModel) {
+        return glossaryItemService.save(glossarySaveModel);
     }
 
     @Override
-    @GetMapping("version/")
-    public ResponseEntity<?> getGlossaryVersion() {
-        return glossaryVersionService.getGlossaryVersion();
+    @PutMapping()
+    public ResponseEntity<?> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
+        return glossaryItemService.update(glossaryUpdateModel);
     }
 
     @Override
     @GetMapping()
-    public ResponseEntity<?> getGlossary() {
+    public ResponseEntity<?> get() {
         return glossaryItemService.getGlossary();
     }
+
+    @Override
+    @GetMapping("version/")
+    public ResponseEntity<?> getVersion() {
+        return glossaryVersionService.getGlossaryVersion();
+    }
+
+
 }
