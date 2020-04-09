@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.controller.google_owner;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GoogleOwnerControllerImpl implements GoogleOwnerController {
 
     @Override
+    @Secured("permitAll")
     @GetMapping("google1da5cc70ff16112c.html")
     public ResponseEntity<String> get() {
         return new ResponseEntity<>("google-site-verification: google1da5cc70ff16112c.html", HttpStatus.OK);
