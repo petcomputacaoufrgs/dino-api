@@ -19,11 +19,6 @@ public interface AuthService {
     ResponseEntity<?> authRequestGoogleSign(AuthRequestModel token);
 
     /**
-     * Retorna o nome do usuário
-     */
-    ResponseEntity<?> getName();
-
-    /**
      * Atualiza o token de acesso expirado
      *
      * @param userDB - Usuário logado

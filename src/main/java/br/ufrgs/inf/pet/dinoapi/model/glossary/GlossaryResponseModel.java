@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemResponseModel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +25,19 @@ public class GlossaryResponseModel {
         this.itemList.add(item);
     }
 
-    public int getSize() { return this.itemList.size(); }
-
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    @JsonIgnore
+    public int getSize() { return this.itemList.size(); }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public List<GlossaryItemResponseModel> getItemList() {
+        return itemList;
     }
 
 }

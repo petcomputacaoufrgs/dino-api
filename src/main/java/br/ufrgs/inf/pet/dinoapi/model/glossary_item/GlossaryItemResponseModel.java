@@ -19,4 +19,16 @@ public class GlossaryItemResponseModel {
         this.title = glossaryItem.getTitle();
         this.text = glossaryItem.getText();
     }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getText() {
+        return text;
+    }
 }

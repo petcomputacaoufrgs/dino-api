@@ -4,7 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleAPICommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.UsernameResponseModel;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -78,24 +77,6 @@ public class AuthServiceImpl implements AuthService{
         }
 
         return new ResponseEntity<>("Erro na autenticação com a API do Google.", HttpStatus.BAD_REQUEST);
-    }
-
-    @Override
-    public ResponseEntity<?> getName() {
-        // Pega o usuário atual
-        User userDB = getCurrentUser();
-
-        if (userDB != null) {
-            // Monta o retorno da requisição
-            UsernameResponseModel response = new UsernameResponseModel();
-            response.setName(userDB.getName());
-
-            // Retorna os dados como sucesso
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-
-        // Caso não encontrar o usuário retorna erro
-        return new ResponseEntity<>("Usuário não encontrado.", HttpStatus.BAD_REQUEST);
     }
 
     @Override
