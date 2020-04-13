@@ -5,13 +5,13 @@ package br.ufrgs.inf.pet.dinoapi.enumerable;
  *
  * @author joao.silva
  */
-public enum GoogleScopes {
+public enum GoogleScopesEnum {
     CALENDAR("https://www.googleapis.com/auth/calendar"),
     PROFILE("https://www.googleapis.com/auth/userinfo.profile");
 
     private String scope;
 
-    GoogleScopes(String scope) {
+    GoogleScopesEnum(String scope) {
         this.scope = scope;
     }
 

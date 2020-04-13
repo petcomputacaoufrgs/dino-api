@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.filter;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.service.auth.dino.DinoAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
@@ -46,7 +47,7 @@ public class AuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         startServices(httpServletRequest);
 
-        final String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        final String authorizationHeader = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue());
 
         if (authorizationHeader != null) {
             final String token = removeTokenType(authorizationHeader);
@@ -73,7 +74,7 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private String removeTokenType(String token) {
-        if (token.startsWith("Bearer ") {
+        if (token.startsWith("Bearer ")) {
             return token.substring(7);
         }
         return null;
@@ -83,7 +84,7 @@ public class AuthFilter extends OncePerRequestFilter {
         if (!user.tokenIsValid()) {
             String newToken = dinoAuthService.refreshAccessToken(user);
 
-            httpServletResponse.setHeader("Refresh", "Bearer " + newToken);
+            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), "Bearer " + newToken);
         }
 
         if(user.hasGoogleAuth()) {
@@ -91,7 +92,7 @@ public class AuthFilter extends OncePerRequestFilter {
             if (!googleAuth.tokenIsValid()) {
                 String newToken = googleAuthService.refreshGoogleAuth(googleAuth);
 
-                httpServletResponse.setHeader("Google Refresh", "Bearer " + newToken);
+                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), "Bearer " + newToken);
             }
         }
     }
@@ -117,7 +118,7 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         if(googleAuthService == null) {
-            googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class)
+            googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
         }
 
         if(dinoUserDetailsService == null){
