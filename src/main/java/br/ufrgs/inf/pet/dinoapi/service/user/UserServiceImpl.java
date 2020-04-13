@@ -4,8 +4,6 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -22,41 +20,42 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
 
     @Override
-    public ResponseEntity<?> create(User user) {
-        if (user != null && user.getExternalId() != null) {
-            User userDB = this.findOneUserByExternalId(user.getExternalId());
-            if (userDB == null) {
-                userDB = userRepository.save(user);
-                return new ResponseEntity<>(userDB, HttpStatus.OK);
-            } else {
-                return new ResponseEntity<>("Email já cadastrado.", HttpStatus.BAD_REQUEST);
-            }
-        }
-        return new ResponseEntity<>("Usuário e email não poden ser nulos.", HttpStatus.BAD_REQUEST);
-    }
-
-    @Override
     public void save(User user) {
         userRepository.save(user);
     }
 
     @Override
-    public User findOneUserByAccessToken(String token) {
-        if (token != null && token != "") {
-            return userRepository.findFirstByAccessToken(token).get();
+    public User findByAccessToken(String accessToken) {
+        Optional<User> userSearchResult = userRepository.findByAccessToken(accessToken);
+
+        if (userSearchResult.isPresent()) {
+           return userSearchResult.get();
         }
+
         return null;
     }
 
     @Override
-    public User findOneUserByExternalId(String externalId) {
-        Optional<User> queryResult;
-        if (externalId != null) {
-            queryResult = userRepository.findByExternalId(externalId);
-            if (queryResult.isPresent()){
+    public User findUserByGoogleAuthId(Long googleAuthId) {
+        if (googleAuthId != null) {
+            Optional<User> queryResult = userRepository.findByGoogleAuthId(googleAuthId);
+            if (queryResult.isPresent()) {
                 return queryResult.get();
             }
         }
+
+        return null;
+    }
+
+    @Override
+    public User findUserByEmail(String email) {
+        if (email != null) {
+            Optional<User> queryResult = userRepository.findByEmail(email);
+            if (queryResult.isPresent()) {
+                return queryResult.get();
+            }
+        }
+
         return null;
     }
 

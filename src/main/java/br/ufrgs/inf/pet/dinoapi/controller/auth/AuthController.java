@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.GoogleAuthRequestModel;
 import org.springframework.http.ResponseEntity;
 
 /**
@@ -16,5 +16,5 @@ public interface AuthController {
      * @param token - Token de autenticação do Google
      * @return token validado
      */
-    ResponseEntity<?> authRequestGoogleSign(AuthRequestModel token);
+    ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel token);
 }

@@ -5,10 +5,10 @@ package br.ufrgs.inf.pet.dinoapi.model.auth;
  *
  * @author joao.silva
  */
-public class AuthRequestModel {
+public class GoogleAuthRequestModel {
     private String token;
 
-    public AuthRequestModel(){ }
+    public GoogleAuthRequestModel(){ }
 
     public String getToken() {
         return token;

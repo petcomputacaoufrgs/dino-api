@@ -39,26 +39,26 @@ public class User implements Serializable {
     @Column(name = "email", length = 100, unique = false)
     private String email;
 
-    @Basic(optional = false)
-    @NotNull(message = "O id externo do usuário não pode ser nulo.")
-    @Column(name = "external_id", length = 100, unique = true)
-    private String externalId;
-
-    @Column(name = "access_token", length = 200, unique = true)
+    @Size(min = 1, max = 168, message = "O token de acesso deve conter entre 1 e 168 caracteres.")
+    @Column(name = "access_token", length = 168, unique = true)
     private String accessToken;
 
-    @Column(name = "refresh_token", length = 200, unique = true)
-    private String refreshToken;
-
     @Column(name = "token_expires_data_in_millis")
-    public Long tokenExpiresDateInMillis;
+    private Long tokenExpiresDateInMillis;
+
+    @OneToOne
+    @JoinColumn(name = "google_auth_id")
+    private GoogleAuth googleAuth;
 
     public User() {}
 
-    public User(String name, String email, String externalId) {
+    public User(String name, String email) {
         this.name = name;
         this.email = email;
-        this.externalId = externalId;
+    }
+
+    public boolean hasGoogleAuth() {
+        return googleAuth != null;
     }
 
     public String getName() {
@@ -77,8 +77,12 @@ public class User implements Serializable {
         this.email = email;
     }
 
-    public String getExternalId() {
-        return externalId;
+    public GoogleAuth getGoogleAuth() {
+        return googleAuth;
+    }
+
+    public void setGoogleAuth(GoogleAuth googleAuth) {
+        this.googleAuth = googleAuth;
     }
 
     public String getAccessToken() {
@@ -89,14 +93,6 @@ public class User implements Serializable {
         this.accessToken = accessToken;
     }
 
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
     public Long getTokenExpiresDateInMillis() {
         return tokenExpiresDateInMillis;
     }
@@ -105,13 +101,7 @@ public class User implements Serializable {
         this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
     }
 
-    /**
-     * Valida se o token ainda não expirou
-     *
-     * @return Boolean informando se o token ainda é válido (não expirado)
-     * @author joao.silva
-     */
-    public boolean tokenIsValid() {
+    public Boolean tokenIsValid() {
         return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
     }
 }

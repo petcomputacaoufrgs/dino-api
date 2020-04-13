@@ -22,32 +22,13 @@ public class DinoUserDetailsService implements UserDetailsService {
     UserService userService = new UserServiceImpl();
 
     @Override
-    public UserDetails loadUserByUsername(String externalId) throws UsernameNotFoundException {
-        br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findOneUserByExternalId(externalId);
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
-            return new User(userDB.getExternalId(), userDB.getAccessToken(), new ArrayList<>());
+            return new User(userDB.getEmail(), userDB.getAccessToken(), new ArrayList<>());
         }
 
-        throw new UsernameNotFoundException(externalId);
-    }
-
-    /**
-     * Carrega o usuário pelo seu externalId e cria a entidade de login com o id e o token de acesso
-     * @param externalId Id do usuário na API de autenticacã́o
-     * @param jwt Token de acesso da API de autenticação
-     *
-     * @return UserDetais com o id externo caso seja encontrado o usuário e o token
-     *
-     * @author joao.silva
-     */
-    public UserDetails loadUserByUsername(String externalId, String jwt) throws UsernameNotFoundException {
-        br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findOneUserByExternalId(externalId);
-
-        if (userDB != null) {
-            return new User(userDB.getExternalId(),  jwt, new ArrayList<>());
-        }
-
-        throw new UsernameNotFoundException(externalId);
+        throw new UsernameNotFoundException(email);
     }
 }

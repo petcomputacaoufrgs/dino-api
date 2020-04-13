@@ -1,9 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google;
 
+import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopes;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthService;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
+import com.google.api.client.auth.oauth2.BearerToken;
+import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.googleapis.auth.oauth2.*;
+import com.google.api.client.http.HttpRequest;
+import com.google.api.client.http.HttpRequestFactory;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.services.oauth2.Oauth2;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -15,15 +24,20 @@ import java.util.ArrayList;
  * @author joao.silva
  */
 public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
+
+    @Autowired
+    GoogleAuthServiceImpl googleAuthService;
+
     private String REDIRECT_URI = "http://localhost:3000";
 
-    public GoogleTokenResponse getGoogleToken(String token){
+    public GoogleTokenResponse getGoogleToken(String token) {
         try {
             GoogleClientSecrets clientSecrets = getClientSecrets();
 
             ArrayList<String> scopes = new ArrayList<>();
 
             scopes.add(GoogleScopes.CALENDAR.getScope());
+            scopes.add(GoogleScopes.PROFILE.getScope());
 
             GoogleTokenResponse tokenResponse =
                     new GoogleAuthorizationCodeTokenRequest(

@@ -1,8 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
-import br.ufrgs.inf.pet.dinoapi.controller.auth.AuthController;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 /**
@@ -13,24 +11,23 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserService {
     /**
-     * Cria um novo usuário na base de dados validando os dados da entradad
+     * Busca na base de dados um usuário pelo seu GoogleAuthId
      *
-     * @param user Objeto com os dados do usuário a ser salvo
-     * @return ResponseEntity com o usuário salvo e status ok ou com uma mensagem e um status de erro
+     * @param googleAuthId Id do GoogleAuth procurado
+     * @return Optional com usuário salvo ou vazio
      *
      * @author joao.silva
      */
-    ResponseEntity<?> create(User user);
+    User findUserByGoogleAuthId(Long googleAuthId);
 
     /**
-     * Busca na base de dados um usuário pelo seu "externalId"
+     * Busca um usuário por seu email
      *
-     * @param externalId Token externo de um provedor de autenticação
-     * @return Usuário salvo
+     * @param email Email do usuário
      *
      * @author joao.silva
      */
-    User findOneUserByExternalId(String externalId);
+    User findUserByEmail(String email);
 
     /**
      * Salva um usuário direto na base de dados
@@ -42,12 +39,10 @@ public interface UserService {
     void save(User user);
 
     /**
-     * Busca os dados de um usuário pelo seu token de acesso
+     * Busca um usuário por seu token de acesso
      *
-     * @param token token de acesso
-     * @return Usuário encontrado ou null
-     *
-     * @author joao.silva
+     * @param accessToken Token de acesso do usuário
+     * @return Usuário encontrado ou nulo
      */
-    User findOneUserByAccessToken(String token);
+    User findByAccessToken(String accessToken);
 }
