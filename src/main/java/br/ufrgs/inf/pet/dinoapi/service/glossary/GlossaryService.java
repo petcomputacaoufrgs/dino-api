@@ -1,10 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
+import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_version.GlossaryVersionResponseModel;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 /**
  * Service para gerenciar os dados do glossário
@@ -35,5 +37,5 @@ public interface GlossaryService {
      *
      * @return retorna todos os dados do glossario ativos (exists)
      */
-    ResponseEntity<GlossaryResponseModel> get();
+    ResponseEntity<List<GlossaryItem>> get();
 }

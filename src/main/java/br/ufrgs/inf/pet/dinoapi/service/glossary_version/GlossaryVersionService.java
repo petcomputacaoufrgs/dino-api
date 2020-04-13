@@ -6,7 +6,7 @@ public interface GlossaryVersionService {
 
     Long updateGlossaryVersion();
 
-    ResponseEntity<?> getGlossaryVersion();
+    ResponseEntity<Long> getGlossaryVersion();
 
     Long getGlossaryVersionNumber();
 }

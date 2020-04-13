@@ -1,10 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.controller.glossary;
 
+import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary_version.GlossaryVersionResponseModel;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 /**
  * Controller para gerenciar os dados relacionados aos itens do glossário
@@ -36,13 +39,13 @@ public interface GlossaryController {
      *
      * @return retorna todos os dados do glossario ativos (exists)
      */
-    ResponseEntity<GlossaryResponseModel> get();
+    ResponseEntity<List<GlossaryItem>> get();
 
     /**
      * Retorna a versão atual do glossário
      *
      * @return retorna a versão atual na model: {@link GlossaryVersionResponseModel}
      */
-    ResponseEntity<?> getVersion();
+    ResponseEntity<Long> getVersion();
 
 }

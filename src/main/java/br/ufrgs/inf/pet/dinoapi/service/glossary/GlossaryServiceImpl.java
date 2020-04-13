@@ -128,21 +128,16 @@ public class GlossaryServiceImpl implements GlossaryService {
     }
 
     @Override
-    public ResponseEntity<GlossaryResponseModel> get() {
-        GlossaryResponseModel response = new GlossaryResponseModel();
+    public ResponseEntity<List<GlossaryItem>> get() {
         GlossaryItemResponseModel responseItem;
 
-        List<GlossaryItem> items = glossaryItemRepository.findAllByExistsTrue();
+        List<GlossaryItem> response = glossaryItemRepository.findAllByExistsTrue();
 
-        for (GlossaryItem item : items) {
+        for (GlossaryItem item : response) {
             responseItem = new GlossaryItemResponseModel();
 
             responseItem.setByGlossaryItem(item);
-
-            response.addItem(responseItem);
         }
-
-        response.setVersion(glossaryVersionService.getGlossaryVersionNumber());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

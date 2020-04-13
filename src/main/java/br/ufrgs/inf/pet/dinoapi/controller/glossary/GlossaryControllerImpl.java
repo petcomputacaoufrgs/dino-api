@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.glossary;
 
+import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
@@ -8,6 +9,8 @@ import br.ufrgs.inf.pet.dinoapi.service.glossary_version.GlossaryVersionServiceI
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * Implementação de: {@link GlossaryController}
@@ -38,15 +41,14 @@ public class GlossaryControllerImpl implements GlossaryController {
 
     @Override
     @GetMapping("get/")
-    public ResponseEntity<GlossaryResponseModel> get() {
+    public ResponseEntity<List<GlossaryItem>> get() {
         return glossaryItemService.get();
     }
 
     @Override
     @GetMapping("version/")
-    public ResponseEntity<?> getVersion() {
+    public ResponseEntity<Long> getVersion() {
         return glossaryVersionService.getGlossaryVersion();
     }
-
 
 }

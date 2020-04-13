@@ -31,7 +31,7 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
     }
 
     @Override
-    public ResponseEntity<?> getGlossaryVersion() {
+    public ResponseEntity<Long> getGlossaryVersion() {
         GlossaryVersion glossary = glossaryVersionRepository.findByOrderByVersionDesc();
 
         if (glossary == null) {
@@ -39,10 +39,7 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
             glossaryVersionRepository.save(glossary);
         }
 
-        GlossaryVersionResponseModel model = new GlossaryVersionResponseModel();
-        model.setVersion(glossary.getVersion());
-
-        return new ResponseEntity<>(model, HttpStatus.OK);
+        return new ResponseEntity<>(glossary.getVersion(), HttpStatus.OK);
     }
 
     @Override
