@@ -40,7 +40,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
                             clientSecrets.getDetails().getClientId(),
                             clientSecrets.getDetails().getClientSecret(),
                             token,
-                             "")   // Specify the same redirect URI that you use with your web
+                            REDIRECT_URI)   // Specify the same redirect URI that you use with your web
                                             // app. If you don't have a web version of your app, you can
                                             // specify an empty string.
                             .setScopes(scopes)
