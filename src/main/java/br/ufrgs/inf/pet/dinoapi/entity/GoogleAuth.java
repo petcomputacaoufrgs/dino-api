@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 import java.util.Date;
@@ -22,7 +24,7 @@ public class GoogleAuth {
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
     @Basic(optional = false)
-    @Column(name = "google_auth_id")
+    @Column(name = "id")
     private Long id;
 
     @Column(name = "google_id", length = 100, unique = true)
@@ -86,6 +88,7 @@ public class GoogleAuth {
 
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
 
+    @JsonIgnore
     public User getUser() {
         return user;
     }

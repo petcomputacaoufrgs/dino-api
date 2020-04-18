@@ -28,7 +28,7 @@ public class GlossaryItem implements Serializable {
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
     @Basic(optional = false)
-    @Column(name = "glossary_item_id")
+    @Column(name = "id")
     private Long id;
 
     @Basic(optional = false)

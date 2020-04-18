@@ -19,7 +19,7 @@ import java.util.ArrayList;
 @Service
 public class DinoUserDetailsService implements UserDetailsService {
     @Autowired
-    UserService userService = new UserServiceImpl();
+    UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

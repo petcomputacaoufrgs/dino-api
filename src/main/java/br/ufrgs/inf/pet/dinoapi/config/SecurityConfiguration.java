@@ -32,9 +32,6 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Value("${spring.datasource.url}")
-    private String dbUrl;
-
     private UserDetailsService dinoUserDetailsService = new DinoUserDetailsService();
 
     private AuthFilter authFilter = new AuthFilter();
@@ -62,13 +59,6 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Bean
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
-    }
-
-    @Bean
-    public DataSource dataSource() {
-        HikariConfig config = new HikariConfig();
-        config.setJdbcUrl(dbUrl);
-        return new HikariDataSource(config);
     }
 
     @Bean

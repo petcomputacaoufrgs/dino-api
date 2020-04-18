@@ -36,18 +36,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserByGoogleAuthId(Long googleAuthId) {
-        if (googleAuthId != null) {
-            Optional<User> queryResult = userRepository.findByGoogleAuthId(googleAuthId);
-            if (queryResult.isPresent()) {
-                return queryResult.get();
-            }
-        }
-
-        return null;
-    }
-
-    @Override
     public User findUserByEmail(String email) {
         if (email != null) {
             Optional<User> queryResult = userRepository.findByEmail(email);

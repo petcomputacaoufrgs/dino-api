@@ -11,16 +11,6 @@ import org.springframework.stereotype.Service;
 @Service
 public interface UserService {
     /**
-     * Busca na base de dados um usuário pelo seu GoogleAuthId
-     *
-     * @param googleAuthId Id do GoogleAuth procurado
-     * @return Optional com usuário salvo ou vazio
-     *
-     * @author joao.silva
-     */
-    User findUserByGoogleAuthId(Long googleAuthId);
-
-    /**
      * Busca um usuário por seu email
      *
      * @param email Email do usuário

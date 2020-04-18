@@ -14,8 +14,6 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends CrudRepository<User, Long> {
 
-    Optional<User> findByGoogleAuthId(Long id);
-
     Optional<User> findByEmail(String email);
 
     Optional<User> findByAccessToken(String accessToken);
