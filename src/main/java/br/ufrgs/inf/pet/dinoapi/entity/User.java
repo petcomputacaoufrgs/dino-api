@@ -46,8 +46,7 @@ public class User implements Serializable {
     @Column(name = "token_expires_data_in_millis")
     private Long tokenExpiresDateInMillis;
 
-    @OneToOne
-    @JoinColumn(name = "google_auth_id")
+    @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
     public User() {}

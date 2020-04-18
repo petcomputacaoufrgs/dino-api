@@ -37,6 +37,10 @@ public class GoogleAuth {
     @Column(name = "token_expires_data_in_millis")
     private Long tokenExpiresDateInMillis;
 
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     public GoogleAuth() {}
 
     public GoogleAuth(String googleId, String refreshToken) {
@@ -78,6 +82,16 @@ public class GoogleAuth {
 
     public String getRefreshToken() {
         return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public Boolean tokenIsValid() {
