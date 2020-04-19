@@ -60,18 +60,15 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 String pictureUrl = (String) payload.get("picture");
                 String email = payload.getEmail();
                 String name = (String) payload.get("name");
+                String refreshToken = tokenResponse.getRefreshToken();
 
                 if (googleAuthSearchResult.isPresent()) {
                     googleAuth = googleAuthSearchResult.get();
 
-                    if (googleAuth.getRefreshToken().isEmpty()) {
-                        String refreshToken = tokenResponse.getRefreshToken();
-
-                        if (isWithRefreshTokenError(refreshToken)) {
-                            return getRefreshTokenError();
-                        } else {
-                            googleAuth.setRefreshToken(refreshToken);
-                        }
+                    if (!isWithRefreshTokenEmpty(refreshToken)) {
+                        googleAuth.setRefreshToken(refreshToken);
+                    } else if (googleAuth.getRefreshToken().isEmpty()) {
+                        return getRefreshTokenError();
                     }
 
                     userDB = googleAuth.getUser();
@@ -85,9 +82,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     userDB = generateAccessTokenAndSaveUser(userDB);
 
                 } else {
-                    String refreshToken = tokenResponse.getRefreshToken();
 
-                    if (isWithRefreshTokenError(refreshToken)) {
+                    if (isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError();
                     }
 
@@ -163,7 +159,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return userService.save(user);
     }
 
-    private Boolean isWithRefreshTokenError(String refreshToken) {
+    private Boolean isWithRefreshTokenEmpty(String refreshToken) {
         return refreshToken == null || refreshToken.isEmpty();
     }
 
