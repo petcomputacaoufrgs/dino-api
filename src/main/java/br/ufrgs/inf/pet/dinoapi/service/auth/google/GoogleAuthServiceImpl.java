@@ -85,13 +85,13 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     userDB = generateAccessTokenAndSaveUser(userDB);
 
                 } else {
-                    userDB = new User(name, email);
-
                     String refreshToken = tokenResponse.getRefreshToken();
 
                     if (isWithRefreshTokenError(refreshToken)) {
                         return getRefreshTokenError();
                     }
+
+                    userDB = new User(name, email);
 
                     userDB = generateAccessTokenAndSaveUser(userDB);
 

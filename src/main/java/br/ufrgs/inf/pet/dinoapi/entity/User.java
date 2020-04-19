@@ -39,8 +39,8 @@ public class User implements Serializable {
     @Column(name = "email", length = 100, unique = false)
     private String email;
 
-    @Size(min = 1, max = 168, message = "O token de acesso deve conter entre 1 e 168 caracteres.")
-    @Column(name = "access_token", length = 168, unique = true)
+    @Size(min = 1, max = 260, message = "O token de acesso deve conter entre 1 e 260 caracteres.")
+    @Column(name = "access_token", length = 260, unique = true)
     private String accessToken;
 
     @Column(name = "token_expires_data_in_millis")
