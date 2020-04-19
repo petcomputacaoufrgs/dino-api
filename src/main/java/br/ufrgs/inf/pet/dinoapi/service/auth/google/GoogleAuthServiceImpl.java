@@ -81,6 +81,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     updateAccessTokenInfo(tokenResponse, googleAuth);
 
                     googleAuthRepository.save(googleAuth);
+
+                    userDB = generateAccessTokenAndSaveUser(userDB);
+
                 } else {
                     userDB = new User(name, email);
 
@@ -90,16 +93,16 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                         return getRefreshTokenError();
                     }
 
+                    userDB = generateAccessTokenAndSaveUser(userDB);
+
                     googleAuth = new GoogleAuth(googleId, refreshToken);
 
                     updateAccessTokenInfo(tokenResponse, googleAuth);
 
-                    userDB.setGoogleAuth(googleAuth);
+                    googleAuth.setUser(userDB);
+
+                    googleAuthRepository.save(googleAuth);
                 }
-
-                dinoAuthService.generateAccessToken(userDB);
-
-                userService.save(userDB);
 
                 GoogleAuthResponseModel response = new GoogleAuthResponseModel();
 
@@ -152,6 +155,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         }
 
         return null;
+    }
+
+    private User generateAccessTokenAndSaveUser(User user) {
+        dinoAuthService.generateAccessToken(user);
+
+        return userService.save(user);
     }
 
     private Boolean isWithRefreshTokenError(String refreshToken) {

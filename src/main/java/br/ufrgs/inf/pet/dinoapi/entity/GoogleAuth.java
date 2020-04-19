@@ -88,7 +88,6 @@ public class GoogleAuth {
 
     public void setRefreshToken(String refreshToken) { this.refreshToken = refreshToken; }
 
-    @JsonIgnore
     public User getUser() {
         return user;
     }

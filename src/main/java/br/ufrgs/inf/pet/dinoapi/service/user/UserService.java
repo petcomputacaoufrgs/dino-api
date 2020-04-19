@@ -23,10 +23,11 @@ public interface UserService {
      * Salva um usuário direto na base de dados
      *
      * @param user Usuário já validado a ser salvo
+     * @return Novo objeto com o usuário salvo
      *
      * @author joao.silva
      */
-    void save(User user);
+    User save(User user);
 
     /**
      * Busca um usuário por seu token de acesso
