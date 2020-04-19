@@ -67,7 +67,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     if (googleAuth.getRefreshToken().isEmpty()) {
                         String refreshToken = tokenResponse.getRefreshToken();
 
-                        if (refreshToken.isEmpty()) {
+                        if (refreshToken == null || refreshToken.isEmpty()) {
                             return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.PRECONDITION_REQUIRED);
                         } else {
                             googleAuth.setRefreshToken(refreshToken);
@@ -86,7 +86,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     String refreshToken = tokenResponse.getRefreshToken();
 
-                    if (refreshToken.isEmpty()) {
+                    if (refreshToken == null || refreshToken.isEmpty()) {
                         return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.PRECONDITION_REQUIRED);
                     }
 
