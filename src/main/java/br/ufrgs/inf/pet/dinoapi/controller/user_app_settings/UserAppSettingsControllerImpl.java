@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.user_app_settings;
 
-import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsRequest;
+import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
 import br.ufrgs.inf.pet.dinoapi.service.user_app_settings.UserAppSettingsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +26,8 @@ public class UserAppSettingsControllerImpl implements  UserAppSettingsController
 
     @Override
     @PostMapping
-    public ResponseEntity<?> saveUserAppSettings(@RequestBody UserAppSettingsRequest userAppSettingsRequest) {
-        return userAppSettingsService.saveUserAppSettings(userAppSettingsRequest);
+    public ResponseEntity<?> saveUserAppSettings(@RequestBody UserAppSettingsModel userAppSettingsModel) {
+        return userAppSettingsService.saveUserAppSettings(userAppSettingsModel);
     }
 
     @Override

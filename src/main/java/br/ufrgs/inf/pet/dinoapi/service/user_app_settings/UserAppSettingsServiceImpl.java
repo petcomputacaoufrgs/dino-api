@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.user_app_settings;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
-import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsRequest;
+import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +35,15 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         UserAppSettings userAppSettings = userDB.getUserAppSettings();
 
-        return new ResponseEntity<>(userAppSettings, HttpStatus.OK);
+        UserAppSettingsModel model = new UserAppSettingsModel();
+
+        model.setLanguage(userAppSettings.getLanguage());
+
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> saveUserAppSettings(UserAppSettingsRequest userAppSettingsModel) {
+    public ResponseEntity<?> saveUserAppSettings(UserAppSettingsModel userAppSettingsModel) {
         if (userAppSettingsModel == null) {
             return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
         }
@@ -59,8 +63,9 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         Boolean changed = false;
         String newLanguage = userAppSettingsModel.getLanguage();
+        String currentLanguage = userAppSettingsModel.getLanguage();
 
-        if (userAppSettings.getLanguage() != newLanguage) {
+        if (currentLanguage != newLanguage) {
             userAppSettings.setLanguage(newLanguage);
             changed = true;
         }
@@ -75,11 +80,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             userAppSettingsRepository.save(userAppSettings);
         }
 
-        if (changed) {
-            return new ResponseEntity<>("Alterações salvas com sucesso.", HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("Nada para salvar ou alterar.", HttpStatus.OK);
-        }
+        return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);
     }
 
     @Override

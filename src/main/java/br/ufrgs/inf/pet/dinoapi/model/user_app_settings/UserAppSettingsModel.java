@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.user_app_settings;
 
-public class UserAppSettingsResponse {
+public class UserAppSettingsModel {
 
     private String language;
 

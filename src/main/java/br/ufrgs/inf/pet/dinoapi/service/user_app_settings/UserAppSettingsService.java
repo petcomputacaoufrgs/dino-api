@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.user_app_settings;
 
-import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsRequest;
+import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -25,9 +25,9 @@ public interface UserAppSettingsService {
      * Salva os configurações vindas da Model
      *
      * @param userAppSettingsModel Model com os dados para serem salvos
-     * @return Entidade com status de sucesso ou erro
+     * @return Entidade com status de sucesso ou erro e versão atualizada
      */
-    ResponseEntity<?> saveUserAppSettings(UserAppSettingsRequest userAppSettingsModel);
+    ResponseEntity<?> saveUserAppSettings(UserAppSettingsModel userAppSettingsModel);
 
     /**
      * Retorna a versão da configuração do usuário logado.
