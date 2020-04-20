@@ -58,6 +58,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         if (userAppSettings == null) {
             userAppSettings = new UserAppSettings();
+            userAppSettings.setUser(userDB);
             userAppSettings.setVersion(0L);
         }
 
