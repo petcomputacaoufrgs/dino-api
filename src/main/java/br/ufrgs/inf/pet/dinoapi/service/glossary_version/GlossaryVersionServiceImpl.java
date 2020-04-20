@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.glossary_version;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryVersion;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_version.GlossaryVersionResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.GlossaryVersionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

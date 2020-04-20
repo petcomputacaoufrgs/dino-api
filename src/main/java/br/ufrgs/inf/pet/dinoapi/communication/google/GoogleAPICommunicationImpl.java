@@ -84,7 +84,9 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     }
 
     private GoogleClientSecrets getClientSecrets() throws IOException {
-        return GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new StringReader("{\"web\":{\"client_id\":\"467762039422-nl6hebh4tceoi8k6amdfbrqredhgvikq.apps.googleusercontent.com\",\"project_id\":\"dinoapp-264514\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"IQjzf6_St1fLPcQ26RAN8tcE\"}}"));
+        String googleSecret = "{\"web\":{\"client_id\":\"467762039422-nl6hebh4tceoi8k6amdfbrqredhgvikq.apps.googleusercontent.com\",\"project_id\":\"dinoapp-264514\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"IQjzf6_St1fLPcQ26RAN8tcE\",\"redirect_uris\":[\"http://localhost:3000\",\"https://dino-app-test.herokuapp.com\"],\"javascript_origins\":[\"http://localhost:3000\",\"https://dino-app-test.herokuapp.com\"]}}";
+
+        return GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new StringReader(googleSecret));
     }
 
 }
