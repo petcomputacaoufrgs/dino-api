@@ -62,8 +62,9 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         }
 
         Boolean changed = false;
+
         String newLanguage = userAppSettingsModel.getLanguage();
-        String currentLanguage = userAppSettingsModel.getLanguage();
+        String currentLanguage = userAppSettings.getLanguage();
 
         if (currentLanguage != newLanguage) {
             userAppSettings.setLanguage(newLanguage);
