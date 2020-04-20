@@ -1,0 +1,101 @@
+package br.ufrgs.inf.pet.dinoapi.service.user_app_settings;
+
+import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
+import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsRequest;
+import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
+import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+/**
+ * Implementação de {@link UserAppSettingsService}
+ *
+ * @author joao.silva
+ */
+@Service
+public class UserAppSettingsServiceImpl implements UserAppSettingsService {
+
+    @Autowired
+    UserServiceImpl userService;
+
+    @Autowired
+    UserAppSettingsRepository userAppSettingsRepository;
+
+    @Override
+    public ResponseEntity<?> getUserAppSettings() {
+
+        User userDB = userService.getCurrentUser();
+
+        if (userDB == null) {
+            return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
+        }
+
+        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+
+        return new ResponseEntity<>(userAppSettings, HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<?> saveUserAppSettings(UserAppSettingsRequest userAppSettingsModel) {
+        if (userAppSettingsModel == null) {
+            return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
+        }
+
+        User userDB = userService.getCurrentUser();
+
+        if (userDB == null) {
+            return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
+        }
+
+        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+
+        if (userAppSettings == null) {
+            userAppSettings = new UserAppSettings();
+            userAppSettings.setVersion(0L);
+        }
+
+        Boolean changed = false;
+        String newLanguage = userAppSettingsModel.getLanguage();
+
+        if (userAppSettings.getLanguage() != newLanguage) {
+            userAppSettings.setLanguage(newLanguage);
+            changed = true;
+        }
+
+        if (changed) {
+            Long currentVersion = userAppSettings.getVersion();
+
+            Long newVersion = currentVersion + 1;
+
+            userAppSettings.setVersion(newVersion);
+
+            userAppSettingsRepository.save(userAppSettings);
+        }
+
+        if (changed) {
+            return new ResponseEntity<>("Alterações salvas com sucesso.", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Nada para salvar ou alterar.", HttpStatus.OK);
+        }
+    }
+
+    @Override
+    public ResponseEntity<?> getUserAppSettingsVersion() {
+        User userDB = userService.getCurrentUser();
+
+        if (userDB == null) {
+            return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
+        }
+
+        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+
+        if (userAppSettings != null) {
+            return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(0, HttpStatus.OK);
+        }
+    }
+}

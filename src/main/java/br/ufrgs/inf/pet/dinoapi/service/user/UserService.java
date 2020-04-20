@@ -36,4 +36,10 @@ public interface UserService {
      * @return Usuário encontrado ou nulo
      */
     User findByAccessToken(String accessToken);
+
+    /**
+     * Busca o usuário logado no banco
+     * @return Usuário logado ou nulo
+     */
+    User getCurrentUser();
 }

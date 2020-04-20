@@ -49,6 +49,9 @@ public class User implements Serializable {
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
+    @OneToOne(mappedBy = "user")
+    private UserAppSettings userAppSettings;
+
     public User() {}
 
     public User(String name, String email) {
@@ -98,6 +101,14 @@ public class User implements Serializable {
 
     public void setTokenExpiresDateInMillis(Long tokenExpiresDateInMillis) {
         this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
+    }
+
+    public UserAppSettings getUserAppSettings() {
+        return userAppSettings;
+    }
+
+    public void setUserAppSettings(UserAppSettings userAppSettings) {
+        this.userAppSettings = userAppSettings;
     }
 
     public Boolean tokenIsValid() {

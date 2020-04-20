@@ -4,6 +4,10 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -47,5 +51,25 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public User getCurrentUser() {
+        SecurityContext context =  SecurityContextHolder.getContext();
+
+        if (context == null) {
+            return null;
+        }
+
+        Authentication auth = context.getAuthentication();
+
+        if (auth == null) {
+            return null;
+        }
+
+        UserDetails userDetais = (UserDetails) auth.getPrincipal();
+
+        String email = userDetais.getUsername();
+
+        return findUserByEmail(email);
+    }
 
 }
