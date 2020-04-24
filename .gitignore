@@ -27,3 +27,5 @@ system.properties
 
 target/
 
+*.properties
+
