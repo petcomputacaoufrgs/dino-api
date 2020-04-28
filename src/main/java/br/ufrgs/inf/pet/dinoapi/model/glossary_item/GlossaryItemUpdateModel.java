@@ -2,11 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.model.glossary_item;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-/**
- * Model para recebimento de atualização de item do glossário
- *
- * @author joao.silva
- */
 public class GlossaryItemUpdateModel {
     private Long id;
     private String title;

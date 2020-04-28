@@ -6,11 +6,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Model para envio de resposta para criação e atualização de itens do glossário
- *
- * @author joao.silva
- */
 public class GlossaryResponseModel {
 
     private Long version;
