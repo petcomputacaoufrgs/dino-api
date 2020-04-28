@@ -26,7 +26,7 @@ public class Note implements Serializable {
     private Long id;
 
     @Basic(optional = false)
-    @Column(name = "order")
+    @Column(name = "n_order")
     private Integer order;
 
     @Basic(optional = false)
