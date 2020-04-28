@@ -7,11 +7,6 @@ import java.io.Serializable;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
-/**
- * Classe de persistencia para configurações do usuário no APP
- *
- * @author joao.silva
- */
 @Entity
 @Table(name = "user_app_settings")
 public class UserAppSettings implements Serializable {

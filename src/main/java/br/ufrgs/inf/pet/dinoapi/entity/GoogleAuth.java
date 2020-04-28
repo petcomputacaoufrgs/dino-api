@@ -1,7 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
@@ -9,11 +7,6 @@ import java.util.Date;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
-/**
- * Classe de persistencia para a tabela de dados de autenticação do Google
- *
- * @author joao.silva
- */
 @Entity
 @Table(name = "google_auth")
 public class GoogleAuth {
