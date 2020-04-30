@@ -11,11 +11,6 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Implementa DinoAuthService
- *
- * @author joao.silva
- */
 @Service
 public class DinoAuthServiceImpl implements  DinoAuthService{
 

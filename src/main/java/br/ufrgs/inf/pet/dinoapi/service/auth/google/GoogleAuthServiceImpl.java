@@ -21,11 +21,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
-/**
- * Implementação de: {@link GoogleAuthService}
- *
- * @author joao.silva
- */
 @Service
 public class GoogleAuthServiceImpl implements GoogleAuthService {
 

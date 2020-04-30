@@ -4,11 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.model.auth.GoogleAuthRequestModel;
 import org.springframework.http.ResponseEntity;
 
-/**
- * Service de autenticação com o Google
- *
- * @author joao.silva
- */
 public interface GoogleAuthService {
     /**
      * Dado um token de autenticação gera um token de acesso

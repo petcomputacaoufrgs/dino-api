@@ -5,18 +5,13 @@ import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.service.glossary.GlossaryServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.glossary_version.GlossaryVersionServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.glossary.GlossaryVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-/**
- * Implementação de: {@link GlossaryController}
- *
- * @author joao.silva
- */
 @RestController
 @RequestMapping("/glossary/")
 public class GlossaryControllerImpl implements GlossaryController {

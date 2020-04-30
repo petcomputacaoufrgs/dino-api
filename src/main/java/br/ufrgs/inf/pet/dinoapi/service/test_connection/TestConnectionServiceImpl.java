@@ -5,11 +5,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementação de {@link TestConnectionService}
- *
- * @author joao.silva
- */
 @Service
 public class TestConnectionServiceImpl implements TestConnectionService {
 

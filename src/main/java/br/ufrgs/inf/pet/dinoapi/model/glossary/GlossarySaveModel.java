@@ -1,7 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemSaveModel;
-
 import java.util.ArrayList;
 import java.util.List;
 

@@ -3,11 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import org.springframework.stereotype.Service;
 
-/**
- * Service para a tabela: {@link br.ufrgs.inf.pet.dinoapi.entity.User}
- *
- * @author joao.silva
- */
 @Service
 public interface UserService {
     /**

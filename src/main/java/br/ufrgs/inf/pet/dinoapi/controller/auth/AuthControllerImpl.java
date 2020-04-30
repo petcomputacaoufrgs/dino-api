@@ -6,11 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Implementação de: {@link AuthController}
- *
- * @author joao.silva
- */
 @RestController
 @RequestMapping("/auth/")
 public class AuthControllerImpl implements AuthController {

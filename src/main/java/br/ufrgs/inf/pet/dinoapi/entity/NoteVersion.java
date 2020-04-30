@@ -32,12 +32,13 @@ public class NoteVersion {
     @Column(name = "last_update")
     private Date lastUpdate;
 
+    @OneToOne
+    @NotNull
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Long getVersion() {
@@ -56,4 +57,11 @@ public class NoteVersion {
         this.lastUpdate = lastUpdate;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

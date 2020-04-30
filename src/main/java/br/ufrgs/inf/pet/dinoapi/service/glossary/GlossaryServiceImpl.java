@@ -3,12 +3,11 @@ package br.ufrgs.inf.pet.dinoapi.service.glossary;
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemSaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.repository.GlossaryItemRepository;
-import br.ufrgs.inf.pet.dinoapi.service.glossary_version.GlossaryVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +16,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementação de {@link GlossaryService}
- *
- * @author joao.silva
- */
 @Service
 public class GlossaryServiceImpl implements GlossaryService {
     @Autowired

@@ -52,6 +52,10 @@ public class User implements Serializable {
     private UserAppSettings userAppSettings;
 
     @Valid
+    @OneToOne(mappedBy = "user")
+    private NoteVersion noteVersion;
+
+    @Valid
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
 
@@ -60,6 +64,10 @@ public class User implements Serializable {
     public User(String name, String email) {
         this.name = name;
         this.email = email;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public boolean hasGoogleAuth() {
@@ -120,6 +128,14 @@ public class User implements Serializable {
 
     public void setNotes(List<Note> notes) {
         this.notes = notes;
+    }
+
+    public NoteVersion getNoteVersion() {
+        return noteVersion;
+    }
+
+    public void setNoteVersion(NoteVersion noteVersion) {
+        this.noteVersion = noteVersion;
     }
 
     public Boolean tokenIsValid() {

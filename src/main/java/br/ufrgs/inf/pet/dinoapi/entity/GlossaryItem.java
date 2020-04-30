@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;

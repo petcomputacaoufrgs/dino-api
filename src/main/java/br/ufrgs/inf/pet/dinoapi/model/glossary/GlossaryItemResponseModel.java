@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.glossary_item;
+package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 

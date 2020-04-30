@@ -77,10 +77,6 @@ public class Note implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Integer getOrder() {
         return order;
     }

@@ -4,11 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-/**
- * Service para a tabela: {@link br.ufrgs.inf.pet.dinoapi.entity.User}
- *
- * @author joao.silva
- */
 @Service
 public interface UserAppSettingsService {
 

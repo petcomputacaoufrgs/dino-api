@@ -10,11 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-/**
- * Implementação de {@link UserAppSettingsService}
- *
- * @author joao.silva
- */
 @Service
 public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
@@ -56,13 +51,14 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         UserAppSettings userAppSettings = userDB.getUserAppSettings();
 
+        Boolean changed = false;
+
         if (userAppSettings == null) {
             userAppSettings = new UserAppSettings();
             userAppSettings.setUser(userDB);
             userAppSettings.setVersion(0L);
+            changed = true;
         }
-
-        Boolean changed = false;
 
         String newLanguage = userAppSettingsModel.getLanguage();
         String currentLanguage = userAppSettings.getLanguage();

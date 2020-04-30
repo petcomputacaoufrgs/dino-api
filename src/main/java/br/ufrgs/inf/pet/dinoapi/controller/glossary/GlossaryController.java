@@ -4,16 +4,11 @@ import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_version.GlossaryVersionResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryVersionResponseModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-/**
- * Controller para gerenciar os dados relacionados aos itens do glossário
- *
- * @author joao.silva
- */
 public interface GlossaryController {
 
     /**

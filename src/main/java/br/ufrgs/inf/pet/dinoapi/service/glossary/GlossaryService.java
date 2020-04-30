@@ -8,11 +8,6 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-/**
- * Service para gerenciar os dados do glossário
- *
- * @author joao.silva
- */
 public interface GlossaryService {
     /**
      * Recebe os items do glossário, valida suas informações e salva em banco.

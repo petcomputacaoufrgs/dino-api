@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.glossary_version;
+package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
 public class GlossaryVersionResponseModel {
     Long version;

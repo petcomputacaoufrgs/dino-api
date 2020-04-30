@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemResponseModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.util.ArrayList;

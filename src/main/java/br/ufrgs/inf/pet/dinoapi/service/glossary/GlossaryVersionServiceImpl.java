@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.glossary_version;
+package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryVersion;
 import br.ufrgs.inf.pet.dinoapi.repository.GlossaryVersionRepository;

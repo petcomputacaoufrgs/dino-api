@@ -11,11 +11,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
-/**
- * Gerencia os dados de login do usuário
- *
- * @author joao.silva
- */
 @Service
 public class DinoUserDetailsService implements UserDetailsService {
     @Autowired

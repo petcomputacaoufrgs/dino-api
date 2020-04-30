@@ -6,11 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-/**
- * Implementação de: {@link TestConnectionController}
- *
- * @author joao.silva
- */
 @RestController
 @RequestMapping("/test_connection/")
 public class TestConnectionControllerImpl implements TestConnectionController{
