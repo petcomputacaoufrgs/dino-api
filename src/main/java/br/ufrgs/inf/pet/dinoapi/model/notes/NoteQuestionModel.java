@@ -3,17 +3,17 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 import java.util.List;
 
 public class NoteQuestionModel {
-    Long id;
+    java.lang.Long id;
 
     String question;
 
     List<NoteTagModel> tagList;
 
-    public Long getId() {
+    public java.lang.Long getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(java.lang.Long id) {
         this.id = id;
     }
 

@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.NoteTagModel;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
@@ -46,34 +47,39 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<NoteSaveResponseModel> saveNewNote(NoteSaveModel model) {
+    public ResponseEntity<?> saveNewNote(NoteSaveModel model) {
         User user = userService.getCurrentUser();
+
+        List<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
+
+        if (noteSearch.size() > 0) {
+            return new ResponseEntity<>("Pergunta já cadastrada", HttpStatus.BAD_REQUEST);
+        }
 
         List<NoteTag> tags = new ArrayList<>();
 
-        if (model.getTagIdList().size() > 0) {
-            tags = noteTagRepository.findAllById(model.getTagIdList());
-        }
-
-        List<NoteTag> userTags = noteTagRepository.findAllByUserId(user.getId());
-
-        List<String> userTagNames = userTags.stream().map(tag -> tag.getName()).collect(Collectors.toList());
-
         List<NoteTag> newTags = new ArrayList<>();
 
-        if (model.getNewTags() != null && model.getNewTags().size() > 0) {
-            newTags = model.getNewTags().stream()
-                    .filter(nt -> !userTagNames.contains(nt))
-                    .map(nt -> {
+        if (model.getTagNames() != null && model.getTagNames().size() > 0) {
+            tags = noteTagRepository.findAllByName(model.getTagNames());
+
+            List<String> tagNames = tags.stream().map(tag -> tag.getName()).collect(Collectors.toList());
+
+            newTags = model.getTagNames().stream()
+                    .filter(name -> !tagNames.contains(name))
+                    .map(name -> {
                         NoteTag tag = new NoteTag();
-                        tag.setName(nt);
+                        tag.setName(name);
 
                         return tag;
-                    }).collect(Collectors.toList());
+                    })
+                    .collect(Collectors.toList());
 
-            newTags = Lists.newArrayList((noteTagRepository.saveAll(newTags)));
+            if (newTags.size() > 0) {
+                newTags = Lists.newArrayList((noteTagRepository.saveAll(newTags)));
+                tags.addAll(newTags);
+            }
 
-            tags.addAll(newTags);
         }
 
         Note note = new Note();
@@ -98,16 +104,31 @@ public class NoteServiceImpl implements NoteService {
 
         version.setLastUpdate(new Date());
 
-        noteRepository.save(note);
+        note = noteRepository.save(note);
         noteVersionRepository.save(version);
 
-        NoteSaveResponseModel response = new NoteSaveResponseModel(version.getVersion(), newTags);
+        NoteSaveResponseModel response = new NoteSaveResponseModel(version.getVersion(), newTags, note.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
+    public ResponseEntity<Integer> deleteNote(NoteDeleteModel model) {
+        if (model == null || model.getId() == null) {
+            return new ResponseEntity<>(0, HttpStatus.OK);
+        }
+
+        User user = userService.getCurrentUser();
+
+        int deletedItems = noteRepository.deleteByIdAndUserId(model.getId(), user.getId());
+
+        return new ResponseEntity<>(deletedItems, HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models) {
+        models = models.stream().filter(model -> model.getId() != null && model.getOrder() != null).collect(Collectors.toList());
+
         List<Long> ids = models.stream()
                 .map(m -> m.getId())
                 .collect(Collectors.toList());
@@ -116,6 +137,12 @@ public class NoteServiceImpl implements NoteService {
                 .sorted(Comparator.comparing(NoteOrderModel::getId))
                 .map(m -> m.getOrder())
                 .collect(Collectors.toList());
+
+        Set<Integer> uniqueOrders = new HashSet<>(orders);
+
+        if (orders.size() != uniqueOrders.size()) {
+            return new ResponseEntity<>("Não podem haver itens com ordem repetidade.", HttpStatus.OK);
+        }
 
         List<Note> notes = noteRepository.findAllByIdOrderByIdAsc(ids);
 
@@ -151,7 +178,7 @@ public class NoteServiceImpl implements NoteService {
             return new ResponseEntity<>("Anotação não encontrada", HttpStatus.BAD_REQUEST);
         }
 
-        List<Long> tagIds = model.getTagList().stream().map(t -> t.getId()).collect(Collectors.toList());
+        List<java.lang.Long> tagIds = model.getTagList().stream().map(t -> t.getId()).collect(Collectors.toList());
 
         List<NoteTag> tags = noteTagRepository.findAllById(tagIds);
 

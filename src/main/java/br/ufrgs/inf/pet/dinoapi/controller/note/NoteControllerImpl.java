@@ -32,8 +32,14 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PostMapping
-    public ResponseEntity<NoteSaveResponseModel> saveNewNote(@RequestBody NoteSaveModel model) {
+    public ResponseEntity<?> saveNewNote(@RequestBody NoteSaveModel model) {
         return noteService.saveNewNote(model);
+    }
+
+    @Override
+    @DeleteMapping
+    public ResponseEntity<Integer> deleteNote(@RequestBody NoteDeleteModel model) {
+        return noteService.deleteNote(model);
     }
 
     @Override

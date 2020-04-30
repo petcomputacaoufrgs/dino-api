@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
+import br.ufrgs.inf.pet.dinoapi.entity.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 
 import java.util.List;
@@ -8,13 +9,16 @@ import java.util.stream.Collectors;
 public class NoteSaveResponseModel {
     Long version;
 
-    List<NoteTagModel> tags;
+    Long noteId;
+
+    List<NoteTagModel> newTags;
 
     public NoteSaveResponseModel() {}
 
-    public NoteSaveResponseModel(Long version, List<NoteTag> tags) {
+    public NoteSaveResponseModel(Long version, List<NoteTag> tags, Long noteId) {
         this.version = version;
-        this.tags = tags.stream().map(tag -> new NoteTagModel(tag)).collect(Collectors.toList());
+        this.newTags = tags.stream().map(tag -> new NoteTagModel(tag)).collect(Collectors.toList());
+        this.noteId = noteId;
     }
 
     public Long getVersion() {
@@ -25,12 +29,19 @@ public class NoteSaveResponseModel {
         this.version = version;
     }
 
-    public List<NoteTagModel> getTags() {
-        return tags;
+    public List<NoteTagModel> getNewTags() {
+        return newTags;
     }
 
-    public void setTags(List<NoteTagModel> tags) {
-        this.tags = tags;
+    public void setNewTags(List<NoteTagModel> newTags) {
+        this.newTags = newTags;
     }
 
+    public Long getNoteId() {
+        return noteId;
+    }
+
+    public void setNoteId(Long noteId) {
+        this.noteId = noteId;
+    }
 }

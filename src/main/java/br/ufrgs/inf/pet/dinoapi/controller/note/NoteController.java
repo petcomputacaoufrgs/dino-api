@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.controller.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.NoteTagModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -18,7 +19,15 @@ public interface NoteController {
      * @param model Model representando a nova entidade Note
      * @return Em caso de sucesso retorna a nova versão das anotações e as novas tags adicionadas
      **/
-    ResponseEntity<NoteSaveResponseModel> saveNewNote(NoteSaveModel model);
+    ResponseEntity<?> saveNewNote(NoteSaveModel model);
+
+    /**
+     * Remove permanentemente uma anotação
+     *
+     * @param model objeto com o id da anotação a ser removida
+     * @return Em caso de sucesso retorna a nova versão das anotações
+     **/
+    ResponseEntity<Integer> deleteNote(NoteDeleteModel model);
 
     /**
      *  Atualiza a ordem das anotações
@@ -47,7 +56,7 @@ public interface NoteController {
     /**
      * Retorna todas as tags salvas relacionadas a anotações do usuário
      *
-     * @return Lista com as tags no formato {@link br.ufrgs.inf.pet.dinoapi.model.notes.NoteTagModel}
+     * @return Lista com as tags no formato {@link NoteTagModel}
      **/
     ResponseEntity<List<NoteTag>> getTags();
 

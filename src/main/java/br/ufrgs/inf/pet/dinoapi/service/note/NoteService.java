@@ -16,7 +16,15 @@ public interface NoteService {
      * @param model Model representando a nova entidade Note
      * @return Em caso de sucesso retorna a nova versão das anotações e as novas tags adicionadas
      **/
-    ResponseEntity<NoteSaveResponseModel> saveNewNote(NoteSaveModel model);
+    ResponseEntity<?> saveNewNote(NoteSaveModel model);
+
+    /**
+     * Remove permanentemente uma anotação
+     *
+     * @param model objeto com o id da anotação a ser removida
+     * @return Em caso de sucesso retorna a nova versão das anotações
+     **/
+    ResponseEntity<Integer> deleteNote(NoteDeleteModel model);
 
     /**
      *  Atualiza a ordem das anotações

@@ -16,7 +16,7 @@ public interface NoteTagRepository extends CrudRepository<NoteTag, Long> {
     @Query("SELECT n.tags FROM Note n WHERE n.id IN :ids")
     List<NoteTag> findAllByNotes(Iterable<Long> ids);
 
-    @Query("SELECT n.tags FROM Note n WHERE n.user.id = ?1")
-    List<NoteTag> findAllByUserId(Long userId);
+    @Query("SELECT t FROM NoteTag t WHERE t.name IN :names")
+    List<NoteTag> findAllByName(Iterable<String> names);
 
 }

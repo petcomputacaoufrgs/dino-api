@@ -7,9 +7,7 @@ public class NoteSaveModel {
 
     String question;
 
-    List<Long> tagIdList;
-
-    List<String> newTags;
+    List<String> tagNames;
 
     Integer lastUpdateDay;
 
@@ -31,14 +29,6 @@ public class NoteSaveModel {
 
     public void setQuestion(String question) {
         this.question = question;
-    }
-
-    public List<Long> getTagIdList() {
-        return tagIdList;
-    }
-
-    public void setTagIdList(List<Long> tagIdList) {
-        this.tagIdList = tagIdList;
     }
 
     public Integer getLastUpdateDay() {
@@ -65,11 +55,11 @@ public class NoteSaveModel {
         this.lastUpdateYear = lastUpdateYear;
     }
 
-    public List<String> getNewTags() {
-        return newTags;
+    public List<String> getTagNames() {
+        return tagNames;
     }
 
-    public void setNewTags(List<String> newTags) {
-        this.newTags = newTags;
+    public void setTagNames(List<String> tagNames) {
+        this.tagNames = tagNames;
     }
 }

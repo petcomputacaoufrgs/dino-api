@@ -16,7 +16,7 @@ public class NoteModel {
 
     Boolean answered;
 
-    List<NoteTagModel> tagList;
+    List<NoteTagModel> tags;
 
     Integer lastUpdateDay;
 
@@ -32,7 +32,7 @@ public class NoteModel {
         this.question = note.getQuestion();
         this.answer = note.getAnswer();
         this.answered = note.getAnswered();
-        this.tagList = note.getTags().stream().map(tag -> new NoteTagModel(tag)).collect(Collectors.toList());
+        this.tags = note.getTags().stream().map(tag -> new NoteTagModel(tag)).collect(Collectors.toList());
         this.lastUpdateDay = note.getLastUpdateDay();
         this.lastUpdateMonth = note.getLastUpdateMonth();
         this.lastUpdateYear = note.getLastUpdateYear();
@@ -78,12 +78,12 @@ public class NoteModel {
         this.answered = answered;
     }
 
-    public List<NoteTagModel> getTagList() {
-        return tagList;
+    public List<NoteTagModel> getTags() {
+        return tags;
     }
 
-    public void setTagList(List<NoteTagModel> tagList) {
-        this.tagList = tagList;
+    public void setTags(List<NoteTagModel> tags) {
+        this.tags = tags;
     }
 
     public Integer getLastUpdateDay() {
