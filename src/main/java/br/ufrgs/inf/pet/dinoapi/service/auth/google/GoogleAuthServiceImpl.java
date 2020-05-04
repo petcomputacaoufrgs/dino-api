@@ -159,7 +159,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     private ResponseEntity<?> getRefreshTokenError() {
-        return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.PRECONDITION_REQUIRED);
+        return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.NON_AUTHORITATIVE_INFORMATION);
     }
 
 

@@ -9,11 +9,7 @@ public class NoteSaveModel {
 
     List<String> tagNames;
 
-    Integer lastUpdateDay;
-
-    Integer lastUpdateMonth;
-
-    Integer lastUpdateYear;
+    Long lastUpdate;
 
     public Integer getOrder() {
         return order;
@@ -31,28 +27,12 @@ public class NoteSaveModel {
         this.question = question;
     }
 
-    public Integer getLastUpdateDay() {
-        return lastUpdateDay;
+    public Long getLastUpdate() {
+        return lastUpdate;
     }
 
-    public void setLastUpdateDay(Integer lastUpdateDay) {
-        this.lastUpdateDay = lastUpdateDay;
-    }
-
-    public Integer getLastUpdateMonth() {
-        return lastUpdateMonth;
-    }
-
-    public void setLastUpdateMonth(Integer lastUpdateMonth) {
-        this.lastUpdateMonth = lastUpdateMonth;
-    }
-
-    public Integer getLastUpdateYear() {
-        return lastUpdateYear;
-    }
-
-    public void setLastUpdateYear(Integer lastUpdateYear) {
-        this.lastUpdateYear = lastUpdateYear;
+    public void setLastUpdate(Long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
     public List<String> getTagNames() {

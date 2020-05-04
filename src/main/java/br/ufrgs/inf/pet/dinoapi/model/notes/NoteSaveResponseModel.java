@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 
 import java.util.List;

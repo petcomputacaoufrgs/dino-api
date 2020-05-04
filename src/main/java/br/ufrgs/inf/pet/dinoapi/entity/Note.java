@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -48,19 +49,9 @@ public class Note implements Serializable {
     private Boolean answered;
 
     @Basic(optional = false)
-    @NotNull(message = "O dia da última atualização não pode ser nulo.")
+    @NotNull(message = "A data da última atualização não pode ser nula.")
     @Column(name = "last_update_day")
-    private Integer lastUpdateDay;
-
-    @Basic(optional = false)
-    @NotNull(message = "O mês da última atualização não pode ser nulo.")
-    @Column(name = "last_update_month")
-    private Integer lastUpdateMonth;
-
-    @Basic(optional = false)
-    @NotNull(message = "O ano da última atualização não pode ser nulo.")
-    @Column(name = "last_update_year")
-    private Integer lastUpdateYear;
+    private LocalDateTime lastUpdate;
 
     @JsonIgnore
     @Valid
@@ -112,28 +103,12 @@ public class Note implements Serializable {
         this.answered = answered;
     }
 
-    public Integer getLastUpdateDay() {
-        return lastUpdateDay;
+    public LocalDateTime getLastUpdate() {
+        return lastUpdate;
     }
 
-    public void setLastUpdateDay(Integer lastUpdateDay) {
-        this.lastUpdateDay = lastUpdateDay;
-    }
-
-    public Integer getLastUpdateMonth() {
-        return lastUpdateMonth;
-    }
-
-    public void setLastUpdateMonth(Integer lastUpdateMonth) {
-        this.lastUpdateMonth = lastUpdateMonth;
-    }
-
-    public Integer getLastUpdateYear() {
-        return lastUpdateYear;
-    }
-
-    public void setLastUpdateYear(Integer lastUpdateYear) {
-        this.lastUpdateYear = lastUpdateYear;
+    public void setLastUpdate(LocalDateTime lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 
     public List<NoteTag> getTags() {

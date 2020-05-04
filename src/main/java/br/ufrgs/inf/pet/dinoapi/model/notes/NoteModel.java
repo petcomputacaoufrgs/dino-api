@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Note;
+import br.ufrgs.inf.pet.dinoapi.utils.DatetimeUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,11 +19,7 @@ public class NoteModel {
 
     List<NoteTagModel> tags;
 
-    Integer lastUpdateDay;
-
-    Integer lastUpdateMonth;
-
-    Integer lastUpdateYear;
+    Long lastUpdate;
 
     public NoteModel() {}
 
@@ -33,9 +30,7 @@ public class NoteModel {
         this.answer = note.getAnswer();
         this.answered = note.getAnswered();
         this.tags = note.getTags().stream().map(tag -> new NoteTagModel(tag)).collect(Collectors.toList());
-        this.lastUpdateDay = note.getLastUpdateDay();
-        this.lastUpdateMonth = note.getLastUpdateMonth();
-        this.lastUpdateYear = note.getLastUpdateYear();
+        this.lastUpdate = DatetimeUtils.convertLocalDatetimeToMilliseconds(note.getLastUpdate());
     }
 
     public Long getId() {
@@ -86,28 +81,11 @@ public class NoteModel {
         this.tags = tags;
     }
 
-    public Integer getLastUpdateDay() {
-        return lastUpdateDay;
+    public Long getLastUpdate() {
+        return lastUpdate;
     }
 
-    public void setLastUpdateDay(Integer lastUpdateDay) {
-        this.lastUpdateDay = lastUpdateDay;
+    public void setLastUpdate(Long lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
-
-    public Integer getLastUpdateMonth() {
-        return lastUpdateMonth;
-    }
-
-    public void setLastUpdateMonth(Integer lastUpdateMonth) {
-        this.lastUpdateMonth = lastUpdateMonth;
-    }
-
-    public Integer getLastUpdateYear() {
-        return lastUpdateYear;
-    }
-
-    public void setLastUpdateYear(Integer lastUpdateYear) {
-        this.lastUpdateYear = lastUpdateYear;
-    }
-
 }

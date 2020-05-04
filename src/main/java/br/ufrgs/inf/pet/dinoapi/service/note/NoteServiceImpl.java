@@ -10,12 +10,14 @@ import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.utils.DatetimeUtils;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -82,11 +84,11 @@ public class NoteServiceImpl implements NoteService {
 
         }
 
+        LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
+
         Note note = new Note();
         note.setAnswered(false);
-        note.setLastUpdateDay(model.getLastUpdateDay());
-        note.setLastUpdateMonth(model.getLastUpdateMonth());
-        note.setLastUpdateYear(model.getLastUpdateYear());
+        note.setLastUpdate(date);
         note.setOrder(model.getOrder());
         note.setQuestion(model.getQuestion());
         note.setTags(tags);
