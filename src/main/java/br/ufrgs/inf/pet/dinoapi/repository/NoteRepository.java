@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface NoteRepository extends CrudRepository<Note, Long> {
@@ -22,5 +23,8 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
         @Modifying
         @Query("DELETE FROM Note n WHERE n.id = ?1 AND n.user.id = ?2")
         int deleteByIdAndUserId(Long id, Long userId);
+
+        @Query("SELECT n FROM Note n WHERE n.id = ?1 AND n.user.id = ?2")
+        Optional<Note> findOneByIdAndUserId(Long id, Long userId);
 
 }

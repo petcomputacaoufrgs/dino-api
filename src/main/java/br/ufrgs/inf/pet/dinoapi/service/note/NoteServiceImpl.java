@@ -50,6 +50,11 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<?> saveNewNote(NoteSaveModel model) {
+
+        if (model.getQuestion().isBlank()) {
+            return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
+        }
+
         User user = userService.getCurrentUser();
 
         List<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
@@ -174,69 +179,121 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public ResponseEntity<?> updateNoteQuestion(NoteQuestionModel model) {
 
-        Optional<Note> noteSearch = noteRepository.findById(model.getId());
+        if (model.getQuestion().isBlank()) {
+            return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
+        }
+
+        User user = userService.getCurrentUser();
+
+        Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
 
         if (noteSearch.isEmpty()) {
             return new ResponseEntity<>("Anotação não encontrada", HttpStatus.BAD_REQUEST);
         }
 
-        List<java.lang.Long> tagIds = model.getTagList().stream().map(t -> t.getId()).collect(Collectors.toList());
+        Note note = noteSearch.get();
 
-        List<NoteTag> tags = noteTagRepository.findAllById(tagIds);
+        Boolean changed = false;
 
-        List<NoteTagModel> newTagsModel = model.getTagList().stream().filter(t -> t.getId() == null).collect(Collectors.toList());
+        Boolean questionChanged = ! model.getQuestion().equalsIgnoreCase(note.getQuestion());
 
-        List<NoteTag> newTags = newTagsModel.stream().map(t -> {
-            NoteTag tag = new NoteTag();
-            tag.setName(t.getName());
+        if (questionChanged) {
+            List<Note> notesSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
 
-            return tag;
-        }).collect(Collectors.toList());
+            if (notesSearch.size() > 0) {
+                return new ResponseEntity<>("Pergunta já cadastrada", HttpStatus.BAD_REQUEST);
+            }
 
-        noteTagRepository.saveAll(newTags);
+            note.setQuestion(model.getQuestion());
+            changed = true;
+        }
 
-        tags.addAll(newTags);
+        List<NoteTag> removedTags = note.getTags().stream()
+                .filter(tag -> model.getTagNames().stream().allMatch(tagName -> !tagName.equalsIgnoreCase(tag.getName())))
+                .collect(Collectors.toList());
 
-        User user = userService.getCurrentUser();
+        if (removedTags.size() > 0) {
+            note.deleteTags(removedTags);
+            changed = true;
+        }
+
+        List<String> newTagNames = model.getTagNames().stream()
+                .filter(tagName -> note.getTags().stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
+                .collect(Collectors.toList());
+
+        if (newTagNames.size() > 0) {
+            List<NoteTag> newTagsAlreadyExists = noteTagRepository.findAllByName(newTagNames);
+
+            note.addTags(newTagsAlreadyExists);
+
+            List<NoteTag> newTagsNotExists = newTagNames.stream()
+                    .filter(tagName -> newTagsAlreadyExists.stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
+                    .map(tagName -> {
+                        NoteTag tag = new NoteTag();
+                        tag.setName(tagName);
+
+                        return tag;
+                    })
+                    .collect(Collectors.toList());
+
+            List<NoteTag> newCreatedTags = Lists.newArrayList(noteTagRepository.saveAll(newTagsNotExists));
+
+            note.addTags(newCreatedTags);
+
+            changed = true;
+        }
+
+
+        LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
 
         NoteVersion version = user.getNoteVersion();
 
-        version.setVersion(version.getVersion() + 1);
+        if (changed) {
+            note.setLastUpdate(date);
 
-        noteVersionRepository.save(version);
+            noteRepository.save(note);
 
-        Note note = noteSearch.get();
+            version.setVersion(version.getVersion() + 1);
 
-        note.setQuestion(model.getQuestion());
+            noteVersionRepository.save(version);
 
-        note.setTags(tags);
-
-        noteRepository.save(note);
+        }
 
         return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<?> updateNoteAnswer(NoteAnswerModel model) {
-        Optional<Note> noteSearch = noteRepository.findById(model.getId());
+
+        User user = userService.getCurrentUser();
+
+        Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
 
         if (noteSearch.isEmpty()) {
             return new ResponseEntity<>("Anotação não encontrada", HttpStatus.BAD_REQUEST);
         }
 
-        User user = userService.getCurrentUser();
+        Note note = noteSearch.get();
 
         NoteVersion version = user.getNoteVersion();
 
-        version.setVersion(version.getVersion() + 1);
+        Boolean answerChanged = note.getAnswer() != null ? !note.getAnswer().equalsIgnoreCase(model.getAnswer()) : true;
 
-        noteVersionRepository.save(version);
+        if (answerChanged) {
+            note.setAnswer(model.getAnswer());
 
-        Note note = noteSearch.get();
+            Boolean noteNotAnswered = !note.getAnswered();
 
-        note.setAnswer(model.getAnswer());
+            if (noteNotAnswered) {
+                note.setAnswered(true);
+            }
 
-        noteRepository.save(note);
+            noteRepository.save(note);
+
+            version.setVersion(version.getVersion() + 1);
+
+            noteVersionRepository.save(version);
+        }
 
         return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
     }

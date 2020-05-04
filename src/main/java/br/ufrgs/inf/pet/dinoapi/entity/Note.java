@@ -39,7 +39,7 @@ public class Note implements Serializable {
     @Column(name = "question", length = 500)
     private String question;
 
-    @Size(min = 1, max = 1000, message = "A resposta deve conter entre 1 e 1000 caracteres.")
+    @Size(min = 0, max = 1000, message = "A resposta deve conter entre 0 e 1000 caracteres.")
     @Column(name = "answer", length = 1000)
     private String answer;
 
@@ -117,6 +117,12 @@ public class Note implements Serializable {
 
     public void setTags(List<NoteTag> tags) {
         this.tags = tags;
+    }
+
+    public void addTags(List<NoteTag> tags) { this.tags.addAll(tags); }
+
+    public void deleteTags(List<NoteTag> tags) {
+        this.tags.removeAll(tags);
     }
 
     public User getUser() {
