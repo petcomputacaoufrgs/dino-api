@@ -5,7 +5,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
-import br.ufrgs.inf.pet.dinoapi.model.notes.NoteTagModel;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;

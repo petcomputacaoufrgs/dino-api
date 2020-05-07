@@ -17,7 +17,7 @@ public class NoteModel {
 
     Boolean answered;
 
-    List<NoteTagModel> tags;
+    List<String> tags;
 
     Long lastUpdate;
 
@@ -29,7 +29,7 @@ public class NoteModel {
         this.question = note.getQuestion();
         this.answer = note.getAnswer();
         this.answered = note.getAnswered();
-        this.tags = note.getTags().stream().map(tag -> new NoteTagModel(tag)).collect(Collectors.toList());
+        this.tags = note.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
         this.lastUpdate = DatetimeUtils.convertLocalDatetimeToMilliseconds(note.getLastUpdate());
     }
 
@@ -73,11 +73,11 @@ public class NoteModel {
         this.answered = answered;
     }
 
-    public List<NoteTagModel> getTags() {
+    public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<NoteTagModel> tags) {
+    public void setTags(List<String> tags) {
         this.tags = tags;
     }
 
