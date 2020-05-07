@@ -14,7 +14,6 @@ import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "note", uniqueConstraints={
-        @UniqueConstraint(columnNames={"n_order", "user_id"}),
         @UniqueConstraint(columnNames={"question", "user_id"})
 })
 public class Note implements Serializable {

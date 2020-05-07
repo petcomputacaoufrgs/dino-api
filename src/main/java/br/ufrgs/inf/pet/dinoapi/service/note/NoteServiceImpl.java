@@ -114,7 +114,7 @@ public class NoteServiceImpl implements NoteService {
         note = noteRepository.save(note);
         noteVersionRepository.save(version);
 
-        NoteSaveResponseModel response = new NoteSaveResponseModel(version.getVersion(), newTags, note.getId());
+        NoteSaveResponseModel response = new NoteSaveResponseModel(version.getVersion(), note.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
