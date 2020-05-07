@@ -83,7 +83,7 @@ public class Note implements Serializable {
     }
 
     public void setQuestion(String question) {
-        this.question = question;
+        this.question = question.trim();
     }
 
     public String getAnswer() {
@@ -91,6 +91,10 @@ public class Note implements Serializable {
     }
 
     public void setAnswer(String answer) {
+        if (answer != null) {
+            answer = answer.trim();
+        }
+
         this.answer = answer;
     }
 

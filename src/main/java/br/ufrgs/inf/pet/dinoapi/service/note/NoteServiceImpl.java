@@ -90,10 +90,18 @@ public class NoteServiceImpl implements NoteService {
 
         LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
 
+        Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
+
+        Integer order = 0;
+
+        if (maxOrderSearch.isPresent()) {
+            order = maxOrderSearch.get() + 1;
+        }
+
         Note note = new Note();
         note.setAnswered(false);
         note.setLastUpdate(date);
-        note.setOrder(model.getOrder());
+        note.setOrder(order);
         note.setQuestion(model.getQuestion());
         note.setTags(tags);
         note.setUser(user);

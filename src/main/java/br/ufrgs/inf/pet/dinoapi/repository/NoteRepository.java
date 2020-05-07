@@ -27,4 +27,7 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
         @Query("SELECT n FROM Note n WHERE n.id = ?1 AND n.user.id = ?2")
         Optional<Note> findOneByIdAndUserId(Long id, Long userId);
 
+        @Query("SELECT MAX(n.order) FROM Note n WHERE n.user.id = ?1")
+        Optional<Integer> findMaxOrderByUserId(Long userId);
+
 }
