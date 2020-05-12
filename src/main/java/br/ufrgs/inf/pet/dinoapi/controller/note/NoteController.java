@@ -29,6 +29,15 @@ public interface NoteController {
     ResponseEntity<Integer> deleteNote(NoteDeleteModel model);
 
     /**
+     * Atualiza uma lista de anotações
+     *
+     * @param models lista com as informações das anotações a serem atualizadas
+     *
+     * @return Em caso de sucesso retorna a nova versão das anotações
+     */
+    ResponseEntity<?> updateAll(List<NoteUpdateModel> models);
+
+    /**
      *  Atualiza a ordem das anotações
      *
      * @param models Lista de models com os dados necessário para a atualização

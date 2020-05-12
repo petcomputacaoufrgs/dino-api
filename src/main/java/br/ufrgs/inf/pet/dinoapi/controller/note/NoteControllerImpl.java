@@ -43,6 +43,12 @@ public class NoteControllerImpl implements NoteController {
     }
 
     @Override
+    @PutMapping("all/")
+    public ResponseEntity<?> updateAll(@RequestBody List<NoteUpdateModel> models) {
+        return noteService.updateAll(models);
+    }
+
+    @Override
     @PutMapping("order/")
     public ResponseEntity<?> updateNotesOrder(@RequestBody List<NoteOrderModel> models) {
         return noteService.updateNotesOrder(models);

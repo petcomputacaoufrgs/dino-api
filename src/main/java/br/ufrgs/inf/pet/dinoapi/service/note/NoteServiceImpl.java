@@ -140,7 +140,49 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
+    public ResponseEntity<?> updateAll(List<NoteUpdateModel> models) {
+        User user = userService.getCurrentUser();
+
+        List<Long> ids = models.stream()
+                .map(m -> m.getId())
+                .collect(Collectors.toList());
+
+        List<Note> savedNotes = noteRepository.findAllByIdAndUserId(ids, user.getId());
+
+        LocalDateTime date = LocalDateTime.now();
+
+        savedNotes.forEach(note -> {
+            Optional<NoteUpdateModel> modelSearch = models.stream().filter(m -> m.getId() == note.getId()).findFirst();
+
+            if (modelSearch.isPresent()) {
+                NoteUpdateModel model = modelSearch.get();
+
+                note.setAnswer(model.getAnswer());
+
+                note.setQuestion(model.getQuestion());
+
+                note.setLastUpdate(date);
+
+                this.updateTags(note, model);
+            }
+        });
+
+
+        NoteVersion version = user.getNoteVersion();
+
+        noteRepository.saveAll(savedNotes);
+
+        version.setVersion(version.getVersion() + 1);
+
+        noteVersionRepository.save(version);
+
+        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models) {
+        User user = userService.getCurrentUser();
+
         models = models.stream().filter(model -> model.getId() != null && model.getOrder() != null).collect(Collectors.toList());
 
         List<Long> ids = models.stream()
@@ -155,10 +197,10 @@ public class NoteServiceImpl implements NoteService {
         Set<Integer> uniqueOrders = new HashSet<>(orders);
 
         if (orders.size() != uniqueOrders.size()) {
-            return new ResponseEntity<>("Não podem haver itens com ordem repetidade.", HttpStatus.OK);
+            return new ResponseEntity<>("Não podem haver itens com ordens iguais.", HttpStatus.OK);
         }
 
-        List<Note> notes = noteRepository.findAllByIdOrderByIdAsc(ids);
+        List<Note> notes = noteRepository.findAllByIdOrderByIdAsc(ids, user.getId());
 
         if (notes.size() != ids.size()) {
             return new ResponseEntity<>(
@@ -170,8 +212,6 @@ public class NoteServiceImpl implements NoteService {
                 .forEach(i ->
                         notes.get(i).setOrder(orders.get(i))
                 );
-
-        User user = userService.getCurrentUser();
 
         NoteVersion version = user.getNoteVersion();
 
@@ -215,41 +255,11 @@ public class NoteServiceImpl implements NoteService {
             changed = true;
         }
 
-        List<NoteTag> removedTags = note.getTags().stream()
-                .filter(tag -> model.getTagNames().stream().allMatch(tagName -> !tagName.equalsIgnoreCase(tag.getName())))
-                .collect(Collectors.toList());
+        Boolean anyTagUpdated = this.updateTags(note, model);
 
-        if (removedTags.size() > 0) {
-            note.deleteTags(removedTags);
+        if (anyTagUpdated) {
             changed = true;
         }
-
-        List<String> newTagNames = model.getTagNames().stream()
-                .filter(tagName -> note.getTags().stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
-                .collect(Collectors.toList());
-
-        if (newTagNames.size() > 0) {
-            List<NoteTag> newTagsAlreadyExists = noteTagRepository.findAllByName(newTagNames);
-
-            note.addTags(newTagsAlreadyExists);
-
-            List<NoteTag> newTagsNotExists = newTagNames.stream()
-                    .filter(tagName -> newTagsAlreadyExists.stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
-                    .map(tagName -> {
-                        NoteTag tag = new NoteTag();
-                        tag.setName(tagName);
-
-                        return tag;
-                    })
-                    .collect(Collectors.toList());
-
-            List<NoteTag> newCreatedTags = Lists.newArrayList(noteTagRepository.saveAll(newTagsNotExists));
-
-            note.addTags(newCreatedTags);
-
-            changed = true;
-        }
-
 
         LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
 
@@ -303,5 +313,46 @@ public class NoteServiceImpl implements NoteService {
         }
 
         return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+    }
+
+    private boolean updateTags(Note note, NoteQuestionModel model) {
+        boolean changed = false;
+
+        List<NoteTag> removedTags = note.getTags().stream()
+                .filter(tag -> model.getTagNames().stream().allMatch(tagName -> !tagName.equalsIgnoreCase(tag.getName())))
+                .collect(Collectors.toList());
+
+        if (removedTags.size() > 0) {
+            note.deleteTags(removedTags);
+            changed = true;
+        }
+
+        List<String> newTagNames = model.getTagNames().stream()
+                .filter(tagName -> note.getTags().stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
+                .collect(Collectors.toList());
+
+        if (newTagNames.size() > 0) {
+            List<NoteTag> newTagsAlreadyExists = noteTagRepository.findAllByName(newTagNames);
+
+            note.addTags(newTagsAlreadyExists);
+
+            List<NoteTag> newTagsNotExists = newTagNames.stream()
+                    .filter(tagName -> newTagsAlreadyExists.stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
+                    .map(tagName -> {
+                        NoteTag tag = new NoteTag();
+                        tag.setName(tagName);
+
+                        return tag;
+                    })
+                    .collect(Collectors.toList());
+
+            List<NoteTag> newCreatedTags = Lists.newArrayList(noteTagRepository.saveAll(newTagsNotExists));
+
+            note.addTags(newCreatedTags);
+
+            changed = true;
+        }
+
+        return changed;
     }
 }
