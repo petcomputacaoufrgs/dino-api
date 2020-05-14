@@ -5,58 +5,21 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface NoteService {
-    /**
-     * Retorna todas as anotações do usuário
-     **/
+
     ResponseEntity<List<NoteModel>> getUserNotes();
 
-    /**
-     * Salva uma nova anotação
-     *
-     * @param model Model representando a nova entidade Note
-     * @return Em caso de sucesso retorna a nova versão das anotações e as novas tags adicionadas
-     **/
     ResponseEntity<?> saveNewNote(NoteSaveModel model);
 
-    /**
-     * Remove permanentemente uma anotação
-     *
-     * @param model objeto com o id da anotação a ser removida
-     * @return Em caso de sucesso retorna a nova versão das anotações
-     **/
-    ResponseEntity<Integer> deleteNote(NoteDeleteModel model);
+    ResponseEntity<Long> deleteAll(List<NoteDeleteModel> models);
 
-    /**
-     * Atualiza uma lista de anotações
-     *
-     * @param models lista com as informações das anotações a serem atualizadas
-     *
-     * @return Em caso de sucesso retorna a nova versão das anotações
-     */
+    ResponseEntity<Long> deleteNote(NoteDeleteModel model);
+
     ResponseEntity<?> updateAll(List<NoteUpdateModel> models);
 
-    /**
-     *  Atualiza a ordem das anotações
-     *
-     * @param models Lista de models com os dados necessário para a atualização
-     * @return Em caso de sucesso retorna a nova versão das anotações
-     **/
     ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models);
 
-    /**
-     * Atualiza a pergunta e as tags
-     *
-     * @param model Model com os dados para atualizar a pergunta e as tags
-     * @return Em caso de sucesso retorna a nova versão das anotações
-     **/
     ResponseEntity<?> updateNoteQuestion(NoteQuestionModel model);
 
-    /**
-     * Atualiza a resposta
-     *
-     * @param model Model com os dados para atualizar a resposta
-     * @return Em caso de sucesso retorna a nova versão das anotações
-     **/
     ResponseEntity<?> updateNoteAnswer(NoteAnswerModel model);
 
 }

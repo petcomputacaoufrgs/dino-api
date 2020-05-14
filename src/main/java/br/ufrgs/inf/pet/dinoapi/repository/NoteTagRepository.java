@@ -10,13 +10,13 @@ import java.util.List;
 @Repository
 public interface NoteTagRepository extends CrudRepository<NoteTag, Long> {
 
-    @Query("SELECT nt FROM NoteTag nt WHERE nt.id IN :ids")
+    @Query("SELECT nt FROM NoteTag nt WHERE nt.id IN ?1")
     List<NoteTag> findAllById(Iterable<Long> ids);
 
-    @Query("SELECT n.tags FROM Note n WHERE n.id IN :ids")
+    @Query("SELECT n.tags FROM Note n WHERE n.id IN ?1")
     List<NoteTag> findAllByNotes(Iterable<Long> ids);
 
-    @Query("SELECT t FROM NoteTag t WHERE t.name IN :names")
+    @Query("SELECT t FROM NoteTag t WHERE t.name IN ?1")
     List<NoteTag> findAllByName(Iterable<String> names);
 
 }

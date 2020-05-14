@@ -37,8 +37,14 @@ public class NoteControllerImpl implements NoteController {
     }
 
     @Override
+    @DeleteMapping("all/")
+    public ResponseEntity<Long> deleteAll(@RequestBody List<NoteDeleteModel> models) {
+        return noteService.deleteAll(models);
+    }
+
+    @Override
     @DeleteMapping
-    public ResponseEntity<Integer> deleteNote(@RequestBody NoteDeleteModel model) {
+    public ResponseEntity<Long> deleteNote(@RequestBody NoteDeleteModel model) {
         return noteService.deleteNote(model);
     }
 

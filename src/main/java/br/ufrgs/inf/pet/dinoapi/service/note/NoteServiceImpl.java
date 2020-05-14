@@ -127,16 +127,48 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<Integer> deleteNote(NoteDeleteModel model) {
-        if (model == null || model.getId() == null) {
-            return new ResponseEntity<>(0, HttpStatus.OK);
+    public ResponseEntity<Long> deleteAll(List<NoteDeleteModel> models) {
+        User user = userService.getCurrentUser();
+
+        List<Long> validIds = models.stream()
+                .filter(model -> model.getId() != null)
+                .map(model -> model.getId()).collect(Collectors.toList());
+
+        int deletedItems = noteRepository.deleteAllByIdAndUserId(validIds, user.getId());
+
+        NoteVersion version = user.getNoteVersion();
+
+        if (deletedItems > 0) {
+            version.setVersion(version.getVersion() + 1);
+
+            noteVersionRepository.save(version);
         }
+
+        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Long> deleteNote(NoteDeleteModel model) {
 
         User user = userService.getCurrentUser();
 
+        NoteVersion version = user.getNoteVersion();
+
+        if (model == null || model.getId() == null) {
+            return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        }
+
+
         int deletedItems = noteRepository.deleteByIdAndUserId(model.getId(), user.getId());
 
-        return new ResponseEntity<>(deletedItems, HttpStatus.OK);
+
+        if (deletedItems > 0) {
+            version.setVersion(version.getVersion() + 1);
+
+            noteVersionRepository.save(version);
+        }
+
+        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
     }
 
     @Override
