@@ -18,6 +18,9 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
         @Query("SELECT n FROM Note n WHERE n.question = ?1 AND n.user.id = ?2")
         List<Note> findByQuestionAndUserId(String question, Long userId);
 
+        @Query("SELECT n.question FROM Note n WHERE n.question IN ?1 AND n.user.id = ?2")
+        List<String> findAllQuestionsByQuestionsAndUserId(List<String> questions, Long userId);
+
         @Query("SELECT n FROM Note n WHERE n.id IN ?1 AND n.user.id = ?2 ORDER BY n.id ASC")
         List<Note> findAllByIdOrderByIdAsc(List<Long> ids, Long userId);
 

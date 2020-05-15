@@ -37,7 +37,16 @@ public interface NoteController {
     ResponseEntity<Long> deleteNote(NoteDeleteModel model);
 
     /**
-     * Atualiza uma lista de anotações
+     * Salva uma nova lista de anotações
+     *
+     * @param models lista com as informações das anotações a serem salvas
+     *
+     * @return Em caso de sucesso retorna a nova versão das anotações
+     */
+    ResponseEntity<?> saveAll(@RequestBody List<NoteSaveModel> models);
+
+    /**
+     * Atualiza e cria (caso não exista) uma lista de anotações
      *
      * @param models lista com as informações das anotações a serem atualizadas
      *

@@ -14,6 +14,8 @@ public interface NoteService {
 
     ResponseEntity<Long> deleteNote(NoteDeleteModel model);
 
+    ResponseEntity<?> saveAll(List<NoteSaveModel> models);
+
     ResponseEntity<?> updateAll(List<NoteUpdateModel> models);
 
     ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models);

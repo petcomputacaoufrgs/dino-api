@@ -11,6 +11,8 @@ public class NoteQuestionModel {
 
     Long lastUpdate;
 
+    Boolean answered;
+
     public Long getId() {
         return id;
     }
@@ -41,5 +43,13 @@ public class NoteQuestionModel {
 
     public void setLastUpdate(Long lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public Boolean getAnswered() {
+        return answered;
+    }
+
+    public void setAnswered(Boolean answered) {
+        this.answered = answered;
     }
 }
