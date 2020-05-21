@@ -5,7 +5,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 public class GlossaryItemUpdateModel {
     private Long id;
     private String title;
+    private String subtitle;
     private String text;
+    private String full_text;
     private Boolean exists;
 
     public GlossaryItemUpdateModel() {}
@@ -16,13 +18,15 @@ public class GlossaryItemUpdateModel {
 
     public String getTitle() { return title; }
 
+    public String getSubtitle() { return subtitle; }
+
     public String getText() { return text; }
+
+    public String getFullText() { return full_text; }
 
     public Boolean getExists() { return exists; }
 
     @JsonIgnore
-    public Boolean isValid() {
-        return this.text != null && this.title != null && this.title != "";
-    }
+    public Boolean isValid() { return this.text != null && this.title != null && this.title != ""; }
 
 }

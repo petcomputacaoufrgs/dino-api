@@ -57,7 +57,7 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
     private GlossaryVersion createFirstGlossaryVersion() {
         GlossaryVersion glossary = new GlossaryVersion();
         glossary.setLastUpdate(new Date());
-        glossary.setVersion(0l);
+        glossary.setVersion(0L);
 
         return glossary;
     }

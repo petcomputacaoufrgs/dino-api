@@ -44,6 +44,7 @@ public class GlossaryServiceImpl implements GlossaryService {
                             glossaryItem = new GlossaryItem();
                             glossaryItem.setByGlossarySaveModel(newItem);
 
+                            //que?
                             glossaryItem = glossaryItemRepository.save(glossaryItem);
 
                             responseItem = new GlossaryItemResponseModel();
@@ -73,9 +74,11 @@ public class GlossaryServiceImpl implements GlossaryService {
         GlossaryResponseModel response = new GlossaryResponseModel();
         Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
 
+        /*
         if (glossaryUpdateModel.getVersion() != glossaryVersion) {
             return new ResponseEntity<>("Versão do glossário desatualizada", HttpStatus.BAD_REQUEST);
         }
+        */
 
         if (glossaryUpdateModel != null) {
             List<GlossaryItemUpdateModel> updatedItemsList = glossaryUpdateModel.getItemList();

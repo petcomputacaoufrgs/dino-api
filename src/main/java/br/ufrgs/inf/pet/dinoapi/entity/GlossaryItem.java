@@ -31,11 +31,23 @@ public class GlossaryItem implements Serializable {
     @Column(name = "title", length = 100, unique = true)
     private String title;
 
+    //@Basic(optional = false)
+    //@NotNull(message = "Legenda não pode ser nula.")
+    @Size(min = 0, max = 20, message = "O texto deve conter entre 0 e 20 caracteres.")
+    @Column(name = "subtitle", length = 20)
+    private String subtitle;
+
     @Basic(optional = false)
     @NotNull(message = "Texto não pode ser nulo.")
     @Size(min = 0, max = 1000, message = "O texto deve conter entre 0 e 1000 caracteres.")
     @Column(name = "text", length = 1000)
     private String text;
+
+    //@Basic(optional = false)
+    //@NotNull(message = "Texto completo não pode ser nulo.")
+    @Size(min = 0, max = 20000, message = "O texto completo deve conter entre 0 e 20000 caracteres.")
+    @Column(name = "full_text", length = 20000)
+    private String full_text;
 
     @Basic(optional = false)
     @NotNull(message = "Dado de existencia não pode ser nulo.")
@@ -46,7 +58,9 @@ public class GlossaryItem implements Serializable {
 
     public void setByGlossarySaveModel(GlossaryItemSaveModel glossaryItemSaveModel) {
         this.title = glossaryItemSaveModel.getTitle();
+        this.subtitle = glossaryItemSaveModel.getSubtitle();
         this.text = glossaryItemSaveModel.getText();
+        this.full_text = glossaryItemSaveModel.getFullText();
         this.exists = true;
     }
 
@@ -58,8 +72,16 @@ public class GlossaryItem implements Serializable {
         return this.title;
     }
 
+    public String getSubtitle() {
+        return subtitle;
+    }
+
     public String getText() {
         return text;
+    }
+
+    public String getFullText() {
+        return full_text;
     }
 
     public Boolean getExists() {
@@ -74,13 +96,24 @@ public class GlossaryItem implements Serializable {
     public Boolean update(GlossaryItemUpdateModel updateModel) {
         Boolean updated = false;
 
+        if (!this.title.equals(updateModel.getTitle())) {
+            this.title = updateModel.getTitle();
+            updated = true;
+        }
+
+        if (!this.subtitle.equals(updateModel.getSubtitle())) {
+            this.subtitle = updateModel.getSubtitle();
+            updated = true;
+        }
+
         if (!this.text.equals(updateModel.getText())) {
             this.text = updateModel.getText();
             updated = true;
         }
 
-        if (!this.title.equals(updateModel.getTitle())) {
-            this.title = updateModel.getTitle();
+        // TODO: pode afetar desempenho, discutir melhor
+        if (!this.full_text.equals(updateModel.getFullText())) {
+            this.full_text = updateModel.getFullText();
             updated = true;
         }
 
@@ -92,3 +125,5 @@ public class GlossaryItem implements Serializable {
         return updated;
     }
 }
+
+

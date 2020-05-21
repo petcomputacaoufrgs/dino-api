@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 public class GlossaryItemSaveModel {
     private String title;
+    private String subtitle;
     private String text;
+    private String full_text;
 
     public GlossaryItemSaveModel() {}
 
@@ -12,8 +14,16 @@ public class GlossaryItemSaveModel {
         return title;
     }
 
+    public String getSubtitle() {
+        return subtitle;
+    }
+
     public String getText() {
         return text;
+    }
+
+    public String getFullText() {
+        return full_text;
     }
 
     @JsonIgnore
