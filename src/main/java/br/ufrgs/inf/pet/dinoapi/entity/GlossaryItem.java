@@ -47,7 +47,7 @@ public class GlossaryItem implements Serializable {
     //@NotNull(message = "Texto completo não pode ser nulo.")
     @Size(min = 0, max = 20000, message = "O texto completo deve conter entre 0 e 20000 caracteres.")
     @Column(name = "full_text", length = 20000)
-    private String full_text;
+    private String fullText;
 
     @Basic(optional = false)
     @NotNull(message = "Dado de existencia não pode ser nulo.")
@@ -60,7 +60,7 @@ public class GlossaryItem implements Serializable {
         this.title = glossaryItemSaveModel.getTitle();
         this.subtitle = glossaryItemSaveModel.getSubtitle();
         this.text = glossaryItemSaveModel.getText();
-        this.full_text = glossaryItemSaveModel.getFullText();
+        this.fullText = glossaryItemSaveModel.getFullText();
         this.exists = true;
     }
 
@@ -81,7 +81,7 @@ public class GlossaryItem implements Serializable {
     }
 
     public String getFullText() {
-        return full_text;
+        return fullText;
     }
 
     public Boolean getExists() {
@@ -111,10 +111,10 @@ public class GlossaryItem implements Serializable {
             updated = true;
         }
 
-        // TODO: pode afetar desempenho, discutir melhor
-        if (!this.full_text.equals(updateModel.getFullText())) {
-            this.full_text = updateModel.getFullText();
-            updated = true;
+        // TODO: discutir melhor
+        if(this.fullText == null || !this.fullText.equals(updateModel.getFullText())) {
+                this.fullText = updateModel.getFullText();
+                updated = true;
         }
 
         if (this.exists != updateModel.getExists()) {

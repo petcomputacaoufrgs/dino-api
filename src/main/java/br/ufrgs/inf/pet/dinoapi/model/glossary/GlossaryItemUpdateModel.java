@@ -7,7 +7,7 @@ public class GlossaryItemUpdateModel {
     private String title;
     private String subtitle;
     private String text;
-    private String full_text;
+    private String fullText;
     private Boolean exists;
 
     public GlossaryItemUpdateModel() {}
@@ -22,7 +22,7 @@ public class GlossaryItemUpdateModel {
 
     public String getText() { return text; }
 
-    public String getFullText() { return full_text; }
+    public String getFullText() { return fullText; }
 
     public Boolean getExists() { return exists; }
 

@@ -6,7 +6,7 @@ public class GlossaryItemSaveModel {
     private String title;
     private String subtitle;
     private String text;
-    private String full_text;
+    private String fullText;
 
     public GlossaryItemSaveModel() {}
 
@@ -23,7 +23,7 @@ public class GlossaryItemSaveModel {
     }
 
     public String getFullText() {
-        return full_text;
+        return fullText;
     }
 
     @JsonIgnore

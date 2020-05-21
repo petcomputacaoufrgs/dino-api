@@ -7,7 +7,7 @@ public class GlossaryItemResponseModel {
     private String title;
     private String subtitle;
     private String text;
-    private String full_text;
+    private String fullText;
     private Boolean exists;
 
     public GlossaryItemResponseModel() {}
@@ -17,7 +17,7 @@ public class GlossaryItemResponseModel {
         this.title = glossaryItem.getTitle();
         this.subtitle = glossaryItem.getSubtitle();
         this.text = glossaryItem.getText();
-        this.full_text = glossaryItem.getFullText();
+        this.fullText = glossaryItem.getFullText();
         this.exists = glossaryItem.getExists();
     }
 
@@ -38,7 +38,7 @@ public class GlossaryItemResponseModel {
     }
 
     public String getFullText() {
-        return full_text;
+        return fullText;
     }
 
     public Boolean getExists() {
