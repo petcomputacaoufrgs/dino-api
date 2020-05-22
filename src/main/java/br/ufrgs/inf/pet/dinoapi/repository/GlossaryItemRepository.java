@@ -15,6 +15,7 @@ import java.util.Optional;
 @Repository
 public interface GlossaryItemRepository extends CrudRepository<GlossaryItem, Long> {
 
+    //rep paginado do spring;
     Optional<GlossaryItem> findByTitle(String title);
 
     List<GlossaryItem> findAllByExistsTrue();
