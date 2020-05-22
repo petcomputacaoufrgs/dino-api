@@ -73,11 +73,9 @@ public class GlossaryServiceImpl implements GlossaryService {
         GlossaryResponseModel response = new GlossaryResponseModel();
         Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
 
-        /*
         if (glossaryUpdateModel.getVersion() != glossaryVersion) {
-            return new ResponseEntity<>("Versão do glossário desatualizada", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Erro: Versão do glossário desatualizada. Atualize seu glossário antes de aplicar mudanças.", HttpStatus.BAD_REQUEST);
         }
-        */
 
         if (glossaryUpdateModel != null) {
             List<GlossaryItemUpdateModel> updatedItemsList = glossaryUpdateModel.getItemList();
@@ -121,7 +119,8 @@ public class GlossaryServiceImpl implements GlossaryService {
         return new ResponseEntity<>(response, HttpStatus.OK);
             }
         }
-        return new ResponseEntity<>("Versão do glossário desatualizada", HttpStatus.BAD_REQUEST);
+
+        return new ResponseEntity<>("Erro: GLossário vazio", HttpStatus.BAD_REQUEST);
     }
 
     @Override
