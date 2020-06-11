@@ -1,0 +1,101 @@
+package br.ufrgs.inf.pet.dinoapi.entity.contacts;
+
+import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneSaveModel;
+import br.ufrgs.inf.pet.dinoapi.entity.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+import java.io.Serializable;
+import java.util.List;
+
+import static javax.persistence.GenerationType.SEQUENCE;
+
+@Entity
+@Table(name = "phone", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"id", "contact_id", "user_id"})
+})
+public class Phone implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private static final String SEQUENCE_NAME = "phone_seq";
+
+    @Id
+    //@GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
+    //@SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Long id;
+
+    @Size(min = 1, max = 1)
+    @Column(name = "type", length = 1)
+    private byte type;
+
+    @Basic(optional = false)
+    @NotNull(message = "O número do contato não pode ser nulo.")
+    @Size(min = 1, max = 30)
+    @Column(name = "number", length = 30)
+    private String number;
+
+    @JsonIgnore
+    @Valid
+    @ManyToOne
+    @NotNull(message = "O contato associado não pode ser nulo.")
+    @JoinColumn(name = "contact_id")
+    private Contact contact;
+
+    @JsonIgnore
+    @Valid
+    @ManyToOne
+    @NotNull(message = "O usuário associado não pode ser nulo.")
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    public Phone() {
+    }
+
+    void setPhoneByPhoneSaveModel(PhoneSaveModel phoneSaveModel) {
+        this.type = phoneSaveModel.getType();
+        this.number = phoneSaveModel.getNumber();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public Contact getContact() {
+        return contact;
+    }
+
+    public void setContact(Contact contact) {
+        this.contact = contact;
+    }
+
+    public String getNumber() {
+        return number;
+    }
+
+    public void setNumber(String number) {
+        this.number = number;
+    }
+
+    public byte getType() {
+        return type;
+    }
+
+    public void setType(byte type) {
+        this.type = type;
+    }
+
+}

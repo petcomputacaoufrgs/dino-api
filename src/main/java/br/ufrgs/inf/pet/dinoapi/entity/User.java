@@ -1,11 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
+import br.ufrgs.inf.pet.dinoapi.entity.*;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
+
 import javax.persistence.*;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -58,6 +62,14 @@ public class User implements Serializable {
     @Valid
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
+
+    @Valid
+    @OneToMany(mappedBy = "user")
+    private ArrayList<Contact> contacts;
+
+    @Valid
+    @OneToMany(mappedBy = "user")
+    private ArrayList<Phone> phones;
 
     public User() {}
 
@@ -125,6 +137,8 @@ public class User implements Serializable {
     public List<Note> getNotes() {
         return notes;
     }
+
+    public List<Contact> getContacts() { return contacts; }
 
     public void setNotes(List<Note> notes) {
         this.notes = notes;
