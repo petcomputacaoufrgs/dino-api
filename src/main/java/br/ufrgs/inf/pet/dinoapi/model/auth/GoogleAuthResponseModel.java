@@ -1,10 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth;
 
-/**
- * Model para envio do token de acesso
- *
- * @author joao.silva
- */
 public class GoogleAuthResponseModel {
 
     String accessToken;

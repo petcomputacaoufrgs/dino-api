@@ -2,11 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.service.auth.dino;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 
-/**
- * Implementa a autenticação do próprio Dino
- *
- * @author joao.silva
- */
 public interface DinoAuthService {
 
     /**

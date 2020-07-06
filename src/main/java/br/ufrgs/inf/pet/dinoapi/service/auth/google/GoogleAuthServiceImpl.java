@@ -21,11 +21,6 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
 
-/**
- * Implementação de: {@link GoogleAuthService}
- *
- * @author joao.silva
- */
 @Service
 public class GoogleAuthServiceImpl implements GoogleAuthService {
 
@@ -164,7 +159,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     private ResponseEntity<?> getRefreshTokenError() {
-        return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.PRECONDITION_REQUIRED);
+        return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.NON_AUTHORITATIVE_INFORMATION);
     }
 
 

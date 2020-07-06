@@ -1,12 +1,7 @@
-package br.ufrgs.inf.pet.dinoapi.model.glossary_item;
+package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 
-/**
- * Model para envio de um item do glossário
- *
- * @author joao.silva
- */
 public class GlossaryItemResponseModel {
     private Long id;
     private String title;

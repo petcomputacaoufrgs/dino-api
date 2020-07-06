@@ -1,8 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateModel;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -11,11 +10,6 @@ import java.io.Serializable;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
-/**
- * Classe de persistencia para a tabela com os itens do glossário no banco de dados
- *
- * @author joao.silva
- */
 @Entity
 @Table(name = "glossary_item")
 public class GlossaryItem implements Serializable {

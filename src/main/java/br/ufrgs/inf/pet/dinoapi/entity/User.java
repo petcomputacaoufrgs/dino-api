@@ -1,19 +1,16 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
+import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
-/**
- * Classe de persistencia para a tabela de usuário no banco de dados
- *
- * @author joao.silva
- */
 @Entity
 @Table(name = "dino_user")
 public class User implements Serializable {
@@ -46,17 +43,31 @@ public class User implements Serializable {
     @Column(name = "token_expires_data_in_millis")
     private Long tokenExpiresDateInMillis;
 
+    @Valid
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
+    @Valid
     @OneToOne(mappedBy = "user")
     private UserAppSettings userAppSettings;
+
+    @Valid
+    @OneToOne(mappedBy = "user")
+    private NoteVersion noteVersion;
+
+    @Valid
+    @OneToMany(mappedBy = "user")
+    private List<Note> notes;
 
     public User() {}
 
     public User(String name, String email) {
         this.name = name;
         this.email = email;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public boolean hasGoogleAuth() {
@@ -111,7 +122,24 @@ public class User implements Serializable {
         this.userAppSettings = userAppSettings;
     }
 
+    public List<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(List<Note> notes) {
+        this.notes = notes;
+    }
+
+    public NoteVersion getNoteVersion() {
+        return noteVersion;
+    }
+
+    public void setNoteVersion(NoteVersion noteVersion) {
+        this.noteVersion = noteVersion;
+    }
+
     public Boolean tokenIsValid() {
         return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
     }
+
 }

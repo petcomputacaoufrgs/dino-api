@@ -2,17 +2,18 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+
 import java.util.Date;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "glossary_version")
-public class GlossaryVersion implements Serializable {
+@Table(name = "note_version")
+public class NoteVersion {
+
     private static final long serialVersionUID = 1L;
 
-    private static final String SEQUENCE_NAME = "glossary_seq";
+    private static final String SEQUENCE_NAME = "note_version_seq";
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -31,16 +32,17 @@ public class GlossaryVersion implements Serializable {
     @Column(name = "last_update")
     private Date lastUpdate;
 
+    @OneToOne
+    @NotNull
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
     public Long getId() {
         return id;
     }
 
     public Long getVersion() {
         return version;
-    }
-
-    public void updateVersion() {
-        this.version = this.version + 1;
     }
 
     public void setVersion(Long version) {
@@ -53,5 +55,13 @@ public class GlossaryVersion implements Serializable {
 
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

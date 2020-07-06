@@ -1,10 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth;
 
-/**
- * Model para recebimento do Token de autorização
- *
- * @author joao.silva
- */
 public class GoogleAuthRequestModel {
     private String token;
 

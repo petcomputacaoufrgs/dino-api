@@ -1,15 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary_item.GlossaryItemSaveModel;
-
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Model para recebimento de novo glossário (lista de itens)
- *
- * @author joao.silva
- */
 public class GlossarySaveModel {
 
     private List<GlossaryItemSaveModel> itemList;
