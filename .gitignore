@@ -31,3 +31,5 @@ target/
 
 
 src/main/java/br/ufrgs/inf/pet/dinoapi/secret/
+
+src/main/resources/client_secret.json

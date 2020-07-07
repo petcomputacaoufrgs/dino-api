@@ -6,9 +6,12 @@ import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ResourceUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 
 /**
@@ -84,8 +87,13 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     }
 
     private GoogleClientSecrets getClientSecrets() throws IOException {
-        String googleSecret = "{\"web\":{\"client_id\":\"524973246243-cs3hpbi4k2c57gbe1nti6sqnbp07aj53.apps.googleusercontent.com\",\"project_id\":\"testdinoapp\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"4r9J0XLQ_tKdc00a2zawAHYq\",\"redirect_uris\":[\"https://inf-ufrgs-tst-api-dino.herokuapp.com\"],\"javascript_origins\":[\"http://localhost:3000\",\"https://test.dinoapp.tk\"]}}";
-
+        String googleSecret = new String(
+                Files.readAllBytes(
+                        new File(
+                                getClass().getClassLoader().getResource("client_secret.json").getFile()
+                        ).toPath()
+                )
+        );
         return GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new StringReader(googleSecret));
     }
 
