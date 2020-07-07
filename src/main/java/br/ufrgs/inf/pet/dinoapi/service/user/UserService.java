@@ -24,9 +24,4 @@ public interface UserService {
      */
     User save(User user);
 
-    /**
-     * Busca o usuário logado no banco
-     * @return Usuário logado ou nulo
-     */
-    User getCurrentUser();
 }

@@ -37,26 +37,4 @@ public class UserServiceImpl implements UserService {
 
         return null;
     }
-
-    @Override
-    public User getCurrentUser() {
-        SecurityContext context =  SecurityContextHolder.getContext();
-
-        if (context == null) {
-            return null;
-        }
-
-        Authentication auth = context.getAuthentication();
-
-        if (auth == null) {
-            return null;
-        }
-
-        UserDetails userDetais = (UserDetails) auth.getPrincipal();
-
-        String email = userDetais.getUsername();
-
-        return findUserByEmail(email);
-    }
-
 }

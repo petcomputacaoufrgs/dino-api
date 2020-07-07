@@ -7,8 +7,15 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.xml.ws.Response;
 import java.util.*;
 
 @Service
@@ -57,6 +64,34 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return null;
+    }
+
+    @Override
+    public Auth getCurrentAuth() {
+        SecurityContext context =  SecurityContextHolder.getContext();
+
+        if (context == null) {
+            return null;
+        }
+
+        Authentication auth = context.getAuthentication();
+
+        if (auth == null) {
+            return null;
+        }
+
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+
+        String accessToken = userDetails.getPassword();
+
+        return findByAccessToken(accessToken);
+    }
+
+    @Override
+    public ResponseEntity<?> logout() {
+        authRepository.delete(getCurrentAuth());
+
+        return new ResponseEntity<>("Autenticação removida.", HttpStatus.OK);
     }
 
     private Auth createToken(User user, List<String> roles) {
