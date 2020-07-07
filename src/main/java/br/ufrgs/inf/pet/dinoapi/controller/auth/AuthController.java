@@ -11,4 +11,11 @@ public interface AuthController {
      * @return token validado
      */
     ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel token);
+
+    /**
+     * Limpa as informações da autenticação corrente
+     *
+     * @return Mensagem de remoção com status OK
+     */
+    ResponseEntity<?> logout();
 }

@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.auth.dino;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import org.springframework.http.ResponseEntity;
 
 public interface AuthService {
 
@@ -28,5 +29,18 @@ public interface AuthService {
      * @return autenticação salva no banoo de dados
      */
     Auth findByAccessToken(String accessToken);
+
+    /**
+     * Retorna a autenticação corrente
+     * @return Autenticação do usuário
+     */
+    Auth getCurrentAuth();
+
+    /**
+     * Limpa os dados de autenticação correntes
+     *
+     * @return Mensagem de remoção com status OK
+     */
+    ResponseEntity<?> logout();
 
 }

@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,11 +20,11 @@ public class NoteTagServiceImpl implements NoteTagService {
     NoteTagRepository noteTagRepository;
 
     @Autowired
-    UserServiceImpl userService;
+    AuthServiceImpl authService;
 
     @Override
     public ResponseEntity<List<NoteTag>> getTags() {
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         Set<Long> noteIds = user.getNotes().stream().map(n -> n.getId()).collect(Collectors.toSet());
 

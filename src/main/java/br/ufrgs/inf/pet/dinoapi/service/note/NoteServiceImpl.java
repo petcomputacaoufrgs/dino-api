@@ -8,7 +8,7 @@ import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.DatetimeUtils;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +34,11 @@ public class NoteServiceImpl implements NoteService {
     NoteVersionRepository noteVersionRepository;
 
     @Autowired
-    UserServiceImpl userService;
+    AuthServiceImpl authService;
 
     @Override
     public ResponseEntity<List<NoteModel>> getUserNotes() {
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         List<Note> notes = user.getNotes();
 
@@ -54,7 +54,7 @@ public class NoteServiceImpl implements NoteService {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
         }
 
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         List<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
 
@@ -104,7 +104,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<Long> deleteAll(List<NoteDeleteModel> models) {
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         NoteVersion version = user.getNoteVersion();
 
@@ -130,7 +130,7 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public ResponseEntity<Long> deleteNote(NoteDeleteModel model) {
 
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         NoteVersion version = user.getNoteVersion();
 
@@ -152,7 +152,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     public ResponseEntity<?> saveAll(List<NoteSaveModel> models) {
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         LocalDateTime date = LocalDateTime.now();
 
@@ -171,7 +171,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<?> updateAll(List<NoteUpdateModel> models) {
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         List<Long> idsToUpdate = models.stream()
                 .filter(m -> m.getId() != null)
@@ -221,7 +221,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models) {
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         models = models.stream().filter(model -> model.getId() != null && model.getOrder() != null).collect(Collectors.toList());
 
@@ -270,7 +270,7 @@ public class NoteServiceImpl implements NoteService {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
         }
 
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
 
@@ -321,7 +321,7 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public ResponseEntity<?> updateNoteAnswer(NoteAnswerModel model) {
 
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
 
