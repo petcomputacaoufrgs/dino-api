@@ -4,7 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
 import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
     @Autowired
-    UserServiceImpl userService;
+    AuthServiceImpl authService;
 
     @Autowired
     UserAppSettingsRepository userAppSettingsRepository;
@@ -22,7 +22,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
     @Override
     public ResponseEntity<?> getUserAppSettings() {
 
-        User userDB = userService.getCurrentUser();
+        User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
@@ -43,7 +43,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
         }
 
-        User userDB = userService.getCurrentUser();
+        User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
@@ -83,7 +83,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
     @Override
     public ResponseEntity<?> getUserAppSettingsVersion() {
-        User userDB = userService.getCurrentUser();
+        User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);

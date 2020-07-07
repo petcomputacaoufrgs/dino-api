@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,14 +15,14 @@ import java.util.Date;
 public class NoteVersionServiceImpl implements NoteVersionService {
 
     @Autowired
-    UserServiceImpl userService;
+    AuthServiceImpl authService;
 
     @Autowired
     NoteVersionRepository noteVersionRepository;
 
     @Override
     public ResponseEntity<Long> getVersion() {
-        User user = userService.getCurrentUser();
+        User user = authService.getCurrentAuth().getUser();
 
         NoteVersion noteVersion = user.getNoteVersion();
 
