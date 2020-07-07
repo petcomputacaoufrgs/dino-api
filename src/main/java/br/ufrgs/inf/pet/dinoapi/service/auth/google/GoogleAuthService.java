@@ -11,7 +11,7 @@ public interface GoogleAuthService {
      * @param token - Token de autenticação do Google
      * @return token validado
      */
-    ResponseEntity<?> requestGoogleSign(GoogleAuthRequestModel token);
+    ResponseEntity<?> googleSignIn(GoogleAuthRequestModel token);
 
     /**
      * Atualiza o token de acesso expirado

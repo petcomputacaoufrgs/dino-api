@@ -1,12 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleAPICommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.GoogleAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.GoogleAuthRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.DinoAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,26 +30,24 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     UserServiceImpl userService;
 
     @Autowired
-    DinoAuthServiceImpl dinoAuthService;
+    AuthServiceImpl authService;
 
     @Autowired
     GoogleAuthRepository googleAuthRepository;
 
     final GoogleAPICommunicationImpl googleAPICommunicationImpl = new GoogleAPICommunicationImpl();
 
-    @Override
-    public ResponseEntity<?> requestGoogleSign(GoogleAuthRequestModel authModel) {
-        GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(authModel.getToken());
+    public ResponseEntity<?> googleSignIn(GoogleAuthRequestModel authModel) {
+        try {
+            GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(authModel.getToken());
 
-        if (tokenResponse != null) {
-            try {
+            if (tokenResponse != null) {
+
                 GoogleIdToken idToken = tokenResponse.parseIdToken();
 
                 GoogleIdToken.Payload payload = idToken.getPayload();
 
                 String googleId = payload.getSubject();
-
-                Optional<GoogleAuth> googleAuthSearchResult = googleAuthRepository.findByGoogleId(googleId);
 
                 GoogleAuth googleAuth;
                 User userDB;
@@ -57,10 +57,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 String name = (String) payload.get("name");
                 String refreshToken = tokenResponse.getRefreshToken();
 
+                Optional<GoogleAuth> googleAuthSearchResult = googleAuthRepository.findByGoogleId(googleId);
+
                 if (googleAuthSearchResult.isPresent()) {
                     googleAuth = googleAuthSearchResult.get();
 
-                    if (!isWithRefreshTokenEmpty(refreshToken)) {
+                    if (isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
                     } else if (googleAuth.getRefreshToken().isEmpty()) {
                         return getRefreshTokenError();
@@ -70,34 +72,30 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     updateUserData(payload, userDB);
 
-                    updateAccessTokenInfo(tokenResponse, googleAuth);
-
-                    googleAuthRepository.save(googleAuth);
-
-                    userDB = generateAccessTokenAndSaveUser(userDB);
-
                 } else {
-
                     if (isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError();
                     }
 
                     userDB = new User(name, email);
 
-                    userDB = generateAccessTokenAndSaveUser(userDB);
+                    userService.save(userDB);
 
                     googleAuth = new GoogleAuth(googleId, refreshToken);
 
-                    updateAccessTokenInfo(tokenResponse, googleAuth);
-
                     googleAuth.setUser(userDB);
 
-                    googleAuthRepository.save(googleAuth);
                 }
+
+                updateGoogleAccessTokenInfo(tokenResponse, googleAuth);
+
+                googleAuthRepository.save(googleAuth);
+
+                Auth auth = authService.generateAuth(userDB);
 
                 GoogleAuthResponseModel response = new GoogleAuthResponseModel();
 
-                response.setAccessToken(userDB.getAccessToken());
+                response.setAccessToken(auth.getAccessToken());
 
                 response.setGoogleAccessToken(googleAuth.getAccessToken());
 
@@ -108,9 +106,11 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 response.setPictureUrl(pictureUrl);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
-            } catch (IOException e) {
-                return new ResponseEntity<>("Erro ao resgatar dados da autenticação com o Google.", HttpStatus.BAD_REQUEST);
             }
+        } catch (GoogleClientSecretIOException e) {
+            return new ResponseEntity<>("Erro interno ao ler os dados de autenticação da aplicação com o Google", HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Erro ao resgatar dados da autenticação com o Google.", HttpStatus.BAD_REQUEST);
         }
 
         return new ResponseEntity<>("Erro na autenticação com a API do Google.", HttpStatus.BAD_REQUEST);
@@ -122,7 +122,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
 
             if (tokenResponse != null) {
-                updateAccessTokenInfo(tokenResponse, googleAuth);
+                updateGoogleAccessTokenInfo(tokenResponse, googleAuth);
 
                 googleAuthRepository.save(googleAuth);
 
@@ -148,23 +148,24 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return null;
     }
 
-    private User generateAccessTokenAndSaveUser(User user) {
-        dinoAuthService.generateAccessToken(user);
-
-        return userService.save(user);
-    }
-
     private Boolean isWithRefreshTokenEmpty(String refreshToken) {
         return refreshToken == null || refreshToken.isEmpty();
+    }
+
+    private Boolean isWithRefreshTokenPresent(String refreshToken) {
+        return !isWithRefreshTokenEmpty(refreshToken);
     }
 
     private ResponseEntity<?> getRefreshTokenError() {
         return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.NON_AUTHORITATIVE_INFORMATION);
     }
 
-
+    /**
+     * Soma a data atual com o tempo do token expirar (converte ele de segundos para milisegundos antes)
+     * @param expiresIn - Tempo até o token expirar
+     * @return Data de expiração do token
+     */
     private Long getTokenExpirationDateInMS(Long expiresIn) {
-        //Soma a data atual com o tempo do token expirar (converte ele de segundos para milisegundos antes)
         return (new Date()).getTime() + (expiresIn * 1000);
     }
 
@@ -180,7 +181,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         }
     }
 
-    private void updateAccessTokenInfo(GoogleTokenResponse tokenResponse, GoogleAuth googleAuth) {
+    private void updateGoogleAccessTokenInfo(GoogleTokenResponse tokenResponse, GoogleAuth googleAuth) {
         String accessToken = tokenResponse.getAccessToken();
 
         Long expiresIn = tokenResponse.getExpiresInSeconds();

@@ -1,8 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
 
+import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.repository.AuthRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.UserRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -21,17 +24,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public User save(User user) {
         return userRepository.save(user);
-    }
-
-    @Override
-    public User findByAccessToken(String accessToken) {
-        Optional<User> userSearchResult = userRepository.findByAccessToken(accessToken);
-
-        if (userSearchResult.isPresent()) {
-           return userSearchResult.get();
-        }
-
-        return null;
     }
 
     @Override

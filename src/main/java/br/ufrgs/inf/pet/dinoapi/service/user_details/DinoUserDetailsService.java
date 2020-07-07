@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.user_details;
 
+import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserService;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,17 +13,26 @@ import java.util.ArrayList;
 
 @Service
 public class DinoUserDetailsService implements UserDetailsService {
+
     @Autowired
     UserService userService;
+
+    public UserDetails loadUserDetailsByAuth(Auth auth) throws UsernameNotFoundException {
+        if (auth != null) {
+            return new User(auth.getUser().getEmail(), auth.getAccessToken(), new ArrayList<>());
+        }
+
+        throw new UsernameNotFoundException("Autenticação vazia.");
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
-            return new User(userDB.getEmail(), userDB.getAccessToken(), new ArrayList<>());
+            return new User(userDB.getEmail(), "", new ArrayList<>());
         }
 
-        throw new UsernameNotFoundException(email);
+        throw new UsernameNotFoundException("Email inválido: " + email);
     }
 }

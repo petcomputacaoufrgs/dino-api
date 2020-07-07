@@ -25,14 +25,6 @@ public interface UserService {
     User save(User user);
 
     /**
-     * Busca um usuário por seu token de acesso
-     *
-     * @param accessToken Token de acesso do usuário
-     * @return Usuário encontrado ou nulo
-     */
-    User findByAccessToken(String accessToken);
-
-    /**
      * Busca o usuário logado no banco
      * @return Usuário logado ou nulo
      */

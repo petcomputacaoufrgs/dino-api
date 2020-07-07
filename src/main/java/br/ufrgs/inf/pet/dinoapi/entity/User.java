@@ -6,7 +6,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -36,12 +35,9 @@ public class User implements Serializable {
     @Column(name = "email", length = 100, unique = false)
     private String email;
 
-    @Size(min = 1, max = 260, message = "O token de acesso deve conter entre 1 e 260 caracteres.")
-    @Column(name = "access_token", length = 260, unique = true)
-    private String accessToken;
-
-    @Column(name = "token_expires_data_in_millis")
-    private Long tokenExpiresDateInMillis;
+    @Valid
+    @OneToMany(mappedBy = "user")
+    private List<Auth> auths;
 
     @Valid
     @OneToOne(mappedBy = "user")
@@ -98,22 +94,6 @@ public class User implements Serializable {
         this.googleAuth = googleAuth;
     }
 
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public Long getTokenExpiresDateInMillis() {
-        return tokenExpiresDateInMillis;
-    }
-
-    public void setTokenExpiresDateInMillis(Long tokenExpiresDateInMillis) {
-        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
-    }
-
     public UserAppSettings getUserAppSettings() {
         return userAppSettings;
     }
@@ -138,8 +118,15 @@ public class User implements Serializable {
         this.noteVersion = noteVersion;
     }
 
-    public Boolean tokenIsValid() {
-        return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
-    }
+    public Boolean tokenIsValid(String token) {
+        boolean isValid = false;
 
+        for (Auth auth : auths) {
+            if (auth.getAccessToken().equals(token) && auth.tokenIsValid()) {
+                isValid = true;
+            }
+        }
+
+        return isValid;
+    }
 }
