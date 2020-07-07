@@ -1,12 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google;
 
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopesEnum;
+import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.ResourceUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
 
     private String REDIRECT_URI = "http://localhost:3000";
 
-    public GoogleTokenResponse getGoogleToken(String token) {
+    public GoogleTokenResponse getGoogleToken(String token) throws GoogleClientSecretIOException {
         try {
             GoogleClientSecrets clientSecrets = getClientSecrets();
 
@@ -51,12 +51,8 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
 
             return tokenResponse;
         } catch (IOException ex) {
-            //TO-DO Tratar erro
-            ex.printStackTrace();
+            throw new GoogleClientSecretIOException("Erro ao ler arquivos de configuração do servidor.");
         }
-
-        //TO-DO Tratar erro
-        return null;
     }
 
     public GoogleTokenResponse refreshAccessToken(String refreshToken) {

@@ -1,9 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.filter;
 
+import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.DinoAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
@@ -35,7 +36,7 @@ public class AuthFilter extends OncePerRequestFilter {
     UserServiceImpl userService;
 
     @Autowired
-    DinoAuthServiceImpl dinoAuthService;
+    AuthServiceImpl authService;
 
     @Autowired
     GoogleAuthServiceImpl googleAuthService;
@@ -54,13 +55,13 @@ public class AuthFilter extends OncePerRequestFilter {
 
             if (token != null) {
 
-                User user = userService.findByAccessToken(token);
+                Auth auth = authService.findByAccessToken(token);
 
-                if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
 
-                    updateTokensIfNecessary(user, httpServletResponse);
+                    updateTokensIfNecessary(auth, httpServletResponse);
 
-                    UserDetails userDetails = dinoUserDetailsService.loadUserByUsername(user.getEmail());
+                    UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
@@ -80,11 +81,13 @@ public class AuthFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private void updateTokensIfNecessary(User user, HttpServletResponse httpServletResponse) {
-        if (!user.tokenIsValid()) {
-            String newToken = dinoAuthService.refreshAccessToken(user);
+    private void updateTokensIfNecessary(Auth auth, HttpServletResponse httpServletResponse) {
+        User user = auth.getUser();
 
-            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), "Bearer " + newToken);
+        if (!auth.tokenIsValid()) {
+            Auth newAuth = authService.refreshAuth(auth);
+
+            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), "Bearer " + newAuth.getAccessToken());
         }
 
         if(user.hasGoogleAuth()) {
@@ -113,8 +116,8 @@ public class AuthFilter extends OncePerRequestFilter {
             userService = webApplicationContext.getBean(UserServiceImpl.class);
         }
 
-        if(dinoAuthService == null) {
-            dinoAuthService = webApplicationContext.getBean(DinoAuthServiceImpl.class);
+        if(authService == null) {
+            authService = webApplicationContext.getBean(AuthServiceImpl.class);
         }
 
         if(googleAuthService == null) {

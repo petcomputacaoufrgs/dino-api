@@ -15,7 +15,7 @@ public interface GoogleAPICommunication {
      * @return GoogleTokenResponse contendo todos os dados e tokens necessários para login
      * @author joao.silva
      */
-    GoogleTokenResponse getGoogleToken(String token);
+    GoogleTokenResponse getGoogleToken(String token) throws Exception;
 
     /**
      *  Solicita um novo token de acesso utilizando o token de atualização
