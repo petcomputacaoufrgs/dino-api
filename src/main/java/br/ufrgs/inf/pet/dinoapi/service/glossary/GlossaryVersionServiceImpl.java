@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryVersion;
 import br.ufrgs.inf.pet.dinoapi.repository.GlossaryVersionRepository;
+import br.ufrgs.inf.pet.dinoapi.service.websocket.glossary.GlossaryWebSocketServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,9 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
     @Autowired
     GlossaryVersionRepository glossaryVersionRepository;
 
+    @Autowired
+    GlossaryWebSocketServiceImpl glossaryWebSocketService;
+
     @Override
     public Long updateGlossaryVersion() {
         GlossaryVersion glossary = glossaryVersionRepository.findByOrderByVersionDesc();
@@ -25,6 +29,8 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         }
 
         glossaryVersionRepository.save(glossary);
+        glossaryWebSocketService.sendGlossaryUpdateMessage(glossary.getVersion());
+
 
         return glossary.getVersion();
     }

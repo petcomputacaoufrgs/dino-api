@@ -1,11 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.websocket.glossary;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import br.ufrgs.inf.pet.dinoapi.model.websocket.glossary.GlossaryWebSocketUpdateModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import java.util.Date;
 
 @Service
 public class GlossaryWebSocketServiceImpl implements GlossaryWebSocketService {
@@ -13,22 +11,12 @@ public class GlossaryWebSocketServiceImpl implements GlossaryWebSocketService {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    public void sendMessages() {
-        ObjectMapper mapper = new ObjectMapper();
-        for (String userName : userNames) {
-            String json = null;
-            try {
-                json = mapper.writeValueAsString("Hello " + userName + " at " + new Date().toString());
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-
-            simpMessagingTemplate.convertAndSend(WS_MESSAGE_TRANSFER_DESTINATION, json);
-        }
-    }
+    private final String WS_MESSAGE_TRANSFER_DESTINATION = "/topic/glossary";
 
     @Override
-    public void sendGlossaryUpdateMessage() {
-
+    public void sendGlossaryUpdateMessage(Long newVersion) {
+        GlossaryWebSocketUpdateModel model = new GlossaryWebSocketUpdateModel();
+        model.setNewVersion(newVersion);
+        simpMessagingTemplate.convertAndSend(WS_MESSAGE_TRANSFER_DESTINATION, model);
     }
 }
