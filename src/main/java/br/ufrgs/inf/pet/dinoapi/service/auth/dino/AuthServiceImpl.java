@@ -97,7 +97,6 @@ public class AuthServiceImpl implements AuthService {
     private Auth createToken(User user, List<String> roles) {
         Claims claims = Jwts.claims().setSubject(user.getEmail());
         claims.put("roles", roles);
-
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 

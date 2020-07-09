@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google;
 
+import br.ufrgs.inf.pet.dinoapi.config.AppOriginConfig;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopesEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
@@ -12,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 /**
@@ -24,11 +26,11 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     @Autowired
     GoogleAuthServiceImpl googleAuthService;
 
-    private String REDIRECT_URI = "http://localhost:3000";
-
     public GoogleTokenResponse getGoogleToken(String token) throws GoogleClientSecretIOException {
         try {
             GoogleClientSecrets clientSecrets = getClientSecrets();
+
+            String redirect_uri = new AppOriginConfig().getOrigin();
 
             ArrayList<String> scopes = new ArrayList<>();
 
@@ -43,7 +45,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
                             clientSecrets.getDetails().getClientId(),
                             clientSecrets.getDetails().getClientSecret(),
                             token,
-                            REDIRECT_URI)   // Specify the same redirect URI that you use with your web
+                            redirect_uri)   // Specify the same redirect URI that you use with your web
                                             // app. If you don't have a web version of your app, you can
                                             // specify an empty string.
                             .setScopes(scopes)
@@ -85,11 +87,10 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     private GoogleClientSecrets getClientSecrets() throws IOException {
         String googleSecret = new String(
                 Files.readAllBytes(
-                        new File(
-                                getClass().getClassLoader().getResource("client_secret.json").getFile()
-                        ).toPath()
+                        Paths.get(getClass().getClassLoader().getResource("client_secret.json").getPath())
                 )
         );
+
         return GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new StringReader(googleSecret));
     }
 

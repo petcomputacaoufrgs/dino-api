@@ -26,7 +26,7 @@ import java.util.Arrays;
  */
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private UserDetailsService dinoUserDetailsService = new DinoUserDetailsService();
 
@@ -45,6 +45,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/glossary/save/").permitAll()
                 .antMatchers("/glossary/update/").permitAll()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
+                .antMatchers("/websocket/**").permitAll()
                 .anyRequest().authenticated()
                 .and().cors().and().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
