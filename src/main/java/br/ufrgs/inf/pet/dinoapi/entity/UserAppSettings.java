@@ -1,8 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -22,17 +20,14 @@ public class UserAppSettings implements Serializable {
     private Long id;
 
     @Basic(optional = false)
-    @Size(min = 1, max = 5, message = "O código de linguagem deve ter entre 1 e 5 caracteres.")
     @Column(name = "language", length = 5)
     private String language;
 
     @Basic(optional = false)
-    @NotNull(message = "Versão não pode ser nula.")
     @Column(name = "version")
     private Long version;
 
     @OneToOne
-    @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 

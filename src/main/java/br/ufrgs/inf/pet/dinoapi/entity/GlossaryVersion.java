@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -22,12 +21,10 @@ public class GlossaryVersion implements Serializable {
     private Long id;
 
     @Basic(optional = false)
-    @NotNull(message = "Versão não pode ser nula.")
     @Column(name = "version")
     private Long version;
 
     @Basic(optional = false)
-    @NotNull(message = "Data da última atualização não pode ser nula.")
     @Column(name = "last_update")
     private Date lastUpdate;
 

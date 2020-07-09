@@ -46,39 +46,35 @@ public class AuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        startServices(httpServletRequest);
+        this.startServices(httpServletRequest);
 
-        final String authorizationHeader = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue());
+        String token = this.getAuthToken(httpServletRequest);
 
-        if (authorizationHeader != null) {
-            final String token = removeTokenType(authorizationHeader);
+        if (token != null) {
+            Auth auth = authService.findByAccessToken(token);
 
-            if (token != null) {
+            if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                updateTokensIfNecessary(auth, httpServletResponse);
+                UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
-                Auth auth = authService.findByAccessToken(token);
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-                if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                    updateTokensIfNecessary(auth, httpServletResponse);
-
-                    UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
-
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                }
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private String removeTokenType(String token) {
-        if (token.startsWith("Bearer ")) {
-            return token.substring(7);
+    private String getAuthToken(HttpServletRequest httpServletRequest) {
+        String token = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue());
+
+        if (token == null) {
+            token = httpServletRequest.getParameter(HeaderEnum.AUTHORIZATION.getValue());
         }
-        return null;
+
+        return token;
     }
 
     private void updateTokensIfNecessary(Auth auth, HttpServletResponse httpServletResponse) {

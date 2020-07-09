@@ -3,9 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import java.util.List;
 
@@ -27,12 +24,9 @@ public class NoteTag {
     private Long id;
 
     @Basic(optional = false)
-    @NotNull(message = "Nome não pode ser nulo.")
-    @Size(min = 1, max = 100, message = "O nome deve conter entre 1 e 100 caracteres.")
     @Column(name = "name", length = 100)
     private String name;
 
-    @Valid
     @JsonIgnore
     @ManyToMany(mappedBy = "tags")
     private List<Note> notes;

@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 import java.util.Date;
 
@@ -34,7 +33,6 @@ public class GoogleAuth {
     private Long tokenExpiresDateInMillis;
 
     @OneToOne
-    @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 

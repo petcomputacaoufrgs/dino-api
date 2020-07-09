@@ -4,8 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateModel;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -26,19 +24,14 @@ public class GlossaryItem implements Serializable {
     private Long id;
 
     @Basic(optional = false)
-    @NotNull(message = "Título não pode ser nulo.")
-    @Size(min = 1, max = 100, message = "O titulo deve conter entre 1 e 100 caracteres.")
     @Column(name = "title", length = 100, unique = true)
     private String title;
 
     @Basic(optional = false)
-    @NotNull(message = "Texto não pode ser nulo.")
-    @Size(min = 0, max = 1000, message = "O texto deve conter entre 0 e 1000 caracteres.")
     @Column(name = "text", length = 1000)
     private String text;
 
     @Basic(optional = false)
-    @NotNull(message = "Dado de existencia não pode ser nulo.")
     @Column(name = "exists")
     private Boolean exists;
 
