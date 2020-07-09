@@ -1,5 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.config;
+package br.ufrgs.inf.pet.dinoapi.websocket.config;
 
+import br.ufrgs.inf.pet.dinoapi.config.AppOriginConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;

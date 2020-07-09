@@ -1,8 +1,8 @@
-package br.ufrgs.inf.pet.dinoapi.controller.websocket;
+package br.ufrgs.inf.pet.dinoapi.websocket.controller;
 
-import br.ufrgs.inf.pet.dinoapi.model.websocket.Greeting;
-import br.ufrgs.inf.pet.dinoapi.model.websocket.HelloMessage;
-import br.ufrgs.inf.pet.dinoapi.service.websocket.GreetingService;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.Greeting;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.HelloMessage;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.GreetingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;

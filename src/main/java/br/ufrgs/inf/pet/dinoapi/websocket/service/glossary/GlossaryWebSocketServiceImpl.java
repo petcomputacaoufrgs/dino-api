@@ -1,6 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.service.websocket.glossary;
+package br.ufrgs.inf.pet.dinoapi.websocket.service.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.model.websocket.glossary.GlossaryWebSocketUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.glossary.GlossaryWebSocketUpdateModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;

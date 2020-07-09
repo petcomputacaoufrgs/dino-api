@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.websocket;
+package br.ufrgs.inf.pet.dinoapi.websocket.model;
 
 public class HelloMessage {
     private String name;

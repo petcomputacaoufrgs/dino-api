@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.websocket.glossary;
+package br.ufrgs.inf.pet.dinoapi.websocket.model.glossary;
 
 public class GlossaryWebSocketUpdateModel {
     private Long newVersion;

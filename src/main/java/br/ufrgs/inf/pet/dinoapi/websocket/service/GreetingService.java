@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.websocket;
+package br.ufrgs.inf.pet.dinoapi.websocket.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
