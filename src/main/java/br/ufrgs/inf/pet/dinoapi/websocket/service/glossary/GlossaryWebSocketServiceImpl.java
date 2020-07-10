@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.websocket.model.glossary.GlossaryWebSocketUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.constants.WebSocketDestinations;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.glossary.GlossaryWebSocketAlertUpdateModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -11,12 +12,10 @@ public class GlossaryWebSocketServiceImpl implements GlossaryWebSocketService {
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
-    private final String WS_MESSAGE_TRANSFER_DESTINATION = "/topic/glossary";
-
     @Override
     public void sendGlossaryUpdateMessage(Long newVersion) {
-        final GlossaryWebSocketUpdateModel model = new GlossaryWebSocketUpdateModel();
+        final GlossaryWebSocketAlertUpdateModel model = new GlossaryWebSocketAlertUpdateModel();
         model.setNewVersion(newVersion);
-        simpMessagingTemplate.convertAndSend(WS_MESSAGE_TRANSFER_DESTINATION, model);
+        simpMessagingTemplate.convertAndSend(WebSocketDestinations.ALERT_GLOSSARY_UPDATE, model);
     }
 }

@@ -71,7 +71,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Auth getCurrentAuth() {
-        final UserDetails userDetails = this.getUserDetails();
+        final UserDetails userDetails = this.getPrincipal();
 
         if (userDetails == null) {
             return null;
@@ -83,26 +83,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public User getCurrentUser() {
-        final UserDetails userDetails = this.getUserDetails();
-
-        if (userDetails == null) {
-            return null;
-        }
-
-        final String email = userDetails.getUsername();
-
-        return userService.findUserByEmail(email);
-    }
-
-    @Override
     public ResponseEntity<?> logout() {
         authRepository.delete(getCurrentAuth());
 
         return new ResponseEntity<>("Autenticação removida.", HttpStatus.OK);
     }
 
-    private UserDetails getUserDetails() {
+    @Override
+    public UserDetails getPrincipal() {
         final SecurityContext context =  SecurityContextHolder.getContext();
 
         if (context == null) {

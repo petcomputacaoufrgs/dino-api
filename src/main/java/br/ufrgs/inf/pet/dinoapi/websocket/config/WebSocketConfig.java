@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.config;
 
 import br.ufrgs.inf.pet.dinoapi.config.AppOriginConfig;
+import br.ufrgs.inf.pet.dinoapi.websocket.interceptor.WebSocketUserInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
@@ -19,6 +20,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         final String origin = new AppOriginConfig().getOrigin();
-        registry.addEndpoint("/websocket").setAllowedOrigins(origin).withSockJS();
+        registry
+                .addEndpoint("/websocket")
+                .setHandshakeHandler(new WebSocketUserInterceptor())
+                .setAllowedOrigins(origin)
+                .withSockJS();
     }
 }

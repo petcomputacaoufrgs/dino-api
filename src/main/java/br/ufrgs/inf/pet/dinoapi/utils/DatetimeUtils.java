@@ -8,11 +8,11 @@ import java.time.ZonedDateTime;
 
 public class DatetimeUtils {
     public static LocalDateTime convertMillisecondsToLocalDatetime(Long ms) {
-        return Instant.ofEpochMilli(ms).atZone(ZoneId.of(TimezoneConstants.DefaultTimezone)).toLocalDateTime();
+        return Instant.ofEpochMilli(ms).atZone(ZoneId.of(TimezoneConstants.DEFAULT_TIMEZONE)).toLocalDateTime();
     }
 
     public static Long convertLocalDatetimeToMilliseconds(LocalDateTime date) {
-        final ZonedDateTime zoneDate = date.atZone(ZoneId.of(TimezoneConstants.DefaultTimezone));
+        final ZonedDateTime zoneDate = date.atZone(ZoneId.of(TimezoneConstants.DEFAULT_TIMEZONE));
         return zoneDate.toInstant().toEpochMilli();
     }
 }
