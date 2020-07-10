@@ -7,7 +7,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/test_connection/")
 public class TestConnectionControllerImpl implements TestConnectionController{
 
     @Autowired
@@ -17,7 +16,7 @@ public class TestConnectionControllerImpl implements TestConnectionController{
     GlossaryWebSocketServiceImpl glossaryWebSocketService;
 
     @Override
-    @GetMapping
+    @GetMapping("public/test_connection/")
     public ResponseEntity<String> get() {
         return testConnectionService.getTest();
     }

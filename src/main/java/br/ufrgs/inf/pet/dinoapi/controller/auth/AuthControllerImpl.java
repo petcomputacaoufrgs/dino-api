@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/auth/")
 public class AuthControllerImpl implements AuthController {
 
     @Autowired
@@ -18,13 +17,13 @@ public class AuthControllerImpl implements AuthController {
     AuthServiceImpl authService;
 
     @Override
-    @PostMapping("google/")
+    @PostMapping("public/auth/google/")
     public ResponseEntity<?> googleAuthRequest(@RequestBody GoogleAuthRequestModel authRequestMode) {
         return googleAuthService.googleSignIn(authRequestMode);
     }
 
     @Override
-    @PutMapping("logout/")
+    @PutMapping("/auth/logout/")
     public ResponseEntity<?> logout() {
         return authService.logout();
     }
