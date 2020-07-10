@@ -15,7 +15,7 @@ public class GlossaryWebSocketServiceImpl implements GlossaryWebSocketService {
 
     @Override
     public void sendGlossaryUpdateMessage(Long newVersion) {
-        GlossaryWebSocketUpdateModel model = new GlossaryWebSocketUpdateModel();
+        final GlossaryWebSocketUpdateModel model = new GlossaryWebSocketUpdateModel();
         model.setNewVersion(newVersion);
         simpMessagingTemplate.convertAndSend(WS_MESSAGE_TRANSFER_DESTINATION, model);
     }

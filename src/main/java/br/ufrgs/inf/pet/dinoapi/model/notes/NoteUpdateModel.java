@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 public class NoteUpdateModel extends NoteQuestionModel {
 
-    String answer;
+    private String answer;
 
     public String getAnswer() {
         return answer;

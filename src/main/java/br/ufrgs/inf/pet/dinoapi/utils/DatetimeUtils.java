@@ -12,7 +12,7 @@ public class DatetimeUtils {
     }
 
     public static Long convertLocalDatetimeToMilliseconds(LocalDateTime date) {
-        ZonedDateTime zoneDate = date.atZone(ZoneId.of(TimezoneConstants.DefaultTimezone));
+        final ZonedDateTime zoneDate = date.atZone(ZoneId.of(TimezoneConstants.DefaultTimezone));
         return zoneDate.toInstant().toEpochMilli();
     }
 }

@@ -1,5 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
 public class TimezoneConstants {
-    public static String DefaultTimezone = "Etc/Greenwich";
+    public static final String DefaultTimezone = "Etc/Greenwich";
 }

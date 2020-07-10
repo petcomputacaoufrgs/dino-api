@@ -7,19 +7,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class NoteModel {
-    Long id;
+    private Long id;
 
-    Integer order;
+    private Integer order;
 
-    String question;
+    private String question;
 
-    String answer;
+    private String answer;
 
-    Boolean answered;
+    private Boolean answered;
 
-    List<String> tags;
+    private List<String> tags;
 
-    Long lastUpdate;
+    private Long lastUpdate;
 
     public NoteModel() {}
 

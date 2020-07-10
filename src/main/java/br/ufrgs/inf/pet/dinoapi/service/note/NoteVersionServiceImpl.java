@@ -22,7 +22,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     @Override
     public ResponseEntity<Long> getVersion() {
-        User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentAuth().getUser();
 
         NoteVersion noteVersion = user.getNoteVersion();
 

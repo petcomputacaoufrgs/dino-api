@@ -19,13 +19,13 @@ public class GreetingService {
     private List<String> userNames = new ArrayList<>();
 
     public void sendMessages() {
-        ObjectMapper mapper = new ObjectMapper();
+        final ObjectMapper mapper = new ObjectMapper();
         for (String userName : userNames) {
             String json = null;
             try {
                 json = mapper.writeValueAsString("Hello " + userName + " at " + new Date().toString());
             } catch (JsonProcessingException e) {
-                e.printStackTrace();
+                e.printStackTrace(); /*TODO: Fazer Log do Erro*/
             }
 
             simpMessagingTemplate.convertAndSend(WS_MESSAGE_TRANSFER_DESTINATION, json);

@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 public class NoteSaveModel extends NoteQuestionModel {
-    Integer order;
+    private Integer order;
 
     public Integer getOrder() {
         return order;

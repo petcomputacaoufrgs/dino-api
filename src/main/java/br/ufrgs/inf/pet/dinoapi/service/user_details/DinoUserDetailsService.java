@@ -8,7 +8,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 
 @Service
@@ -27,7 +26,7 @@ public class DinoUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
+        final br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
             return new User(userDB.getEmail(), "", new ArrayList<>());

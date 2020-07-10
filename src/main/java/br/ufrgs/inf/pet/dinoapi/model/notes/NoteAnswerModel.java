@@ -1,9 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 public class NoteAnswerModel {
-    Long id;
+    private Long id;
 
-    String answer;
+    private String answer;
 
     public Long getId() {
         return id;

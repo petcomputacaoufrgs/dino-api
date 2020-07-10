@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findUserByEmail(String email) {
         if (email != null) {
-            Optional<User> queryResult = userRepository.findByEmail(email);
+            final Optional<User> queryResult = userRepository.findByEmail(email);
             if (queryResult.isPresent()) {
                 return queryResult.get();
             }

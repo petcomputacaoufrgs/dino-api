@@ -26,11 +26,11 @@ public class GlossaryServiceImpl implements GlossaryService {
 
     @Override
     public ResponseEntity<GlossaryResponseModel> save(GlossarySaveModel glossarySaveModel) {
-        GlossaryResponseModel response = new GlossaryResponseModel();
+        final GlossaryResponseModel response = new GlossaryResponseModel();
         Long glossaryVersion;
 
         if (glossarySaveModel != null) {
-            List<GlossaryItemSaveModel> newItemsList = glossarySaveModel.getItemList();
+            final List<GlossaryItemSaveModel> newItemsList = glossarySaveModel.getItemList();
             Optional<GlossaryItem> glossaryItemSearchResult;
             GlossaryItem glossaryItem;
             GlossaryItemResponseModel responseItem;
@@ -70,7 +70,7 @@ public class GlossaryServiceImpl implements GlossaryService {
 
     @Override
     public ResponseEntity<?> update(GlossaryUpdateModel glossaryUpdateModel) {
-        GlossaryResponseModel response = new GlossaryResponseModel();
+        final GlossaryResponseModel response = new GlossaryResponseModel();
         Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
 
         if (glossaryUpdateModel.getVersion() != glossaryVersion) {
@@ -78,7 +78,7 @@ public class GlossaryServiceImpl implements GlossaryService {
         }
 
         if (glossaryUpdateModel != null) {
-            List<GlossaryItemUpdateModel> updatedItemsList = glossaryUpdateModel.getItemList();
+            final List<GlossaryItemUpdateModel> updatedItemsList = glossaryUpdateModel.getItemList();
 
             if (updatedItemsList != null) {
                 Optional<GlossaryItem> glossaryItemSearchResult;
@@ -124,7 +124,7 @@ public class GlossaryServiceImpl implements GlossaryService {
     public ResponseEntity<List<GlossaryItem>> get() {
         GlossaryItemResponseModel responseItem;
 
-        List<GlossaryItem> response = glossaryItemRepository.findAllByExistsTrue();
+        final List<GlossaryItem> response = glossaryItemRepository.findAllByExistsTrue();
 
         for (GlossaryItem item : response) {
             responseItem = new GlossaryItemResponseModel();

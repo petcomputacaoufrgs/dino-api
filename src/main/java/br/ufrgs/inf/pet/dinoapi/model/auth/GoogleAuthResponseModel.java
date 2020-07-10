@@ -2,15 +2,15 @@ package br.ufrgs.inf.pet.dinoapi.model.auth;
 
 public class GoogleAuthResponseModel {
 
-    String accessToken;
+    private String accessToken;
 
-    String googleAccessToken;
+    private String googleAccessToken;
 
-    String name;
+    private String name;
 
-    String email;
+    private String email;
 
-    String pictureUrl;
+    private String pictureUrl;
 
     public GoogleAuthResponseModel() {}
 
