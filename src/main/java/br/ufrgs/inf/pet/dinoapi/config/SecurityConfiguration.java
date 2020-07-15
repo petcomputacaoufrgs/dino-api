@@ -35,18 +35,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(dinoUserDetailsService);
-    }
+    } //nop
 
     @Override
-    protected void configure(HttpSecurity http) throws Exception {
+    ///TODO: tirar a rota dos contatos dps
+    protected void configure(HttpSecurity http) throws Exception { //importante
         http.authorizeRequests()
                 .antMatchers("/auth/google/").permitAll()
                 .antMatchers("/test_connection/").permitAll()
                 .antMatchers("/glossary/save/").permitAll()
                 .antMatchers("/glossary/update/").permitAll()
+                .antMatchers("/contacts/**").permitAll()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
-                .anyRequest().authenticated()
-                .and().cors().and().csrf().disable()
+                .anyRequest().authenticated() //pede autent
+                .and().cors().and().csrf().disable() //mesmo dominio q a api ta
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
     }

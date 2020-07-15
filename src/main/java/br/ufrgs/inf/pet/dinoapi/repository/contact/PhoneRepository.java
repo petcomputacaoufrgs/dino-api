@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.repository;
+package br.ufrgs.inf.pet.dinoapi.repository.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
@@ -11,10 +11,10 @@ import java.util.List;
 @Repository
 public interface PhoneRepository extends CrudRepository<Phone, Long> {
 
-        @Query("SELECT c FROM Contact c WHERE c.name IN ?1 AND c.user.id = ?2")
-        List<Contact> findAllByNameAndUserId(String contactName, Long userId);
+        //@Query("SELECT c FROM Contact c WHERE c.name IN ?1 AND c.user.id = ?2")
+        //List<Contact> findAllByNameAndUserId(String contactName, Long userId);
 
-        @Query("SELECT c FROM Contact c WHERE c.id IN ?1 AND c.user.id = ?2")
-        List<Contact> findAllByIdAndUserId(List<Long> contactIds, Long userId);
+        //@Query("SELECT c FROM Contact c WHERE c.id IN ?1 AND c.user.id = ?2")
+        //List<Contact> findAllByIdAndUserId(List<Long> contactIds, Long userId);
 
 }

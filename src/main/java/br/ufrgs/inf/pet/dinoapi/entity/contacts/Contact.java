@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,12 +38,16 @@ public class Contact implements Serializable {
         private String name;
 
         @Valid
-        @OneToMany(mappedBy = "phone")
-        private ArrayList<Phone> phones;
+        @OneToMany(mappedBy = "contact")
+        private List<Phone> phones;
 
         @Size(min = 1, max = 500)
         @Column(name = "description", length = 500)
         private String description;
+
+        @Size(min = 1, max = 10)
+        @Column(name = "color", length = 10)
+        private String color;
 
         @JsonIgnore
         @Valid
@@ -54,6 +57,12 @@ public class Contact implements Serializable {
         private User user;
 
         public Contact() {}
+
+        public Contact(String name, String description, String color) {
+                this.setName(name);
+                this.setDescription(description);
+                this.setColor(color);
+        }
 
         public Long getId() {
             return id;
@@ -69,15 +78,21 @@ public class Contact implements Serializable {
             this.name = name;
         }
 
-        public ArrayList<Phone> getPhones() { return phones; }
+        public List<Phone> getPhones() { return phones; }
 
-        public void setPhones(ArrayList<Phone> phones) { this.phones = phones; }
+        public void setPhones(List<Phone> phones) { this.phones = phones; }
 
         public String getDescription() {
             return description;
         }
 
         public void setDescription (String description) { this.description = description; }
+
+        public String getColor() {
+                return color;
+        }
+
+        public void setColor (String color) { this.color = color; }
 
         public User getUser() {
             return user;
@@ -87,21 +102,18 @@ public class Contact implements Serializable {
             this.user = user;
         }
 
-        public void setByContactSaveModel(ContactSaveModel contactSaveModel) {
-                this.setName(contactSaveModel.getName());
-                this.setPhonesByPhoneSaveModel(contactSaveModel.getPhones());
-                this.setDescription(contactSaveModel.getDescription());
+        public void setByContactSaveModel(ContactSaveModel contactModel) {
+                this.setName(contactModel.getName());
+                this.setByPhoneSaveModel(contactModel.getPhones());
+                this.setDescription(contactModel.getDescription());
         }
 
-        private void setPhonesByPhoneSaveModel(List<PhoneSaveModel> phoneSaveModelList) {
-                if (phoneSaveModelList.size() > 0) {
-                        for (PhoneSaveModel model : phoneSaveModelList) {
-                                Phone phone = new Phone();
-                                phone.setPhoneByPhoneSaveModel(model);
-                                this.phones.add(phone);
-                        }
+        private void setByPhoneSaveModel(List<PhoneSaveModel> phoneSaveModelList) {
+                for (PhoneSaveModel model : phoneSaveModelList) {
+                        Phone phone = new Phone();
+                        phone.setByPhoneSaveModel(model);
+                        this.phones.add(phone);
                 }
         }
-
 
 }

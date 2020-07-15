@@ -9,7 +9,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -65,11 +64,7 @@ public class User implements Serializable {
 
     @Valid
     @OneToMany(mappedBy = "user")
-    private ArrayList<Contact> contacts;
-
-    @Valid
-    @OneToMany(mappedBy = "user")
-    private ArrayList<Phone> phones;
+    private List<Contact> contacts;
 
     public User() {}
 

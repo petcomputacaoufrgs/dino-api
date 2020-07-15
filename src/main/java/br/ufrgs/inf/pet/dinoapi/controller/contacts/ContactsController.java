@@ -1,14 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.controller.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import org.springframework.http.ResponseEntity;
-
-import java.util.List;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
+import br.ufrgs.inf.pet.dinoapi.service.contact.ContactServiceImpl;
 
 public interface ContactsController {
 
-    ResponseEntity<?> saveContact(ContactSaveModel ContactSaveModel);
+    ResponseEntity<?> saveContact(ContactSaveModel model);
 
-    ResponseEntity<?> getContacts();
+    ResponseEntity<?> getAllContacts();
 
 }

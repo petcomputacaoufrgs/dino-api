@@ -47,25 +47,26 @@ public class AuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         startServices(httpServletRequest);
 
-        final String authorizationHeader = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue());
+        final String authorizationHeader = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue()); //se nulo n tem autent
 
         if (authorizationHeader != null) {
-            final String token = removeTokenType(authorizationHeader);
+            final String token = removeTokenType(authorizationHeader); //tira o Bearer
 
             if (token != null) {
 
                 User user = userService.findByAccessToken(token);
 
-                if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) { //se tiver outra aplicação rodando -- qm sabe da pra tirar
 
                     updateTokensIfNecessary(user, httpServletResponse);
 
-                    UserDetails userDetails = dinoUserDetailsService.loadUserByUsername(user.getEmail());
+                    UserDetails userDetails = dinoUserDetailsService.loadUserByUsername(user.getEmail()); //TEMOS Q CRIAR
 
+                    //spring
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest)); //??????????? vamo tira ou não--
 
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); //bing bing bing!!!
                 }
             }
         }
@@ -82,7 +83,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private void updateTokensIfNecessary(User user, HttpServletResponse httpServletResponse) {
         if (!user.tokenIsValid()) {
-            String newToken = dinoAuthService.refreshAccessToken(user);
+            String newToken = dinoAuthService.refreshAccessToken(user); //hash pra fazer token baseada no nome do user
 
             httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), "Bearer " + newToken);
         }
@@ -92,11 +93,12 @@ public class AuthFilter extends OncePerRequestFilter {
             if (!googleAuth.tokenIsValid()) {
                 String newToken = googleAuthService.refreshGoogleAuth(googleAuth);
 
-                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), "Bearer " + newToken);
+                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), "Bearer " + newToken); //resposta do server
             }
         }
     }
 
+    ///acorda pra trabalhar
     private void startServices(HttpServletRequest httpServletRequest) {
         ServletContext servletContext = null;
         WebApplicationContext webApplicationContext = null;

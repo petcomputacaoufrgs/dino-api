@@ -21,7 +21,7 @@ public class DinoUserDetailsService implements UserDetailsService {
         br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
-            return new User(userDB.getEmail(), userDB.getAccessToken(), new ArrayList<>());
+            return new User(userDB.getEmail(), userDB.getAccessToken(), new ArrayList<>()); //USER DO SPRING N NOSSO -> user, senha e permissões mas na real é email token e []
         }
 
         throw new UsernameNotFoundException(email);

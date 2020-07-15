@@ -15,7 +15,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "phone", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"id", "contact_id", "user_id"})
+        @UniqueConstraint(columnNames = {"id", "contact_id"})
 })
 public class Phone implements Serializable {
 
@@ -24,8 +24,8 @@ public class Phone implements Serializable {
     private static final String SEQUENCE_NAME = "phone_seq";
 
     @Id
-    //@GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    //@SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
+    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
+    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
     @Basic(optional = false)
     @Column(name = "id")
     private Long id;
@@ -47,31 +47,16 @@ public class Phone implements Serializable {
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
-    @JsonIgnore
-    @Valid
-    @ManyToOne
-    @NotNull(message = "O usuário associado não pode ser nulo.")
-    @JoinColumn(name = "user_id")
-    private User user;
-
     public Phone() {
     }
 
-    void setPhoneByPhoneSaveModel(PhoneSaveModel phoneSaveModel) {
+    void setByPhoneSaveModel(PhoneSaveModel phoneSaveModel) {
         this.type = phoneSaveModel.getType();
         this.number = phoneSaveModel.getNumber();
     }
 
     public Long getId() {
         return id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public Contact getContact() {
