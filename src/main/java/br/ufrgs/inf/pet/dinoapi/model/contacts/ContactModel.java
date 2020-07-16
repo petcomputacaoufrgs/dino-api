@@ -6,31 +6,19 @@ import java.util.List;
 
 public class ContactModel {
     private Long id;
+    private Long frontId;
     private String name;
     private List<PhoneModel> phones;
     private String description;
     private String color;
 
-    public void setByContact(Contact contact) {
+    public ContactModel(Contact contact) {
         this.setId(contact.getId());
+        this.setFrontId(contact.getFrontId());
         this.setName(contact.getName());
         this.setByPhones(contact.getPhones());
         this.setDescription(contact.getDescription());
         this.setColor(contact.getDescription());
-    }
-
-
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public void setByPhones(List<Phone> phones) {
@@ -43,9 +31,33 @@ public class ContactModel {
         this.phones = response;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setPhones(List<PhoneModel> phones) {
+        this.phones = phones;
+    }
+
+    public void setFrontId(Long frontId) {
+        this.frontId = frontId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public void setColor(String color) {
         this.color = color;
     }
+
+    public Long getId() { return id; }
+
+    public Long getFrontId() { return frontId; }
 
     public String getDescription() {
         return description;

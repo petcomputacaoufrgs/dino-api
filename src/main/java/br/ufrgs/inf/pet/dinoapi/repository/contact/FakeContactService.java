@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Repository
-public class FakeContactService implements ContactRepository {
+public class FakeContactService {
     private static List<Contact> fakeDB = new ArrayList<>();
 
     public Contact saveContact(Contact contact) {

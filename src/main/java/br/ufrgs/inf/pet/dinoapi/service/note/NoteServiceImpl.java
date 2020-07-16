@@ -42,6 +42,7 @@ public class NoteServiceImpl implements NoteService {
 
         List<Note> notes = user.getNotes();
 
+        //top
         List<NoteModel> model = notes.stream().map(note -> new NoteModel(note)).collect(Collectors.toList());
 
         return new ResponseEntity<>(model, HttpStatus.OK);
@@ -80,7 +81,7 @@ public class NoteServiceImpl implements NoteService {
         note.setOrder(order);
         note.setQuestion(model.getQuestion());
         note.setTags(tags);
-        note.setUser(user);
+        note.setUser(user); //hm
 
         NoteVersion version = user.getNoteVersion();
 

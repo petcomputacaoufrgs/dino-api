@@ -1,83 +1,67 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.NoteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.FakeContactService;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.*;
+import java.util.List;
+import java.util.stream.Collectors;
+
 
 @Service
 public class ContactServiceImpl implements ContactService {
 
         @Autowired
-        //ContactRepository contactRepository;
-        FakeContactService contactRepository;
+        ContactRepository contactRepository;
+        //FakeContactService contactRepository;
         @Autowired
         PhoneRepository phoneRepository;
         @Autowired
         UserServiceImpl userServiceImpl;
 
-        @Override
-        public ResponseEntity<ArrayList<ContactModel>> getAllContacts() {
+        public ResponseEntity<List<ContactModel>> getAllContacts() {
 
-            ArrayList<ContactModel> response = new ArrayList<>();
+            List<Contact> contacts = Lists.newArrayList(contactRepository.findAll());
 
-            //User user = userServiceImpl.getCurrentUser();
+            List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
 
-            //List<Contact> contacts = user.getContacts();
-
-            List<Contact> contacts = contactRepository.getAllContacts();
-
-            for (Contact contact : contacts) {
-                System.out.println(contact.toString());
-                ContactModel responseItem = new ContactModel();
-                responseItem.setByContact(contact);
-                response.add(responseItem);
-            }
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        public ResponseEntity<?> saveContact(ContactSaveModel model) {
-            /*
-            if (model.getPhones().size() == 0) {
-                return new ResponseEntity<>("Contato deve conter um ou mais números", HttpStatus.BAD_REQUEST);
-            }
-            else if (model.getName().equals("")) {
-                return new ResponseEntity<>("Contato deve ter um nome", HttpStatus.BAD_REQUEST);
-            }
+        public ResponseEntity<ContactModel> saveContact(ContactSaveModel model) {
 
 
-            User user = userServiceImpl.getCurrentUser();
-
-            List<Contact> contactSearch = contactRepository.findAllByNameAndUserId(model.getName(), user.getId());
-
-            if (contactSearch.size() > 0) {
-                return new ResponseEntity<>("Contato com nome já existente", HttpStatus.BAD_REQUEST);
-            }
-             */
-
+            //User user = userServiceImpl.getCurrentUser();
             Contact contact = new Contact();
-            contact.setByContactSaveModel(model);
+            contact.setFrontId(model.getFrontId());
+            contact.setName(model.getName());
+            contact.setPhones(model.getPhones().stream()
+                    .map(modelPhone -> {
+                        Phone phone = new Phone();
+                        phone.setType(modelPhone.getType());
+                        phone.setNumber(modelPhone.getNumber());
+                        return phone;
+                    })
+                    .collect(Collectors.toList()));
+            contact.setDescription(model.getDescription());
+            contact.setColor(model.getColor());
+            //contact.setUser(user);
 
-            /*
-            ArrayList<Phone> phones = new ArrayList<Phone>(contact.getPhones());
-            phones = (ArrayList<Phone>) phoneRepository.saveAll(phones);
-            contact.setPhones(phones);
-            */
-            Contact response = contactRepository.saveContact(contact);
-            System.out.println(contact.toString());
+            contact = contactRepository.save(contact);
 
-            //ContactModel response = new ContactModel();
-            //response.setByContact(contact);
+            ContactModel response = new ContactModel(contact);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }

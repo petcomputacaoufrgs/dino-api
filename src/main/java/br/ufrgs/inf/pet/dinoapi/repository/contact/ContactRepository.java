@@ -11,32 +11,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ContactRepository {//extends CrudRepository<Contact, Long> {
+public interface ContactRepository extends CrudRepository<Contact, Long> {
 
-    /*
     @Query("SELECT c FROM Contact c WHERE c.name IN ?1 AND c.user.id = ?2")
     List<Contact> findAllByNameAndUserId(String contactName, Long userId);
 
-    @Query("SELECT c FROM Contact c WHERE c.id IN ?1 AND c.user.id = ?2")
-    List<Contact> findAllByIdAndUserId(List<Long> contactIds, Long userId);
-
-    @Query("SELECT c FROM Contact c WHERE c.id IN ?1 AND c.user.id = ?2")
-    List<Contact> findAllByIdAndUserId(List<Long> contactIds, Long userId);
-
-
-    @Override
-    List<Contact> findAll();
-
-    @Override
-    Optional<Contact> findById(Long contactId);
-
-    @Override
-    public int saveContact(ContactSaveModel model){
-        Contact newContact = new Contact()
-    }
-
-
     Optional<Contact> findByName(String contactName);
 
-     */
+
 }

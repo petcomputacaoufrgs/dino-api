@@ -8,22 +8,22 @@ import java.util.List;
 public class ContactSaveModel {
 
     private Long frontId;
-    private Long id;
     private String name;
     private List<PhoneSaveModel> phones;
     private String description;
     private String color;
 
-    public void setByContact(Contact contact) {
-        this.setId(contact.getId());
-        this.setName(contact.getName());
-        this.setPhones(contact.getPhones());
-        this.setDescription(contact.getDescription());
-        this.setColor(contact.getColor());
+
+    public void setFrontId(Long frontId) {
+        this.frontId = frontId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getFrontId() {
+        return frontId;
+    }
+
+    public void setPhones(List<PhoneSaveModel> phones) {
+        this.phones = phones;
     }
 
     public void setName(String name) {
@@ -32,19 +32,6 @@ public class ContactSaveModel {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setPhones(List<Phone> phones) {
-
-        List<PhoneSaveModel> response = new ArrayList<>();
-        for (Phone phone : phones) {
-            PhoneSaveModel responseItem = new PhoneSaveModel();
-            responseItem.setNumber(phone.getNumber());
-            responseItem.setType(phone.getType());
-            response.add(responseItem);
-        }
-
-        this.phones = response;
     }
 
     public List<PhoneSaveModel> getPhones() {

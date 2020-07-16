@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @RestController
     @RequestMapping("/contacts")
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 
         @Override
         @GetMapping
-        public ResponseEntity<ArrayList<ContactModel>> getAllContacts() {
+        public ResponseEntity<List<ContactModel>> getAllContacts() {
             return contactServiceImpl.getAllContacts();
         }
 

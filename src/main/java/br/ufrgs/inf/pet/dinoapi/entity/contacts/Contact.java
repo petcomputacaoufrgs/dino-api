@@ -32,6 +32,11 @@ public class Contact implements Serializable {
         private Long id;
 
         @Basic(optional = false)
+        @NotNull(message = "O front id do contato não pode ser nulo.")
+        @Column(name = "frontId")
+        private Long frontId;
+
+        @Basic(optional = false)
         @NotNull(message = "O nome do contato não pode ser nulo.")
         @Size(min = 1, max = 50)
         @Column(name = "name", length = 50)
@@ -58,17 +63,19 @@ public class Contact implements Serializable {
 
         public Contact() {}
 
-        public Contact(String name, String description, String color) {
-                this.setName(name);
-                this.setDescription(description);
-                this.setColor(color);
-        }
-
         public Long getId() {
             return id;
         }
 
         public void setId(Long id) { this.id = id; }
+
+        public Long getFrontId() {
+                return frontId;
+        }
+
+        public void setFrontId(Long frontId) {
+                this.frontId = frontId;
+        }
 
         public String getName() {
             return name;
@@ -100,20 +107,6 @@ public class Contact implements Serializable {
 
         public void setUser(User user) {
             this.user = user;
-        }
-
-        public void setByContactSaveModel(ContactSaveModel contactModel) {
-                this.setName(contactModel.getName());
-                this.setByPhoneSaveModel(contactModel.getPhones());
-                this.setDescription(contactModel.getDescription());
-        }
-
-        private void setByPhoneSaveModel(List<PhoneSaveModel> phoneSaveModelList) {
-                for (PhoneSaveModel model : phoneSaveModelList) {
-                        Phone phone = new Phone();
-                        phone.setByPhoneSaveModel(model);
-                        this.phones.add(phone);
-                }
         }
 
 }

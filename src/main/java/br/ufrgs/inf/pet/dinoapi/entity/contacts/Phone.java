@@ -31,6 +31,7 @@ public class Phone implements Serializable {
     private Long id;
 
     @Size(min = 1, max = 1)
+    @NotNull(message = "O tipo de número do contato não pode ser nulo.")
     @Column(name = "type", length = 1)
     private byte type;
 
@@ -47,13 +48,7 @@ public class Phone implements Serializable {
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
-    public Phone() {
-    }
-
-    void setByPhoneSaveModel(PhoneSaveModel phoneSaveModel) {
-        this.type = phoneSaveModel.getType();
-        this.number = phoneSaveModel.getNumber();
-    }
+    public Phone(){}
 
     public Long getId() {
         return id;
