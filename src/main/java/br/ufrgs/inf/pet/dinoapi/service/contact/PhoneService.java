@@ -11,6 +11,4 @@ public interface PhoneService {
 
     List<Phone> savePhonesDB(List<PhoneSaveModel> phoneModels, Contact contact);
 
-    void deletePhoneDB(Long phoneId, Long contactId);
-
 }

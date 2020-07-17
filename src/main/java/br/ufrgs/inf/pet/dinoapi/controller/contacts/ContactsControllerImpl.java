@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.controller.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.service.contact.ContactServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +15,8 @@ import java.util.List;
 
         @Autowired
         ContactServiceImpl contactServiceImpl;
+        @Autowired
+        PhoneServiceImpl phoneServiceImpl;
 
         @Override
         @GetMapping
@@ -33,8 +36,23 @@ import java.util.List;
         }
 
         @DeleteMapping
-        public ResponseEntity<?> delete(@RequestBody ContactModel model) {
+        public ResponseEntity<?> deleteContact(@RequestBody ContactModel model) {
             return contactServiceImpl.deleteContact(model);
+        }
+
+        @DeleteMapping("/all")
+        public ResponseEntity<?> deleteContacts(@RequestBody List<ContactModel> models) {
+            return contactServiceImpl.deleteContacts(models);
+        }
+
+        @DeleteMapping("/phone")
+        public ResponseEntity<?> deletePhone(@RequestBody PhoneModel model) {
+            return phoneServiceImpl.deletePhone(model);
+        }
+
+        @DeleteMapping("/phone/all")
+        public ResponseEntity<?> deletePhones(@RequestBody List<PhoneModel> models) {
+            return phoneServiceImpl.deletePhones(models);
         }
 
 }

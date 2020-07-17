@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,8 @@ public class ContactServiceImpl implements ContactService {
 
         @Autowired
         ContactRepository contactRepository;
-
+        @Autowired
+        PhoneRepository phoneRepository;
         @Autowired
         UserServiceImpl userServiceImpl;
         @Autowired
@@ -31,6 +33,21 @@ public class ContactServiceImpl implements ContactService {
             List<Contact> contacts = Lists.newArrayList(contactRepository.findAll());
 
             List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        public ResponseEntity<ContactModel> saveContact(ContactSaveModel model) {
+
+            //User user = userServiceImpl.getCurrentUser();
+            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+            Contact contact = new Contact(model, user);
+
+            contact = contactRepository.save(contact);
+
+            contact.setPhones(phoneServiceImpl.savePhonesDB(model.getPhones(), contact));
+
+            ContactModel response = new ContactModel(contact);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -62,21 +79,6 @@ public class ContactServiceImpl implements ContactService {
             return contact;
         }
 
-        public ResponseEntity<ContactModel> saveContact(ContactSaveModel model) {
-
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
-            Contact contact = new Contact(model, user);
-
-            contact = contactRepository.save(contact);
-
-            contact.setPhones(phoneServiceImpl.savePhonesDB(model.getPhones(), contact));
-
-            ContactModel response = new ContactModel(contact);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-
 
     public ResponseEntity<?> deleteContact(ContactModel model) {
 
@@ -87,11 +89,32 @@ public class ContactServiceImpl implements ContactService {
         //User user = userServiceImpl.getCurrentUser();
         User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
 
-        model.getPhones().forEach(phoneModel ->
-                phoneServiceImpl.deletePhoneDB(phoneModel.getId(), model.getId()));
-        contactRepository.deleteByIdAndUserId(model.getId(), user.getId());
+        deleteContactDB(model, user.getId());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    public ResponseEntity<?> deleteContacts(List<ContactModel> models) {
+
+        if (models.size() == 0) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        //User user = userServiceImpl.getCurrentUser();
+        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+
+        models.forEach(model -> deleteContactDB(model, user.getId()));
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public void deleteContactDB(ContactModel model, Long userId) {
+        model.getPhones()
+                   .forEach(phoneModel ->
+                          phoneRepository.deleteByIdAndContactId(phoneModel.getId(),model.getId()));
+        contactRepository.deleteByIdAndUserId(model.getId(), userId);
+    }
+
+
 
 }

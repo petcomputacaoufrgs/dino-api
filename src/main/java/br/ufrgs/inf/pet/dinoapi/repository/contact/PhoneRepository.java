@@ -7,6 +7,8 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Repository
 public interface PhoneRepository extends CrudRepository<Phone, Long> {
@@ -21,5 +23,11 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
     @Modifying
     @Query("DELETE FROM Phone n WHERE n.id = ?1 AND n.contact.id = ?2")
     int deleteByIdAndContactId(Long id, Long contactId);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Phone n WHERE n.id = ?1 AND n.contact.id = ?2")
+    int deleteAllByIdAndContactId(List<Long> id, Long contactId);
+
 
 }

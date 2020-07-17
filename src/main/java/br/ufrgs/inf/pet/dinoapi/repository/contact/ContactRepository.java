@@ -23,5 +23,10 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
     @Query("DELETE FROM Contact n WHERE n.id = ?1 AND n.user.id = ?2")
     int deleteByIdAndUserId(Long id, Long userId);
 
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Contact n WHERE n.id IN ?1 AND n.user.id = ?2")
+    int deleteAllByIdAndUserId(List<Long> ids, Long userId);
+
 
 }
