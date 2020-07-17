@@ -65,6 +65,14 @@ public class Contact implements Serializable {
                 this.phones = new ArrayList<>();
         }
 
+        public Contact(ContactSaveModel model, User user){
+                this.setFrontId(model.getFrontId());
+                this.setName(model.getName());
+                this.setDescription(model.getDescription());
+                this.setColor(model.getColor());
+                this.setUser(user);
+        }
+
         public Long getId() {
             return id;
         }

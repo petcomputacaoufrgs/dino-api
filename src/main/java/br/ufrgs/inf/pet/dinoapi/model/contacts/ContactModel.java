@@ -1,8 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ContactModel {
     private Long id;
@@ -18,19 +18,9 @@ public class ContactModel {
         this.setId(contact.getId());
         this.setFrontId(contact.getFrontId());
         this.setName(contact.getName());
-        this.setByPhones(contact.getPhones());
+        this.setPhones(contact.getPhones().stream().map(PhoneModel::new).collect(Collectors.toList()));
         this.setDescription(contact.getDescription());
         this.setColor(contact.getColor());
-    }
-
-    public void setByPhones(List<Phone> phones) {
-
-        List<PhoneModel> response = new ArrayList<>();
-        for (Phone phone : phones) {
-            PhoneModel responseItem = new PhoneModel(phone);
-            response.add(responseItem);
-        }
-        this.phones = response;
     }
 
     public void setId(Long id) {

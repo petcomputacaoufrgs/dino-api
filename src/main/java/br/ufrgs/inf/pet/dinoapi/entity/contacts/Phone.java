@@ -1,7 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneSaveModel;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -9,7 +7,6 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.io.Serializable;
-import java.util.List;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
