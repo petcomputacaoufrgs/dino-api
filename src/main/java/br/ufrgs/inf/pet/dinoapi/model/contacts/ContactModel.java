@@ -12,13 +12,15 @@ public class ContactModel {
     private String description;
     private String color;
 
+    public ContactModel(){}
+
     public ContactModel(Contact contact) {
         this.setId(contact.getId());
         this.setFrontId(contact.getFrontId());
         this.setName(contact.getName());
         this.setByPhones(contact.getPhones());
         this.setDescription(contact.getDescription());
-        this.setColor(contact.getDescription());
+        this.setColor(contact.getColor());
     }
 
     public void setByPhones(List<Phone> phones) {

@@ -30,9 +30,8 @@ public class Phone implements Serializable {
     @Column(name = "id")
     private Long id;
 
-    @Size(min = 1, max = 1)
     @NotNull(message = "O tipo de número do contato não pode ser nulo.")
-    @Column(name = "type", length = 1)
+    @Column(name = "type")
     private byte type;
 
     @Basic(optional = false)

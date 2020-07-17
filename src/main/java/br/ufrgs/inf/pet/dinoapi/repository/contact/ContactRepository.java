@@ -1,12 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.repository.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +17,11 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
     List<Contact> findAllByNameAndUserId(String contactName, Long userId);
 
     Optional<Contact> findByName(String contactName);
+
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Contact n WHERE n.id = ?1 AND n.user.id = ?2")
+    int deleteByIdAndUserId(Long id, Long userId);
 
 
 }

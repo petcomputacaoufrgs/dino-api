@@ -46,7 +46,7 @@ public class Contact implements Serializable {
         @OneToMany(mappedBy = "contact")
         private List<Phone> phones;
 
-        @Size(min = 1, max = 500)
+        @Size(max = 500)
         @Column(name = "description", length = 500)
         private String description;
 
@@ -61,7 +61,9 @@ public class Contact implements Serializable {
         @JoinColumn(name = "user_id")
         private User user;
 
-        public Contact() {}
+        public Contact() {
+                this.phones = new ArrayList<>();
+        }
 
         public Long getId() {
             return id;
@@ -88,6 +90,10 @@ public class Contact implements Serializable {
         public List<Phone> getPhones() { return phones; }
 
         public void setPhones(List<Phone> phones) { this.phones = phones; }
+
+        public void addPhone(Phone phone) { this.phones.add(phone); }
+
+        public void addPhones(List<Phone> phones) { this.phones.addAll(phones); }
 
         public String getDescription() {
             return description;

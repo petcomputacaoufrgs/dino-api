@@ -1,8 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ContactSaveModel {
@@ -12,7 +9,6 @@ public class ContactSaveModel {
     private List<PhoneSaveModel> phones;
     private String description;
     private String color;
-
 
     public void setFrontId(Long frontId) {
         this.frontId = frontId;

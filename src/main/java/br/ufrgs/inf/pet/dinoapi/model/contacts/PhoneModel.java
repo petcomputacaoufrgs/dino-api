@@ -12,6 +12,9 @@ public class PhoneModel {
     2 to 5: landlines
     6 to 9: mobile phones
     */
+
+    public PhoneModel(){}
+
     public PhoneModel(Phone phone) {
         this.id = phone.getId();
         this.number = phone.getNumber();

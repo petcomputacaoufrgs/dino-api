@@ -142,6 +142,10 @@ public class User implements Serializable {
         return noteVersion;
     }
 
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
     public List<Contact> getContacts() { return contacts; }
 
     public void setNoteVersion(NoteVersion noteVersion) {

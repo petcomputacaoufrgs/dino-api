@@ -60,9 +60,9 @@ public class UserServiceImpl implements UserService {
             return null;
         }
 
-        UserDetails userDetais = (UserDetails) auth.getPrincipal();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
 
-        String email = userDetais.getUsername();
+        String email = userDetails.getUsername();
 
         return findUserByEmail(email);
     }
