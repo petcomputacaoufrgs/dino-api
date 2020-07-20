@@ -103,6 +103,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setGoogleAccessToken(googleAuth.getAccessToken());
 
+                response.setGoogleExpiresDate(googleAuth.getTokenExpiresDateInMillis());
+
                 response.setUser(userModel);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
@@ -117,14 +119,14 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     @Override
-    public String refreshGoogleAuth(GoogleAuth googleAuth) {
+    public GoogleAuth refreshGoogleAuth(GoogleAuth googleAuth) {
         if (googleAuth != null) {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
 
             if (tokenResponse != null) {
                 this.updateGoogleAccessTokenData(tokenResponse, googleAuth);
 
-                return googleAuth.getAccessToken();
+                return googleAuth;
             }
         }
         return null;

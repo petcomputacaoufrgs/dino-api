@@ -17,9 +17,9 @@ public interface GoogleAuthService {
      * Atualiza o token de acesso expirado
      *
      * @param googleAuth - Dados de autenticação do Google para o usuário logado
-     * @return token atualizado
+     * @return objeto com o token atualizado
      */
-    String refreshGoogleAuth(GoogleAuth googleAuth);
+    GoogleAuth refreshGoogleAuth(GoogleAuth googleAuth);
 
     /**
      * Retorna o token de acesso do usuário se ele possuir vinculo com o Google

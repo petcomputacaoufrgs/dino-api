@@ -6,6 +6,8 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
 
     private String googleAccessToken;
 
+    private Long googleExpiresDate;
+
     public GoogleAuthResponseModel() {}
 
     public String getGoogleAccessToken() {
@@ -14,5 +16,13 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
 
     public void setGoogleAccessToken(String googleAccessToken) {
         this.googleAccessToken = googleAccessToken;
+    }
+
+    public Long getGoogleExpiresDate() {
+        return googleExpiresDate;
+    }
+
+    public void setGoogleExpiresDate(Long googleExpiresDate) {
+        this.googleExpiresDate = googleExpiresDate;
     }
 }
