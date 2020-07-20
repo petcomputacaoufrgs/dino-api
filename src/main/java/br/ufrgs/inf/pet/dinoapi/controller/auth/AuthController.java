@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.auth.GoogleAuthRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
 import org.springframework.http.ResponseEntity;
 
 public interface AuthController {

@@ -14,6 +14,8 @@ public class NoteVersion {
 
     private static final String SEQUENCE_NAME = "note_version_seq";
 
+    public final Long DEFAULT_VERSION = 0l;
+
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
@@ -33,12 +35,24 @@ public class NoteVersion {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    public NoteVersion() { }
+
+    public NoteVersion(User user) {
+        this.user = user;
+        this.lastUpdate = new Date();
+        this.version = this.DEFAULT_VERSION;
+    }
+
     public Long getId() {
         return id;
     }
 
     public Long getVersion() {
         return version;
+    }
+
+    public void updateVersion() {
+        this.version = version + 1l;
     }
 
     public void setVersion(Long version) {

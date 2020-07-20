@@ -13,6 +13,8 @@ public class GlossaryVersion implements Serializable {
 
     private static final String SEQUENCE_NAME = "glossary_seq";
 
+    public final Long DEFAULT_VERSION = 0l;
+
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
@@ -28,6 +30,11 @@ public class GlossaryVersion implements Serializable {
     @Column(name = "last_update")
     private Date lastUpdate;
 
+    public GlossaryVersion() {
+        this.lastUpdate = new Date();
+        this.version = DEFAULT_VERSION;
+    }
+
     public Long getId() {
         return id;
     }
@@ -36,12 +43,12 @@ public class GlossaryVersion implements Serializable {
         return version;
     }
 
-    public void updateVersion() {
-        this.version = this.version + 1;
-    }
-
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public void updateVersion() {
+        this.version = version + 1l;
     }
 
     public Date getLastUpdate() {

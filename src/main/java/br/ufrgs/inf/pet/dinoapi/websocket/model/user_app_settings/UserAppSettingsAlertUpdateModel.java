@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.model.user_app_settings;
 
-public class UserAppSettingsWebSocketAlertUpdateModel {
+public class UserAppSettingsAlertUpdateModel {
     private Long newVersion;
 
     public Long getNewVersion() {

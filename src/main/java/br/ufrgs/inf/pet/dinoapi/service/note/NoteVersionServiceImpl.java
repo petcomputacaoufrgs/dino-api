@@ -1,10 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.note.NoteWebSocketServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,8 +14,6 @@ import java.util.Date;
 
 @Service
 public class NoteVersionServiceImpl implements NoteVersionService {
-
-    private final Long DEFAULT_VERSION = 0l;
 
     @Autowired
     AuthServiceImpl authService;
@@ -38,12 +35,12 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     public Long updateVersion() {
         NoteVersion noteVersion = this.getNoteVersion();
 
-        if (noteVersion.getVersion() != this.DEFAULT_VERSION) {
-            noteVersion.setVersion(noteVersion.getVersion() + 1);
+        if (noteVersion.getVersion() != noteVersion.DEFAULT_VERSION) {
+            noteVersion.updateVersion();
             noteVersion.setLastUpdate(new Date());
             noteVersion = noteVersionRepository.save(noteVersion);
 
-            noteWebSocketService.sendNoteUpdateMessage(noteVersion.getVersion());
+            noteWebSocketService.sendUpdateMessage(noteVersion.getVersion());
         }
 
         return noteVersion.getVersion();
@@ -55,10 +52,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         NoteVersion noteVersion = user.getNoteVersion();
 
         if (noteVersion == null) {
-            noteVersion = new NoteVersion();
-            noteVersion.setVersion(this.DEFAULT_VERSION);
-            noteVersion.setUser(user);
-            noteVersion.setLastUpdate(new Date());
+            noteVersion = new NoteVersion(user);
 
             noteVersion = noteVersionRepository.save(noteVersion);
         }

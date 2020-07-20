@@ -12,6 +12,8 @@ public class UserAppSettings implements Serializable {
 
     private static final String SEQUENCE_NAME = "user_app_settings_seq";
 
+    public final Long DEFAULT_VERSION = 0l;
+
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
@@ -30,6 +32,13 @@ public class UserAppSettings implements Serializable {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    public UserAppSettings() {}
+
+    public UserAppSettings(User user) {
+        this.user = user;
+        this.version = this.DEFAULT_VERSION;
+    }
 
     public Long getId() {
         return id;
@@ -53,6 +62,10 @@ public class UserAppSettings implements Serializable {
 
     public Long getVersion() {
         return version;
+    }
+
+    public void updateVersion() {
+        this.version = version + 1l;
     }
 
     public void setVersion(Long version) {

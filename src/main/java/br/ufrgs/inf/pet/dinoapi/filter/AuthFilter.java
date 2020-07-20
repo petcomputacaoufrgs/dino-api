@@ -4,7 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;

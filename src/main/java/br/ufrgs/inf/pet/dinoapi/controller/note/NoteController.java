@@ -3,8 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.controller.note;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestBody;
-
 import java.util.List;
 
 public interface NoteController {
@@ -43,7 +41,7 @@ public interface NoteController {
      *
      * @return Em caso de sucesso retorna a nova versão das anotações
      */
-    ResponseEntity<?> saveAll(@RequestBody List<NoteSaveModel> models);
+    ResponseEntity<?> saveAll(List<NoteSaveModel> models);
 
     /**
      * Atualiza e cria (caso não exista) uma lista de anotações
@@ -81,7 +79,7 @@ public interface NoteController {
     /**
      * Retorna todas as tags salvas relacionadas a anotações do usuário
      *
-     * @return Lista com as tags no formato {@link NoteTagModel}
+     * @return Lista com as tags
      **/
     ResponseEntity<List<NoteTag>> getTags();
 

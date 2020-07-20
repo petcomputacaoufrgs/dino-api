@@ -4,7 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
 import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.user_app_settings.UserAppSettingsWebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -58,9 +58,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         Boolean changed = false;
 
         if (userAppSettings == null) {
-            userAppSettings = new UserAppSettings();
-            userAppSettings.setUser(userDB);
-            userAppSettings.setVersion(0L);
+            userAppSettings = new UserAppSettings(userDB);
             changed = true;
         }
 
@@ -73,15 +71,11 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         }
 
         if (changed) {
-            final Long currentVersion = userAppSettings.getVersion();
-
-            final Long newVersion = currentVersion + 1;
-
-            userAppSettings.setVersion(newVersion);
+            userAppSettings.updateVersion();
 
             userAppSettings = userAppSettingsRepository.save(userAppSettings);
 
-            userAppSettingsWebSocketService.sendUserAppSettingsUpdateMessage(userAppSettings.getVersion());
+            userAppSettingsWebSocketService.sendUpdateMessage(userAppSettings.getVersion());
         }
 
         return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);

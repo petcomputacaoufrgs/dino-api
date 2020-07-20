@@ -7,8 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.DatetimeUtils;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,7 +61,7 @@ public class NoteServiceImpl implements NoteService {
             return new ResponseEntity<>("Pergunta já cadastrada", HttpStatus.BAD_REQUEST);
         }
 
-        final List<NoteTag> tags = createNewTags(model);
+        final List<NoteTag> tags = this.createNewTags(model);
 
         final LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
 
@@ -74,13 +73,7 @@ public class NoteServiceImpl implements NoteService {
             order = maxOrderSearch.get() + 1;
         }
 
-        final Note note = new Note();
-        note.setAnswered(false);
-        note.setLastUpdate(date);
-        note.setOrder(order);
-        note.setQuestion(model.getQuestion());
-        note.setTags(tags);
-        note.setUser(user);
+        final Note note = new Note(date, order, model.getQuestion(), tags, user);
 
         Long newNoteVersion = noteVersionService.updateVersion();
 
@@ -391,8 +384,7 @@ public class NoteServiceImpl implements NoteService {
             List<NoteTag> newTags = model.getTagNames().stream()
                     .filter(name -> !tagNames.contains(name))
                     .map(name -> {
-                        NoteTag tag = new NoteTag();
-                        tag.setName(name);
+                        NoteTag tag = new NoteTag(name);
 
                         return tag;
                     })

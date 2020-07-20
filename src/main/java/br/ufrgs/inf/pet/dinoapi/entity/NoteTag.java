@@ -31,6 +31,12 @@ public class NoteTag {
     @ManyToMany(mappedBy = "tags")
     private List<Note> notes;
 
+    public NoteTag() {}
+
+    public NoteTag(String name) {
+        this.name = name;
+    }
+
     public Long getId() {
         return id;
     }

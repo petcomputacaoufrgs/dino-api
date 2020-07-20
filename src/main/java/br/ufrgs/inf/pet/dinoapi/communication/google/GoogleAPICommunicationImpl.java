@@ -50,6 +50,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
                             .setScopes(scopes)
                             .execute();
 
+
             return tokenResponse;
         } catch (IOException ex) {
             throw new GoogleClientSecretIOException("Erro ao ler arquivos de configuração do servidor.");
@@ -60,6 +61,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
         final ArrayList<String> scopes = new ArrayList<>();
 
         scopes.add(GoogleScopesEnum.CALENDAR.getScope());
+        scopes.add(GoogleScopesEnum.PROFILE.getScope());
 
         GoogleTokenResponse tokenResponse = null;
         try {

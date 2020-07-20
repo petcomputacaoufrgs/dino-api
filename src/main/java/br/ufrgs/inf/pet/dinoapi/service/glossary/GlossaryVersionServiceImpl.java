@@ -25,11 +25,11 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         if (glossary != null) {
             glossary.updateVersion();
         } else {
-            glossary = createFirstGlossaryVersion();
+            glossary = new GlossaryVersion();
         }
 
         glossaryVersionRepository.save(glossary);
-        glossaryWebSocketService.sendGlossaryUpdateMessage(glossary.getVersion());
+        glossaryWebSocketService.sendUpdateMessage(glossary.getVersion());
 
 
         return glossary.getVersion();
@@ -40,7 +40,7 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         GlossaryVersion glossary = glossaryVersionRepository.findByOrderByVersionDesc();
 
         if (glossary == null) {
-            glossary = createFirstGlossaryVersion();
+            glossary = new GlossaryVersion();
             glossaryVersionRepository.save(glossary);
         }
 
@@ -52,19 +52,10 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         GlossaryVersion glossary = glossaryVersionRepository.findByOrderByVersionDesc();
 
         if (glossary == null) {
-            glossary = createFirstGlossaryVersion();
-            glossaryVersionRepository.save(glossary);
+            glossary = new GlossaryVersion();
+            glossary = glossaryVersionRepository.save(glossary);
         }
 
         return glossary.getVersion();
-    }
-
-
-    private GlossaryVersion createFirstGlossaryVersion() {
-        final GlossaryVersion glossary = new GlossaryVersion();
-        glossary.setLastUpdate(new Date());
-        glossary.setVersion(0l);
-
-        return glossary;
     }
 }
