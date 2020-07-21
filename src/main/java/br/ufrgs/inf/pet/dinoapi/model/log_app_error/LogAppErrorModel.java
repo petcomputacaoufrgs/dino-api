@@ -15,6 +15,9 @@ public class LogAppErrorModel {
     @NotNull(message = "Error cannot be null")
     private String error;
 
+    @NotNull(message = "Date cannot be null.")
+    private Long date;
+
     public String getTitle() {
         return title;
     }
@@ -37,5 +40,13 @@ public class LogAppErrorModel {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public Long getDate() {
+        return date;
+    }
+
+    public void setDate(Long date) {
+        this.date = date;
     }
 }

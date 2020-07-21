@@ -33,10 +33,6 @@ public class LogAppError {
     @JoinColumn(name = "auth_id", nullable = false)
     private Auth auth;
 
-    public LogAppError() {
-        this.date = new Date();
-    }
-
     public Long getId() {
         return id;
     }
@@ -71,5 +67,13 @@ public class LogAppError {
 
     public void setAuth(Auth auth) {
         this.auth = auth;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
