@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -34,9 +35,9 @@ public class AuthServiceImpl implements AuthService {
     private long validityInMilliseconds = 3600000;
 
     @Override
-    public Auth refreshAuth(Auth auth) {
+    public Auth refreshAuth(Auth auth, HttpServletRequest request) {
         if (auth != null) {
-            final Auth newAuth = generateAuth(auth.getUser());
+            final Auth newAuth = this.generateAuth(auth.getUser(), request);
             authRepository.delete(auth);
 
             return newAuth;
@@ -46,9 +47,9 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Auth generateAuth(User user) {
+    public Auth generateAuth(User user, HttpServletRequest request) {
         if (user != null) {
-            return createToken(user, new ArrayList<>());
+            return this.createToken(user, new ArrayList<>(), request);
         }
 
         return null;
@@ -103,6 +104,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public void saveUserAgent(Auth auth, String userAgent) {
+        auth.setUserAgent(userAgent);
+        authRepository.save(auth);
+    }
+
+    @Override
     public UserDetails getPrincipal() {
         final SecurityContext context =  SecurityContextHolder.getContext();
 
@@ -119,7 +126,7 @@ public class AuthServiceImpl implements AuthService {
         return (UserDetails) auth.getPrincipal();
     }
 
-    private Auth createToken(User user, List<String> roles) {
+    private Auth createToken(User user, List<String> roles, HttpServletRequest request) {
         final Claims claims = Jwts.claims().setSubject(user.getEmail());
         claims.put("roles", roles);
         final Date now = new Date();
@@ -132,7 +139,8 @@ public class AuthServiceImpl implements AuthService {
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
 
-        final Auth auth = new Auth(accessToken, validity.getTime());
+        final String userAgent = request.getHeader("User-Agent");
+        final Auth auth = new Auth(accessToken, validity.getTime(), userAgent);
 
         auth.setUser(user);
 

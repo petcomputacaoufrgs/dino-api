@@ -7,6 +7,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 public class AuthControllerImpl implements AuthController {
 
@@ -18,8 +20,8 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/public/auth/google/")
-    public ResponseEntity<?> googleAuthRequest(@RequestBody GoogleAuthRequestModel authRequestMode) {
-        return googleAuthService.googleSignIn(authRequestMode);
+    public ResponseEntity<?> googleAuthRequest(@RequestBody GoogleAuthRequestModel authRequestMode, HttpServletRequest request) {
+        return googleAuthService.googleSignIn(authRequestMode, request);
     }
 
     @Override

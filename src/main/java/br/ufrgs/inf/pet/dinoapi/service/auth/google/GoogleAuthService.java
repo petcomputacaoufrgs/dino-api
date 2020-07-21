@@ -4,6 +4,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
 import org.springframework.http.ResponseEntity;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface GoogleAuthService {
     /**
      * Dado um token de autenticação gera um token de acesso
@@ -11,7 +13,7 @@ public interface GoogleAuthService {
      * @param token - Token de autenticação do Google
      * @return token validado
      */
-    ResponseEntity<?> googleSignIn(GoogleAuthRequestModel token);
+    ResponseEntity<?> googleSignIn(GoogleAuthRequestModel token, HttpServletRequest request);
 
     /**
      * Requisita a atualização do token de acesso Google
