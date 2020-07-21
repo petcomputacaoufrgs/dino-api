@@ -14,6 +14,13 @@ public interface GoogleAuthService {
     ResponseEntity<?> googleSignIn(GoogleAuthRequestModel token);
 
     /**
+     * Requisita a atualização do token de acesso Google
+     *
+     * @return novo token de acesso
+     */
+    ResponseEntity<?> googleRefreshAuth();
+
+    /**
      * Atualiza o token de acesso expirado
      *
      * @param googleAuth - Dados de autenticação do Google para o usuário logado
