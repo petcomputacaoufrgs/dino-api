@@ -17,10 +17,10 @@ public class LogAppError {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "title", length = 100)
+    @Column(name = "title", length = 500)
     private String title;
 
-    @Column(name = "file", length = 200)
+    @Column(name = "file", length = 500)
     private String file;
 
     @Column(name = "error", nullable = false, length = 10000)
