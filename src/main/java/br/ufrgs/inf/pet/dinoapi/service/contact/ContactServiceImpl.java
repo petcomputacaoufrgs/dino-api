@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
@@ -13,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -63,6 +63,7 @@ public class ContactServiceImpl implements ContactService {
                     .map(modelContact -> saveContactDB(modelContact, user))
                     .collect(Collectors.toList());
 
+            //PRECISA DE RESPOSTA?
             List<ContactModel> response = contacts.stream()
                     .map(ContactModel::new)
                     .collect(Collectors.toList());
@@ -98,10 +99,6 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> deleteContacts(List<ContactModel> models) {
 
-        if (models.size() == 0) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-
         //User user = userServiceImpl.getCurrentUser();
         User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
 
@@ -113,52 +110,53 @@ public class ContactServiceImpl implements ContactService {
     public void deleteContactDB(ContactModel model, Long userId) {
         model.getPhones()
                 .forEach(phoneModel ->
-                        phoneRepository.deleteByIdAndContactId(phoneModel.getId(),model.getId()));
+                        phoneRepository.deleteByIdAndContactId(phoneModel.getId(), model.getId()));
+
         contactRepository.deleteByIdAndUserId(model.getId(), userId);
     }
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
 
-        if (models.size() == 0) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-
         //User user = userServiceImpl.getCurrentUser();
         User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+
+        List<ContactModel> responseFailed = new ArrayList<>();
 
         models.forEach(model -> {
 
             Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
             if (contactSearch.isPresent()) {
-                //return new ResponseEntity<>("Contato não encontrado", HttpStatus.BAD_REQUEST);
 
+                Contact contact = contactSearch.get();
 
-            Contact contact = contactSearch.get();
+                boolean changed = ! model.getName().equals(contact.getName());
+                if (changed)
+                    contact.setName(model.getName());
 
-            boolean changed = ! model.getName().equals(contact.getName());
-            if (changed)
-                contact.setName(model.getName());
+                if(! model.getDescription().equals(contact.getDescription())){
+                    changed = true;
+                    contact.setDescription(model.getDescription());
+                }
+                if(! model.getColor().equals(contact.getColor())){
+                    changed = true;
+                    contact.setColor(model.getColor());
+                }
+                if(! model.getFrontId().equals(contact.getFrontId())){
+                    changed = true;
+                    contact.setFrontId(model.getFrontId());
+                }
+                if(changed)
+                    contactRepository.save(contact);
 
-            if(! model.getDescription().equals(contact.getDescription())){
-                changed = true;
-                contact.setDescription(model.getDescription());
+                phoneServiceImpl.editPhonesDB(model.getPhones(), contact);
+
             }
-            if(! model.getColor().equals(contact.getColor())){
-                changed = true;
-                contact.setColor(model.getColor());
-            }
-            if(! model.getFrontId().equals(contact.getFrontId())){
-                changed = true;
-                contact.setFrontId(model.getFrontId());
-            }
-            if(changed)
-                contactRepository.save(contact);
+            else responseFailed.add(model);
+            });
 
-            phoneServiceImpl.editPhonesDB(model.getPhones(), contact);
-            }
-        });
-
+        if(responseFailed.size() > 0)
+            return new ResponseEntity<>(responseFailed, HttpStatus.NOT_FOUND);
 
         return new ResponseEntity<>(HttpStatus.OK);
 

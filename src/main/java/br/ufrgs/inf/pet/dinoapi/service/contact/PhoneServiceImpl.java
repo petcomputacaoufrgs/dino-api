@@ -23,31 +23,8 @@ public class PhoneServiceImpl implements PhoneService {
     public List<Phone> savePhonesDB(List<PhoneSaveModel> phoneModels, Contact contact) {
 
         List<Phone> phones = phoneModels.stream()
-            .map(phoneModel -> {
-                Phone phone = new Phone();
-                phone.setType(phoneModel.getType());
-                phone.setNumber(phoneModel.getNumber());
-                phone.setContact(contact);
-                return phone;
-            })
+            .map(phoneModel -> new Phone(phoneModel, contact))
             .collect(Collectors.toList());
-
-        phoneRepository.saveAll(phones);
-
-        return phones;
-    }
-
-    public List<Phone> addPhoneSaveModels(List<PhoneModel> phoneModels, Contact contact) {
-
-        List<Phone> phones = phoneModels.stream()
-                .map(phoneModel -> {
-                    Phone phone = new Phone();
-                    phone.setType(phoneModel.getType());
-                    phone.setNumber(phoneModel.getNumber());
-                    phone.setContact(contact);
-                    return phone;
-                })
-                .collect(Collectors.toList());
 
         phoneRepository.saveAll(phones);
 
@@ -57,43 +34,42 @@ public class PhoneServiceImpl implements PhoneService {
 
     public void editPhonesDB(List<PhoneModel> phoneModels, Contact contact) {
 
-        if (phoneModels.size() > 0) {
+        //if (phoneModels.size() > 0) {
 
             List<Phone> phonesToSave = new ArrayList<>();
+            List<Phone> phonesDB = contact.getPhones();
 
             phoneModels.forEach(phoneModel -> {
 
-                if(phoneModel.getId() == null) {
-                    Phone newPhone = new Phone();
-                    newPhone.setType(phoneModel.getType());
-                    newPhone.setNumber(phoneModel.getNumber());
-                    newPhone.setContact(contact);
-                    phonesToSave.add(newPhone);
-                } else {
-                    Optional<Phone> phoneSearch = phoneRepository.findByIdAndContactId(phoneModel.getId(), contact.getId());
+                if (phoneModel.getId() == null)
+                    phonesToSave.add(new Phone(phoneModel, contact));
+
+                else {
+
+                    Optional<Phone> phoneSearch = phonesDB.stream()
+                            .filter(phone -> phone.getId().equals(phoneModel.getId())).findFirst();
 
                     if (phoneSearch.isPresent()) {
-                        Phone phone = phoneSearch.get();
+                        Phone phoneDB = phoneSearch.get();
 
-                        if (phone.getId().equals(phoneModel.getId())) {
+                        boolean changed = !phoneModel.getNumber().equals(phoneDB.getNumber());
 
-                            boolean changed = !phoneModel.getNumber().equals(phone.getNumber());
+                        if (changed)
+                            phoneDB.setNumber(phoneModel.getNumber());
 
-                            if (changed)
-                                phone.setNumber(phoneModel.getNumber());
-
-                            if (phoneModel.getType() != phone.getType()) {
-                                phone.setType(phoneModel.getType());
-                                changed = true;
-                            }
-                            if (changed)
-                                phonesToSave.add(phone);
+                        if (phoneModel.getType() != phoneDB.getType()) {
+                            phoneDB.setType(phoneModel.getType());
+                            changed = true;
                         }
+                        if (changed)
+                            phonesToSave.add(phoneDB);
+
+                        phonesDB.remove(phoneDB);
                     }
                 }
             });
             phoneRepository.saveAll(phonesToSave);
-        }
+            phoneRepository.deleteAll(phonesDB);
     }
 
 

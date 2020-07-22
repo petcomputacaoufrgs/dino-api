@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
+import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -45,6 +46,18 @@ public class Phone implements Serializable {
     private Contact contact;
 
     public Phone(){}
+
+    public Phone(PhoneSaveModel phoneSaveModel, Contact contact){
+        this.setType(phoneSaveModel.getType());
+        this.setNumber(phoneSaveModel.getNumber());
+        this.setContact(contact);
+    }
+
+    public Phone(PhoneModel phoneModel, Contact contact){
+        this.setType(phoneModel.getType());
+        this.setNumber(phoneModel.getNumber());
+        this.setContact(contact);
+    }
 
     public Long getId() {
         return id;

@@ -12,15 +12,13 @@ public interface ContactService {
     ResponseEntity<List<ContactModel>> getAllContacts();
     ResponseEntity<List<ContactModel>> saveContacts(List<ContactSaveModel> contactsSaveModel);
     ResponseEntity<ContactModel> saveContact(ContactSaveModel model);
+    ResponseEntity<?> editContacts(List<ContactModel> models);
     ResponseEntity<?> deleteContact(ContactModel model);
     ResponseEntity<?> deleteContacts(List<ContactModel> models);
-
 
     Contact saveContactDB(ContactSaveModel model, User user);
     void deleteContactDB(ContactModel model, Long userId);
 
-    //ResponseEntity<?> delete(ContactDeleteModel contactDeleteModel);
-    //ResponseEntity<?> delete(List<ContactDeleteModel> contactsDeleteModel);*/
 
 
 }
