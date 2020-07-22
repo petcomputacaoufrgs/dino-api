@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.entity.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 
@@ -110,11 +112,57 @@ public class ContactServiceImpl implements ContactService {
 
     public void deleteContactDB(ContactModel model, Long userId) {
         model.getPhones()
-                   .forEach(phoneModel ->
-                          phoneRepository.deleteByIdAndContactId(phoneModel.getId(),model.getId()));
+                .forEach(phoneModel ->
+                        phoneRepository.deleteByIdAndContactId(phoneModel.getId(),model.getId()));
         contactRepository.deleteByIdAndUserId(model.getId(), userId);
     }
 
+    public ResponseEntity<?> editContacts(List<ContactModel> models) {
+
+        if (models.size() == 0) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        //User user = userServiceImpl.getCurrentUser();
+        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+
+        models.forEach(model -> {
+
+            Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+
+            if (contactSearch.isPresent()) {
+                //return new ResponseEntity<>("Contato não encontrado", HttpStatus.BAD_REQUEST);
+
+
+            Contact contact = contactSearch.get();
+
+            boolean changed = ! model.getName().equals(contact.getName());
+            if (changed)
+                contact.setName(model.getName());
+
+            if(! model.getDescription().equals(contact.getDescription())){
+                changed = true;
+                contact.setDescription(model.getDescription());
+            }
+            if(! model.getColor().equals(contact.getColor())){
+                changed = true;
+                contact.setColor(model.getColor());
+            }
+            if(! model.getFrontId().equals(contact.getFrontId())){
+                changed = true;
+                contact.setFrontId(model.getFrontId());
+            }
+            if(changed)
+                contactRepository.save(contact);
+
+            phoneServiceImpl.editPhonesDB(model.getPhones(), contact);
+            }
+        });
+
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
 
 
 }

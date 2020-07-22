@@ -35,6 +35,11 @@ import java.util.List;
             return contactServiceImpl.saveContacts(models);
         }
 
+        @PutMapping("/all")
+        public ResponseEntity<?> editContacts(@RequestBody List<ContactModel> models) {
+            return contactServiceImpl.editContacts(models);
+        }
+
         @DeleteMapping
         public ResponseEntity<?> deleteContact(@RequestBody ContactModel model) {
             return contactServiceImpl.deleteContact(model);

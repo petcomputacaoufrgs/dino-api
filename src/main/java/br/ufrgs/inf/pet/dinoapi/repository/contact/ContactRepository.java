@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.repository.contact;
 
+import br.ufrgs.inf.pet.dinoapi.entity.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -27,6 +28,9 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
     @Modifying
     @Query("DELETE FROM Contact n WHERE n.id IN ?1 AND n.user.id = ?2")
     int deleteAllByIdAndUserId(List<Long> ids, Long userId);
+
+    @Query("SELECT n FROM Contact n WHERE n.id = ?1 AND n.user.id = ?2")
+    Optional<Contact> findByIdAndUserId(Long id, Long userId);
 
 
 }

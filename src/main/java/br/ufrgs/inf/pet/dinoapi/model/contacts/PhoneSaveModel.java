@@ -8,6 +8,8 @@ public class PhoneSaveModel {
 
     public PhoneSaveModel() {}
 
+
+
     public byte getType() {
         return type;
     }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -16,8 +17,11 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
         //@Query("SELECT c FROM Contact c WHERE c.name IN ?1 AND c.user.id = ?2")
         //List<Contact> findAllByNameAndUserId(String contactName, Long userId);
 
-        //@Query("SELECT c FROM Contact c WHERE c.id IN ?1 AND c.user.id = ?2")
-        //List<Contact> findAllByIdAndUserId(List<Long> contactIds, Long userId);
+    @Query("SELECT p FROM Phone p WHERE p.id IN ?1 AND p.contact.id = ?2")
+    List<Phone> findAllByIdAndContactId(List<Long> phoneIds, Long contactId);
+
+    @Query("SELECT p FROM Phone p WHERE p.id IN ?1 AND p.contact.id = ?2")
+    Optional<Phone> findByIdAndContactId(Long phoneId, Long contactId);
 
     @Transactional
     @Modifying
