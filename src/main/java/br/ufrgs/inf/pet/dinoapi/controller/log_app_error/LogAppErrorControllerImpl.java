@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.controller.log_app_error;
 
-import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErroListModel;
-import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErrorModel;
+import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErroListRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErrorRequestModel;
 import br.ufrgs.inf.pet.dinoapi.service.log_app_error.LogAppErrorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +22,13 @@ public class LogAppErrorControllerImpl implements LogAppErrorController {
 
     @Override
     @PostMapping("log_app_error/")
-    public ResponseEntity<?> save(@Valid @RequestBody LogAppErrorModel model) {
+    public ResponseEntity<?> save(@Valid @RequestBody LogAppErrorRequestModel model) {
         return logAppErrorService.save(model);
     }
 
     @Override
     @PostMapping("log_app_error/all/")
-    public ResponseEntity<?> saveAll(@Valid @RequestBody LogAppErroListModel model) {
+    public ResponseEntity<?> saveAll(@Valid @RequestBody LogAppErroListRequestModel model) {
         return logAppErrorService.saveAll(model);
     }
 }

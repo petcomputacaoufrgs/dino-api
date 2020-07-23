@@ -22,17 +22,18 @@ import java.util.*;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    @Autowired
-    AuthRepository authRepository;
-
-    @Autowired
-    UserServiceImpl userService;
+    private final AuthRepository authRepository;
 
     private String key = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
     private String secretKey = Base64.getEncoder().encodeToString(key.getBytes());
 
     private long validityInMilliseconds = 3600000;
+
+    @Autowired
+    public AuthServiceImpl(AuthRepository authRepository) {
+        this.authRepository = authRepository;
+    }
 
     @Override
     public Auth refreshAuth(Auth auth, HttpServletRequest request) {
@@ -93,7 +94,13 @@ public class AuthServiceImpl implements AuthService {
 
         final String accessToken = userDetails.getPassword();
 
-        return userService.findByAccessToken(accessToken);
+        Auth auth = this.findByAccessToken(accessToken);
+
+        if (auth != null) {
+            return auth.getUser();
+        }
+
+        return null;
     }
 
     @Override
@@ -101,12 +108,6 @@ public class AuthServiceImpl implements AuthService {
         authRepository.delete(getCurrentAuth());
 
         return new ResponseEntity<>("Autenticação removida.", HttpStatus.OK);
-    }
-
-    @Override
-    public void saveUserAgent(Auth auth, String userAgent) {
-        auth.setUserAgent(userAgent);
-        authRepository.save(auth);
     }
 
     @Override

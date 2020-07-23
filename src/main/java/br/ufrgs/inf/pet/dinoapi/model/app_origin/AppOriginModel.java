@@ -4,7 +4,7 @@ public class AppOriginModel {
     private String origin;
 
     public String getOrigin() {
-        return origin;
+        return this.origin;
     }
 
     public void setOrigin(String origin) {

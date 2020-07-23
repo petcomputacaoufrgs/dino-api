@@ -3,12 +3,10 @@ package br.ufrgs.inf.pet.dinoapi.communication.google;
 import br.ufrgs.inf.pet.dinoapi.config.AppOriginConfig;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopesEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-
+import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -16,13 +14,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
-
-    private final GoogleAuthServiceImpl googleAuthService;
-
-    @Autowired
-    public GoogleAPICommunicationImpl(GoogleAuthServiceImpl googleAuthService) {
-        this.googleAuthService = googleAuthService;
-    }
 
     public GoogleTokenResponse getGoogleToken(String token) throws GoogleClientSecretIOException {
         try {

@@ -1,20 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "auth")
 public class Auth {
-    private static final long serialVersionUID = 1L;
-
     private static final String SEQUENCE_NAME = "auth_seq";
 
     @Id

@@ -1,16 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "dino_user")
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class User {
     private static final String SEQUENCE_NAME = "dino_user_seq";
 
     public final Long DEFAULT_VERSION = 0l;
@@ -18,22 +15,19 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Basic(optional = false)
-    @Column(name = "name", length = 100)
+    @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Column(name = "email", length = 100, unique = true)
+    @Column(name = "email", length = 100, unique = true, nullable = false)
     private String email;
 
-    @Column(name = "picture_url", length = 100, unique = false)
+    @Column(name = "picture_url", length = 500, nullable = false)
     private String pictureURL;
 
-    @Basic(optional = false)
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private Long version;
 
     @OneToMany(mappedBy = "user")
@@ -51,13 +45,18 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
 
-    public User() {}
+    public User() {
+        this.notes = new ArrayList<>();
+        this.auths = new ArrayList<>();
+    }
 
     public User(String name, String email, String pictureURL) {
         this.name = name;
         this.email = email;
         this.pictureURL = pictureURL;
         this.version = this.DEFAULT_VERSION;
+        this.notes = new ArrayList<>();
+        this.auths = new ArrayList<>();
     }
 
     public Long getId() {

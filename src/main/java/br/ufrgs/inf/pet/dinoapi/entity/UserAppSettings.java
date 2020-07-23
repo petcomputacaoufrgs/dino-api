@@ -1,14 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import java.io.Serializable;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "user_app_settings")
-public class UserAppSettings implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class UserAppSettings {
 
     private static final String SEQUENCE_NAME = "user_app_settings_seq";
 
@@ -17,20 +14,17 @@ public class UserAppSettings implements Serializable {
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Basic(optional = false)
-    @Column(name = "language", length = 5)
+    @Column(name = "language", length = 5, nullable = false)
     private String language;
 
-    @Basic(optional = false)
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private Long version;
 
     @OneToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public UserAppSettings() {}

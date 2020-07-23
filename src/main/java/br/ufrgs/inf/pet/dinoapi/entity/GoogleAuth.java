@@ -1,39 +1,34 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-
 import java.util.Date;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "google_auth")
 public class GoogleAuth {
-    private static final long serialVersionUID = 1L;
-
     private static final String SEQUENCE_NAME = "google_auth_seq";
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "google_id", length = 100, unique = true)
+    @Column(name = "google_id", length = 100, unique = true, nullable = false)
     private String googleId;
 
-    @Column(name = "access_token", length = 200, unique = true)
+    @Column(name = "access_token", length = 200, unique = true, nullable = false)
     private String accessToken;
 
-    @Column(name = "refresh_token", length = 200, unique = true)
+    @Column(name = "refresh_token", length = 200, unique = true, nullable = false)
     private String refreshToken;
 
-    @Column(name = "token_expires_data_in_millis")
+    @Column(name = "token_expires_data_in_millis", nullable = false)
     private Long tokenExpiresDateInMillis;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
     public GoogleAuth() {}

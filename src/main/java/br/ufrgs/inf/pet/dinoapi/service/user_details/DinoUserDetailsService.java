@@ -13,8 +13,12 @@ import java.util.ArrayList;
 @Service
 public class DinoUserDetailsService implements UserDetailsService {
 
+    private final UserService userService;
+
     @Autowired
-    UserService userService;
+    public DinoUserDetailsService(UserService userService) {
+        this.userService = userService;
+    }
 
     public UserDetails loadUserDetailsByAuth(Auth auth) throws UsernameNotFoundException {
         if (auth != null) {

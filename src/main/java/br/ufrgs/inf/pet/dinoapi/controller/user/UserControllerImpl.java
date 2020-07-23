@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.user;
 
-import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.validation.Valid;
 
 @RestController
 public class UserControllerImpl implements UserController {
@@ -33,7 +35,7 @@ public class UserControllerImpl implements UserController {
 
     @Override
     @PutMapping("/user/photo/")
-    public ResponseEntity<?> setUserPhoto(@RequestBody UpdateUserPictureModel model) {
+    public ResponseEntity<?> setUserPhoto(@Valid  @RequestBody UpdateUserPictureRequestModel model) {
         return userService.setUserPhoto(model);
     }
 }

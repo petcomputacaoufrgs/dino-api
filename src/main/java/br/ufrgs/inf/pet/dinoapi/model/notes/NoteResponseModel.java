@@ -2,10 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Note;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class NoteModel {
+public class NoteResponseModel {
     private Long id;
 
     private Integer order;
@@ -20,9 +21,11 @@ public class NoteModel {
 
     private Long lastUpdate;
 
-    public NoteModel() {}
+    public NoteResponseModel() {
+        this.tags = new ArrayList<>();
+    }
 
-    public NoteModel(Note note) {
+    public NoteResponseModel(Note note) {
         this.id = note.getId();
         this.order = note.getOrder();
         this.question = note.getQuestion();
@@ -30,6 +33,7 @@ public class NoteModel {
         this.answered = note.getAnswered();
         this.tags = note.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
         this.lastUpdate = note.getLastUpdate().getTime();
+        this.tags = new ArrayList<>();
     }
 
     public Long getId() {

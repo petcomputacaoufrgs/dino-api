@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.config;
 
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.filter.AuthFilter;
-import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,20 +16,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
 import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    private UserDetailsService dinoUserDetailsService = new DinoUserDetailsService();
+    private final UserDetailsService dinoUserDetailsService;
 
-    private AuthFilter authFilter = new AuthFilter();
+    private final AuthFilter authFilter;
+
+    @Autowired
+    public SecurityConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService) {
+        super();
+        this.authFilter = authFilter;
+        this.dinoUserDetailsService = dinoUserDetailsService;
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(dinoUserDetailsService);
+        auth.userDetailsService(this.dinoUserDetailsService);
     }
 
     @Override
@@ -40,7 +46,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()
                 .and().cors().and().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        httpSecurity.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
+        httpSecurity.addFilterBefore(this.authFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
     @Override

@@ -2,8 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
-import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.UserModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.user.UserWebSocketServiceImpl;
@@ -11,20 +11,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.Optional;
 
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final AuthServiceImpl authService;
+
+    private final UserWebSocketServiceImpl userWebSocketService;
 
     @Autowired
-    AuthServiceImpl authService;
-
-    @Autowired
-    UserWebSocketServiceImpl userWebSocketService;
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, UserWebSocketServiceImpl userWebSocketService) {
+        this.userRepository = userRepository;
+        this.authService = authService;
+        this.userWebSocketService = userWebSocketService;
+    }
 
     @Override
     public ResponseEntity<?> getVersion() {
@@ -42,7 +45,7 @@ public class UserServiceImpl implements UserService {
         final User currentUser = authService.getCurrentUser();
 
         if (currentUser != null) {
-            final UserModel model = new UserModel();
+            final UserResponseModel model = new UserResponseModel();
             model.setEmail(currentUser.getEmail());
             model.setName(currentUser.getName());
             model.setPictureURL(currentUser.getPictureURL());
@@ -54,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ResponseEntity<?> setUserPhoto(UpdateUserPictureModel model) {
+    public ResponseEntity<?> setUserPhoto(UpdateUserPictureRequestModel model) {
         User currentUser = authService.getCurrentUser();
 
         if (model.getPictureURL().isBlank()) {
@@ -122,21 +125,6 @@ public class UserServiceImpl implements UserService {
             if (queryResult.isPresent()) {
                 return queryResult.get();
             }
-        }
-
-        return null;
-    }
-
-    @Override
-    public User findByAccessToken(String accessToken) {
-        if (accessToken.isEmpty()) {
-            return null;
-        }
-
-        final Optional<User> userSearch = userRepository.findByAccessToken(accessToken);
-
-        if (userSearch.isPresent()) {
-            return userSearch.get();
         }
 
         return null;
