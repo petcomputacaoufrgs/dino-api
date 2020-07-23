@@ -30,7 +30,7 @@ public class UserAppSettings implements Serializable {
     private Long version;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id")
     private User user;
 
     public UserAppSettings() {}

@@ -12,11 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 @RestController
 public class AuthControllerImpl implements AuthController {
 
-    @Autowired
-    GoogleAuthServiceImpl googleAuthService;
+    private final GoogleAuthServiceImpl googleAuthService;
+
+    private final AuthServiceImpl authService;
 
     @Autowired
-    AuthServiceImpl authService;
+    public AuthControllerImpl(GoogleAuthServiceImpl googleAuthService, AuthServiceImpl authService) {
+        this.googleAuthService = googleAuthService;
+        this.authService = authService;
+    }
 
     @Override
     @PostMapping("/public/auth/google/")

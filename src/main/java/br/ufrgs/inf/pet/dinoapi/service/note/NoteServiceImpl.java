@@ -8,14 +8,11 @@ import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.utils.DatetimeUtils;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -63,7 +60,7 @@ public class NoteServiceImpl implements NoteService {
 
         final List<NoteTag> tags = this.createNewTags(model);
 
-        final LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
+        final Date date = new Date(model.getLastUpdate());
 
         final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
 
@@ -128,14 +125,10 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> saveAll(List<NoteSaveModel> models) {
+    public ResponseEntity<Long> saveAll(List<NoteSaveModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
-        final LocalDateTime date = LocalDateTime.now();
-
-        final List<Note> newNotes = this.createNewNotes(models, user, date);
-
-        final NoteVersion version = user.getNoteVersion();
+        final List<Note> newNotes = this.createNewNotes(models, user, new Date());
 
         noteRepository.saveAll(newNotes);
 
@@ -145,7 +138,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<?> updateAll(List<NoteUpdateModel> models) {
+    public ResponseEntity<Long> updateAll(List<NoteUpdateModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
         final List<Long> idsToUpdate = models.stream()
@@ -159,8 +152,6 @@ public class NoteServiceImpl implements NoteService {
            notes = noteRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
         }
 
-        final LocalDateTime date = LocalDateTime.now();
-
         notes.forEach(note -> {
             Optional<NoteUpdateModel> modelSearch = models.stream().filter(m -> m.getId() == note.getId()).findFirst();
 
@@ -173,17 +164,15 @@ public class NoteServiceImpl implements NoteService {
 
                 note.setQuestion(model.getQuestion());
 
-                note.setLastUpdate(date);
+                note.setLastUpdate(new Date());
 
                 this.updateTags(note, model);
             }
         });
 
-        final List<Note> newNotes = this.createNewNotes(models, user, date);
+        final List<Note> newNotes = this.createNewNotes(models, user, new Date());
 
         notes.addAll(newNotes);
-
-        final NoteVersion version = user.getNoteVersion();
 
         noteRepository.saveAll(notes);
 
@@ -272,7 +261,7 @@ public class NoteServiceImpl implements NoteService {
             changed = true;
         }
 
-        final LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
+        final Date date = new Date(model.getLastUpdate());
 
         if (changed) {
             note.setLastUpdate(date);
@@ -323,7 +312,7 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
     }
 
-    private List<Note> createNewNotes(List<? extends NoteQuestionModel> models, User user, LocalDateTime date) {
+    private List<Note> createNewNotes(List<? extends NoteQuestionModel> models, User user, Date date) {
         final List<Note> savedNotes = new ArrayList<>();
 
         final List<NoteQuestionModel> notesToCreate = models.stream()

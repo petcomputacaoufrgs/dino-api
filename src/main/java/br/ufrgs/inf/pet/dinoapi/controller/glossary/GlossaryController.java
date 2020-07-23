@@ -16,30 +16,30 @@ public interface GlossaryController {
      * Se já houver um item com o mesmo título não há nenhuma ação.
      * Não é possível adicionar um novo registro com o mesmo título de um já existente, caso isto ocorra não há ação.
      *
-     * @param glossarySaveModel - Model com os dados para a criação de items do glossário
-     * @return lista com os itens salvos com sucesso ou erro
+     * @param glossarySaveModel - Model do tipo {@link GlossarySaveModel}
+     * @return Model do tipo {@link GlossaryResponseModel} com os itens salvos
      */
     ResponseEntity<GlossaryResponseModel> save(GlossarySaveModel glossarySaveModel);
 
     /**
      * Recebe itens do glossário, verifica sua existencia e atualiza seus dados.
      *
-     * @param glossaryUpdateModel - Model com os dados para atualização de itens do glossário
-     * @return lista com os itens atualizados com sucesso ou erro
+     * @param glossaryUpdateModel - Model do tipo {@link GlossaryUpdateModel}
+     * @return Model do tipo {@link GlossaryResponseModel} com os dados atualizados ou mensagem do erro
      */
     ResponseEntity<?> update(GlossaryUpdateModel glossaryUpdateModel);
 
     /**
      * Retorna todos os itens do glossário existentes
      *
-     * @return retorna todos os dados do glossario ativos (exists)
+     * @return Lista do tipo {@link GlossaryItem} apenas com os itens ativos do glossário
      */
     ResponseEntity<List<GlossaryItem>> get();
 
     /**
      * Retorna a versão atual do glossário
      *
-     * @return retorna a versão atual na model: {@link GlossaryVersionResponseModel}
+     * @return Retorna a versão atual do glossário
      */
     ResponseEntity<Long> getVersion();
 

@@ -15,11 +15,15 @@ import java.util.List;
 @RestController
 public class GlossaryControllerImpl implements GlossaryController {
 
-    @Autowired
-    GlossaryServiceImpl glossaryItemService;
+    private final GlossaryServiceImpl glossaryItemService;
+
+    private final GlossaryVersionServiceImpl glossaryVersionService;
 
     @Autowired
-    GlossaryVersionServiceImpl glossaryVersionService;
+    public GlossaryControllerImpl(GlossaryServiceImpl glossaryItemService, GlossaryVersionServiceImpl glossaryVersionService) {
+        this.glossaryItemService = glossaryItemService;
+        this.glossaryVersionService = glossaryVersionService;
+    }
 
     @Override
     @PostMapping("public/glossary/save/")

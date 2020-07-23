@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.constants.WebSocketDestinations;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.note.NoteAlertUpdateModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -22,6 +22,6 @@ public class NoteWebSocketServiceImpl implements NoteWebSocketService {
         final NoteAlertUpdateModel model = new NoteAlertUpdateModel();
         model.setNewVersion(newVersion);
         final UserDetails principal = authService.getPrincipal();
-        simpMessagingTemplate.convertAndSendToUser(principal.getUsername(), WebSocketDestinations.ALERT_NOTE_UPDATE, model);
+        simpMessagingTemplate.convertAndSendToUser(principal.getUsername(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE.getValue(), model);
     }
 }

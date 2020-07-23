@@ -8,21 +8,25 @@ import br.ufrgs.inf.pet.dinoapi.service.note.NoteVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
 @RequestMapping("/note/")
 public class NoteControllerImpl implements NoteController {
 
-    @Autowired
-    NoteServiceImpl noteService;
+    private final NoteServiceImpl noteService;
+
+    private final NoteTagServiceImpl noteTagService;
+
+    private final NoteVersionServiceImpl noteVersionService;
 
     @Autowired
-    NoteTagServiceImpl noteTagService;
+    public NoteControllerImpl(NoteServiceImpl noteService, NoteTagServiceImpl noteTagService, NoteVersionServiceImpl noteVersionService) {
+        this.noteService = noteService;
+        this.noteTagService = noteTagService;
+        this.noteVersionService = noteVersionService;
+    }
 
-    @Autowired
-    NoteVersionServiceImpl noteVersionService;
 
     @Override
     @GetMapping
@@ -50,13 +54,13 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PostMapping("all/")
-    public ResponseEntity<?> saveAll(@RequestBody List<NoteSaveModel> models) {
+    public ResponseEntity<Long> saveAll(@RequestBody List<NoteSaveModel> models) {
         return noteService.saveAll(models);
     }
 
     @Override
     @PutMapping("all/")
-    public ResponseEntity<?> updateAll(@RequestBody List<NoteUpdateModel> models) {
+    public ResponseEntity<Long> updateAll(@RequestBody List<NoteUpdateModel> models) {
         return noteService.updateAll(models);
     }
 

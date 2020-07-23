@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.handler;
+package br.ufrgs.inf.pet.dinoapi.exception_handler;
 
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;

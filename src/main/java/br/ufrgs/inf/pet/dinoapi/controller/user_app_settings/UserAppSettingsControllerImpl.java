@@ -15,8 +15,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user_app_settings/")
 public class UserAppSettingsControllerImpl implements  UserAppSettingsController {
 
+    private final UserAppSettingsServiceImpl userAppSettingsService;
+
     @Autowired
-    UserAppSettingsServiceImpl userAppSettingsService;
+    public UserAppSettingsControllerImpl(UserAppSettingsServiceImpl userAppSettingsService) {
+        this.userAppSettingsService = userAppSettingsService;
+    }
 
     @Override
     @GetMapping

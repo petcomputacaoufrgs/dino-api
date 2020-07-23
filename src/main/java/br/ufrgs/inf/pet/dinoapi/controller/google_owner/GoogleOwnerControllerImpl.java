@@ -16,5 +16,4 @@ public class GoogleOwnerControllerImpl implements GoogleOwnerController {
         return new ResponseEntity<>("google-site-verification: google1da5cc70ff16112c.html", HttpStatus.OK);
     }
 
-
 }
