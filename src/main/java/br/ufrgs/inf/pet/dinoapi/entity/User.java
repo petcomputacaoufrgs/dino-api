@@ -66,6 +66,10 @@ public class User implements Serializable {
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
 
+    @Valid
+    @OneToOne(mappedBy = "user")
+    private ContactVersion contactVersion;
+
     public User() {}
 
     public User(String name, String email) {
@@ -156,4 +160,11 @@ public class User implements Serializable {
         return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
     }
 
+    public ContactVersion getContactVersion() {
+        return contactVersion;
+    }
+
+    public void setContactVersion(ContactVersion contactVersion) {
+        this.contactVersion = contactVersion;
+    }
 }
