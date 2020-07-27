@@ -9,8 +9,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class GlossaryWebSocketServiceImpl implements GlossaryWebSocketService {
 
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
     @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    public GlossaryWebSocketServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
 
     @Override
     public void sendUpdateMessage(Long newVersion) {

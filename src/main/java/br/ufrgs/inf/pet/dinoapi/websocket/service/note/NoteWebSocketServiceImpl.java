@@ -11,11 +11,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class NoteWebSocketServiceImpl implements NoteWebSocketService {
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    private final AuthServiceImpl authService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    public NoteWebSocketServiceImpl(SimpMessagingTemplate simpMessagingTemplate, AuthServiceImpl authService) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.authService = authService;
+    }
 
     @Override
     public void sendUpdateMessage(Long newVersion) {
