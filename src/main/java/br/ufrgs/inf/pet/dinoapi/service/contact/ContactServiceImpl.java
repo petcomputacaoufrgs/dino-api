@@ -1,10 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.*;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,9 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -23,6 +21,8 @@ public class ContactServiceImpl implements ContactService {
 
         @Autowired
         ContactRepository contactRepository;
+        @Autowired
+        ContactVersionServiceImpl contactVersionServiceImpl;
         @Autowired
         PhoneRepository phoneRepository;
         @Autowired
@@ -39,40 +39,22 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        public ResponseEntity<ContactModel> saveContact(ContactSaveModel model) {
-
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
-            Contact contact = new Contact(model, user);
-
-            contact = contactRepository.save(contact);
-
-            contact.setPhones(phoneServiceImpl.savePhonesDB(model.getPhones(), contact));
-
-            ContactModel response = new ContactModel(contact);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-
-        public ResponseEntity<List<ContactModel>> saveContacts(List<ContactSaveModel> models) {
+        public ResponseEntity<List<ContactModel>> getUserContacts() {
 
             //User user = userServiceImpl.getCurrentUser();
             User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
 
-            List<Contact> contacts = models.stream()
-                    .map(modelContact -> saveContactDB(modelContact, user))
-                    .collect(Collectors.toList());
+            List<Contact> contacts = user.getContacts();
 
-            //PRECISA DE RESPOSTA?
-            List<ContactModel> response = contacts.stream()
-                    .map(ContactModel::new)
-                    .collect(Collectors.toList());
+            List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
-
 
         public Contact saveContactDB(ContactSaveModel model, User user) {
+
+            //não estou botando data nas versões
+
             Contact contact = new Contact(model, user);
 
             contact = contactRepository.save(contact);
@@ -83,7 +65,43 @@ public class ContactServiceImpl implements ContactService {
         }
 
 
-    public ResponseEntity<?> deleteContact(ContactModel model) {
+        public ResponseEntity<ContactResponseModel> saveContact(ContactSaveModel model) {
+
+            //User user = userServiceImpl.getCurrentUser();
+            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+
+            ContactModel responseModel = new ContactModel(saveContactDB(model, user));
+
+            contactVersionServiceImpl.updateVersion(user);
+
+            ContactResponseModel response = new ContactResponseModel(user.getContactVersion().getVersion(), responseModel);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        public ResponseEntity<ContactResponseModel> saveContacts(List<ContactSaveModel> models) {
+
+            //User user = userServiceImpl.getCurrentUser();
+            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+
+            contactVersionServiceImpl.updateVersion(user);
+
+            List<Contact> contacts = models.stream()
+                    .map(modelContact -> saveContactDB(modelContact, user))
+                    .collect(Collectors.toList());
+
+            //ATUALIZAR OS ID
+            List<ContactModel> responseModels = contacts.stream()
+                    .map(ContactModel::new)
+                    .collect(Collectors.toList());
+
+            ContactResponseModel response = new ContactResponseModel(user.getContactVersion().getVersion(), responseModels);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+
+    public ResponseEntity<?> deleteContact(ContactDeleteModel model) {
 
         if (model == null || model.getId() == null) {
             return new ResponseEntity<>(HttpStatus.OK);
@@ -92,27 +110,53 @@ public class ContactServiceImpl implements ContactService {
         //User user = userServiceImpl.getCurrentUser();
         User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
 
-        deleteContactDB(model, user.getId());
+        Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        if(contactToDeleteSearch.isPresent()) {
+            Contact contactToDelete = contactToDeleteSearch.get();
+
+            phoneRepository.deleteAll(contactToDelete.getPhones());
+
+            contactRepository.delete(contactToDelete);
+
+            contactVersionServiceImpl.updateVersion(user);
+        }
+
+        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> deleteContacts(List<ContactModel> models) {
-
+    public ResponseEntity<?> deleteContacts(List<ContactDeleteModel> models) {
+        // ver depois com o JP
         //User user = userServiceImpl.getCurrentUser();
         User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
 
-        models.forEach(model -> deleteContactDB(model, user.getId()));
+        List<Long> validIds = models.stream()
+                .filter(Objects::nonNull)
+                .map(ContactDeleteModel::getId)
+                .collect(Collectors.toList());
 
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
+        int deletedItems = 0;
 
-    public void deleteContactDB(ContactModel model, Long userId) {
-        model.getPhones()
-                .forEach(phoneModel ->
-                        phoneRepository.deleteByIdAndContactId(phoneModel.getId(), model.getId()));
+        if (validIds.size() > 0) {
 
-        contactRepository.deleteByIdAndUserId(model.getId(), userId);
+
+            Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
+
+            if (contactsToDeleteSearch.isPresent()) {
+
+                List<Contact> contactsToDelete = contactsToDeleteSearch.get();
+
+                contactsToDelete.forEach(c -> phoneRepository.deleteAll(c.getPhones()));
+
+                deletedItems = contactRepository.deleteAllByIdAndUserId(validIds, user.getId());
+
+                if (deletedItems > 0) {
+                    contactVersionServiceImpl.updateVersion(user);
+                }
+            }
+        }
+
+        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
@@ -155,10 +199,13 @@ public class ContactServiceImpl implements ContactService {
             else responseFailed.add(model);
             });
 
+        if(models.size() > responseFailed.size())
+            contactVersionServiceImpl.updateVersion(user);
+
         if(responseFailed.size() > 0)
             return new ResponseEntity<>(responseFailed, HttpStatus.NOT_FOUND);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
 
     }
 

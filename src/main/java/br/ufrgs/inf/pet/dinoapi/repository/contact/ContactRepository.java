@@ -17,8 +17,6 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
     @Query("SELECT c FROM Contact c WHERE c.name IN ?1 AND c.user.id = ?2")
     List<Contact> findAllByNameAndUserId(String contactName, Long userId);
 
-    Optional<Contact> findByName(String contactName);
-
     @Transactional
     @Modifying
     @Query("DELETE FROM Contact n WHERE n.id = ?1 AND n.user.id = ?2")
@@ -32,5 +30,7 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
     @Query("SELECT n FROM Contact n WHERE n.id = ?1 AND n.user.id = ?2")
     Optional<Contact> findByIdAndUserId(Long id, Long userId);
 
+    @Query("SELECT n FROM Contact n WHERE n.id IN ?1 AND n.user.id = ?2")
+    Optional<List<Contact>> findAllByIdAndUserId(List<Long> ids, Long userId);
 
 }

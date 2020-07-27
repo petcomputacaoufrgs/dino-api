@@ -43,7 +43,7 @@ public class NoteServiceImpl implements NoteService {
         List<Note> notes = user.getNotes();
 
         //top
-        List<NoteModel> model = notes.stream().map(note -> new NoteModel(note)).collect(Collectors.toList());
+        List<NoteModel> model = notes.stream().map(NoteModel::new).collect(Collectors.toList());
 
         return new ResponseEntity<>(model, HttpStatus.OK);
     }

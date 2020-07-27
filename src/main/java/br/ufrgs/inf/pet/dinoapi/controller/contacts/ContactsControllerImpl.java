@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.controller.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.service.contact.ContactServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.ContactVersionServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,21 +18,34 @@ import java.util.List;
         ContactServiceImpl contactServiceImpl;
         @Autowired
         PhoneServiceImpl phoneServiceImpl;
+        @Autowired
+        ContactVersionServiceImpl contactVersionServiceImpl;
+
+        @Override
+        @GetMapping("version")
+        public ResponseEntity<Long> getVersion() {
+            return contactVersionServiceImpl.getVersion();
+        }
 
         @Override
         @GetMapping
+        public ResponseEntity<List<ContactModel>> getUserContacts() {
+            return contactServiceImpl.getUserContacts();
+        }
+
+        @Override
+        @GetMapping("/all")
         public ResponseEntity<List<ContactModel>> getAllContacts() {
             return contactServiceImpl.getAllContacts();
         }
 
-
         @PostMapping
-        public ResponseEntity<ContactModel> saveContact(@RequestBody ContactSaveModel model) {
+        public ResponseEntity<ContactResponseModel> saveContact(@RequestBody ContactSaveModel model) {
             return contactServiceImpl.saveContact(model);
         }
 
         @PostMapping("/all")
-        public ResponseEntity<List<ContactModel>> saveContacts(@RequestBody List<ContactSaveModel> models) {
+        public ResponseEntity<ContactResponseModel> saveContacts(@RequestBody List<ContactSaveModel> models) {
             return contactServiceImpl.saveContacts(models);
         }
 
@@ -41,12 +55,12 @@ import java.util.List;
         }
 
         @DeleteMapping
-        public ResponseEntity<?> deleteContact(@RequestBody ContactModel model) {
+        public ResponseEntity<?> deleteContact(@RequestBody ContactDeleteModel model) {
             return contactServiceImpl.deleteContact(model);
         }
 
         @DeleteMapping("/all")
-        public ResponseEntity<?> deleteContacts(@RequestBody List<ContactModel> models) {
+        public ResponseEntity<?> deleteContacts(@RequestBody List<ContactDeleteModel> models) {
             return contactServiceImpl.deleteContacts(models);
         }
 

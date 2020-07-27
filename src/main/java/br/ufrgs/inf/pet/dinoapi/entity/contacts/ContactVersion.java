@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 import static javax.persistence.GenerationType.SEQUENCE;
+
 @Entity
 @Table(name = "contact_version")
 public class ContactVersion {
@@ -27,10 +28,13 @@ public class ContactVersion {
     @Column(name = "version")
     private Long version;
 
+    /*
     @Basic(optional = false)
     @NotNull(message = "Data da última atualização não pode ser nula.")
     @Column(name = "last_update")
     private Date lastUpdate;
+
+     */
 
     @OneToOne
     @NotNull
@@ -48,7 +52,7 @@ public class ContactVersion {
     public void setVersion(Long version) {
         this.version = version;
     }
-
+/*
     public Date getLastUpdate() {
         return lastUpdate;
     }
@@ -56,6 +60,8 @@ public class ContactVersion {
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
+
+ */
 
     public User getUser() {
         return user;
