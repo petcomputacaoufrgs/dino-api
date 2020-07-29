@@ -43,7 +43,7 @@ public class Contact implements Serializable {
         private String name;
 
         @Valid
-        @OneToMany(mappedBy = "contact")
+        @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL)
         private List<Phone> phones;
 
         @Size(max = 500)

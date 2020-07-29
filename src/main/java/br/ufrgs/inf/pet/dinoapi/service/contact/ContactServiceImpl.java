@@ -41,8 +41,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<List<ContactModel>> getUserContacts() {
 
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+            User user = userServiceImpl.getCurrentUser();
 
             List<Contact> contacts = user.getContacts();
 
@@ -67,8 +66,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<ContactResponseModel> saveContact(ContactSaveModel model) {
 
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+            User user = userServiceImpl.getCurrentUser();
 
             ContactModel responseModel = new ContactModel(saveContactDB(model, user));
 
@@ -81,8 +79,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<ContactResponseModel> saveContacts(List<ContactSaveModel> models) {
 
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+            User user = userServiceImpl.getCurrentUser();
 
             contactVersionServiceImpl.updateVersion(user);
 
@@ -107,16 +104,17 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        //User user = userServiceImpl.getCurrentUser();
-        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+        User user = userServiceImpl.getCurrentUser();
 
         Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
         if(contactToDeleteSearch.isPresent()) {
             Contact contactToDelete = contactToDeleteSearch.get();
 
-            phoneRepository.deleteAll(contactToDelete.getPhones());
+            //phoneRepository.deleteAll(contactToDelete.getPhones());
 
+            //botar o user id
+            //contactRepository.deleteByIdAndUserId(contactToDelete.getId(), user.getId());
             contactRepository.delete(contactToDelete);
 
             contactVersionServiceImpl.updateVersion(user);
@@ -127,8 +125,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> deleteContacts(List<ContactDeleteModel> models) {
         // ver depois com o JP
-        //User user = userServiceImpl.getCurrentUser();
-        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+        User user = userServiceImpl.getCurrentUser();
 
         List<Long> validIds = models.stream()
                 .filter(Objects::nonNull)
@@ -139,7 +136,7 @@ public class ContactServiceImpl implements ContactService {
 
         if (validIds.size() > 0) {
 
-
+            /*
             Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
 
             if (contactsToDeleteSearch.isPresent()) {
@@ -148,12 +145,17 @@ public class ContactServiceImpl implements ContactService {
 
                 contactsToDelete.forEach(c -> phoneRepository.deleteAll(c.getPhones()));
 
+             */
+            //ver se esse user id é o da requisição
+
+                //deletedItems = contactRepository.deleteAll(validIds);
                 deletedItems = contactRepository.deleteAllByIdAndUserId(validIds, user.getId());
+
 
                 if (deletedItems > 0) {
                     contactVersionServiceImpl.updateVersion(user);
                 }
-            }
+            //}
         }
 
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
@@ -161,8 +163,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
 
-        //User user = userServiceImpl.getCurrentUser();
-        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+        User user = userServiceImpl.getCurrentUser();
 
         List<ContactModel> responseFailed = new ArrayList<>();
 

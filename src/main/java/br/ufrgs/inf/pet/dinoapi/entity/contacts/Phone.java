@@ -40,7 +40,7 @@ public class Phone implements Serializable {
 
     @JsonIgnore
     @Valid
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotNull(message = "O contato associado não pode ser nulo.")
     @JoinColumn(name = "contact_id")
     private Contact contact;
