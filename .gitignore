@@ -29,3 +29,5 @@ target/
 
 #*.properties
 
+
+src/main/resources/
