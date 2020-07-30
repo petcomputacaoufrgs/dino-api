@@ -22,7 +22,7 @@ import java.util.List;
         ContactVersionServiceImpl contactVersionServiceImpl;
 
         @Override
-        @GetMapping("version")
+        @GetMapping("version/")
         public ResponseEntity<Long> getVersion() {
             return contactVersionServiceImpl.getVersion();
         }
@@ -34,7 +34,7 @@ import java.util.List;
         }
 
         @Override
-        @GetMapping("/all")
+        @GetMapping("all/")
         public ResponseEntity<List<ContactModel>> getAllContacts() {
             return contactServiceImpl.getAllContacts();
         }
@@ -44,12 +44,12 @@ import java.util.List;
             return contactServiceImpl.saveContact(model);
         }
 
-        @PostMapping("/all")
+        @PostMapping("all/")
         public ResponseEntity<ContactResponseModel> saveContacts(@RequestBody List<ContactSaveModel> models) {
             return contactServiceImpl.saveContacts(models);
         }
 
-        @PutMapping("/all")
+        @PutMapping("all/")
         public ResponseEntity<?> editContacts(@RequestBody List<ContactModel> models) {
             return contactServiceImpl.editContacts(models);
         }
@@ -59,17 +59,17 @@ import java.util.List;
             return contactServiceImpl.deleteContact(model);
         }
 
-        @DeleteMapping("/all")
+        @DeleteMapping("all/")
         public ResponseEntity<?> deleteContacts(@RequestBody List<ContactDeleteModel> models) {
             return contactServiceImpl.deleteContacts(models);
         }
 
-        @DeleteMapping("/phone")
+        @DeleteMapping("phone/")
         public ResponseEntity<?> deletePhone(@RequestBody PhoneModel model) {
             return phoneServiceImpl.deletePhone(model);
         }
 
-        @DeleteMapping("/phone/all")
+        @DeleteMapping("phone/all")
         public ResponseEntity<?> deletePhones(@RequestBody List<PhoneModel> models) {
             return phoneServiceImpl.deletePhones(models);
         }

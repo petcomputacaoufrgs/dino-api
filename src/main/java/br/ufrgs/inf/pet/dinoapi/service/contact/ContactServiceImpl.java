@@ -111,7 +111,7 @@ public class ContactServiceImpl implements ContactService {
         if(contactToDeleteSearch.isPresent()) {
             Contact contactToDelete = contactToDeleteSearch.get();
 
-            //phoneRepository.deleteAll(contactToDelete.getPhones());
+            phoneRepository.deleteAll(contactToDelete.getPhones());
 
             //botar o user id
             //contactRepository.deleteByIdAndUserId(contactToDelete.getId(), user.getId());
@@ -136,7 +136,7 @@ public class ContactServiceImpl implements ContactService {
 
         if (validIds.size() > 0) {
 
-            /*
+
             Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
 
             if (contactsToDeleteSearch.isPresent()) {
@@ -145,17 +145,19 @@ public class ContactServiceImpl implements ContactService {
 
                 contactsToDelete.forEach(c -> phoneRepository.deleteAll(c.getPhones()));
 
-             */
+
             //ver se esse user id é o da requisição
 
-                //deletedItems = contactRepository.deleteAll(validIds);
-                deletedItems = contactRepository.deleteAllByIdAndUserId(validIds, user.getId());
+                contactRepository.deleteAll(contactsToDelete);
+                //deletedItems = contactRepository.deleteAllByIdAndUserId(validIds, user.getId());
 
 
-                if (deletedItems > 0) {
+                /*if (deletedItems > 0) {
                     contactVersionServiceImpl.updateVersion(user);
                 }
-            //}
+                
+                 */
+            }
         }
 
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
@@ -187,10 +189,12 @@ public class ContactServiceImpl implements ContactService {
                     changed = true;
                     contact.setColor(model.getColor());
                 }
+                /*
                 if(! model.getFrontId().equals(contact.getFrontId())){
                     changed = true;
                     contact.setFrontId(model.getFrontId());
                 }
+                               */
                 if(changed)
                     contactRepository.save(contact);
 

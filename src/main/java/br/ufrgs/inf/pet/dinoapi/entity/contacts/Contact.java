@@ -50,7 +50,7 @@ public class Contact implements Serializable {
         @Column(name = "description", length = 500)
         private String description;
 
-        @Size(min = 1, max = 10)
+        @Size(max = 10)
         @Column(name = "color", length = 10)
         private String color;
 
