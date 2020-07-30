@@ -41,8 +41,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<List<ContactModel>> getUserContacts() {
 
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+            User user = userServiceImpl.getCurrentUser();
 
             List<Contact> contacts = user.getContacts();
 
@@ -67,8 +66,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<ContactResponseModel> saveContact(ContactSaveModel model) {
 
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+            User user = userServiceImpl.getCurrentUser();
 
             ContactModel responseModel = new ContactModel(saveContactDB(model, user));
 
@@ -81,8 +79,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<ContactResponseModel> saveContacts(List<ContactSaveModel> models) {
 
-            //User user = userServiceImpl.getCurrentUser();
-            User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+            User user = userServiceImpl.getCurrentUser();
 
             contactVersionServiceImpl.updateVersion(user);
 
@@ -107,8 +104,7 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        //User user = userServiceImpl.getCurrentUser();
-        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+        User user = userServiceImpl.getCurrentUser();
 
         Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
@@ -117,6 +113,8 @@ public class ContactServiceImpl implements ContactService {
 
             phoneRepository.deleteAll(contactToDelete.getPhones());
 
+            //botar o user id
+            //contactRepository.deleteByIdAndUserId(contactToDelete.getId(), user.getId());
             contactRepository.delete(contactToDelete);
 
             contactVersionServiceImpl.updateVersion(user);
@@ -127,8 +125,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> deleteContacts(List<ContactDeleteModel> models) {
         // ver depois com o JP
-        //User user = userServiceImpl.getCurrentUser();
-        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+        User user = userServiceImpl.getCurrentUser();
 
         List<Long> validIds = models.stream()
                 .filter(Objects::nonNull)
@@ -148,11 +145,18 @@ public class ContactServiceImpl implements ContactService {
 
                 contactsToDelete.forEach(c -> phoneRepository.deleteAll(c.getPhones()));
 
-                deletedItems = contactRepository.deleteAllByIdAndUserId(validIds, user.getId());
 
-                if (deletedItems > 0) {
+            //ver se esse user id é o da requisição
+
+                contactRepository.deleteAll(contactsToDelete);
+                //deletedItems = contactRepository.deleteAllByIdAndUserId(validIds, user.getId());
+
+
+                /*if (deletedItems > 0) {
                     contactVersionServiceImpl.updateVersion(user);
                 }
+                
+                 */
             }
         }
 
@@ -161,8 +165,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
 
-        //User user = userServiceImpl.getCurrentUser();
-        User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
+        User user = userServiceImpl.getCurrentUser();
 
         List<ContactModel> responseFailed = new ArrayList<>();
 
@@ -186,10 +189,12 @@ public class ContactServiceImpl implements ContactService {
                     changed = true;
                     contact.setColor(model.getColor());
                 }
+                /*
                 if(! model.getFrontId().equals(contact.getFrontId())){
                     changed = true;
                     contact.setFrontId(model.getFrontId());
                 }
+                               */
                 if(changed)
                     contactRepository.save(contact);
 

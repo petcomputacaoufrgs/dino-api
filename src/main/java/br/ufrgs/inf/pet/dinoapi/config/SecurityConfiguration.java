@@ -45,9 +45,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                 .antMatchers("/test_connection/").permitAll()
                 .antMatchers("/glossary/save/").permitAll()
                 .antMatchers("/glossary/update/").permitAll()
-                .antMatchers("/contacts/**").permitAll()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
-                //.anyRequest().authenticated() //pede autent
+                .anyRequest().authenticated() //pede autent
                 .and().cors().and().csrf().disable() //mesmo dominio q a api ta
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         http.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
