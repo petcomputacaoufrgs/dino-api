@@ -3,9 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 import java.util.Date;
 
@@ -25,7 +22,6 @@ public class Auth {
     @Column(name = "id")
     private Long id;
 
-    @Size(min = 1, max = 260, message = "O token de acesso deve conter entre 1 e 260 caracteres.")
     @Column(name = "access_token", length = 260, unique = true)
     private String accessToken;
 
@@ -41,9 +37,7 @@ public class Auth {
     }
 
     @JsonIgnore
-    @Valid
     @ManyToOne
-    @NotNull(message = "O usuário não pode ser nulo.")
     @JoinColumn(name = "user_id")
     private User user;
 

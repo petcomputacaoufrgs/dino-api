@@ -3,9 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,33 +30,25 @@ public class Note implements Serializable {
     private Integer order;
 
     @Basic(optional = false)
-    @NotNull(message = "A pergunta não pode ser nula.")
-    @Size(min = 1, max = 500, message = "A pergunta deve conter entre 1 e 500 caracteres.")
     @Column(name = "question", length = 500)
     private String question;
 
-    @Size(min = 0, max = 1000, message = "A resposta deve conter entre 0 e 1000 caracteres.")
     @Column(name = "answer", length = 1000)
     private String answer;
 
     @Basic(optional = false)
-    @NotNull(message = "Dado de resposta não pode ser nulo.")
     @Column(name = "answered")
     private Boolean answered;
 
     @Basic(optional = false)
-    @NotNull(message = "A data da última atualização não pode ser nula.")
     @Column(name = "last_update_day")
     private LocalDateTime lastUpdate;
 
     @JsonIgnore
-    @Valid
     @ManyToOne
-    @NotNull(message = "O usuário não pode ser nulo.")
     @JoinColumn(name = "user_id")
     private User user;
 
-    @Valid
     @ManyToMany
     @JoinTable(name = "note__note_tag",
             joinColumns = @JoinColumn(name = "note_id"),

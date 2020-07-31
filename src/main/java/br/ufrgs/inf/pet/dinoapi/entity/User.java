@@ -1,10 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 
@@ -25,33 +21,24 @@ public class User implements Serializable {
     private Long id;
 
     @Basic(optional = false)
-    @NotNull(message = "Nome não pode ser nulo.")
-    @Size(min = 1, max = 100, message = "O nome deve conter entre 1 e 100 caracteres.")
     @Column(name = "name", length = 100)
     private String name;
 
-    @Size(min = 1, max = 100, message = "O email deve conter entre 1 e 100 caracteres.")
-    @Email(message = "Email inválido.")
     @Column(name = "email", length = 100, unique = false)
     private String email;
 
-    @Valid
     @OneToMany(mappedBy = "user")
     private List<Auth> auths;
 
-    @Valid
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
-    @Valid
     @OneToOne(mappedBy = "user")
     private UserAppSettings userAppSettings;
 
-    @Valid
     @OneToOne(mappedBy = "user")
     private NoteVersion noteVersion;
 
-    @Valid
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
 

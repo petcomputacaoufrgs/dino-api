@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 import java.util.Date;
 
@@ -23,17 +22,14 @@ public class NoteVersion {
     private Long id;
 
     @Basic(optional = false)
-    @NotNull(message = "Versão não pode ser nula.")
     @Column(name = "version")
     private Long version;
 
     @Basic(optional = false)
-    @NotNull(message = "Data da última atualização não pode ser nula.")
     @Column(name = "last_update")
     private Date lastUpdate;
 
     @OneToOne
-    @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 

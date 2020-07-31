@@ -6,9 +6,9 @@ package br.ufrgs.inf.pet.dinoapi.enumerable;
  * @author joao.silva
  */
 public enum HeaderEnum {
-    AUTHORIZATION("Authorization"),
-    REFRESH("Refresh"),
-    GOOGLE_REFRESH("Google Refresh");
+    AUTHORIZATION("dino_an"),
+    REFRESH("refresh"),
+    GOOGLE_REFRESH("google_refresh");
 
     private String value;
 
