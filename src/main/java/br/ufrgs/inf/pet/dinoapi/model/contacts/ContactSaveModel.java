@@ -42,7 +42,6 @@ public class ContactSaveModel {
         return description;
     }
 
-
     public String getName() {
         return name;
     }

@@ -31,13 +31,11 @@ public class ContactVersionServiceImpl {
         }
 
         contactVersionRepository.save(version);
-
     }
 
     public ResponseEntity<Long> getVersion() {
 
         User user = userServiceImpl.getCurrentUser();
-        //User user = userServiceImpl.findUserByEmail("mayra.cademartori@gmail.com");
 
         ContactVersion version = user.getContactVersion();
 

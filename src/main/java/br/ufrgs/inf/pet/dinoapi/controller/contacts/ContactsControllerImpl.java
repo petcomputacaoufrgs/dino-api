@@ -10,14 +10,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+/** Avisando que tirei as funções prévias que manipulavam não um array de objetos mas um único objeto. Se algum dia precisar, tá feito*/
+    @RestController
     @RequestMapping("/contacts/")
     public class ContactsControllerImpl implements ContactsController {
 
         @Autowired
         ContactServiceImpl contactServiceImpl;
-        @Autowired
-        PhoneServiceImpl phoneServiceImpl;
         @Autowired
         ContactVersionServiceImpl contactVersionServiceImpl;
 
@@ -33,17 +32,6 @@ import java.util.List;
             return contactServiceImpl.getUserContacts();
         }
 
-        @Override
-        @GetMapping("all/")
-        public ResponseEntity<List<ContactModel>> getAllContacts() {
-            return contactServiceImpl.getAllContacts();
-        }
-
-        @PostMapping
-        public ResponseEntity<ContactResponseModel> saveContact(@RequestBody ContactSaveModel model) {
-            return contactServiceImpl.saveContact(model);
-        }
-
         @PostMapping("all/")
         public ResponseEntity<ContactResponseModel> saveContacts(@RequestBody List<ContactSaveModel> models) {
             return contactServiceImpl.saveContacts(models);
@@ -54,24 +42,8 @@ import java.util.List;
             return contactServiceImpl.editContacts(models);
         }
 
-        @DeleteMapping
-        public ResponseEntity<?> deleteContact(@RequestBody ContactDeleteModel model) {
-            return contactServiceImpl.deleteContact(model);
-        }
-
         @DeleteMapping("all/")
         public ResponseEntity<?> deleteContacts(@RequestBody List<ContactDeleteModel> models) {
             return contactServiceImpl.deleteContacts(models);
         }
-
-        @DeleteMapping("phone/")
-        public ResponseEntity<?> deletePhone(@RequestBody PhoneModel model) {
-            return phoneServiceImpl.deletePhone(model);
-        }
-
-        @DeleteMapping("phone/all")
-        public ResponseEntity<?> deletePhones(@RequestBody List<PhoneModel> models) {
-            return phoneServiceImpl.deletePhones(models);
-        }
-
 }

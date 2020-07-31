@@ -31,7 +31,6 @@ public class PhoneServiceImpl implements PhoneService {
         return phones;
     }
 
-
     public void editPhonesDB(List<PhoneModel> phoneModels, Contact contact) {
 
         //if (phoneModels.size() > 0) {
@@ -70,19 +69,5 @@ public class PhoneServiceImpl implements PhoneService {
             });
             phoneRepository.saveAll(phonesToSave);
             phoneRepository.deleteAll(phonesDB);
-    }
-
-
-    public ResponseEntity<?> deletePhone(PhoneModel model) {
-        phoneRepository.deleteById(model.getId());
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    public ResponseEntity<?> deletePhones(List<PhoneModel> models) {
-        if (models.size() == 0) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
-        models.forEach(phoneModel -> phoneRepository.deleteById(phoneModel.getId()));
-        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

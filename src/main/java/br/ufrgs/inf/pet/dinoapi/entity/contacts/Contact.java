@@ -15,9 +15,7 @@ import java.util.List;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "contact", uniqueConstraints={
-        @UniqueConstraint(columnNames={"id", "user_id"})
-})
+@Table(name = "contact")
 public class Contact implements Serializable {
 
         private static final long serialVersionUID = 1L;
@@ -30,11 +28,6 @@ public class Contact implements Serializable {
         @Basic(optional = false)
         @Column(name = "id")
         private Long id;
-
-        @Basic(optional = false)
-        @NotNull(message = "O front id do contato não pode ser nulo.")
-        @Column(name = "frontId")
-        private Long frontId;
 
         @Basic(optional = false)
         @NotNull(message = "O nome do contato não pode ser nulo.")
@@ -66,7 +59,6 @@ public class Contact implements Serializable {
         }
 
         public Contact(ContactSaveModel model, User user){
-                this.setFrontId(model.getFrontId());
                 this.setName(model.getName());
                 this.setDescription(model.getDescription());
                 this.setColor(model.getColor());
@@ -79,14 +71,6 @@ public class Contact implements Serializable {
 
         public void setId(Long id) { this.id = id; }
 
-        public Long getFrontId() {
-                return frontId;
-        }
-
-        public void setFrontId(Long frontId) {
-                this.frontId = frontId;
-        }
-
         public String getName() {
             return name;
         }
@@ -98,10 +82,6 @@ public class Contact implements Serializable {
         public List<Phone> getPhones() { return phones; }
 
         public void setPhones(List<Phone> phones) { this.phones = phones; }
-
-        public void addPhone(Phone phone) { this.phones.add(phone); }
-
-        public void addPhones(List<Phone> phones) { this.phones.addAll(phones); }
 
         public String getDescription() {
             return description;

@@ -12,9 +12,7 @@ import java.io.Serializable;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "phone", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"id", "contact_id"})
-})
+@Table(name = "phone")
 public class Phone implements Serializable {
 
     private static final long serialVersionUID = 1L;

@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 public class ContactModel {
     private Long id;
-    private Long frontId;
     private String name;
     private List<PhoneModel> phones;
     private String description;
@@ -16,7 +15,6 @@ public class ContactModel {
 
     public ContactModel(Contact contact) {
         this.setId(contact.getId());
-        this.setFrontId(contact.getFrontId());
         this.setName(contact.getName());
         this.setPhones(contact.getPhones().stream().map(PhoneModel::new).collect(Collectors.toList()));
         this.setDescription(contact.getDescription());
@@ -29,10 +27,6 @@ public class ContactModel {
 
     public void setPhones(List<PhoneModel> phones) {
         this.phones = phones;
-    }
-
-    public void setFrontId(Long frontId) {
-        this.frontId = frontId;
     }
 
     public void setName(String name) {
@@ -49,7 +43,6 @@ public class ContactModel {
 
     public Long getId() { return id; }
 
-    public Long getFrontId() { return frontId; }
 
     public String getDescription() {
         return description;
