@@ -13,13 +13,13 @@ public class AppOriginConfig {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            String configFile = new String(
+            final String configFile = new String(
                     Files.readAllBytes(
                             Paths.get(getClass().getClassLoader().getResource("app_origin.json").getPath())
                     )
             );
 
-            AppOriginModel appOrigin = objectMapper.readValue(configFile, AppOriginModel.class);
+            final AppOriginModel appOrigin = objectMapper.readValue(configFile, AppOriginModel.class);
             return appOrigin.getOrigin();
         } catch (JsonProcessingException e) {
             return "";

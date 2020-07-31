@@ -48,16 +48,16 @@ public class AuthFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         this.startServices(httpServletRequest);
 
-        String token = this.getAuthToken(httpServletRequest);
+        final String token = this.getAuthToken(httpServletRequest);
 
         if (token != null) {
-            Auth auth = authService.findByAccessToken(token);
+            final Auth auth = authService.findByAccessToken(token);
 
             if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 updateTokensIfNecessary(auth, httpServletResponse);
                 UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
-                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
@@ -78,7 +78,7 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private void updateTokensIfNecessary(Auth auth, HttpServletResponse httpServletResponse) {
-        User user = auth.getUser();
+        final User user = auth.getUser();
 
         if (!auth.tokenIsValid()) {
             Auth newAuth = authService.refreshAuth(auth);
@@ -87,9 +87,9 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         if(user.hasGoogleAuth()) {
-            GoogleAuth googleAuth = user.getGoogleAuth();
+            final GoogleAuth googleAuth = user.getGoogleAuth();
             if (!googleAuth.tokenIsValid()) {
-                String newToken = googleAuthService.refreshGoogleAuth(googleAuth);
+                final String newToken = googleAuthService.refreshGoogleAuth(googleAuth);
 
                 httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), "Bearer " + newToken);
             }

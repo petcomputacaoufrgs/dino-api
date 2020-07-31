@@ -22,15 +22,15 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
     @Override
     public ResponseEntity<?> getUserAppSettings() {
 
-        User userDB = authService.getCurrentAuth().getUser();
+        final User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
         }
 
-        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+        final UserAppSettings userAppSettings = userDB.getUserAppSettings();
 
-        UserAppSettingsModel model = new UserAppSettingsModel();
+        final UserAppSettingsModel model = new UserAppSettingsModel();
 
         model.setLanguage(userAppSettings.getLanguage());
 
@@ -43,7 +43,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
         }
 
-        User userDB = authService.getCurrentAuth().getUser();
+        final User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
@@ -60,8 +60,8 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             changed = true;
         }
 
-        String newLanguage = userAppSettingsModel.getLanguage();
-        String currentLanguage = userAppSettings.getLanguage();
+        final String newLanguage = userAppSettingsModel.getLanguage();
+        final String currentLanguage = userAppSettings.getLanguage();
 
         if (currentLanguage != newLanguage) {
             userAppSettings.setLanguage(newLanguage);
@@ -69,9 +69,9 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         }
 
         if (changed) {
-            Long currentVersion = userAppSettings.getVersion();
+            final Long currentVersion = userAppSettings.getVersion();
 
-            Long newVersion = currentVersion + 1;
+            final Long newVersion = currentVersion + 1;
 
             userAppSettings.setVersion(newVersion);
 
@@ -83,13 +83,13 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
     @Override
     public ResponseEntity<?> getUserAppSettingsVersion() {
-        User userDB = authService.getCurrentAuth().getUser();
+        final User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
         }
 
-        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+        final UserAppSettings userAppSettings = userDB.getUserAppSettings();
 
         if (userAppSettings != null) {
             return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);

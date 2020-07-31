@@ -24,11 +24,11 @@ public class NoteTagServiceImpl implements NoteTagService {
 
     @Override
     public ResponseEntity<List<NoteTag>> getTags() {
-        User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentAuth().getUser();
 
-        Set<Long> noteIds = user.getNotes().stream().map(n -> n.getId()).collect(Collectors.toSet());
+        final Set<Long> noteIds = user.getNotes().stream().map(n -> n.getId()).collect(Collectors.toSet());
 
-        List<NoteTag> notes = noteTagRepository.findAllByNotes(noteIds);
+        final List<NoteTag> notes = noteTagRepository.findAllByNotes(noteIds);
 
         return new ResponseEntity<>(notes, HttpStatus.OK);
     }

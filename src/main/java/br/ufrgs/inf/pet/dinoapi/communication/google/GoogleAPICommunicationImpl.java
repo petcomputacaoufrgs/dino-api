@@ -27,11 +27,11 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
 
     public GoogleTokenResponse getGoogleToken(String token) throws GoogleClientSecretIOException {
         try {
-            GoogleClientSecrets clientSecrets = getClientSecrets();
+            final GoogleClientSecrets clientSecrets = this.getClientSecrets();
 
-            String redirect_uri = new AppOriginConfig().getOrigin();
+            final String redirect_uri = new AppOriginConfig().getOrigin();
 
-            ArrayList<String> scopes = new ArrayList<>();
+            final ArrayList<String> scopes = new ArrayList<>();
 
             scopes.add(GoogleScopesEnum.CALENDAR.getScope());
             scopes.add(GoogleScopesEnum.PROFILE.getScope());
@@ -57,13 +57,13 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     }
 
     public GoogleTokenResponse refreshAccessToken(String refreshToken) {
-        ArrayList<String> scopes = new ArrayList<>();
+        final ArrayList<String> scopes = new ArrayList<>();
 
         scopes.add(GoogleScopesEnum.CALENDAR.getScope());
 
         GoogleTokenResponse tokenResponse = null;
         try {
-            GoogleClientSecrets secrets = getClientSecrets();
+            final GoogleClientSecrets secrets = this.getClientSecrets();
 
             tokenResponse = new GoogleRefreshTokenRequest(
                     new NetHttpTransport(),
@@ -84,7 +84,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     }
 
     private GoogleClientSecrets getClientSecrets() throws IOException {
-        String googleSecret = new String(
+        final String googleSecret = new String(
                 Files.readAllBytes(
                         Paths.get(getClass().getClassLoader().getResource("client_secret.json").getPath())
                 )

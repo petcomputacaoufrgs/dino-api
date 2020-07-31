@@ -3,15 +3,15 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 import java.util.List;
 
 public class NoteQuestionModel {
-    Long id;
+    private Long id;
 
-    String question;
+    private String question;
 
-    List<String> tagNames;
+    private List<String> tagNames;
 
-    Long lastUpdate;
+    private Long lastUpdate;
 
-    Boolean answered;
+    private Boolean answered;
 
     public Long getId() {
         return id;

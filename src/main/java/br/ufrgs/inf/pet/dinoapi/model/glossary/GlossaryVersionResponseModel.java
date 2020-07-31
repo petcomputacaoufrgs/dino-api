@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
 public class GlossaryVersionResponseModel {
-    Long version;
+    private Long version;
 
     public GlossaryVersionResponseModel(){}
 

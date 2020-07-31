@@ -36,7 +36,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public Auth refreshAuth(Auth auth) {
         if (auth != null) {
-            Auth newAuth = generateAuth(auth.getUser());
+            final Auth newAuth = generateAuth(auth.getUser());
             authRepository.delete(auth);
 
             return newAuth;
@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
             return null;
         }
 
-        Optional<Auth> authSearch = authRepository.findByAccessToken(accessToken);
+        final Optional<Auth> authSearch = authRepository.findByAccessToken(accessToken);
 
         if (authSearch.isPresent()) {
             return authSearch.get();
@@ -71,26 +71,26 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Auth getCurrentAuth() {
-        UserDetails userDetails = this.getUserDetails();
+        final UserDetails userDetails = this.getUserDetails();
 
         if (userDetails == null) {
             return null;
         }
 
-        String accessToken = userDetails.getPassword();
+        final String accessToken = userDetails.getPassword();
 
         return findByAccessToken(accessToken);
     }
 
     @Override
     public User getCurrentUser() {
-        UserDetails userDetails = this.getUserDetails();
+        final UserDetails userDetails = this.getUserDetails();
 
         if (userDetails == null) {
             return null;
         }
 
-        String email = userDetails.getUsername();
+        final String email = userDetails.getUsername();
 
         return userService.findUserByEmail(email);
     }
@@ -103,13 +103,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private UserDetails getUserDetails() {
-        SecurityContext context =  SecurityContextHolder.getContext();
+        final SecurityContext context =  SecurityContextHolder.getContext();
 
         if (context == null) {
             return null;
         }
 
-        Authentication auth = context.getAuthentication();
+        final Authentication auth = context.getAuthentication();
 
         if (auth == null) {
             return null;
@@ -119,19 +119,19 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private Auth createToken(User user, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(user.getEmail());
+        final Claims claims = Jwts.claims().setSubject(user.getEmail());
         claims.put("roles", roles);
-        Date now = new Date();
+        final Date now = new Date();
         Date validity = new Date(now.getTime() + validityInMilliseconds);
 
-        String accessToken = Jwts.builder()
+        final String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(validity)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
 
-        Auth auth = new Auth(accessToken, validity.getTime());
+        final Auth auth = new Auth(accessToken, validity.getTime());
 
         auth.setUser(user);
 

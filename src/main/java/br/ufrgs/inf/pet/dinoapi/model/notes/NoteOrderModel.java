@@ -1,9 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 public class NoteOrderModel {
-    Long id;
+    private Long id;
 
-    Integer order;
+    private Integer order;
 
     public Long getId() {
         return id;
