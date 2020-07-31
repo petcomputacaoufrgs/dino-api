@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.auth.dino;
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.AuthRepository;
+import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -22,6 +23,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     AuthRepository authRepository;
+
+    @Autowired
+    UserServiceImpl userService;
 
     private String key = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
@@ -67,6 +71,38 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Auth getCurrentAuth() {
+        UserDetails userDetails = this.getUserDetails();
+
+        if (userDetails == null) {
+            return null;
+        }
+
+        String accessToken = userDetails.getPassword();
+
+        return findByAccessToken(accessToken);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        UserDetails userDetails = this.getUserDetails();
+
+        if (userDetails == null) {
+            return null;
+        }
+
+        String email = userDetails.getUsername();
+
+        return userService.findUserByEmail(email);
+    }
+
+    @Override
+    public ResponseEntity<?> logout() {
+        authRepository.delete(getCurrentAuth());
+
+        return new ResponseEntity<>("Autenticação removida.", HttpStatus.OK);
+    }
+
+    private UserDetails getUserDetails() {
         SecurityContext context =  SecurityContextHolder.getContext();
 
         if (context == null) {
@@ -79,18 +115,7 @@ public class AuthServiceImpl implements AuthService {
             return null;
         }
 
-        UserDetails userDetails = (UserDetails) auth.getPrincipal();
-
-        String accessToken = userDetails.getPassword();
-
-        return findByAccessToken(accessToken);
-    }
-
-    @Override
-    public ResponseEntity<?> logout() {
-        authRepository.delete(getCurrentAuth());
-
-        return new ResponseEntity<>("Autenticação removida.", HttpStatus.OK);
+        return (UserDetails) auth.getPrincipal();
     }
 
     private Auth createToken(User user, List<String> roles) {

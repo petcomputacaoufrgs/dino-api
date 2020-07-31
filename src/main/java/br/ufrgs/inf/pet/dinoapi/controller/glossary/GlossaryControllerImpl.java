@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/glossary/")
 public class GlossaryControllerImpl implements GlossaryController {
 
     @Autowired
@@ -23,25 +22,25 @@ public class GlossaryControllerImpl implements GlossaryController {
     GlossaryVersionServiceImpl glossaryVersionService;
 
     @Override
-    @PostMapping("save/")
+    @PostMapping("public/glossary/save/")
     public ResponseEntity<GlossaryResponseModel> save(@RequestBody GlossarySaveModel glossarySaveModel) {
         return glossaryItemService.save(glossarySaveModel);
     }
 
     @Override
-    @PutMapping("update/")
+    @PutMapping("public/glossary/update/")
     public ResponseEntity<?> update(@RequestBody GlossaryUpdateModel glossaryUpdateModel) {
         return glossaryItemService.update(glossaryUpdateModel);
     }
 
     @Override
-    @GetMapping("get/")
+    @GetMapping("/glossary/get/")
     public ResponseEntity<List<GlossaryItem>> get() {
         return glossaryItemService.get();
     }
 
     @Override
-    @GetMapping("version/")
+    @GetMapping("/glossary/version/")
     public ResponseEntity<Long> getVersion() {
         return glossaryVersionService.getGlossaryVersion();
     }

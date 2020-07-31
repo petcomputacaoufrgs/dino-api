@@ -40,10 +40,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-                .antMatchers("/auth/google/").permitAll()
-                .antMatchers("/test_connection/").permitAll()
-                .antMatchers("/glossary/save/").permitAll()
-                .antMatchers("/glossary/update/").permitAll()
+                .antMatchers("/public/**").permitAll()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
                 .anyRequest().authenticated()
                 .and().cors().and().csrf().disable()

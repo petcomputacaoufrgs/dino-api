@@ -74,7 +74,7 @@ public class GlossaryServiceImpl implements GlossaryService {
         Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
 
         if (glossaryUpdateModel.getVersion() != glossaryVersion) {
-            return new ResponseEntity<>("Versão do glossário desatualizada", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Versão do glossário inválida.", HttpStatus.BAD_REQUEST);
         }
 
         if (glossaryUpdateModel != null) {

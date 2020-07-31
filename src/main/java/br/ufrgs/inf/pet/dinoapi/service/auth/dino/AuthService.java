@@ -37,6 +37,12 @@ public interface AuthService {
     Auth getCurrentAuth();
 
     /**
+     * Retorna o usuário corrente
+     * @return Usuário autenticado
+     */
+    User getCurrentUser();
+
+    /**
      * Limpa os dados de autenticação correntes
      *
      * @return Mensagem de remoção com status OK
