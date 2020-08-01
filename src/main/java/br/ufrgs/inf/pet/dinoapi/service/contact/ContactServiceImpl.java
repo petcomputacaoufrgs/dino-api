@@ -82,8 +82,6 @@ public class ContactServiceImpl implements ContactService {
 
                 List<Contact> contactsToDelete = contactsToDeleteSearch.get();
 
-                //contactsToDelete.forEach(c -> phoneRepository.deleteAll(c.getPhones()));
-
                 contactRepository.deleteAll(contactsToDelete);
 
                 contactVersionServiceImpl.updateVersion(user);

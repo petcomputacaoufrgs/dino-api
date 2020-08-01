@@ -33,41 +33,41 @@ public class PhoneServiceImpl implements PhoneService {
 
     public void editPhonesDB(List<PhoneModel> phoneModels, Contact contact) {
 
-        //if (phoneModels.size() > 0) {
+        List<Phone> phonesToSave = new ArrayList<>();
+        List<Phone> phonesDB = contact.getPhones();
 
-            List<Phone> phonesToSave = new ArrayList<>();
-            List<Phone> phonesDB = contact.getPhones();
+        phoneModels.forEach(phoneModel -> {
 
-            phoneModels.forEach(phoneModel -> {
+            if (phoneModel.getId() == null) {
+                phonesToSave.add(new Phone(phoneModel, contact));
+            }
+            else {
 
-                if (phoneModel.getId() == null)
-                    phonesToSave.add(new Phone(phoneModel, contact));
+                Optional<Phone> phoneSearch = phonesDB.stream()
+                        .filter(phone -> phone.getId().equals(phoneModel.getId()))
+                        .findFirst();
 
-                else {
+                if (phoneSearch.isPresent()) {
+                    Phone phoneDB = phoneSearch.get();
 
-                    Optional<Phone> phoneSearch = phonesDB.stream()
-                            .filter(phone -> phone.getId().equals(phoneModel.getId())).findFirst();
-
-                    if (phoneSearch.isPresent()) {
-                        Phone phoneDB = phoneSearch.get();
-
-                        boolean changed = !phoneModel.getNumber().equals(phoneDB.getNumber());
-
-                        if (changed)
-                            phoneDB.setNumber(phoneModel.getNumber());
-
-                        if (phoneModel.getType() != phoneDB.getType()) {
-                            phoneDB.setType(phoneModel.getType());
-                            changed = true;
-                        }
-                        if (changed)
-                            phonesToSave.add(phoneDB);
-
-                        phonesDB.remove(phoneDB);
+                    boolean changed = !phoneModel.getNumber().equals(phoneDB.getNumber());
+                    if (changed) {
+                        phoneDB.setNumber(phoneModel.getNumber());
                     }
+                    if (phoneModel.getType() != phoneDB.getType()) {
+                        phoneDB.setType(phoneModel.getType());
+                        changed = true;
+                    }
+                    if (changed) {
+                        phonesToSave.add(phoneDB);
+                    }
+                    phonesDB.remove(phoneDB);
                 }
-            });
-            phoneRepository.saveAll(phonesToSave);
-            phoneRepository.deleteAll(phonesDB);
+            }
+        });
+        phoneRepository.saveAll(phonesToSave);
+        phoneRepository.deleteAllById(phonesDB.stream()
+                .map(Phone::getId)
+                .collect(Collectors.toList()));
     }
 }

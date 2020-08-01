@@ -12,13 +12,6 @@ public class ContactResponseModel {
         this.setResponseModels(new ArrayList<>());
     }
 
-    public ContactResponseModel(Long version, ContactModel model) {
-        List<ContactModel> models = new ArrayList<>();
-        models.add(model);
-        this.setVersion(version);
-        this.setResponseModels(models);
-    }
-
     public ContactResponseModel(Long version, List<ContactModel> models) {
         this.setVersion(version);
         this.setResponseModels(models);

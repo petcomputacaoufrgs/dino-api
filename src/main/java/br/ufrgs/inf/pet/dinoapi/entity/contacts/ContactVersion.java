@@ -28,14 +28,6 @@ public class ContactVersion {
     @Column(name = "version")
     private Long version;
 
-    /*
-    @Basic(optional = false)
-    @NotNull(message = "Data da última atualização não pode ser nula.")
-    @Column(name = "last_update")
-    private Date lastUpdate;
-
-     */
-
     @OneToOne
     @NotNull
     @JoinColumn(name = "user_id", referencedColumnName = "id")
@@ -52,16 +44,6 @@ public class ContactVersion {
     public void setVersion(Long version) {
         this.version = version;
     }
-/*
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
- */
 
     public User getUser() {
         return user;
