@@ -69,7 +69,7 @@ public class AuthFilter extends OncePerRequestFilter {
                     final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); 
                 }
             }
         }
@@ -112,6 +112,7 @@ public class AuthFilter extends OncePerRequestFilter {
         }
     }
 
+    ///acorda pra trabalhar
     private void startServices(HttpServletRequest httpServletRequest) {
         ServletContext servletContext = null;
         WebApplicationContext webApplicationContext = null;

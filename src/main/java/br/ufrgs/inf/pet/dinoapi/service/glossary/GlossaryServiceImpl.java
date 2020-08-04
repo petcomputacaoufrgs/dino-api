@@ -45,7 +45,7 @@ public class GlossaryServiceImpl implements GlossaryService {
                     if (newItem.isValid()) {
                         glossaryItemSearchResult = glossaryItemRepository.findByTitle(newItem.getTitle());
 
-                        if (!glossaryItemSearchResult.isPresent()) {
+                        if (glossaryItemSearchResult.isEmpty()) {
                             glossaryItem = new GlossaryItem();
                             glossaryItem.setByGlossarySaveModel(newItem);
 
@@ -101,6 +101,7 @@ public class GlossaryServiceImpl implements GlossaryService {
                             updated = dbGlossaryItem.update(updatedItem);
 
                             if (updated) {
+
                                 dbGlossaryItem = glossaryItemRepository.save(dbGlossaryItem);
 
                                 responseItem = new GlossaryItemResponseModel();
@@ -110,11 +111,9 @@ public class GlossaryServiceImpl implements GlossaryService {
                                 response.addItem(responseItem);
                             }
                         }
-
                     }
                 }
-            }
-        }
+
 
         if (response.getSize() > 0) {
             glossaryVersion = glossaryVersionService.updateGlossaryVersion();
@@ -123,6 +122,10 @@ public class GlossaryServiceImpl implements GlossaryService {
         response.setVersion(glossaryVersion);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<>("Erro: GLossário vazio", HttpStatus.BAD_REQUEST);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
+import br.ufrgs.inf.pet.dinoapi.entity.*;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +48,16 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
 
+    @OneToMany(mappedBy = "user")
+    private List<Contact> contacts;
+
+    @OneToOne(mappedBy = "user")
+    private ContactVersion contactVersion;
+    
     public User() {
         this.notes = new ArrayList<>();
         this.auths = new ArrayList<>();
+        this.contacts = new ArrayList<>();
     }
 
     public User(String name, String email, String pictureURL) {
@@ -123,12 +133,27 @@ public class User {
         return notes;
     }
 
+
     public void setNotes(List<Note> notes) {
         this.notes = notes;
     }
 
     public NoteVersion getNoteVersion() {
         return noteVersion;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    public List<Contact> getContacts() { return contacts; }
+
+    public ContactVersion getContactVersion() {
+        return contactVersion;
+    }
+
+    public void setContactVersion(ContactVersion contactVersion) {
+        this.contactVersion = contactVersion;
     }
 
     public void setNoteVersion(NoteVersion noteVersion) {
@@ -146,4 +171,5 @@ public class User {
 
         return isValid;
     }
+
 }
