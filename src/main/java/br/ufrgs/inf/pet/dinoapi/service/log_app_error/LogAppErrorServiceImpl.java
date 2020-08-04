@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +34,7 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
         error.setError(model.getError());
         error.setFile(model.getFile());
         error.setTitle(model.getTitle());
+        error.setDate(new Date(model.getDate()));
 
         logAppErrorRepository.save(error);
 
@@ -48,6 +50,7 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
             error.setError(item.getError());
             error.setFile(item.getFile());
             error.setTitle(item.getTitle());
+            error.setDate(new Date(item.getDate()));
 
             return error;
         }).collect(Collectors.toList());

@@ -5,15 +5,18 @@ import javax.validation.constraints.Size;
 
 public class LogAppErrorModel {
 
-    @Size(max = 100, message = "Title should not be more than 100")
+    @Size(max = 500, message = "Title should not be more than 500")
     private String title;
 
-    @Size(max = 200, message = "File should not be more than 200")
+    @Size(max = 500, message = "File should not be more than 500")
     private String file;
 
     @Size(max = 10000, message = "Error should not be more than 10000")
     @NotNull(message = "Error cannot be null")
     private String error;
+
+    @NotNull(message = "Date cannot be null.")
+    private Long date;
 
     public String getTitle() {
         return title;
@@ -37,5 +40,13 @@ public class LogAppErrorModel {
 
     public void setError(String error) {
         this.error = error;
+    }
+
+    public Long getDate() {
+        return date;
+    }
+
+    public void setDate(Long date) {
+        this.date = date;
     }
 }
