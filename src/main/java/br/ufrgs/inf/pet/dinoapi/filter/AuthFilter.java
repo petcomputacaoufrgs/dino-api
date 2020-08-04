@@ -56,18 +56,24 @@ public class AuthFilter extends OncePerRequestFilter {
         if (token != null) {
             final Auth auth = authService.findByAccessToken(token);
 
-            if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                this.updateTokensIfNecessary(auth, httpServletResponse);
-                UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
+            if (auth != null && this.validUserAgent(auth, httpServletRequest)) {
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    this.updateTokensIfNecessary(auth, httpServletRequest, httpServletResponse);
+                    UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
-                final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+                    final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                }
             }
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
+    }
+
+    private Boolean validUserAgent(Auth auth, HttpServletRequest httpServletRequest) {
+        return auth.getUserAgent().equals(httpServletRequest.getHeader("User-Agent"));
     }
 
     private String getAuthToken(HttpServletRequest httpServletRequest) {
@@ -80,11 +86,11 @@ public class AuthFilter extends OncePerRequestFilter {
         return token;
     }
 
-    private void updateTokensIfNecessary(Auth auth, HttpServletResponse httpServletResponse) throws JsonProcessingException {
+    private void updateTokensIfNecessary(Auth auth, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws JsonProcessingException {
         final User user = auth.getUser();
 
         if (!auth.tokenIsValid()) {
-            Auth newAuth = authService.refreshAuth(auth);
+            Auth newAuth = authService.refreshAuth(auth, httpServletRequest);
 
             httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), newAuth.getAccessToken());
         }

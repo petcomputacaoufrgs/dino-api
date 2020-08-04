@@ -5,6 +5,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface AuthService {
 
     /**
@@ -13,7 +15,7 @@ public interface AuthService {
      * @param auth - Autenticação expirada
      * @return token atualizado
      */
-    Auth refreshAuth(Auth auth);
+    Auth refreshAuth(Auth auth, HttpServletRequest request);
 
     /**
      * Gera um token de acesso no usuário
@@ -21,7 +23,7 @@ public interface AuthService {
      * @param user - Usuário
      * @return token
      */
-    Auth generateAuth(User user);
+    Auth generateAuth(User user, HttpServletRequest request);
 
     /**
      * Busca a autenticação do usuário pelo token de acesso
@@ -55,5 +57,12 @@ public interface AuthService {
      * @return Mensagem de remoção com status OK
      */
     ResponseEntity<?> logout();
+
+    /**
+     * Salva as informações (non-safe) do dispositivo que está acessando a API
+     * @param auth Auth atual
+     * @param userAgent Informações
+     */
+    void saveUserAgent(Auth auth, String userAgent);
 
 }

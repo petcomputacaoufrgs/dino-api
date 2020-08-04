@@ -21,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
@@ -39,7 +40,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
     final GoogleAPICommunicationImpl googleAPICommunicationImpl = new GoogleAPICommunicationImpl();
 
-    public ResponseEntity<?> googleSignIn(GoogleAuthRequestModel authModel) {
+    @Override
+    public ResponseEntity<?> googleSignIn(GoogleAuthRequestModel authModel, HttpServletRequest request) {
         try {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(authModel.getToken());
 
@@ -86,7 +88,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 googleAuth = this.updateGoogleAccessTokenData(tokenResponse, googleAuth);
 
-                final Auth auth = authService.generateAuth(user);
+                final Auth auth = authService.generateAuth(user, request);
 
                 final UserModel userModel = new UserModel();
 

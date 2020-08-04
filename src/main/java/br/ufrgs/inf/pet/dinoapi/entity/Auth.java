@@ -20,19 +20,20 @@ public class Auth {
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "access_token", length = 260, unique = true)
+    @Column(name = "access_token", length = 260, unique = true, nullable = false)
     private String accessToken;
 
-    @Column(name = "token_expires_data_in_millis")
+    @Column(name = "token_expires_data_in_millis", nullable = false)
     private Long tokenExpiresDateInMillis;
 
-    @JsonIgnore
+    @Column(name = "user_agent", nullable = false)
+    private String userAgent;
+
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     @OneToMany(mappedBy = "auth")
@@ -42,9 +43,10 @@ public class Auth {
         this.errors = new ArrayList<>();
     }
 
-    public Auth(String accessToken, Long tokenExpiresDateInMillis) {
+    public Auth(String accessToken, Long tokenExpiresDateInMillis, String userAgent) {
         this.accessToken = accessToken;
         this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
+        this.userAgent = userAgent;
         this.errors = new ArrayList<>();
     }
 
@@ -62,6 +64,14 @@ public class Auth {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 
     public Long getTokenExpiresDateInMillis() {
