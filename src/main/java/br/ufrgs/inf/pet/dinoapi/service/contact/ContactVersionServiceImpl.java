@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactVersionRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +16,7 @@ public class ContactVersionServiceImpl {
     @Autowired
     ContactVersionRepository contactVersionRepository;
     @Autowired
-    UserServiceImpl userServiceImpl;
+    AuthServiceImpl authService;
 
     public void updateVersion(User user) {
 
@@ -35,7 +35,7 @@ public class ContactVersionServiceImpl {
 
     public ResponseEntity<Long> getVersion() {
 
-        User user = userServiceImpl.getCurrentUser();
+        User user = authService.getCurrentUser();
 
         ContactVersion version = user.getContactVersion();
 

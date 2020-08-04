@@ -48,10 +48,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
 
-    @Valid
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
-    @Valid
+
     @OneToOne(mappedBy = "user")
     private ContactVersion contactVersion;
     
@@ -148,6 +147,14 @@ public class User {
     }
 
     public List<Contact> getContacts() { return contacts; }
+
+    public ContactVersion getContactVersion() {
+        return contactVersion;
+    }
+
+    public void setContactVersion(ContactVersion contactVersion) {
+        this.contactVersion = contactVersion;
+    }
 
     public void setNoteVersion(NoteVersion noteVersion) {
         this.noteVersion = noteVersion;

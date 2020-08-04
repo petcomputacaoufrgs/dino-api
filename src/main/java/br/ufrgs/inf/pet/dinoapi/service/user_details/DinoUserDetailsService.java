@@ -33,7 +33,7 @@ public class DinoUserDetailsService implements UserDetailsService {
         final br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
-            return new User(userDB.getEmail(), userDB.getAccessToken(), new ArrayList<>()); 
+            return new User(userDB.getEmail(), "", new ArrayList<>());
         }
 
         throw new UsernameNotFoundException("Email inválido: " + email);

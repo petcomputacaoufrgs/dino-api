@@ -22,8 +22,10 @@ public class GlossaryItem {
 
     @Column(name = "text", length = 1000, nullable = false)
     private String text;
-    
-    @Size(min = 0, max = 20000, message = "O texto completo deve conter entre 0 e 20000 caracteres.")
+
+    @Column(name = "subtitle", length = 20)
+    private String subtitle;
+
     @Column(name = "full_text", length = 20000)
     private String fullText;
 
@@ -32,7 +34,7 @@ public class GlossaryItem {
 
     public GlossaryItem() {}
 
-    public void setByGlossarySaveModel(GlossaryItemSaveModel glossaryItemSaveModel) {
+    public void setByGlossarySaveModel(GlossaryItemSaveRequestModel glossaryItemSaveModel) {
         this.title = glossaryItemSaveModel.getTitle();
         this.subtitle = glossaryItemSaveModel.getSubtitle();
         this.text = glossaryItemSaveModel.getText();
