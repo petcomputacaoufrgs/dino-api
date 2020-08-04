@@ -1,14 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.enumerable;
 
-/**
- * Define a chave dos Headers da API
- *
- * @author joao.silva
- */
 public enum HeaderEnum {
-    AUTHORIZATION("Authorization"),
-    REFRESH("Refresh"),
-    GOOGLE_REFRESH("Google Refresh");
+    AUTHORIZATION("dino_an"),
+    REFRESH("refresh"),
+    GOOGLE_REFRESH("google_refresh"),
+    GOOGLE_EXPIRES_DATE("google_expires_date");
 
     private String value;
 

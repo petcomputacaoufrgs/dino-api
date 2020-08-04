@@ -2,9 +2,10 @@ package br.ufrgs.inf.pet.dinoapi.service.user_app_settings;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
-import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
+import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsResponseAndRequestModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.user_app_settings.UserAppSettingsWebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,24 +14,31 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
-    @Autowired
-    UserServiceImpl userService;
+    private final AuthServiceImpl authService;
+
+    private final UserAppSettingsRepository userAppSettingsRepository;
+
+    private final UserAppSettingsWebSocketService userAppSettingsWebSocketService;
 
     @Autowired
-    UserAppSettingsRepository userAppSettingsRepository;
+    public UserAppSettingsServiceImpl(AuthServiceImpl authService, UserAppSettingsRepository userAppSettingsRepository, UserAppSettingsWebSocketService userAppSettingsWebSocketService) {
+        this.authService = authService;
+        this.userAppSettingsRepository = userAppSettingsRepository;
+        this.userAppSettingsWebSocketService = userAppSettingsWebSocketService;
+    }
 
     @Override
     public ResponseEntity<?> getUserAppSettings() {
 
-        User userDB = userService.getCurrentUser();
+        final User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
         }
 
-        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+        final UserAppSettings userAppSettings = userDB.getUserAppSettings();
 
-        UserAppSettingsModel model = new UserAppSettingsModel();
+        final UserAppSettingsResponseAndRequestModel model = new UserAppSettingsResponseAndRequestModel();
 
         model.setLanguage(userAppSettings.getLanguage());
 
@@ -38,12 +46,12 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
     }
 
     @Override
-    public ResponseEntity<?> saveUserAppSettings(UserAppSettingsModel userAppSettingsModel) {
+    public ResponseEntity<?> saveUserAppSettings(UserAppSettingsResponseAndRequestModel userAppSettingsModel) {
         if (userAppSettingsModel == null) {
             return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
         }
 
-        User userDB = userService.getCurrentUser();
+        final User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
@@ -54,14 +62,12 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         Boolean changed = false;
 
         if (userAppSettings == null) {
-            userAppSettings = new UserAppSettings();
-            userAppSettings.setUser(userDB);
-            userAppSettings.setVersion(0L);
+            userAppSettings = new UserAppSettings(userDB);
             changed = true;
         }
 
-        String newLanguage = userAppSettingsModel.getLanguage();
-        String currentLanguage = userAppSettings.getLanguage();
+        final String newLanguage = userAppSettingsModel.getLanguage();
+        final String currentLanguage = userAppSettings.getLanguage();
 
         if (currentLanguage != newLanguage) {
             userAppSettings.setLanguage(newLanguage);
@@ -69,13 +75,11 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         }
 
         if (changed) {
-            Long currentVersion = userAppSettings.getVersion();
+            userAppSettings.updateVersion();
 
-            Long newVersion = currentVersion + 1;
+            userAppSettings = userAppSettingsRepository.save(userAppSettings);
 
-            userAppSettings.setVersion(newVersion);
-
-            userAppSettingsRepository.save(userAppSettings);
+            userAppSettingsWebSocketService.sendUpdateMessage(userAppSettings.getVersion());
         }
 
         return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);
@@ -83,13 +87,13 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
     @Override
     public ResponseEntity<?> getUserAppSettingsVersion() {
-        User userDB = userService.getCurrentUser();
+        final User userDB = authService.getCurrentAuth().getUser();
 
         if (userDB == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
         }
 
-        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+        final UserAppSettings userAppSettings = userDB.getUserAppSettings();
 
         if (userAppSettings != null) {
             return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);

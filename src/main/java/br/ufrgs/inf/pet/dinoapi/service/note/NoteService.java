@@ -6,22 +6,22 @@ import java.util.List;
 
 public interface NoteService {
 
-    ResponseEntity<List<NoteModel>> getUserNotes();
+    ResponseEntity<List<NoteResponseModel>> getUserNotes();
 
-    ResponseEntity<?> saveNewNote(NoteSaveModel model);
+    ResponseEntity<?> saveNewNote(NoteSaveRequestRequestModel model);
 
-    ResponseEntity<Long> deleteAll(List<NoteDeleteModel> models);
+    ResponseEntity<Long> deleteAll(List<NoteDeleteRequestModel> models);
 
-    ResponseEntity<Long> deleteNote(NoteDeleteModel model);
+    ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model);
 
-    ResponseEntity<?> saveAll(List<NoteSaveModel> models);
+    ResponseEntity<?> saveAll(List<NoteSaveRequestRequestModel> models);
 
-    ResponseEntity<?> updateAll(List<NoteUpdateModel> models);
+    ResponseEntity<?> updateAll(List<NoteUpdateRequestModel> models);
 
-    ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models);
+    ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models);
 
-    ResponseEntity<?> updateNoteQuestion(NoteQuestionModel model);
+    ResponseEntity<?> updateNoteQuestion(NoteQuestionRequestModel model);
 
-    ResponseEntity<?> updateNoteAnswer(NoteAnswerModel model);
+    ResponseEntity<?> updateNoteAnswer(NoteAnswerRequestModel model);
 
 }

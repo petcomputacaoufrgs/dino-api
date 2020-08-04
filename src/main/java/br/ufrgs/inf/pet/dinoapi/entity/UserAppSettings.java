@@ -1,40 +1,38 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.io.Serializable;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "user_app_settings")
-public class UserAppSettings implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class UserAppSettings {
 
     private static final String SEQUENCE_NAME = "user_app_settings_seq";
+
+    public final Long DEFAULT_VERSION = 0l;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Basic(optional = false)
-    @Size(min = 1, max = 5, message = "O código de linguagem deve ter entre 1 e 5 caracteres.")
-    @Column(name = "language", length = 5)
+    @Column(name = "language", length = 5, nullable = false)
     private String language;
 
-    @Basic(optional = false)
-    @NotNull(message = "Versão não pode ser nula.")
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private Long version;
 
     @OneToOne
-    @NotNull
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    public UserAppSettings() {}
+
+    public UserAppSettings(User user) {
+        this.user = user;
+        this.version = this.DEFAULT_VERSION;
+    }
 
     public Long getId() {
         return id;
@@ -58,6 +56,10 @@ public class UserAppSettings implements Serializable {
 
     public Long getVersion() {
         return version;
+    }
+
+    public void updateVersion() {
+        this.version = version + 1l;
     }
 
     public void setVersion(Long version) {

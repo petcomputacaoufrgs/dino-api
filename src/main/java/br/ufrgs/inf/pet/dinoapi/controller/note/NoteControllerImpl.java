@@ -9,72 +9,78 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
 @RequestMapping("/note/")
 public class NoteControllerImpl implements NoteController {
 
-    @Autowired
-    NoteServiceImpl noteService;
+    private final NoteServiceImpl noteService;
+
+    private final NoteTagServiceImpl noteTagService;
+
+    private final NoteVersionServiceImpl noteVersionService;
 
     @Autowired
-    NoteTagServiceImpl noteTagService;
+    public NoteControllerImpl(NoteServiceImpl noteService, NoteTagServiceImpl noteTagService, NoteVersionServiceImpl noteVersionService) {
+        this.noteService = noteService;
+        this.noteTagService = noteTagService;
+        this.noteVersionService = noteVersionService;
+    }
 
-    @Autowired
-    NoteVersionServiceImpl noteVersionService;
 
     @Override
     @GetMapping
-    public ResponseEntity<List<NoteModel>> getUserNotes() {
+    public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
         return noteService.getUserNotes();
     }
 
     @Override
     @PostMapping
-    public ResponseEntity<?> saveNewNote(@RequestBody NoteSaveModel model) {
+    public ResponseEntity<?> saveNewNote(@Valid  @RequestBody NoteSaveRequestRequestModel model) {
         return noteService.saveNewNote(model);
     }
 
     @Override
     @DeleteMapping("all/")
-    public ResponseEntity<Long> deleteAll(@RequestBody List<NoteDeleteModel> models) {
+    public ResponseEntity<Long> deleteAll(@Valid @RequestBody List<NoteDeleteRequestModel> models) {
         return noteService.deleteAll(models);
     }
 
     @Override
     @DeleteMapping
-    public ResponseEntity<Long> deleteNote(@RequestBody NoteDeleteModel model) {
+    public ResponseEntity<Long> deleteNote(@Valid @RequestBody NoteDeleteRequestModel model) {
         return noteService.deleteNote(model);
     }
 
     @Override
     @PostMapping("all/")
-    public ResponseEntity<?> saveAll(@RequestBody List<NoteSaveModel> models) {
+    public ResponseEntity<Long> saveAll(@Valid @RequestBody List<NoteSaveRequestRequestModel> models) {
         return noteService.saveAll(models);
     }
 
     @Override
     @PutMapping("all/")
-    public ResponseEntity<?> updateAll(@RequestBody List<NoteUpdateModel> models) {
+    public ResponseEntity<Long> updateAll(@Valid @RequestBody List<NoteUpdateRequestModel> models) {
         return noteService.updateAll(models);
     }
 
     @Override
     @PutMapping("order/")
-    public ResponseEntity<?> updateNotesOrder(@RequestBody List<NoteOrderModel> models) {
+    public ResponseEntity<?> updateNotesOrder(@Valid @RequestBody List<NoteOrderRequestModel> models) {
         return noteService.updateNotesOrder(models);
     }
 
     @Override
     @PutMapping("question/")
-    public ResponseEntity<?> updateNoteQuestion(@RequestBody NoteQuestionModel model) {
+    public ResponseEntity<?> updateNoteQuestion(@Valid @RequestBody NoteQuestionRequestModel model) {
         return noteService.updateNoteQuestion(model);
     }
 
     @Override
     @PutMapping("answer/")
-    public ResponseEntity<?> updateNoteAnswer(@RequestBody NoteAnswerModel model) {
+    public ResponseEntity<?> updateNoteAnswer(@Valid @RequestBody NoteAnswerRequestModel model) {
         return noteService.updateNoteAnswer(model);
     }
 

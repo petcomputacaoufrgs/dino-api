@@ -2,18 +2,24 @@ package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryVersion;
 import br.ufrgs.inf.pet.dinoapi.repository.GlossaryVersionRepository;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.glossary.GlossaryWebSocketServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 @Service
 public class GlossaryVersionServiceImpl implements GlossaryVersionService {
 
+    private final GlossaryVersionRepository glossaryVersionRepository;
+
+    private final GlossaryWebSocketServiceImpl glossaryWebSocketService;
+
     @Autowired
-    GlossaryVersionRepository glossaryVersionRepository;
+    public GlossaryVersionServiceImpl(GlossaryVersionRepository glossaryVersionRepository, GlossaryWebSocketServiceImpl glossaryWebSocketService) {
+        this.glossaryVersionRepository = glossaryVersionRepository;
+        this.glossaryWebSocketService = glossaryWebSocketService;
+    }
 
     @Override
     public Long updateGlossaryVersion() {
@@ -21,10 +27,12 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         if (glossary != null) {
             glossary.updateVersion();
         } else {
-            glossary = createFirstGlossaryVersion();
+            glossary = new GlossaryVersion();
         }
 
         glossaryVersionRepository.save(glossary);
+        glossaryWebSocketService.sendUpdateMessage(glossary.getVersion());
+
 
         return glossary.getVersion();
     }
@@ -34,7 +42,7 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         GlossaryVersion glossary = glossaryVersionRepository.findByOrderByVersionDesc();
 
         if (glossary == null) {
-            glossary = createFirstGlossaryVersion();
+            glossary = new GlossaryVersion();
             glossaryVersionRepository.save(glossary);
         }
 
@@ -46,19 +54,10 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         GlossaryVersion glossary = glossaryVersionRepository.findByOrderByVersionDesc();
 
         if (glossary == null) {
-            glossary = createFirstGlossaryVersion();
-            glossaryVersionRepository.save(glossary);
+            glossary = new GlossaryVersion();
+            glossary = glossaryVersionRepository.save(glossary);
         }
 
         return glossary.getVersion();
-    }
-
-
-    private GlossaryVersion createFirstGlossaryVersion() {
-        GlossaryVersion glossary = new GlossaryVersion();
-        glossary.setLastUpdate(new Date());
-        glossary.setVersion(0L);
-
-        return glossary;
     }
 }
