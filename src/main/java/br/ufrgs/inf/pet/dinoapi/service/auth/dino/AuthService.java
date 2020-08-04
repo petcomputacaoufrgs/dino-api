@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.auth.dino;
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 
 public interface AuthService {
 
@@ -37,10 +38,10 @@ public interface AuthService {
     Auth getCurrentAuth();
 
     /**
-     * Retorna o usuário corrente
-     * @return Usuário autenticado
+     * Retorna o contexto de autenticação corrente
+     * @return Principal
      */
-    User getCurrentUser();
+    UserDetails getPrincipal();
 
     /**
      * Limpa os dados de autenticação correntes
