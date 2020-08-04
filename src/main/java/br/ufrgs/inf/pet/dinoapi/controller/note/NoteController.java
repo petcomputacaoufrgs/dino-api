@@ -8,20 +8,24 @@ import java.util.List;
 public interface NoteController {
     /**
      * Retorna todas as anotações do usuário
+     *
+     * @return Lista de Anotações do usuário no modelo {@link NoteModel}
      **/
     ResponseEntity<List<NoteModel>> getUserNotes();
 
     /**
      * Salva uma nova anotação
      *
-     * @param model Model representando a nova entidade Note
-     * @return Em caso de sucesso retorna a nova versão das anotações e as novas tags adicionadas
+     * @param model Model {@link NoteSaveModel} com os dadso necessários
+     * @return Em caso de sucesso retorna a model {@link NoteSaveResponseModel}
+     * em caso de falha retorna a mensagem com o erro
      **/
     ResponseEntity<?> saveNewNote(NoteSaveModel model);
 
     /**
      * Remove ums lista de anotações do usuário
-     * @param models Lista de models para remoção
+     *
+     * @param models Lista da model {@link NoteDeleteModel}
      * @return Em caso de sucesso retorna a nova versão das anotações do usuário
      */
     ResponseEntity<Long> deleteAll(List<NoteDeleteModel> models);
@@ -29,7 +33,7 @@ public interface NoteController {
     /**
      * Remove permanentemente uma anotação
      *
-     * @param model objeto com o id da anotação a ser removida
+     * @param model do tipo {@link NoteDeleteModel}
      * @return Em caso de sucesso retorna a nova versão das anotações
      **/
     ResponseEntity<Long> deleteNote(NoteDeleteModel model);
@@ -37,34 +41,32 @@ public interface NoteController {
     /**
      * Salva uma nova lista de anotações
      *
-     * @param models lista com as informações das anotações a serem salvas
-     *
+     * @param models Lista do tipo {@link NoteSaveModel}
      * @return Em caso de sucesso retorna a nova versão das anotações
      */
-    ResponseEntity<?> saveAll(List<NoteSaveModel> models);
+    ResponseEntity<Long> saveAll(List<NoteSaveModel> models);
 
     /**
      * Atualiza e cria (caso não exista) uma lista de anotações
      *
-     * @param models lista com as informações das anotações a serem atualizadas
-     *
+     * @param models Lista do tipo {@link NoteUpdateModel}
      * @return Em caso de sucesso retorna a nova versão das anotações
      */
-    ResponseEntity<?> updateAll(List<NoteUpdateModel> models);
+    ResponseEntity<Long> updateAll(List<NoteUpdateModel> models);
 
     /**
      *  Atualiza a ordem das anotações
      *
-     * @param models Lista de models com os dados necessário para a atualização
-     * @return Em caso de sucesso retorna a nova versão das anotações
+     * @param models Lista do tipo {@link NoteOrderModel}
+     * @return Em caso de sucesso retorna a nova versão das anotações, em caso de erro retorna a mensagem do erro
      **/
     ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models);
 
     /**
-     * Atualiza a pergunta e as tags
+     * Atualiza a pergunta e as tags da anotação
      *
-     * @param model Model com os dados para atualizar a pergunta e as tags
-     * @return Em caso de sucesso retorna a nova versão das anotações
+     * @param model Model do tipo {@link NoteQuestionModel}
+     * @return Em caso de sucesso retorna a nova versão das anotações, em caso de erro retorna a mensagem do erro
      **/
     ResponseEntity<?> updateNoteQuestion(NoteQuestionModel model);
 
@@ -72,19 +74,21 @@ public interface NoteController {
      * Atualiza a resposta
      *
      * @param model Model com os dados para atualizar a resposta
-     * @return Em caso de sucesso retorna a nova versão das anotações
+     * @return Em caso de sucesso retorna a nova versão das anotações, em caso de erro retorna a mensagem do erro
      **/
     ResponseEntity<?> updateNoteAnswer(NoteAnswerModel model);
 
     /**
-     * Retorna todas as tags salvas relacionadas a anotações do usuário
+     * Retorna todas as tags salvas relacionadas as anotações do usuário
      *
-     * @return Lista com as tags
+     * @return Lista com as tags do tipo {@link NoteTag}
      **/
     ResponseEntity<List<NoteTag>> getTags();
 
     /**
      * Retorna a versão das anotações do usuário
+     *
+     * @return Versão das anotações
      **/
     ResponseEntity<Long> getVersion();
 }

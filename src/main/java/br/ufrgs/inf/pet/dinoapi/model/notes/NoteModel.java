@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Note;
-import br.ufrgs.inf.pet.dinoapi.utils.DatetimeUtils;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +29,7 @@ public class NoteModel {
         this.answer = note.getAnswer();
         this.answered = note.getAnswered();
         this.tags = note.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
-        this.lastUpdate = DatetimeUtils.convertLocalDatetimeToMilliseconds(note.getLastUpdate());
+        this.lastUpdate = note.getLastUpdate().getTime();
     }
 
     public Long getId() {

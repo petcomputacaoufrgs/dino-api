@@ -74,6 +74,14 @@ public class Auth {
         this.userAgent = userAgent;
     }
 
+    public List<LogAppError> getErrors() {
+        return errors;
+    }
+
+    public void setErrors(List<LogAppError> errors) {
+        this.errors = errors;
+    }
+
     public Long getTokenExpiresDateInMillis() {
         return tokenExpiresDateInMillis;
     }

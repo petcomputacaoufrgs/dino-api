@@ -2,11 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.communication.google;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 
-/**
- * Comunicação com os serviços do Google
- *
- * @author joao.silva
- */
 public interface GoogleAPICommunication {
     /**
      * Requisita os tokens de acesso do Google utilizando um token de autenticação do usuário

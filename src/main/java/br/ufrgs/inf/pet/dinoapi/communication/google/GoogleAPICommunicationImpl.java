@@ -15,15 +15,14 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
-/**
- * Implementação de: {@link GoogleAPICommunication}
- *
- * @author joao.silva
- */
 public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
 
+    private final GoogleAuthServiceImpl googleAuthService;
+
     @Autowired
-    GoogleAuthServiceImpl googleAuthService;
+    public GoogleAPICommunicationImpl(GoogleAuthServiceImpl googleAuthService) {
+        this.googleAuthService = googleAuthService;
+    }
 
     public GoogleTokenResponse getGoogleToken(String token) throws GoogleClientSecretIOException {
         try {

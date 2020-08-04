@@ -4,10 +4,10 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class DinoapiApplication {
+public class DinoAPIApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(DinoapiApplication.class, args);
+        SpringApplication.run(DinoAPIApplication.class, args);
     }
 
 }

@@ -12,8 +12,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserControllerImpl implements UserController {
 
+    private final UserServiceImpl userService;
+
     @Autowired
-    UserServiceImpl userService;
+    public UserControllerImpl(UserServiceImpl userService) {
+        this.userService = userService;
+    }
 
     @Override
     @GetMapping("/user/version/")

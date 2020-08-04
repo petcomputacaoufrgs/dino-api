@@ -10,8 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,11 +17,15 @@ import java.util.stream.Collectors;
 @Service
 public class LogAppErrorServiceImpl implements LogAppErrorService {
 
-    @Autowired
-    AuthServiceImpl authService;
+    private final AuthServiceImpl authService;
+
+    private final LogAppErrorRepository logAppErrorRepository;
 
     @Autowired
-    LogAppErrorRepository logAppErrorRepository;
+    public LogAppErrorServiceImpl(AuthServiceImpl authService, LogAppErrorRepository logAppErrorRepository) {
+        this.authService = authService;
+        this.logAppErrorRepository = logAppErrorRepository;
+    }
 
     @Override
     public ResponseEntity<?> save(LogAppErrorModel model) {

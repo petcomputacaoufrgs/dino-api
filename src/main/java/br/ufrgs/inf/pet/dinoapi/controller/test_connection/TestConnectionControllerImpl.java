@@ -9,11 +9,15 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class TestConnectionControllerImpl implements TestConnectionController{
 
-    @Autowired
-    TestConnectionServiceImpl testConnectionService;
+    private final TestConnectionServiceImpl testConnectionService;
+
+    private final GlossaryWebSocketServiceImpl glossaryWebSocketService;
 
     @Autowired
-    GlossaryWebSocketServiceImpl glossaryWebSocketService;
+    public TestConnectionControllerImpl(TestConnectionServiceImpl testConnectionService, GlossaryWebSocketServiceImpl glossaryWebSocketService) {
+        this.testConnectionService = testConnectionService;
+        this.glossaryWebSocketService = glossaryWebSocketService;
+    }
 
     @Override
     @GetMapping("public/test_connection/")

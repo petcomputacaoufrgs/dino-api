@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -43,7 +43,7 @@ public class Note implements Serializable {
 
     @Basic(optional = false)
     @Column(name = "last_update_day")
-    private LocalDateTime lastUpdate;
+    private Date lastUpdate;
 
     @JsonIgnore
     @ManyToOne
@@ -58,7 +58,7 @@ public class Note implements Serializable {
 
     public Note() {}
 
-    public Note(LocalDateTime lastUpdate, Integer order, String question, List<NoteTag> tags, User user) {
+    public Note(Date lastUpdate, Integer order, String question, List<NoteTag> tags, User user) {
         this.lastUpdate = lastUpdate;
         this.order = order;
         this.question = question;
@@ -112,11 +112,11 @@ public class Note implements Serializable {
         this.answered = answered;
     }
 
-    public LocalDateTime getLastUpdate() {
+    public Date getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(LocalDateTime lastUpdate) {
+    public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 
