@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 
 @RestController
 public class AuthControllerImpl implements AuthController {
@@ -24,7 +25,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/public/auth/google/")
-    public ResponseEntity<?> googleAuthRequest(@RequestBody GoogleAuthRequestModel authRequestMode, HttpServletRequest request) {
+    public ResponseEntity<?> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel authRequestMode, HttpServletRequest request) {
         return googleAuthService.googleSignIn(authRequestMode, request);
     }
 

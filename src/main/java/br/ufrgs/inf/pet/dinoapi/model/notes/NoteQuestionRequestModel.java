@@ -1,16 +1,26 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
 
-public class NoteQuestionModel {
+public class NoteQuestionRequestModel {
+
+    @NotNull(message = "id cannot be null.")
     private Long id;
 
+    @NotNull(message = "question cannot be null.")
+    @Size(max = 500, message = "question should not be more than 500.")
     private String question;
 
+    @Valid
     private List<String> tagNames;
 
+    @NotNull(message = "lastUpdate cannot be null.")
     private Long lastUpdate;
 
+    @NotNull(message = "answered cannot be null.")
     private Boolean answered;
 
     public Long getId() {

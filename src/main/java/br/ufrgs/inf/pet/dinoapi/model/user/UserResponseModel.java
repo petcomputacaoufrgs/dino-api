@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.user;
 
-public class UserModel {
+public class UserResponseModel {
 
     private String name;
 

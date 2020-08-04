@@ -1,45 +1,34 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateModel;
-
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateRequestModel;
 import javax.persistence.*;
-import java.io.Serializable;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "glossary_item")
-public class GlossaryItem implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class GlossaryItem {
 
     private static final String SEQUENCE_NAME = "glossary_seq";
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Basic(optional = false)
-    @Column(name = "title", length = 100, unique = true)
+    @Column(name = "title", length = 100, nullable = false, unique = true)
     private String title;
 
-    @Basic(optional = false)
-    @Column(name = "text", length = 1000)
+    @Column(name = "text", length = 1000, nullable = false)
     private String text;
 
-    @Basic(optional = false)
-    @Column(name = "exists")
+    @Column(name = "exists", nullable = false)
     private Boolean exists;
 
-    public GlossaryItem() {}
-
-    public void setByGlossarySaveModel(GlossaryItemSaveModel glossaryItemSaveModel) {
-        this.title = glossaryItemSaveModel.getTitle();
-        this.text = glossaryItemSaveModel.getText();
+    public void setByGlossarySaveModel(GlossaryItemSaveRequestModel glossaryItemSaveRequestModel) {
+        this.title = glossaryItemSaveRequestModel.getTitle();
+        this.text = glossaryItemSaveRequestModel.getText();
         this.exists = true;
     }
 
@@ -48,7 +37,7 @@ public class GlossaryItem implements Serializable {
     }
 
     public String getTitle() {
-        return this.title;
+        return title;
     }
 
     public String getText() {
@@ -59,12 +48,7 @@ public class GlossaryItem implements Serializable {
         return exists;
     }
 
-    /**
-     * Atualiza o GlossaryItem baseado na {@link GlossaryItemUpdateModel} se houverem mudanças aplicaveis.
-     * @param updateModel {@link GlossaryItemUpdateModel} com as atualizações dados
-     * @return True se houver modificações e False se não houver modificações
-     */
-    public Boolean update(GlossaryItemUpdateModel updateModel) {
+    public Boolean update(GlossaryItemUpdateRequestModel updateModel) {
         Boolean updated = false;
 
         if (!this.text.equals(updateModel.getText())) {

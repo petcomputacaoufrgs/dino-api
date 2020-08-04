@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.model.auth.google;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseModel;
 
 public class GoogleAuthResponseModel extends AuthResponseModel {
-
     private String googleAccessToken;
 
     private Long googleExpiresDate;

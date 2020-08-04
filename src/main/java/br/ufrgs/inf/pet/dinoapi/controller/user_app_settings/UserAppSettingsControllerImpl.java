@@ -1,10 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.controller.user_app_settings;
 
-import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
+import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsResponseAndRequestModel;
 import br.ufrgs.inf.pet.dinoapi.service.user_app_settings.UserAppSettingsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 /**
  * Implementação de: {@link UserAppSettingsController}
@@ -30,7 +32,7 @@ public class UserAppSettingsControllerImpl implements  UserAppSettingsController
 
     @Override
     @PostMapping
-    public ResponseEntity<?> saveUserAppSettings(@RequestBody UserAppSettingsModel userAppSettingsModel) {
+    public ResponseEntity<?> saveUserAppSettings(@Valid @RequestBody UserAppSettingsResponseAndRequestModel userAppSettingsModel) {
         return userAppSettingsService.saveUserAppSettings(userAppSettingsModel);
     }
 

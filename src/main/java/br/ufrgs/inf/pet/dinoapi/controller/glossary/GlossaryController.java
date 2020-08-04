@@ -2,9 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.controller.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryVersionResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateRequestModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -16,18 +15,18 @@ public interface GlossaryController {
      * Se já houver um item com o mesmo título não há nenhuma ação.
      * Não é possível adicionar um novo registro com o mesmo título de um já existente, caso isto ocorra não há ação.
      *
-     * @param glossarySaveModel - Model do tipo {@link GlossarySaveModel}
+     * @param glossarySaveRequestModel - Model do tipo {@link GlossarySaveRequestModel}
      * @return Model do tipo {@link GlossaryResponseModel} com os itens salvos
      */
-    ResponseEntity<GlossaryResponseModel> save(GlossarySaveModel glossarySaveModel);
+    ResponseEntity<GlossaryResponseModel> save(GlossarySaveRequestModel glossarySaveRequestModel);
 
     /**
      * Recebe itens do glossário, verifica sua existencia e atualiza seus dados.
      *
-     * @param glossaryUpdateModel - Model do tipo {@link GlossaryUpdateModel}
+     * @param glossaryUpdateRequestModel - Model do tipo {@link GlossaryUpdateRequestModel}
      * @return Model do tipo {@link GlossaryResponseModel} com os dados atualizados ou mensagem do erro
      */
-    ResponseEntity<?> update(GlossaryUpdateModel glossaryUpdateModel);
+    ResponseEntity<?> update(GlossaryUpdateRequestModel glossaryUpdateRequestModel);
 
     /**
      * Retorna todos os itens do glossário existentes

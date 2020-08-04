@@ -8,7 +8,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleRefreshAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.UserModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
@@ -29,16 +29,21 @@ import java.util.Optional;
 @Service
 public class GoogleAuthServiceImpl implements GoogleAuthService {
 
-    @Autowired
-    UserServiceImpl userService;
+    private final UserServiceImpl userService;
+
+    private final AuthServiceImpl authService;
+
+    private final GoogleAuthRepository googleAuthRepository;
+
+    private final GoogleAPICommunicationImpl googleAPICommunicationImpl;
 
     @Autowired
-    AuthServiceImpl authService;
-
-    @Autowired
-    GoogleAuthRepository googleAuthRepository;
-
-    final GoogleAPICommunicationImpl googleAPICommunicationImpl = new GoogleAPICommunicationImpl();
+    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthRepository googleAuthRepository) {
+        this.userService = userService;
+        this.authService = authService;
+        this.googleAuthRepository = googleAuthRepository;
+        this.googleAPICommunicationImpl = new GoogleAPICommunicationImpl();
+    }
 
     @Override
     public ResponseEntity<?> googleSignIn(GoogleAuthRequestModel authModel, HttpServletRequest request) {
@@ -90,15 +95,15 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final Auth auth = authService.generateAuth(user, request);
 
-                final UserModel userModel = new UserModel();
+                final UserResponseModel userResponseModel = new UserResponseModel();
 
-                userModel.setEmail(user.getEmail());
+                userResponseModel.setEmail(user.getEmail());
 
-                userModel.setName(user.getName());
+                userResponseModel.setName(user.getName());
 
-                userModel.setPictureURL(user.getPictureURL());
+                userResponseModel.setPictureURL(user.getPictureURL());
 
-                userModel.setVersion(user.getVersion());
+                userResponseModel.setVersion(user.getVersion());
 
                 final GoogleAuthResponseModel response = new GoogleAuthResponseModel();
 
@@ -108,7 +113,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setGoogleExpiresDate(googleAuth.getTokenExpiresDateInMillis());
 
-                response.setUser(userModel);
+                response.setUser(userResponseModel);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }

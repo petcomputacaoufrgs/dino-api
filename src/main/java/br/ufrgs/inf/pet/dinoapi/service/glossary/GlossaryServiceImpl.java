@@ -2,11 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateRequestModel;
 import br.ufrgs.inf.pet.dinoapi.repository.GlossaryItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,25 +18,30 @@ import java.util.Optional;
 
 @Service
 public class GlossaryServiceImpl implements GlossaryService {
-    @Autowired
-    GlossaryItemRepository glossaryItemRepository;
+
+    private final GlossaryItemRepository glossaryItemRepository;
+
+    private final GlossaryVersionServiceImpl glossaryVersionService;
 
     @Autowired
-    GlossaryVersionServiceImpl glossaryVersionService;
+    public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, GlossaryVersionServiceImpl glossaryVersionService) {
+        this.glossaryItemRepository = glossaryItemRepository;
+        this.glossaryVersionService = glossaryVersionService;
+    }
 
     @Override
-    public ResponseEntity<GlossaryResponseModel> save(GlossarySaveModel glossarySaveModel) {
+    public ResponseEntity<GlossaryResponseModel> save(GlossarySaveRequestModel glossarySaveRequestModel) {
         final GlossaryResponseModel response = new GlossaryResponseModel();
         Long glossaryVersion;
 
-        if (glossarySaveModel != null) {
-            final List<GlossaryItemSaveModel> newItemsList = glossarySaveModel.getItemList();
+        if (glossarySaveRequestModel != null) {
+            final List<GlossaryItemSaveRequestModel> newItemsList = glossarySaveRequestModel.getItemList();
             Optional<GlossaryItem> glossaryItemSearchResult;
             GlossaryItem glossaryItem;
             GlossaryItemResponseModel responseItem;
 
             if (newItemsList != null) {
-                for (GlossaryItemSaveModel newItem : newItemsList) {
+                for (GlossaryItemSaveRequestModel newItem : newItemsList) {
                     if (newItem.isValid()) {
                         glossaryItemSearchResult = glossaryItemRepository.findByTitle(newItem.getTitle());
 
@@ -69,16 +74,16 @@ public class GlossaryServiceImpl implements GlossaryService {
     }
 
     @Override
-    public ResponseEntity<?> update(GlossaryUpdateModel glossaryUpdateModel) {
+    public ResponseEntity<?> update(GlossaryUpdateRequestModel glossaryUpdateRequestModel) {
         final GlossaryResponseModel response = new GlossaryResponseModel();
         Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
 
-        if (glossaryUpdateModel.getVersion() != glossaryVersion) {
+        if (glossaryUpdateRequestModel.getVersion() != glossaryVersion) {
             return new ResponseEntity<>("Versão do glossário inválida.", HttpStatus.BAD_REQUEST);
         }
 
-        if (glossaryUpdateModel != null) {
-            final List<GlossaryItemUpdateModel> updatedItemsList = glossaryUpdateModel.getItemList();
+        if (glossaryUpdateRequestModel != null) {
+            final List<GlossaryItemUpdateRequestModel> updatedItemsList = glossaryUpdateRequestModel.getItemList();
 
             if (updatedItemsList != null) {
                 Optional<GlossaryItem> glossaryItemSearchResult;
@@ -86,7 +91,7 @@ public class GlossaryServiceImpl implements GlossaryService {
                 Boolean updated;
                 GlossaryItemResponseModel responseItem;
 
-                for (GlossaryItemUpdateModel updatedItem : updatedItemsList) {
+                for (GlossaryItemUpdateRequestModel updatedItem : updatedItemsList) {
                     if (updatedItem.isValid()) {
                         glossaryItemSearchResult = glossaryItemRepository.findById(updatedItem.getId());
 

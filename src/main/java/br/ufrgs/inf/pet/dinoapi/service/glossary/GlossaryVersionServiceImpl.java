@@ -8,16 +8,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-
 @Service
 public class GlossaryVersionServiceImpl implements GlossaryVersionService {
 
-    @Autowired
-    GlossaryVersionRepository glossaryVersionRepository;
+    private final GlossaryVersionRepository glossaryVersionRepository;
+
+    private final GlossaryWebSocketServiceImpl glossaryWebSocketService;
 
     @Autowired
-    GlossaryWebSocketServiceImpl glossaryWebSocketService;
+    public GlossaryVersionServiceImpl(GlossaryVersionRepository glossaryVersionRepository, GlossaryWebSocketServiceImpl glossaryWebSocketService) {
+        this.glossaryVersionRepository = glossaryVersionRepository;
+        this.glossaryWebSocketService = glossaryWebSocketService;
+    }
 
     @Override
     public Long updateGlossaryVersion() {

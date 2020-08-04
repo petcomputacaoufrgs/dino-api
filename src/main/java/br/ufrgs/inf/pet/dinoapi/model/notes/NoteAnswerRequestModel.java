@@ -1,8 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
-public class NoteAnswerModel {
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+public class NoteAnswerRequestModel {
+
+    @NotNull(message = "id cannot be null.")
     private Long id;
 
+    @NotNull(message = "answer cannot be null.")
+    @Size(max = 1000, message = "answer should not be more than 10000.")
     private String answer;
 
     public Long getId() {

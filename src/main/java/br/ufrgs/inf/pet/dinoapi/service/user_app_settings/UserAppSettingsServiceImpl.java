@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.user_app_settings;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
-import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsModel;
+import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsResponseAndRequestModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.user_app_settings.UserAppSettingsWebSocketService;
@@ -14,14 +14,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
-    @Autowired
-    AuthServiceImpl authService;
+    private final AuthServiceImpl authService;
+
+    private final UserAppSettingsRepository userAppSettingsRepository;
+
+    private final UserAppSettingsWebSocketService userAppSettingsWebSocketService;
 
     @Autowired
-    UserAppSettingsRepository userAppSettingsRepository;
-
-    @Autowired
-    UserAppSettingsWebSocketService userAppSettingsWebSocketService;
+    public UserAppSettingsServiceImpl(AuthServiceImpl authService, UserAppSettingsRepository userAppSettingsRepository, UserAppSettingsWebSocketService userAppSettingsWebSocketService) {
+        this.authService = authService;
+        this.userAppSettingsRepository = userAppSettingsRepository;
+        this.userAppSettingsWebSocketService = userAppSettingsWebSocketService;
+    }
 
     @Override
     public ResponseEntity<?> getUserAppSettings() {
@@ -34,7 +38,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         final UserAppSettings userAppSettings = userDB.getUserAppSettings();
 
-        final UserAppSettingsModel model = new UserAppSettingsModel();
+        final UserAppSettingsResponseAndRequestModel model = new UserAppSettingsResponseAndRequestModel();
 
         model.setLanguage(userAppSettings.getLanguage());
 
@@ -42,7 +46,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
     }
 
     @Override
-    public ResponseEntity<?> saveUserAppSettings(UserAppSettingsModel userAppSettingsModel) {
+    public ResponseEntity<?> saveUserAppSettings(UserAppSettingsResponseAndRequestModel userAppSettingsModel) {
         if (userAppSettingsModel == null) {
             return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
         }

@@ -3,19 +3,19 @@ package br.ufrgs.inf.pet.dinoapi.model.log_app_error;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class LogAppErrorModel {
+public class LogAppErrorRequestModel {
 
-    @Size(max = 500, message = "Title should not be more than 500")
+    @Size(max = 500, message = "title should not be more than 500.")
     private String title;
 
-    @Size(max = 500, message = "File should not be more than 500")
+    @Size(max = 500, message = "file should not be more than 500.")
     private String file;
 
-    @Size(max = 10000, message = "Error should not be more than 10000")
-    @NotNull(message = "Error cannot be null")
+    @Size(max = 10000, message = "error should not be more than 10000.")
+    @NotNull(message = "error cannot be null.")
     private String error;
 
-    @NotNull(message = "Date cannot be null.")
+    @NotNull(message = "date cannot be null.")
     private Long date;
 
     public String getTitle() {

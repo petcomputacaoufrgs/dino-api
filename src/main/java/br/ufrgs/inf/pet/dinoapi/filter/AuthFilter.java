@@ -35,17 +35,22 @@ import java.io.IOException;
 @Component
 public class AuthFilter extends OncePerRequestFilter {
 
-    @Autowired
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
+
+    private AuthServiceImpl authService;
+
+    private GoogleAuthServiceImpl googleAuthService;
+
+    private DinoUserDetailsService dinoUserDetailsService;
 
     @Autowired
-    AuthServiceImpl authService;
-
-    @Autowired
-    GoogleAuthServiceImpl googleAuthService;
-
-    @Autowired
-    DinoUserDetailsService dinoUserDetailsService;
+    public AuthFilter(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
+        super();
+        this.userService = userService;
+        this.authService = authService;
+        this.googleAuthService = googleAuthService;
+        this.dinoUserDetailsService = dinoUserDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
@@ -59,7 +64,7 @@ public class AuthFilter extends OncePerRequestFilter {
             if (auth != null && this.validUserAgent(auth, httpServletRequest)) {
                 if (SecurityContextHolder.getContext().getAuthentication() == null) {
                     this.updateTokensIfNecessary(auth, httpServletRequest, httpServletResponse);
-                    UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
+                    UserDetails userDetails = this.dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
                     final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
@@ -90,7 +95,7 @@ public class AuthFilter extends OncePerRequestFilter {
         final User user = auth.getUser();
 
         if (!auth.tokenIsValid()) {
-            Auth newAuth = authService.refreshAuth(auth, httpServletRequest);
+            Auth newAuth = this.authService.refreshAuth(auth, httpServletRequest);
 
             httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), newAuth.getAccessToken());
         }
@@ -98,7 +103,7 @@ public class AuthFilter extends OncePerRequestFilter {
         if(user.hasGoogleAuth()) {
             GoogleAuth googleAuth = user.getGoogleAuth();
             if (!googleAuth.tokenIsValid()) {
-                googleAuth = googleAuthService.refreshGoogleAuth(googleAuth);
+                googleAuth = this.googleAuthService.refreshGoogleAuth(googleAuth);
                 final String expiresDate = JsonUtils.convertObjectToJSON(googleAuth.getTokenExpiresDateInMillis());
 
                 httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), googleAuth.getAccessToken());
@@ -119,20 +124,20 @@ public class AuthFilter extends OncePerRequestFilter {
             webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
         }
 
-        if(userService == null){
-            userService = webApplicationContext.getBean(UserServiceImpl.class);
+        if(this.userService == null){
+            this.userService = webApplicationContext.getBean(UserServiceImpl.class);
         }
 
-        if(authService == null) {
-            authService = webApplicationContext.getBean(AuthServiceImpl.class);
+        if(this.authService == null) {
+            this.authService = webApplicationContext.getBean(AuthServiceImpl.class);
         }
 
-        if(googleAuthService == null) {
-            googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
+        if(this.googleAuthService == null) {
+            this.googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
         }
 
-        if(dinoUserDetailsService == null){
-            dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
+        if(this.dinoUserDetailsService == null){
+            this.dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
         }
     }
 }

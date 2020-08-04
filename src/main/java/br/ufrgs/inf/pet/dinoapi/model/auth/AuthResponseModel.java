@@ -1,11 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.user.UserModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
 
 public class AuthResponseModel {
+
     private String accessToken;
 
-    private UserModel user;
+    private UserResponseModel user;
 
     public String getAccessToken() {
         return accessToken;
@@ -15,11 +16,11 @@ public class AuthResponseModel {
         this.accessToken = accessToken;
     }
 
-    public UserModel getUser() {
+    public UserResponseModel getUser() {
         return user;
     }
 
-    public void setUser(UserModel user) {
+    public void setUser(UserResponseModel user) {
         this.user = user;
     }
 }

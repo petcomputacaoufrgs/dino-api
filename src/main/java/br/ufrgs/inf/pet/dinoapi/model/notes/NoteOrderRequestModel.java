@@ -1,8 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
-public class NoteOrderModel {
+import javax.validation.constraints.NotNull;
+
+public class NoteOrderRequestModel {
+
+    @NotNull(message = "id cannot be null.")
     private Long id;
 
+    @NotNull(message = "order cannot be null.")
     private Integer order;
 
     public Long getId() {

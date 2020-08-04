@@ -20,31 +20,35 @@ import java.util.stream.IntStream;
 @Service
 public class NoteServiceImpl implements NoteService {
 
-    @Autowired
-    NoteRepository noteRepository;
+    private final NoteRepository noteRepository;
+
+    private final NoteTagRepository noteTagRepository;
+
+    private final NoteVersionServiceImpl noteVersionService;
+
+    private final AuthServiceImpl authService;
 
     @Autowired
-    NoteTagRepository noteTagRepository;
-
-    @Autowired
-    NoteVersionServiceImpl noteVersionService;
-
-    @Autowired
-    AuthServiceImpl authService;
+    public NoteServiceImpl(NoteRepository noteRepository, NoteTagRepository noteTagRepository, NoteVersionServiceImpl noteVersionService, AuthServiceImpl authService) {
+        this.noteRepository = noteRepository;
+        this.noteTagRepository = noteTagRepository;
+        this.noteVersionService = noteVersionService;
+        this.authService = authService;
+    }
 
     @Override
-    public ResponseEntity<List<NoteModel>> getUserNotes() {
+    public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
         final User user = authService.getCurrentAuth().getUser();
 
         final List<Note> notes = user.getNotes();
 
-        final List<NoteModel> model = notes.stream().map(note -> new NoteModel(note)).collect(Collectors.toList());
+        final List<NoteResponseModel> model = notes.stream().map(note -> new NoteResponseModel(note)).collect(Collectors.toList());
 
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> saveNewNote(NoteSaveModel model) {
+    public ResponseEntity<?> saveNewNote(NoteSaveRequestRequestModel model) {
 
         if (model.getQuestion().isBlank()) {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
@@ -82,7 +86,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<Long> deleteAll(List<NoteDeleteModel> models) {
+    public ResponseEntity<Long> deleteAll(List<NoteDeleteRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
         final List<Long> validIds = models.stream()
@@ -105,7 +109,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<Long> deleteNote(NoteDeleteModel model) {
+    public ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model) {
 
         final User user = authService.getCurrentAuth().getUser();
 
@@ -125,7 +129,7 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<Long> saveAll(List<NoteSaveModel> models) {
+    public ResponseEntity<Long> saveAll(List<NoteSaveRequestRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
         final List<Note> newNotes = this.createNewNotes(models, user, new Date());
@@ -138,7 +142,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<Long> updateAll(List<NoteUpdateModel> models) {
+    public ResponseEntity<Long> updateAll(List<NoteUpdateRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
         final List<Long> idsToUpdate = models.stream()
@@ -153,10 +157,10 @@ public class NoteServiceImpl implements NoteService {
         }
 
         notes.forEach(note -> {
-            Optional<NoteUpdateModel> modelSearch = models.stream().filter(m -> m.getId() == note.getId()).findFirst();
+            Optional<NoteUpdateRequestModel> modelSearch = models.stream().filter(m -> m.getId() == note.getId()).findFirst();
 
             if (modelSearch.isPresent()) {
-                NoteUpdateModel model = modelSearch.get();
+                NoteUpdateRequestModel model = modelSearch.get();
 
                 note.setAnswered(model.getAnswered());
 
@@ -182,7 +186,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<?> updateNotesOrder(List<NoteOrderModel> models) {
+    public ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
         models = models.stream().filter(model -> model.getId() != null && model.getOrder() != null).collect(Collectors.toList());
@@ -192,7 +196,7 @@ public class NoteServiceImpl implements NoteService {
                 .collect(Collectors.toList());
 
         final List<Integer> orders = models.stream()
-                .sorted(Comparator.comparing(NoteOrderModel::getId))
+                .sorted(Comparator.comparing(NoteOrderRequestModel::getId))
                 .map(m -> m.getOrder())
                 .collect(Collectors.toList());
 
@@ -224,7 +228,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<?> updateNoteQuestion(NoteQuestionModel model) {
+    public ResponseEntity<?> updateNoteQuestion(NoteQuestionRequestModel model) {
 
         if (model.getQuestion().isBlank()) {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
@@ -277,7 +281,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<?> updateNoteAnswer(NoteAnswerModel model) {
+    public ResponseEntity<?> updateNoteAnswer(NoteAnswerRequestModel model) {
 
         final User user = authService.getCurrentAuth().getUser();
 
@@ -312,10 +316,10 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
     }
 
-    private List<Note> createNewNotes(List<? extends NoteQuestionModel> models, User user, Date date) {
+    private List<Note> createNewNotes(List<? extends NoteQuestionRequestModel> models, User user, Date date) {
         final List<Note> savedNotes = new ArrayList<>();
 
-        final List<NoteQuestionModel> notesToCreate = models.stream()
+        final List<NoteQuestionRequestModel> notesToCreate = models.stream()
                 .filter(m -> m.getId() == null)
                 .collect(Collectors.toList());
 
@@ -335,7 +339,7 @@ public class NoteServiceImpl implements NoteService {
             order = maxOrderSearch.get() + 1;
         }
 
-        for(NoteQuestionModel model : notesToCreate) {
+        for(NoteQuestionRequestModel model : notesToCreate) {
             final Boolean alreadySaved = questionsAlreadySaved.stream().anyMatch(q -> q.equalsIgnoreCase(model.getQuestion()));
 
             if (alreadySaved) {
@@ -362,7 +366,7 @@ public class NoteServiceImpl implements NoteService {
         return savedNotes;
     }
 
-    private List<NoteTag> createNewTags(NoteQuestionModel model) {
+    private List<NoteTag> createNewTags(NoteQuestionRequestModel model) {
         List<NoteTag> tags = new ArrayList<>();
 
         if (model.getTagNames() != null && model.getTagNames().size() > 0) {
@@ -388,7 +392,7 @@ public class NoteServiceImpl implements NoteService {
         return tags;
     }
 
-    private boolean updateTags(Note note, NoteQuestionModel model) {
+    private boolean updateTags(Note note, NoteQuestionRequestModel model) {
         boolean changed = false;
 
         final List<NoteTag> removedTags = note.getTags().stream()
