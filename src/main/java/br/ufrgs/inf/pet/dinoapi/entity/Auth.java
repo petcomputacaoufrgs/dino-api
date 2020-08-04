@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
@@ -28,24 +30,30 @@ public class Auth {
     @Column(name = "token_expires_data_in_millis")
     private Long tokenExpiresDateInMillis;
 
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @OneToMany(mappedBy = "auth")
+    private List<LogAppError> errors;
+
+    public Auth() {
+        this.errors = new ArrayList<>();
+    }
+
+    public Auth(String accessToken, Long tokenExpiresDateInMillis) {
+        this.accessToken = accessToken;
+        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
+        this.errors = new ArrayList<>();
+    }
+
     public Long getId() {
         return id;
     }
 
     public String getAccessToken() {
         return accessToken;
-    }
-
-    @JsonIgnore
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-    public Auth() {}
-
-    public Auth(String accessToken, Long tokenExpiresDateInMillis) {
-        this.accessToken = accessToken;
-        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
     }
 
     public User getUser() {
@@ -63,4 +71,5 @@ public class Auth {
     public Boolean tokenIsValid() {
         return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
     }
+
 }
