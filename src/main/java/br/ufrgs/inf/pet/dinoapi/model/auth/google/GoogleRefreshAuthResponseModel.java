@@ -1,14 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth.google;
 
-import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseModel;
-
-public class GoogleAuthResponseModel extends AuthResponseModel {
+public class GoogleRefreshAuthResponseModel {
 
     private String googleAccessToken;
 
     private Long googleExpiresDate;
 
-    public GoogleAuthResponseModel() {}
+    public GoogleRefreshAuthResponseModel() {}
 
     public String getGoogleAccessToken() {
         return googleAccessToken;
@@ -25,4 +23,5 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
     public void setGoogleExpiresDate(Long googleExpiresDate) {
         this.googleExpiresDate = googleExpiresDate;
     }
+
 }

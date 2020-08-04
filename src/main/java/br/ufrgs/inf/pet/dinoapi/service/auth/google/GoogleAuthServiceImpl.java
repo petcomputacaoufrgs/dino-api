@@ -7,6 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleRefreshAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserModel;
 import br.ufrgs.inf.pet.dinoapi.repository.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -103,6 +104,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setGoogleAccessToken(googleAuth.getAccessToken());
 
+                response.setGoogleExpiresDate(googleAuth.getTokenExpiresDateInMillis());
+
                 response.setUser(userModel);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
@@ -117,14 +120,31 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     @Override
-    public String refreshGoogleAuth(GoogleAuth googleAuth) {
+    public ResponseEntity<?> googleRefreshAuth() {
+        GoogleAuth googleAuth = this.getUserGoogleAuth();
+
+        if (googleAuth != null) {
+            googleAuth = refreshGoogleAuth(googleAuth);
+
+            GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
+            response.setGoogleAccessToken(googleAuth.getAccessToken());
+            response.setGoogleExpiresDate(googleAuth.getTokenExpiresDateInMillis());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>("Falha na autenticação com o Google.", HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public GoogleAuth refreshGoogleAuth(GoogleAuth googleAuth) {
         if (googleAuth != null) {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
 
             if (tokenResponse != null) {
                 this.updateGoogleAccessTokenData(tokenResponse, googleAuth);
 
-                return googleAuth.getAccessToken();
+                return googleAuth;
             }
         }
         return null;

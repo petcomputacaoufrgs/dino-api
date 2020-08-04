@@ -8,7 +8,10 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
+import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -54,7 +57,7 @@ public class AuthFilter extends OncePerRequestFilter {
             final Auth auth = authService.findByAccessToken(token);
 
             if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                updateTokensIfNecessary(auth, httpServletResponse);
+                this.updateTokensIfNecessary(auth, httpServletResponse);
                 UserDetails userDetails = dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
                 final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -77,21 +80,23 @@ public class AuthFilter extends OncePerRequestFilter {
         return token;
     }
 
-    private void updateTokensIfNecessary(Auth auth, HttpServletResponse httpServletResponse) {
+    private void updateTokensIfNecessary(Auth auth, HttpServletResponse httpServletResponse) throws JsonProcessingException {
         final User user = auth.getUser();
 
         if (!auth.tokenIsValid()) {
             Auth newAuth = authService.refreshAuth(auth);
 
-            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), "Bearer " + newAuth.getAccessToken());
+            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), newAuth.getAccessToken());
         }
 
         if(user.hasGoogleAuth()) {
-            final GoogleAuth googleAuth = user.getGoogleAuth();
+            GoogleAuth googleAuth = user.getGoogleAuth();
             if (!googleAuth.tokenIsValid()) {
-                final String newToken = googleAuthService.refreshGoogleAuth(googleAuth);
+                googleAuth = googleAuthService.refreshGoogleAuth(googleAuth);
+                final String expiresDate = JsonUtils.convertObjectToJSON(googleAuth.getTokenExpiresDateInMillis());
 
-                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), "Bearer " + newToken);
+                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), googleAuth.getAccessToken());
+                httpServletResponse.setHeader(HeaderEnum.GOOGLE_EXPIRES_DATE.getValue(), expiresDate);
             }
         }
     }

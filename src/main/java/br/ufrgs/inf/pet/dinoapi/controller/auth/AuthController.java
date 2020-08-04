@@ -13,6 +13,13 @@ public interface AuthController {
     ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel token);
 
     /**
+     * Requisita a atualização do token de acesso Google
+     *
+     * @return novo token de acesso
+     */
+    ResponseEntity<?> googleRefreshAuth();
+
+    /**
      * Limpa as informações da autenticação corrente
      *
      * @return Mensagem de remoção com status OK
