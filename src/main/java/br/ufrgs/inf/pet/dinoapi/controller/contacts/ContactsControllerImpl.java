@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.controller.contacts;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.service.contact.ContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.ContactVersionServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
