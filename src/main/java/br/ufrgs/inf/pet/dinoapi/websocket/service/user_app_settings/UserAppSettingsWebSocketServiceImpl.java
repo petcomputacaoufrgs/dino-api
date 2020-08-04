@@ -11,11 +11,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserAppSettingsWebSocketServiceImpl implements UserAppSettingsWebSocketService {
 
-    @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
+    private final AuthServiceImpl authService;
 
     @Autowired
-    private AuthServiceImpl authService;
+    public UserAppSettingsWebSocketServiceImpl(SimpMessagingTemplate simpMessagingTemplate, AuthServiceImpl authService) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.authService = authService;
+    }
+
 
     @Override
     public void sendUpdateMessage(Long newVersion) {

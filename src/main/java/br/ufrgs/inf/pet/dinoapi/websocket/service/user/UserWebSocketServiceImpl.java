@@ -10,8 +10,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserWebSocketServiceImpl implements  UserWebSocketService {
 
+    private final SimpMessagingTemplate simpMessagingTemplate;
+
     @Autowired
-    private SimpMessagingTemplate simpMessagingTemplate;
+    public UserWebSocketServiceImpl(SimpMessagingTemplate simpMessagingTemplate) {
+        this.simpMessagingTemplate = simpMessagingTemplate;
+    }
 
     @Override
     public void sendUpdateMessage(User user) {
