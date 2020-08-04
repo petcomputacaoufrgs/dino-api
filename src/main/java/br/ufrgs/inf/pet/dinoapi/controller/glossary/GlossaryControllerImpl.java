@@ -28,7 +28,7 @@ public class GlossaryControllerImpl implements GlossaryController {
 
     @Override
     @PostMapping("public/glossary/save/")
-    public ResponseEntity<GlossaryResponseModel> save(@Valid  @RequestBody GlossarySaveRequestModel glossarySaveRequestModel) {
+    public ResponseEntity<GlossaryResponseModel> save(@Valid @RequestBody GlossarySaveRequestModel glossarySaveRequestModel) {
         return glossaryItemService.save(glossarySaveRequestModel);
     }
 
