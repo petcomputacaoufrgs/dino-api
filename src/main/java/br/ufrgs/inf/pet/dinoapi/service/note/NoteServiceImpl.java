@@ -31,7 +31,7 @@ public class NoteServiceImpl implements NoteService {
     NoteTagRepository noteTagRepository;
 
     @Autowired
-    NoteVersionRepository noteVersionRepository;
+    NoteVersionServiceImpl noteVersionService;
 
     @Autowired
     AuthServiceImpl authService;
@@ -82,22 +82,11 @@ public class NoteServiceImpl implements NoteService {
         note.setTags(tags);
         note.setUser(user);
 
-        NoteVersion version = user.getNoteVersion();
-
-        if (version == null) {
-            version = new NoteVersion();
-            version.setVersion(0L);
-            version.setUser(user);
-        } else {
-            version.setVersion(version.getVersion() + 1);
-        }
-
-        version.setLastUpdate(new Date());
+        Long newNoteVersion = noteVersionService.updateVersion();
 
         final Note savedNote = noteRepository.save(note);
-        noteVersionRepository.save(version);
 
-        final NoteSaveResponseModel response = new NoteSaveResponseModel(version.getVersion(), savedNote.getId());
+        final NoteSaveResponseModel response = new NoteSaveResponseModel(newNoteVersion, savedNote.getId());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -105,8 +94,6 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public ResponseEntity<Long> deleteAll(List<NoteDeleteModel> models) {
         final User user = authService.getCurrentAuth().getUser();
-
-        final NoteVersion version = user.getNoteVersion();
 
         final List<Long> validIds = models.stream()
                 .filter(model -> model.getId() != null)
@@ -118,13 +105,13 @@ public class NoteServiceImpl implements NoteService {
             deletedItems = noteRepository.deleteAllByIdAndUserId(validIds, user.getId());
 
             if (deletedItems > 0) {
-                version.setVersion(version.getVersion() + 1);
+                Long newNoteVersion = noteVersionService.updateVersion();
 
-                noteVersionRepository.save(version);
+                return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
             }
         }
 
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
     }
 
     @Override
@@ -132,23 +119,20 @@ public class NoteServiceImpl implements NoteService {
 
         final User user = authService.getCurrentAuth().getUser();
 
-        final NoteVersion version = user.getNoteVersion();
-
         if (model == null || model.getId() == null) {
-            return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+            return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
         }
-
 
         final int deletedItems = noteRepository.deleteByIdAndUserId(model.getId(), user.getId());
 
 
         if (deletedItems > 0) {
-            version.setVersion(version.getVersion() + 1);
+            Long newNoteVersion = noteVersionService.updateVersion();
 
-            noteVersionRepository.save(version);
+            return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
     }
 
     public ResponseEntity<?> saveAll(List<NoteSaveModel> models) {
@@ -162,11 +146,9 @@ public class NoteServiceImpl implements NoteService {
 
         noteRepository.saveAll(newNotes);
 
-        version.setVersion(version.getVersion() + 1);
+        Long newNoteVersion = noteVersionService.updateVersion();
 
-        noteVersionRepository.save(version);
-
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
 
     @Override
@@ -212,11 +194,9 @@ public class NoteServiceImpl implements NoteService {
 
         noteRepository.saveAll(notes);
 
-        version.setVersion(version.getVersion() + 1);
+        Long newNoteVersion = noteVersionService.updateVersion();
 
-        noteVersionRepository.save(version);
-
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
 
     @Override
@@ -253,14 +233,12 @@ public class NoteServiceImpl implements NoteService {
                         notes.get(i).setOrder(orders.get(i))
                 );
 
-        final NoteVersion version = user.getNoteVersion();
-
-        version.setVersion(version.getVersion() + 1);
 
         noteRepository.saveAll(notes);
-        noteVersionRepository.save(version);
 
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        Long newNoteVersion = noteVersionService.updateVersion();
+
+        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
 
     @Override
@@ -303,19 +281,17 @@ public class NoteServiceImpl implements NoteService {
 
         final LocalDateTime date = DatetimeUtils.convertMillisecondsToLocalDatetime(model.getLastUpdate());
 
-        final NoteVersion version = user.getNoteVersion();
-
         if (changed) {
             note.setLastUpdate(date);
 
             noteRepository.save(note);
 
-            version.setVersion(version.getVersion() + 1);
+            Long newNoteVersion = noteVersionService.updateVersion();
 
-            noteVersionRepository.save(version);
+            return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
     }
 
     @Override
@@ -346,9 +322,9 @@ public class NoteServiceImpl implements NoteService {
 
             noteRepository.save(note);
 
-            version.setVersion(version.getVersion() + 1);
+            Long newNoteVersion = noteVersionService.updateVersion();
 
-            noteVersionRepository.save(version);
+            return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
