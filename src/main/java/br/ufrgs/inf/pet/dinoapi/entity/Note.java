@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -54,6 +55,22 @@ public class Note implements Serializable {
             joinColumns = @JoinColumn(name = "note_id"),
             inverseJoinColumns = @JoinColumn(name = "note_tag_id"))
     private List<NoteTag> tags;
+
+    public Note() {}
+
+    public Note(LocalDateTime lastUpdate, Integer order, String question, List<NoteTag> tags, User user) {
+        this.lastUpdate = lastUpdate;
+        this.order = order;
+        this.question = question;
+        this.user = user;
+        this.setAnswered(false);
+
+        if (tags != null) {
+            this.tags = tags;
+        } else {
+            this.tags = new ArrayList<>();
+        }
+    }
 
     public Long getId() {
         return id;

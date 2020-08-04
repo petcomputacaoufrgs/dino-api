@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.auth;
+package br.ufrgs.inf.pet.dinoapi.model.auth.google;
 
 public class GoogleAuthRequestModel {
     private String token;

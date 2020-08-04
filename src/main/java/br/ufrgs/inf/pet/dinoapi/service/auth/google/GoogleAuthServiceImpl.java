@@ -5,10 +5,11 @@ import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
-import br.ufrgs.inf.pet.dinoapi.model.auth.GoogleAuthRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.GoogleAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserModel;
 import br.ufrgs.inf.pet.dinoapi.repository.GoogleAuthRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,49 +50,52 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final String googleId = payload.getSubject();
 
-                GoogleAuth googleAuth;
-                User userDB;
-
-                final String pictureUrl = (String) payload.get("picture");
-                final String email = payload.getEmail();
-                final String name = (String) payload.get("name");
                 final String refreshToken = tokenResponse.getRefreshToken();
 
-                final Optional<GoogleAuth> googleAuthSearchResult = googleAuthRepository.findByGoogleId(googleId);
+                GoogleAuth googleAuth = this.getGoogleAuthByGoogleId(googleId);
 
-                if (googleAuthSearchResult.isPresent()) {
-                    googleAuth = googleAuthSearchResult.get();
+                User user;
 
-                    if (isWithRefreshTokenPresent(refreshToken)) {
+                if (googleAuth != null) {
+
+                    if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
                     } else if (googleAuth.getRefreshToken().isEmpty()) {
                         return getRefreshTokenError();
                     }
 
-                    userDB = googleAuth.getUser();
+                    user = googleAuth.getUser();
 
-                    updateUserData(payload, userDB);
-
+                    user = this.updateUserData(payload, user);
                 } else {
                     if (isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError();
                     }
 
-                    userDB = new User(name, email);
+                    final String email = payload.getEmail();
+                    final String name = (String) payload.get("name");
+                    final String pictureUrl = (String) payload.get("picture");
 
-                    userService.save(userDB);
+                    user = userService.create(name, email, pictureUrl);
 
                     googleAuth = new GoogleAuth(googleId, refreshToken);
 
-                    googleAuth.setUser(userDB);
-
+                    googleAuth.setUser(user);
                 }
 
-                updateGoogleAccessTokenInfo(tokenResponse, googleAuth);
+                googleAuth = this.updateGoogleAccessTokenData(tokenResponse, googleAuth);
 
-                googleAuthRepository.save(googleAuth);
+                final Auth auth = authService.generateAuth(user);
 
-                final Auth auth = authService.generateAuth(userDB);
+                final UserModel userModel = new UserModel();
+
+                userModel.setEmail(user.getEmail());
+
+                userModel.setName(user.getName());
+
+                userModel.setPictureURL(user.getPictureURL());
+
+                userModel.setVersion(user.getVersion());
 
                 final GoogleAuthResponseModel response = new GoogleAuthResponseModel();
 
@@ -99,11 +103,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setGoogleAccessToken(googleAuth.getAccessToken());
 
-                response.setEmail(email);
-
-                response.setName(name);
-
-                response.setPictureUrl(pictureUrl);
+                response.setUser(userModel);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
@@ -122,9 +122,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
 
             if (tokenResponse != null) {
-                updateGoogleAccessTokenInfo(tokenResponse, googleAuth);
-
-                googleAuthRepository.save(googleAuth);
+                this.updateGoogleAccessTokenData(tokenResponse, googleAuth);
 
                 return googleAuth.getAccessToken();
             }
@@ -143,6 +141,16 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 final User userDB = userService.findUserByEmail(userDetails.getUsername());
                 return userDB.getGoogleAuth();
             }
+        }
+
+        return null;
+    }
+
+    private GoogleAuth getGoogleAuthByGoogleId(String googleId) {
+        final Optional<GoogleAuth> googleAuthSearchResult = googleAuthRepository.findByGoogleId(googleId);
+
+        if (googleAuthSearchResult.isPresent()) {
+            return googleAuthSearchResult.get();
         }
 
         return null;
@@ -169,19 +177,15 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return (new Date()).getTime() + (expiresIn * 1000);
     }
 
-    private void updateUserData(GoogleIdToken.Payload payload, User user) {
+    private User updateUserData(GoogleIdToken.Payload payload, User user) {
         final String email = payload.getEmail();
         final String name = (String) payload.get("name");
+        final String pictureUrl = (String) payload.get("picture");
 
-        if (!user.getEmail().equals(email)) {
-            user.setEmail(email);
-        }
-        if (!user.getName().equals(name)) {
-            user.setName(name);
-        }
+        return userService.update(name, email, pictureUrl);
     }
 
-    private void updateGoogleAccessTokenInfo(GoogleTokenResponse tokenResponse, GoogleAuth googleAuth) {
+    private GoogleAuth updateGoogleAccessTokenData(GoogleTokenResponse tokenResponse, GoogleAuth googleAuth) {
         final String accessToken = tokenResponse.getAccessToken();
 
         final Long expiresIn = tokenResponse.getExpiresInSeconds();
@@ -191,5 +195,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         googleAuth.setAccessToken(accessToken);
 
         googleAuth.setTokenExpiresDateInMillis(tokenExpiresDateInMillis);
+
+        return googleAuthRepository.save(googleAuth);
     }
 }

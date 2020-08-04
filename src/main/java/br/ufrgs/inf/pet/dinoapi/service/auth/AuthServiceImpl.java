@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.auth.dino;
+package br.ufrgs.inf.pet.dinoapi.service.auth;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
@@ -80,6 +80,19 @@ public class AuthServiceImpl implements AuthService {
         final String accessToken = userDetails.getPassword();
 
         return findByAccessToken(accessToken);
+    }
+
+    @Override
+    public User getCurrentUser() {
+        final UserDetails userDetails = this.getPrincipal();
+
+        if (userDetails == null) {
+            return null;
+        }
+
+        final String accessToken = userDetails.getPassword();
+
+        return userService.findByAccessToken(accessToken);
     }
 
     @Override

@@ -13,6 +13,8 @@ public class User implements Serializable {
 
     private static final String SEQUENCE_NAME = "dino_user_seq";
 
+    public final Long DEFAULT_VERSION = 0l;
+
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
@@ -24,8 +26,15 @@ public class User implements Serializable {
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "email", length = 100, unique = false)
+    @Column(name = "email", length = 100, unique = true)
     private String email;
+
+    @Column(name = "picture_url", length = 100, unique = false)
+    private String pictureURL;
+
+    @Basic(optional = false)
+    @Column(name = "version")
+    private Long version;
 
     @OneToMany(mappedBy = "user")
     private List<Auth> auths;
@@ -44,9 +53,11 @@ public class User implements Serializable {
 
     public User() {}
 
-    public User(String name, String email) {
+    public User(String name, String email, String pictureURL) {
         this.name = name;
         this.email = email;
+        this.pictureURL = pictureURL;
+        this.version = this.DEFAULT_VERSION;
     }
 
     public Long getId() {
@@ -71,6 +82,26 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPictureURL() {
+        return pictureURL;
+    }
+
+    public void setPictureURL(String pictureURL) {
+        this.pictureURL = pictureURL;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void updateVersion() {
+        this.version = version + 1l;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 
     public GoogleAuth getGoogleAuth() {

@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.auth.dino;
+package br.ufrgs.inf.pet.dinoapi.service.auth;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
@@ -36,6 +36,12 @@ public interface AuthService {
      * @return Autenticação do usuário
      */
     Auth getCurrentAuth();
+
+    /**
+     * Retorna o usuário corrente
+     * @return Usuário
+     */
+    User getCurrentUser();
 
     /**
      * Retorna o contexto de autenticação corrente
