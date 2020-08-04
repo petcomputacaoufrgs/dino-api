@@ -32,7 +32,7 @@ public class PhoneServiceImpl implements PhoneService {
     public void editPhonesDB(List<PhoneModel> phoneModels, Contact contact) {
 
         List<Phone> phonesToSave = new ArrayList<>();
-        List<Phone> phonesDB = contact.getPhones();
+        List<Phone> phonesToDelete = contact.getPhones();
 
         phoneModels.forEach(phoneModel -> {
 
@@ -41,7 +41,7 @@ public class PhoneServiceImpl implements PhoneService {
             }
             else {
 
-                Optional<Phone> phoneSearch = phonesDB.stream()
+                Optional<Phone> phoneSearch = phonesToDelete.stream()
                         .filter(phone -> phone.getId().equals(phoneModel.getId()))
                         .findFirst();
 
@@ -59,13 +59,11 @@ public class PhoneServiceImpl implements PhoneService {
                     if (changed) {
                         phonesToSave.add(phoneDB);
                     }
-                    phonesDB.remove(phoneDB);
+                    phonesToDelete.remove(phoneDB);
                 }
             }
         });
         phoneRepository.saveAll(phonesToSave);
-        phoneRepository.deleteAllById(phonesDB.stream()
-                .map(Phone::getId)
-                .collect(Collectors.toList()));
+        phoneRepository.deleteAllById(phonesToDelete.stream().map(Phone::getId).collect(Collectors.toList()));
     }
 }
