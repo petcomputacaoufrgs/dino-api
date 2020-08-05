@@ -5,13 +5,13 @@ import javax.validation.constraints.Size;
 
 public class LogAppErrorRequestModel {
 
-    @Size(max = 500, message = "title should not be more than 500.")
+    @Size(max = 10000, message = "title should not be more than 10000.")
     private String title;
 
     @Size(max = 500, message = "file should not be more than 500.")
     private String file;
 
-    @Size(max = 10000, message = "error should not be more than 10000.")
+    @Size(max = 20000, message = "error should not be more than 20000.")
     @NotNull(message = "error cannot be null.")
     private String error;
 

@@ -15,13 +15,13 @@ public class LogAppError {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "title", length = 500)
+    @Column(name = "title", length = 10000)
     private String title;
 
     @Column(name = "file", length = 500)
     private String file;
 
-    @Column(name = "error", length = 10000, nullable = false)
+    @Column(name = "error", length = 20000, nullable = false)
     private String error;
 
     @Column(name = "log_date", nullable = false)

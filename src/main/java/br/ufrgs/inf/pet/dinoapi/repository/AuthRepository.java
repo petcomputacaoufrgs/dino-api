@@ -12,7 +12,4 @@ import java.util.Optional;
 public interface AuthRepository extends CrudRepository<Auth, Long> {
     @Query("SELECT a FROM Auth a WHERE a.accessToken LIKE :accessToken")
     Optional<Auth> findByAccessToken(@Param("accessToken") String accessToken);
-
-    @Query("SELECT a FROM Auth a WHERE a.refreshToken LIKE :refreshToken")
-    Optional<Auth> findByRefreshToken(@Param("refreshToken") String refreshToken);
 }

@@ -16,8 +16,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -27,11 +25,7 @@ public class AuthServiceImpl implements AuthService {
 
     private String key = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
-    private String refreshKey = "#?=-]@d0,^2d&DubIgvYHaR>.ALLhÇF071[FWj7l#sbP27B>V311;.S~8;9`HwS4n*XVelR1;KApaoksç[1/tkspqk1o3dkdlwp3}sdE(RG@LXGa0[";
-
     private String secretKey = Base64.getEncoder().encodeToString(key.getBytes());
-
-    private String refreshSecretKey = Base64.getEncoder().encodeToString(refreshKey.getBytes());
 
     private long validityInMilliseconds = 3600000;
 
@@ -47,15 +41,14 @@ public class AuthServiceImpl implements AuthService {
 
         List<String> roles = new ArrayList<>();
 
-        this.generateRefreshToken(auth, roles);
         this.generateAccessToken(auth, roles);
 
-        return auth;
+        return authRepository.save(auth);
     }
 
     @Override
     public ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
-        Optional<Auth> authSearch = authRepository.findByRefreshToken(authRefreshRequestModel.getRefreshToken());
+        Optional<Auth> authSearch = authRepository.findByAccessToken(authRefreshRequestModel.getAccessToken());
 
         if (authSearch.isPresent()) {
             Auth auth = authSearch.get();
@@ -64,7 +57,7 @@ public class AuthServiceImpl implements AuthService {
 
             authRepository.save(auth);
 
-            AuthRefreshResponseModel response = new AuthRefreshResponseModel(auth.getAccessToken());
+            AuthRefreshResponseModel response = new AuthRefreshResponseModel(auth.getAccessToken(), auth.getTokenExpiresDate());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -141,22 +134,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return (UserDetails) auth.getPrincipal();
-    }
-
-    private void generateRefreshToken(Auth auth, List<String> roles) {
-        final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
-        claims.put("roles", roles);
-        final Date now = new Date();
-        Date expiresDate = new Date(now.getTime() + validityInMilliseconds);
-
-        final String refreshToken = Jwts.builder()
-                .setClaims(claims)
-                .setIssuedAt(now)
-                .signWith(SignatureAlgorithm.HS512, refreshSecretKey)
-                .compact();
-
-        auth.setRefreshToken(refreshToken);
-        auth.setTokenExpiresDate(expiresDate);
     }
 
     private void generateAccessToken(Auth auth, List<String> roles) {

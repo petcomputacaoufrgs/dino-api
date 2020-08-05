@@ -17,11 +17,8 @@ public class Auth {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "access_token", length = 260, unique = true, nullable = false)
+    @Column(name = "access_token", length = 560, unique = true, nullable = false)
     private String accessToken;
-
-    @Column(name = "refresh_token", length = 260, unique = true, nullable = false)
-    private String refreshToken;
 
     @Column(name = "token_expires_date", nullable = false)
     private Date tokenExpiresDate;
@@ -50,14 +47,6 @@ public class Auth {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
-    }
-
-    public String getRefreshToken() {
-        return refreshToken;
-    }
-
-    public void setRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
     }
 
     public User getUser() {

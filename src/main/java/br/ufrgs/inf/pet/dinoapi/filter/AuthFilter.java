@@ -56,7 +56,7 @@ public class AuthFilter extends OncePerRequestFilter {
 
         final String token = this.getAuthToken(httpServletRequest);
 
-        if (token != null) {
+            if (token != null) {
             final Auth auth = authService.findByAccessToken(token);
 
             if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
