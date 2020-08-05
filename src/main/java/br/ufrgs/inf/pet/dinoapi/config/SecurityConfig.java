@@ -65,6 +65,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList(
                 HeaderEnum.REFRESH.getValue(),
+                HeaderEnum.AUTHORIZATION_EXPIRES_DATE.getValue(),
                 HeaderEnum.GOOGLE_REFRESH.getValue(),
                 HeaderEnum.GOOGLE_EXPIRES_DATE.getValue()));
         configuration.setAllowCredentials(true);

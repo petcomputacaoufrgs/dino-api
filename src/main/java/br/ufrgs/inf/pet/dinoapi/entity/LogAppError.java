@@ -27,6 +27,9 @@ public class LogAppError {
     @Column(name = "log_date", nullable = false)
     private Date date;
 
+    @Column(name = "user_agent", nullable = false)
+    private String userAgent;
+
     @ManyToOne
     @JoinColumn(name = "auth_id", nullable = false)
     private Auth auth;
@@ -73,5 +76,13 @@ public class LogAppError {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public String getUserAgent() {
+        return userAgent;
+    }
+
+    public void setUserAgent(String userAgent) {
+        this.userAgent = userAgent;
     }
 }

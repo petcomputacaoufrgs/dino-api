@@ -24,8 +24,8 @@ public class GoogleAuth {
     @Column(name = "refresh_token", length = 200, unique = true, nullable = false)
     private String refreshToken;
 
-    @Column(name = "token_expires_data_in_millis", nullable = false)
-    private Long tokenExpiresDateInMillis;
+    @Column(name = "token_expires_date", nullable = false)
+    private Date tokenExpiresDate;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
@@ -38,12 +38,12 @@ public class GoogleAuth {
         this.refreshToken = refreshToken;
     }
 
-    public Long getTokenExpiresDateInMillis() {
-        return tokenExpiresDateInMillis;
+    public Date getTokenExpiresDate() {
+        return tokenExpiresDate;
     }
 
-    public void setTokenExpiresDateInMillis(Long tokenExpiresDateInMillis) {
-        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
+    public void setTokenExpiresDate(Date tokenExpiresDate) {
+        this.tokenExpiresDate = tokenExpiresDate;
     }
 
     public Long getId() {
@@ -81,6 +81,6 @@ public class GoogleAuth {
     }
 
     public Boolean tokenIsValid() {
-        return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
+        return (new Date()).getTime() <= this.tokenExpiresDate.getTime();
     }
 }

@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.filter;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
@@ -11,7 +10,6 @@ import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -61,24 +59,19 @@ public class AuthFilter extends OncePerRequestFilter {
         if (token != null) {
             final Auth auth = authService.findByAccessToken(token);
 
-            if (auth != null && this.validUserAgent(auth, httpServletRequest)) {
-                if (SecurityContextHolder.getContext().getAuthentication() == null) {
-                    this.updateTokensIfNecessary(auth, httpServletRequest, httpServletResponse);
+            if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                if(auth.tokenIsValid()) {
                     UserDetails userDetails = this.dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
                     final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); 
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                 }
             }
         }
 
         filterChain.doFilter(httpServletRequest, httpServletResponse);
-    }
-
-    private Boolean validUserAgent(Auth auth, HttpServletRequest httpServletRequest) {
-        return auth.getUserAgent().equals(httpServletRequest.getHeader("User-Agent"));
     }
 
     private String getAuthToken(HttpServletRequest httpServletRequest) {
@@ -91,28 +84,6 @@ public class AuthFilter extends OncePerRequestFilter {
         return token;
     }
 
-    private void updateTokensIfNecessary(Auth auth, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws JsonProcessingException {
-        final User user = auth.getUser();
-
-        if (!auth.tokenIsValid()) {
-            Auth newAuth = this.authService.refreshAuth(auth, httpServletRequest);
-
-            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), newAuth.getAccessToken());
-        }
-
-        if(user.hasGoogleAuth()) {
-            GoogleAuth googleAuth = user.getGoogleAuth();
-            if (!googleAuth.tokenIsValid()) {
-                googleAuth = this.googleAuthService.refreshGoogleAuth(googleAuth);
-                final String expiresDate = JsonUtils.convertObjectToJSON(googleAuth.getTokenExpiresDateInMillis());
-
-                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), googleAuth.getAccessToken());
-                httpServletResponse.setHeader(HeaderEnum.GOOGLE_EXPIRES_DATE.getValue(), expiresDate);
-            }
-        }
-    }
-
-    ///acorda pra trabalhar
     private void startServices(HttpServletRequest httpServletRequest) {
         ServletContext servletContext = null;
         WebApplicationContext webApplicationContext = null;

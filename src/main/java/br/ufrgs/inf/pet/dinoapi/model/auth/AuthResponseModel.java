@@ -6,6 +6,8 @@ public class AuthResponseModel {
 
     private String accessToken;
 
+    private Long expiresDate;
+
     private UserResponseModel user;
 
     public String getAccessToken() {
@@ -14,6 +16,14 @@ public class AuthResponseModel {
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
+    }
+
+    public Long getExpiresDate() {
+        return expiresDate;
+    }
+
+    public void setExpiresDate(Long expiresDate) {
+        this.expiresDate = expiresDate;
     }
 
     public UserResponseModel getUser() {

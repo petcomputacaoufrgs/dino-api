@@ -2,8 +2,9 @@ package br.ufrgs.inf.pet.dinoapi.service.auth;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.AuthRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -26,7 +27,11 @@ public class AuthServiceImpl implements AuthService {
 
     private String key = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
+    private String refreshKey = "#?=-]@d0,^2d&DubIgvYHaR>.ALLhÇF071[FWj7l#sbP27B>V311;.S~8;9`HwS4n*XVelR1;KApaoksç[1/tkspqk1o3dkdlwp3}sdE(RG@LXGa0[";
+
     private String secretKey = Base64.getEncoder().encodeToString(key.getBytes());
+
+    private String refreshSecretKey = Base64.getEncoder().encodeToString(refreshKey.getBytes());
 
     private long validityInMilliseconds = 3600000;
 
@@ -36,24 +41,35 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Auth refreshAuth(Auth auth, HttpServletRequest request) {
-        if (auth != null) {
-            final Auth newAuth = this.generateAuth(auth.getUser(), request);
-            authRepository.delete(auth);
+    public Auth generateAuth(User user) {
+        Auth auth = new Auth();
+        auth.setUser(user);
 
-            return newAuth;
-        }
+        List<String> roles = new ArrayList<>();
 
-        return null;
+        this.generateRefreshToken(auth, roles);
+        this.generateAccessToken(auth, roles);
+
+        return auth;
     }
 
     @Override
-    public Auth generateAuth(User user, HttpServletRequest request) {
-        if (user != null) {
-            return this.createToken(user, new ArrayList<>(), request);
+    public ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
+        Optional<Auth> authSearch = authRepository.findByRefreshToken(authRefreshRequestModel.getRefreshToken());
+
+        if (authSearch.isPresent()) {
+            Auth auth = authSearch.get();
+
+            this.generateAccessToken(auth, new ArrayList<>());
+
+            authRepository.save(auth);
+
+            AuthRefreshResponseModel response = new AuthRefreshResponseModel(auth.getAccessToken());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return null;
+        return new ResponseEntity<>("Invalid refresh token.", HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -127,26 +143,37 @@ public class AuthServiceImpl implements AuthService {
         return (UserDetails) auth.getPrincipal();
     }
 
-    private Auth createToken(User user, List<String> roles, HttpServletRequest request) {
-        final Claims claims = Jwts.claims().setSubject(user.getEmail());
+    private void generateRefreshToken(Auth auth, List<String> roles) {
+        final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
         claims.put("roles", roles);
         final Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
+        Date expiresDate = new Date(now.getTime() + validityInMilliseconds);
+
+        final String refreshToken = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .signWith(SignatureAlgorithm.HS512, refreshSecretKey)
+                .compact();
+
+        auth.setRefreshToken(refreshToken);
+        auth.setTokenExpiresDate(expiresDate);
+    }
+
+    private void generateAccessToken(Auth auth, List<String> roles) {
+        final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
+        claims.put("roles", roles);
+        final Date now = new Date();
+        Date expiresDate = new Date(now.getTime() + validityInMilliseconds);
 
         final String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(validity)
+                .setExpiration(expiresDate)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
 
-        final String userAgent = request.getHeader("User-Agent");
-        final Auth auth = new Auth(accessToken, validity.getTime(), userAgent);
-
-        auth.setUser(user);
-
-        authRepository.save(auth);
-
-        return auth;
+        auth.setAccessToken(accessToken);
+        auth.setTokenExpiresDate(expiresDate);
+        auth.setLastUpdate(now);
     }
 }

@@ -4,6 +4,8 @@ import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErroListRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErrorRequestModel;
 import org.springframework.http.ResponseEntity;
 
+import javax.servlet.http.HttpServletRequest;
+
 public interface LogAppErrorController {
 
     /**
@@ -12,7 +14,7 @@ public interface LogAppErrorController {
      * @param model - Model com os dados do erro do tipo {@link LogAppErrorRequestModel}
      * @return Mensagem de erro ou sucesso
      */
-    ResponseEntity<?> save(LogAppErrorRequestModel model);
+    ResponseEntity<?> save(LogAppErrorRequestModel model, HttpServletRequest httpServletRequest);
 
     /**
      * Recebe as informações de uma lista de erros e salva no banco de dados
@@ -20,6 +22,6 @@ public interface LogAppErrorController {
      * @param model - Model com os dados do erro do tipo {@link LogAppErroListRequestModel}
      * @return Mensagem de erro ou sucesso
      */
-    ResponseEntity<?> saveAll(LogAppErroListRequestModel model);
+    ResponseEntity<?> saveAll(LogAppErroListRequestModel model, HttpServletRequest httpServletRequest);
 
 }

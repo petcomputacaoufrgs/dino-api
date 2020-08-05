@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public interface GoogleAuthService {
 
-    ResponseEntity<?> googleSignIn(GoogleAuthRequestModel token, HttpServletRequest request);
+    ResponseEntity<?> googleSignIn(GoogleAuthRequestModel token);
 
     ResponseEntity<?> googleRefreshAuth();
 

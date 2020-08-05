@@ -8,6 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @Controller
@@ -22,13 +24,13 @@ public class LogAppErrorControllerImpl implements LogAppErrorController {
 
     @Override
     @PostMapping("log_app_error/")
-    public ResponseEntity<?> save(@Valid @RequestBody LogAppErrorRequestModel model) {
-        return logAppErrorService.save(model);
+    public ResponseEntity<?> save(@Valid @RequestBody LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
+        return logAppErrorService.save(model, httpServletRequest);
     }
 
     @Override
     @PostMapping("log_app_error/all/")
-    public ResponseEntity<?> saveAll(@Valid @RequestBody LogAppErroListRequestModel model) {
-        return logAppErrorService.saveAll(model);
+    public ResponseEntity<?> saveAll(@Valid @RequestBody LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
+        return logAppErrorService.saveAll(model, httpServletRequest);
     }
 }

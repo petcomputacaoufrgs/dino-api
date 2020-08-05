@@ -8,13 +8,11 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Repositório da entidade: {@link Auth}
- *
- * @author joao.silva
- */
 @Repository
 public interface AuthRepository extends CrudRepository<Auth, Long> {
     @Query("SELECT a FROM Auth a WHERE a.accessToken LIKE :accessToken")
     Optional<Auth> findByAccessToken(@Param("accessToken") String accessToken);
+
+    @Query("SELECT a FROM Auth a WHERE a.refreshToken LIKE :refreshToken")
+    Optional<Auth> findByRefreshToken(@Param("refreshToken") String refreshToken);
 }

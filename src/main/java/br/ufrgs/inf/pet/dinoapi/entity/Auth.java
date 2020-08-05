@@ -20,11 +20,14 @@ public class Auth {
     @Column(name = "access_token", length = 260, unique = true, nullable = false)
     private String accessToken;
 
-    @Column(name = "token_expires_data_in_millis", nullable = false)
-    private Long tokenExpiresDateInMillis;
+    @Column(name = "refresh_token", length = 260, unique = true, nullable = false)
+    private String refreshToken;
 
-    @Column(name = "user_agent", nullable = false)
-    private String userAgent;
+    @Column(name = "token_expires_date", nullable = false)
+    private Date tokenExpiresDate;
+
+    @Column(name = "last_update", nullable = false)
+    private Date lastUpdate;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -37,19 +40,24 @@ public class Auth {
         this.errors = new ArrayList<>();
     }
 
-    public Auth(String accessToken, Long tokenExpiresDateInMillis, String userAgent) {
-        this.accessToken = accessToken;
-        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
-        this.userAgent = userAgent;
-        this.errors = new ArrayList<>();
-    }
-
     public Long getId() {
         return id;
     }
 
     public String getAccessToken() {
         return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 
     public User getUser() {
@@ -60,14 +68,6 @@ public class Auth {
         this.user = user;
     }
 
-    public String getUserAgent() {
-        return userAgent;
-    }
-
-    public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
-    }
-
     public List<LogAppError> getErrors() {
         return errors;
     }
@@ -76,12 +76,23 @@ public class Auth {
         this.errors = errors;
     }
 
-    public Long getTokenExpiresDateInMillis() {
-        return tokenExpiresDateInMillis;
+    public Date getTokenExpiresDate() {
+        return tokenExpiresDate;
+    }
+
+    public void setTokenExpiresDate(Date tokenExpiresDate) {
+        this.tokenExpiresDate = tokenExpiresDate;
     }
 
     public Boolean tokenIsValid() {
-        return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
+        return (new Date()).getTime() <= this.tokenExpiresDate.getTime();
     }
 
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 }
