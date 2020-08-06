@@ -1,31 +1,39 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.*;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 public class ContactServiceImpl implements ContactService {
 
-        @Autowired
-        ContactRepository contactRepository;
-        @Autowired
-        ContactVersionServiceImpl contactVersionServiceImpl;
-        @Autowired
-        AuthServiceImpl authService;
-        @Autowired
-        PhoneServiceImpl phoneServiceImpl;
+    private final ContactRepository contactRepository;
+    private final ContactVersionServiceImpl contactVersionServiceImpl;
+    private final AuthServiceImpl authService;
+    private final PhoneServiceImpl phoneServiceImpl;
 
-        public ResponseEntity<List<ContactModel>> getUserContacts() {
+    @Autowired
+    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authService, PhoneServiceImpl phoneServiceImpl) {
+        this.contactRepository = contactRepository;
+        this.contactVersionServiceImpl = contactVersionServiceImpl;
+        this.phoneServiceImpl = phoneServiceImpl;
+        this.authService = authService;
+    }
+
+
+    public ResponseEntity<List<ContactModel>> getUserContacts() {
 
             User user = authService.getCurrentUser();
 
@@ -41,7 +49,7 @@ public class ContactServiceImpl implements ContactService {
 
             //fazer segurança
 
-            User user = userServiceImpl.getCurrentUser();
+            User user = authService.getCurrentUser();
 
             Contact contact = contactRepository.save(new Contact(model, user));
 
@@ -91,7 +99,7 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        User user = userServiceImpl.getCurrentUser();
+        User user = authService.getCurrentUser();
 
         Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
@@ -134,7 +142,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> editContact(ContactModel model) {
 
-        User user = userServiceImpl.getCurrentUser();
+        User user = authService.getCurrentUser();
 
         Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
