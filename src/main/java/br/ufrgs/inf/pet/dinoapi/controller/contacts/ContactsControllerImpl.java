@@ -31,9 +31,19 @@ import java.util.List;
             return contactServiceImpl.getUserContacts();
         }
 
+        @PostMapping
+        public ResponseEntity<SaveResponseModel> saveContact(@RequestBody ContactSaveModel model) {
+            return contactServiceImpl.saveContact(model);
+        }
+
         @PostMapping("all/")
-        public ResponseEntity<ContactResponseModel> saveContacts(@RequestBody List<ContactSaveModel> models) {
+        public ResponseEntity<SaveResponseModelAll> saveContacts(@RequestBody List<ContactSaveModel> models) {
             return contactServiceImpl.saveContacts(models);
+        }
+
+        @PutMapping
+        public ResponseEntity<?> editContact(@RequestBody ContactModel model) {
+            return contactServiceImpl.editContact(model);
         }
 
         @PutMapping("all/")
@@ -41,8 +51,16 @@ import java.util.List;
             return contactServiceImpl.editContacts(models);
         }
 
+        @DeleteMapping
+        public ResponseEntity<?> deleteContact(@RequestBody ContactDeleteModel model) {
+            return contactServiceImpl.deleteContact(model);
+        }
+
         @DeleteMapping("all/")
         public ResponseEntity<?> deleteContacts(@RequestBody List<ContactDeleteModel> models) {
             return contactServiceImpl.deleteContacts(models);
         }
+
+
+
 }

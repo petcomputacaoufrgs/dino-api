@@ -2,17 +2,17 @@ package br.ufrgs.inf.pet.dinoapi.model.contacts;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContactResponseModel {
+public class SaveResponseModelAll {
 
     Long version;
 
     List<ContactModel> responseModels;
 
-    public ContactResponseModel() {
+    public SaveResponseModelAll() {
         this.setResponseModels(new ArrayList<>());
     }
 
-    public ContactResponseModel(Long version, List<ContactModel> models) {
+    public SaveResponseModelAll(Long version, List<ContactModel> models) {
         this.setVersion(version);
         this.setResponseModels(models);
     }

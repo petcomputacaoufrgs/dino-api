@@ -36,7 +36,27 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        public ResponseEntity<ContactResponseModel> saveContacts(List<ContactSaveModel> models) {
+
+        public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
+
+            //fazer segurança
+
+            User user = userServiceImpl.getCurrentUser();
+
+            Contact contact = contactRepository.save(new Contact(model, user));
+
+            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
+
+            contactVersionServiceImpl.updateVersion(user);
+
+            ContactModel responseModel = new ContactModel(contact);
+
+            SaveResponseModel response = new SaveResponseModel(user.getContactVersion().getVersion(), responseModel);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
 
             User user = userServiceImpl.getCurrentUser();
 
@@ -49,7 +69,7 @@ public class ContactServiceImpl implements ContactService {
 
                         contact = contactRepository.save(contact);
 
-                        contact.setPhones(phoneServiceImpl.savePhonesDB(modelContact.getPhones(), contact));
+                        contact.setPhones(phoneServiceImpl.savePhones(modelContact.getPhones(), contact));
 
                         return contact;
                     })
@@ -60,10 +80,31 @@ public class ContactServiceImpl implements ContactService {
                     .map(ContactModel::new)
                     .collect(Collectors.toList());
 
-            ContactResponseModel response = new ContactResponseModel(user.getContactVersion().getVersion(), responseModels);
+            SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
+
+    public ResponseEntity<?> deleteContact(ContactDeleteModel model) {
+
+        if (model == null || model.getId() == null) {
+            return new ResponseEntity<>(HttpStatus.OK);
+        }
+
+        User user = userServiceImpl.getCurrentUser();
+
+        Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+
+        if(contactToDeleteSearch.isPresent()) {
+            Contact contactToDelete = contactToDeleteSearch.get();
+
+            contactRepository.delete(contactToDelete);
+
+            contactVersionServiceImpl.updateVersion(user);
+        }
+
+        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
+    }
 
     public ResponseEntity<Long> deleteContacts(List<ContactDeleteModel> models) {
 
@@ -91,6 +132,23 @@ public class ContactServiceImpl implements ContactService {
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
+    public ResponseEntity<?> editContact(ContactModel model) {
+
+        User user = userServiceImpl.getCurrentUser();
+
+        Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+
+        if (contactSearch.isPresent()) {
+
+            Contact contact = contactSearch.get();
+
+            checkEdits(contact, model);
+        }
+        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
+    }
+
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
 
         User user = userServiceImpl.getCurrentUser();
@@ -105,26 +163,10 @@ public class ContactServiceImpl implements ContactService {
 
                 Contact contact = contactSearch.get();
 
-                boolean changed = ! model.getName().equals(contact.getName());
-                if (changed) {
-                    contact.setName(model.getName());
-                }
-                if(! model.getDescription().equals(contact.getDescription())){
-                    changed = true;
-                    contact.setDescription(model.getDescription());
-                }
-                if(! model.getColor().equals(contact.getColor())){
-                    changed = true;
-                    contact.setColor(model.getColor());
-                }
-                if(changed) {
-                    contactRepository.save(contact);
-                }
-                phoneServiceImpl.editPhonesDB(model.getPhones(), contact);
-
+                checkEdits(contact, model);
             }
             else responseFailed.add(model);
-            });
+        });
 
         if(models.size() > responseFailed.size()) {
             contactVersionServiceImpl.updateVersion(user);
@@ -133,6 +175,26 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(responseFailed, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
+    }
+
+    private void checkEdits(Contact contact, ContactModel model) {
+
+        boolean changed = ! model.getName().equals(contact.getName());
+        if (changed) {
+            contact.setName(model.getName());
+        }
+        if(! model.getDescription().equals(contact.getDescription())){
+            changed = true;
+            contact.setDescription(model.getDescription());
+        }
+        if(! model.getColor().equals(contact.getColor())){
+            changed = true;
+            contact.setColor(model.getColor());
+        }
+        if(changed) {
+            contactRepository.save(contact);
+        }
+        phoneServiceImpl.editPhones(model.getPhones(), contact);
     }
 
 
