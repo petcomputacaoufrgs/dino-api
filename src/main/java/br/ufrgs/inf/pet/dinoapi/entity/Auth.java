@@ -30,13 +30,6 @@ public class Auth {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "auth")
-    private List<LogAppError> errors;
-
-    public Auth() {
-        this.errors = new ArrayList<>();
-    }
-
     public Long getId() {
         return id;
     }
@@ -55,14 +48,6 @@ public class Auth {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public List<LogAppError> getErrors() {
-        return errors;
-    }
-
-    public void setErrors(List<LogAppError> errors) {
-        this.errors = errors;
     }
 
     public Date getTokenExpiresDate() {

@@ -31,11 +31,9 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
 
     @Override
     public ResponseEntity<?> save(LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
-        Auth auth = authService.getCurrentAuth();
-
         final String userAgent = httpServletRequest.getHeader("User-Agent");
 
-        LogAppError error = this.generateError(auth, model, userAgent);
+        LogAppError error = this.generateError(model, userAgent);
 
         logAppErrorRepository.save(error);
 
@@ -44,21 +42,18 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
 
     @Override
     public ResponseEntity<?> saveAll(LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
-        Auth auth = authService.getCurrentAuth();
-
         final String userAgent = httpServletRequest.getHeader("User-Agent");
 
         List<LogAppError> items = model.getItems().stream().map(item ->
-                this.generateError(auth, item, userAgent)).collect(Collectors.toList());
+                this.generateError(item, userAgent)).collect(Collectors.toList());
 
         logAppErrorRepository.saveAll(items);
 
         return new ResponseEntity<>("Logs saved.", HttpStatus.OK);
     }
 
-    private LogAppError generateError(Auth auth, LogAppErrorRequestModel model, String userAgent) {
+    private LogAppError generateError(LogAppErrorRequestModel model, String userAgent) {
         LogAppError error = new LogAppError();
-        error.setAuth(auth);
         error.setError(model.getError());
         error.setFile(model.getFile());
         error.setTitle(model.getTitle());

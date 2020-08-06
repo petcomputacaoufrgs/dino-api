@@ -67,6 +67,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
+                        googleAuthRepository.save(googleAuth);
                     } else if (googleAuth.getRefreshToken().isEmpty()) {
                         return getRefreshTokenError();
                     }
@@ -85,12 +86,10 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     user = userService.create(name, email, pictureUrl);
 
-                    googleAuth = new GoogleAuth(googleId, refreshToken);
+                    googleAuth = new GoogleAuth(googleId, refreshToken, user);
 
-                    googleAuth.setUser(user);
+                    googleAuthRepository.save(googleAuth);
                 }
-
-                googleAuth = this.updateGoogleAccessToken(tokenResponse, googleAuth);
 
                 final Auth auth = authService.generateAuth(user);
 
@@ -104,15 +103,11 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 userResponseModel.setVersion(user.getVersion());
 
-                final GoogleAuthResponseModel response = new GoogleAuthResponseModel();
+                final GoogleAuthResponseModel response = this.generateGoogleAuthResponse(tokenResponse);
 
                 response.setAccessToken(auth.getAccessToken());
 
                 response.setExpiresDate(auth.getTokenExpiresDate().getTime());
-
-                response.setGoogleAccessToken(googleAuth.getAccessToken());
-
-                response.setGoogleExpiresDate(googleAuth.getTokenExpiresDate().getTime());
 
                 response.setUser(userResponseModel);
 
@@ -132,11 +127,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         GoogleAuth googleAuth = this.getUserGoogleAuth();
 
         if (googleAuth != null) {
-            googleAuth = this.refreshGoogleAuth(googleAuth);
-
-            GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
-            response.setGoogleAccessToken(googleAuth.getAccessToken());
-            response.setGoogleExpiresDate(googleAuth.getTokenExpiresDate().getTime());
+            final GoogleRefreshAuthResponseModel response = this.refreshGoogleAuth(googleAuth);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -145,30 +136,11 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     @Override
-    public GoogleAuth refreshGoogleAuth(GoogleAuth googleAuth) {
-        if (googleAuth != null) {
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
-
-            if (tokenResponse != null) {
-                this.updateGoogleAccessToken(tokenResponse, googleAuth);
-
-                return googleAuth;
-            }
-        }
-        return null;
-    }
-
-    @Override
     public GoogleAuth getUserGoogleAuth() {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final User user = authService.getCurrentUser();
 
-        if (auth != null) {
-            UserDetails userDetails = (UserDetails) auth.getPrincipal();
-
-            if (userDetails != null) {
-                final User userDB = userService.findUserByEmail(userDetails.getUsername());
-                return userDB.getGoogleAuth();
-            }
+        if (user != null) {
+            return user.getGoogleAuth();
         }
 
         return null;
@@ -208,17 +180,36 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return userService.update(name, email, pictureUrl);
     }
 
-    private GoogleAuth updateGoogleAccessToken(GoogleTokenResponse tokenResponse, GoogleAuth googleAuth) {
+    private GoogleRefreshAuthResponseModel refreshGoogleAuth(GoogleAuth googleAuth) {
+        if (googleAuth != null) {
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
+
+            if (tokenResponse != null) {
+                GoogleAuthResponseModel authModel = this.generateGoogleAuthResponse(tokenResponse);
+
+                GoogleRefreshAuthResponseModel refreshModel = new GoogleRefreshAuthResponseModel();
+                refreshModel.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
+                refreshModel.setGoogleAccessToken(authModel.getGoogleAccessToken());
+
+                return refreshModel;
+            }
+        }
+        return null;
+    }
+
+    private GoogleAuthResponseModel generateGoogleAuthResponse(GoogleTokenResponse tokenResponse) {
+        GoogleAuthResponseModel response = new GoogleAuthResponseModel();
+
         final String accessToken = tokenResponse.getAccessToken();
 
         final Long expiresInSeconds = tokenResponse.getExpiresInSeconds();
 
         final Date tokenExpiresDate = this.getTokenExpiresDate(expiresInSeconds);
 
-        googleAuth.setAccessToken(accessToken);
+        response.setGoogleAccessToken(accessToken);
 
-        googleAuth.setTokenExpiresDate(tokenExpiresDate);
+        response.setGoogleExpiresDate(tokenExpiresDate.getTime());
 
-        return googleAuthRepository.save(googleAuth);
+        return response;
     }
 }

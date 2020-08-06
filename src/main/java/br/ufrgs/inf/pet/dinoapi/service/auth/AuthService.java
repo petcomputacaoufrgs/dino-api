@@ -6,8 +6,6 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.servlet.http.HttpServletRequest;
-
 public interface AuthService {
 
     Auth generateAuth(User user);

@@ -1,8 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import br.ufrgs.inf.pet.dinoapi.entity.*;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +110,8 @@ public class User {
     public void setVersion(Long version) {
         this.version = version;
     }
+
+
 
     public GoogleAuth getGoogleAuth() {
         return googleAuth;

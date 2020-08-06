@@ -30,10 +30,6 @@ public class LogAppError {
     @Column(name = "user_agent", nullable = false)
     private String userAgent;
 
-    @ManyToOne
-    @JoinColumn(name = "auth_id", nullable = false)
-    private Auth auth;
-
     public Long getId() {
         return id;
     }
@@ -60,14 +56,6 @@ public class LogAppError {
 
     public void setError(String error) {
         this.error = error;
-    }
-
-    public Auth getAuth() {
-        return auth;
-    }
-
-    public void setAuth(Auth auth) {
-        this.auth = auth;
     }
 
     public Date getDate() {
