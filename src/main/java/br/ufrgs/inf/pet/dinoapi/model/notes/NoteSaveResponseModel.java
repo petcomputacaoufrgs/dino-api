@@ -1,9 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 public class NoteSaveResponseModel {
-    Long version;
+    private Long version;
 
-    Long noteId;
+    private Long noteId;
 
     public NoteSaveResponseModel() {}
 

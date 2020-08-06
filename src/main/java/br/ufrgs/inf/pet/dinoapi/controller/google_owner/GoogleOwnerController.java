@@ -4,7 +4,9 @@ import org.springframework.http.ResponseEntity;
 
 public interface GoogleOwnerController {
     /**
-     * @return retorna o código
+     * Busca o código para verificação de dominio do Google
+     *
+     * @return retorna o código dado pelo Google
      */
     ResponseEntity<String> get();
 }

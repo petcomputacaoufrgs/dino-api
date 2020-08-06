@@ -4,7 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.*;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,13 +21,13 @@ public class ContactServiceImpl implements ContactService {
         @Autowired
         ContactVersionServiceImpl contactVersionServiceImpl;
         @Autowired
-        UserServiceImpl userServiceImpl;
+        AuthServiceImpl authService;
         @Autowired
         PhoneServiceImpl phoneServiceImpl;
 
         public ResponseEntity<List<ContactModel>> getUserContacts() {
 
-            User user = userServiceImpl.getCurrentUser();
+            User user = authService.getCurrentUser();
 
             List<Contact> contacts = user.getContacts();
 
@@ -58,7 +58,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
 
-            User user = userServiceImpl.getCurrentUser();
+            User user = authService.getCurrentUser();
 
             contactVersionServiceImpl.updateVersion(user);
 
@@ -108,7 +108,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<Long> deleteContacts(List<ContactDeleteModel> models) {
 
-        User user = userServiceImpl.getCurrentUser();
+        User user = authService.getCurrentUser();
 
         List<Long> validIds = models.stream()
                 .filter(Objects::nonNull)
@@ -151,7 +151,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
 
-        User user = userServiceImpl.getCurrentUser();
+        User user = authService.getCurrentUser();
 
         List<ContactModel> responseFailed = new ArrayList<>();
 

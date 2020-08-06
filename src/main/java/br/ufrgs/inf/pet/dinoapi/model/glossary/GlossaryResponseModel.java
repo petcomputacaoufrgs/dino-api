@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,7 +11,7 @@ public class GlossaryResponseModel {
     private List<GlossaryItemResponseModel> itemList;
 
     public GlossaryResponseModel(){
-        itemList = new ArrayList<>();
+        this.itemList = new ArrayList<>();
     }
 
     public void addItem(GlossaryItemResponseModel item) {
@@ -31,7 +30,7 @@ public class GlossaryResponseModel {
     }
 
     public List<GlossaryItemResponseModel> getItemList() {
-        return itemList;
+        return this.itemList;
     }
 
 }

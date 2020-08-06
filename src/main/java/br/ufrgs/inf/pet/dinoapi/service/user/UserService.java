@@ -1,40 +1,23 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface UserService {
-    /**
-     * Busca um usuário por seu email
-     *
-     * @param email Email do usuário
-     *
-     * @author joao.silva
-     */
+
     User findUserByEmail(String email);
 
-    /**
-     * Salva um usuário direto na base de dados
-     *
-     * @param user Usuário já validado a ser salvo
-     * @return Novo objeto com o usuário salvo
-     *
-     * @author joao.silva
-     */
-    User save(User user);
+    ResponseEntity<?> getVersion();
 
-    /**
-     * Busca um usuário por seu token de acesso
-     *
-     * @param accessToken Token de acesso do usuário
-     * @return Usuário encontrado ou nulo
-     */
-    User findByAccessToken(String accessToken);
+    ResponseEntity<?> getUser();
 
-    /**
-     * Busca o usuário logado no banco
-     * @return Usuário logado ou nulo
-     */
-    User getCurrentUser();
+    ResponseEntity<?> setUserPhoto(UpdateUserPictureRequestModel model);
+
+    User create(String name, String email, String pictureUrl);
+
+    User update(String name, String email, String pictureUrl);
+
 }

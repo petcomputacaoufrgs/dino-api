@@ -4,77 +4,69 @@ import br.ufrgs.inf.pet.dinoapi.entity.*;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.io.Serializable;
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "dino_user")
-public class User implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class User {
     private static final String SEQUENCE_NAME = "dino_user_seq";
+
+    public final Long DEFAULT_VERSION = 0l;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @Basic(optional = false)
-    @NotNull(message = "Nome não pode ser nulo.")
-    @Size(min = 1, max = 100, message = "O nome deve conter entre 1 e 100 caracteres.")
-    @Column(name = "name", length = 100)
+    @Column(name = "name", length = 100, nullable = false)
     private String name;
 
-    @Size(min = 1, max = 100, message = "O email deve conter entre 1 e 100 caracteres.")
-    @Email(message = "Email inválido.")
-    @Column(name = "email", length = 100, unique = false)
+    @Column(name = "email", length = 100, unique = true, nullable = false)
     private String email;
 
-    @Size(min = 1, max = 260, message = "O token de acesso deve conter entre 1 e 260 caracteres.")
-    @Column(name = "access_token", length = 260, unique = true)
-    private String accessToken;
+    @Column(name = "picture_url", length = 500, nullable = false)
+    private String pictureURL;
 
-    @Column(name = "token_expires_data_in_millis")
-    private Long tokenExpiresDateInMillis;
+    @Column(name = "version", nullable = false)
+    private Long version;
 
-    @Valid
+    @OneToMany(mappedBy = "user")
+    private List<Auth> auths;
+
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
-    @Valid
     @OneToOne(mappedBy = "user")
     private UserAppSettings userAppSettings;
 
-    @Valid
     @OneToOne(mappedBy = "user")
     private NoteVersion noteVersion;
 
-    @Valid
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
 
-    @Valid
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
 
-    @Valid
     @OneToOne(mappedBy = "user")
     private ContactVersion contactVersion;
+    
+    public User() {
+        this.notes = new ArrayList<>();
+        this.auths = new ArrayList<>();
+        this.contacts = new ArrayList<>();
+    }
 
-    public User() {}
-
-    public User(String name, String email) {
+    public User(String name, String email, String pictureURL) {
         this.name = name;
         this.email = email;
+        this.pictureURL = pictureURL;
+        this.version = this.DEFAULT_VERSION;
+        this.notes = new ArrayList<>();
+        this.auths = new ArrayList<>();
     }
 
     public Long getId() {
@@ -101,28 +93,32 @@ public class User implements Serializable {
         this.email = email;
     }
 
+    public String getPictureURL() {
+        return pictureURL;
+    }
+
+    public void setPictureURL(String pictureURL) {
+        this.pictureURL = pictureURL;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void updateVersion() {
+        this.version = version + 1l;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
     public GoogleAuth getGoogleAuth() {
         return googleAuth;
     }
 
     public void setGoogleAuth(GoogleAuth googleAuth) {
         this.googleAuth = googleAuth;
-    }
-
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
-    public Long getTokenExpiresDateInMillis() {
-        return tokenExpiresDateInMillis;
-    }
-
-    public void setTokenExpiresDateInMillis(Long tokenExpiresDateInMillis) {
-        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
     }
 
     public UserAppSettings getUserAppSettings() {
@@ -152,14 +148,6 @@ public class User implements Serializable {
 
     public List<Contact> getContacts() { return contacts; }
 
-    public void setNoteVersion(NoteVersion noteVersion) {
-        this.noteVersion = noteVersion;
-    }
-
-    public Boolean tokenIsValid() {
-        return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
-    }
-
     public ContactVersion getContactVersion() {
         return contactVersion;
     }
@@ -167,4 +155,21 @@ public class User implements Serializable {
     public void setContactVersion(ContactVersion contactVersion) {
         this.contactVersion = contactVersion;
     }
+
+    public void setNoteVersion(NoteVersion noteVersion) {
+        this.noteVersion = noteVersion;
+    }
+
+    public Boolean tokenIsValid(String token) {
+        boolean isValid = false;
+
+        for (Auth auth : auths) {
+            if (auth.getAccessToken().equals(token) && auth.tokenIsValid()) {
+                isValid = true;
+            }
+        }
+
+        return isValid;
+    }
+
 }

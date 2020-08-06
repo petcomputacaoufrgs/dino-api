@@ -1,13 +1,17 @@
 package br.ufrgs.inf.pet.dinoapi.filter;
 
+import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
-import br.ufrgs.inf.pet.dinoapi.service.auth.dino.DinoAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
+import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -31,42 +35,41 @@ import java.io.IOException;
 @Component
 public class AuthFilter extends OncePerRequestFilter {
 
-    @Autowired
-    UserServiceImpl userService;
+    private UserServiceImpl userService;
+
+    private AuthServiceImpl authService;
+
+    private GoogleAuthServiceImpl googleAuthService;
+
+    private DinoUserDetailsService dinoUserDetailsService;
 
     @Autowired
-    DinoAuthServiceImpl dinoAuthService;
-
-    @Autowired
-    GoogleAuthServiceImpl googleAuthService;
-
-    @Autowired
-    DinoUserDetailsService dinoUserDetailsService;
+    public AuthFilter(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
+        super();
+        this.userService = userService;
+        this.authService = authService;
+        this.googleAuthService = googleAuthService;
+        this.dinoUserDetailsService = dinoUserDetailsService;
+    }
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
-        startServices(httpServletRequest);
+        this.startServices(httpServletRequest);
 
-        final String authorizationHeader = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue()); //se nulo n tem autent
+        final String token = this.getAuthToken(httpServletRequest);
 
-        if (authorizationHeader != null) {
-            final String token = removeTokenType(authorizationHeader); //tira o Bearer
+        if (token != null) {
+            final Auth auth = authService.findByAccessToken(token);
 
-            if (token != null) {
+            if (auth != null && this.validUserAgent(auth, httpServletRequest)) {
+                if (SecurityContextHolder.getContext().getAuthentication() == null) {
+                    this.updateTokensIfNecessary(auth, httpServletRequest, httpServletResponse);
+                    UserDetails userDetails = this.dinoUserDetailsService.loadUserDetailsByAuth(auth);
 
-                User user = userService.findByAccessToken(token);
+                    final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-                if (user != null && SecurityContextHolder.getContext().getAuthentication() == null) { //se tiver outra aplicação rodando -- qm sabe da pra tirar
-
-                    updateTokensIfNecessary(user, httpServletResponse);
-
-                    UserDetails userDetails = dinoUserDetailsService.loadUserByUsername(user.getEmail()); //TEMOS Q CRIAR
-
-                    //spring
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest)); //??????????? vamo tira ou não--
-
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); //bing bing bing!!!
+                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken); 
                 }
             }
         }
@@ -74,26 +77,37 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private String removeTokenType(String token) {
-        if (token.startsWith("Bearer ")) {
-            return token.substring(7);
-        }
-        return null;
+    private Boolean validUserAgent(Auth auth, HttpServletRequest httpServletRequest) {
+        return auth.getUserAgent().equals(httpServletRequest.getHeader("User-Agent"));
     }
 
-    private void updateTokensIfNecessary(User user, HttpServletResponse httpServletResponse) {
-        if (!user.tokenIsValid()) {
-            String newToken = dinoAuthService.refreshAccessToken(user); //hash pra fazer token baseada no nome do user
+    private String getAuthToken(HttpServletRequest httpServletRequest) {
+        String token = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue());
 
-            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), "Bearer " + newToken);
+        if (token == null) {
+            token = httpServletRequest.getParameter(HeaderEnum.AUTHORIZATION.getValue());
+        }
+
+        return token;
+    }
+
+    private void updateTokensIfNecessary(Auth auth, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws JsonProcessingException {
+        final User user = auth.getUser();
+
+        if (!auth.tokenIsValid()) {
+            Auth newAuth = this.authService.refreshAuth(auth, httpServletRequest);
+
+            httpServletResponse.setHeader(HeaderEnum.REFRESH.getValue(), newAuth.getAccessToken());
         }
 
         if(user.hasGoogleAuth()) {
             GoogleAuth googleAuth = user.getGoogleAuth();
             if (!googleAuth.tokenIsValid()) {
-                String newToken = googleAuthService.refreshGoogleAuth(googleAuth);
+                googleAuth = this.googleAuthService.refreshGoogleAuth(googleAuth);
+                final String expiresDate = JsonUtils.convertObjectToJSON(googleAuth.getTokenExpiresDateInMillis());
 
-                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), "Bearer " + newToken); //resposta do server
+                httpServletResponse.setHeader(HeaderEnum.GOOGLE_REFRESH.getValue(), googleAuth.getAccessToken());
+                httpServletResponse.setHeader(HeaderEnum.GOOGLE_EXPIRES_DATE.getValue(), expiresDate);
             }
         }
     }
@@ -111,20 +125,20 @@ public class AuthFilter extends OncePerRequestFilter {
             webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
         }
 
-        if(userService == null){
-            userService = webApplicationContext.getBean(UserServiceImpl.class);
+        if(this.userService == null){
+            this.userService = webApplicationContext.getBean(UserServiceImpl.class);
         }
 
-        if(dinoAuthService == null) {
-            dinoAuthService = webApplicationContext.getBean(DinoAuthServiceImpl.class);
+        if(this.authService == null) {
+            this.authService = webApplicationContext.getBean(AuthServiceImpl.class);
         }
 
-        if(googleAuthService == null) {
-            googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
+        if(this.googleAuthService == null) {
+            this.googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
         }
 
-        if(dinoUserDetailsService == null){
-            dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
+        if(this.dinoUserDetailsService == null){
+            this.dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
         }
     }
 }
