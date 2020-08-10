@@ -78,7 +78,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     private GoogleClientSecrets getClientSecrets() throws IOException {
         final String googleSecret = new String(
                 Files.readAllBytes(
-                        Paths.get(getClass().getClassLoader().getResource("resources/client_secret.json").getPath())
+                        Paths.get(getClass().getClassLoader().getResource("client_secret.json").getPath())
                 )
         );
 
