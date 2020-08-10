@@ -15,7 +15,7 @@ public class AppOriginConfig {
         try {
             final String configFile = new String(
                     Files.readAllBytes(
-                            Paths.get(getClass().getClassLoader().getResource("app_origin.json").getPath())
+                            Paths.get(getClass().getClassLoader().getResource("resources/app_origin.json").getPath())
                     )
             );
 

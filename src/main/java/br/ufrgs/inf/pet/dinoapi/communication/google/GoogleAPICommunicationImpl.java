@@ -6,7 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
-import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
@@ -78,7 +78,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     private GoogleClientSecrets getClientSecrets() throws IOException {
         final String googleSecret = new String(
                 Files.readAllBytes(
-                        Paths.get(getClass().getClassLoader().getResource("client_secret.json").getPath())
+                        Paths.get(getClass().getClassLoader().getResource("resources/client_secret.json").getPath())
                 )
         );
 
