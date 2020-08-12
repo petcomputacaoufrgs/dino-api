@@ -1,9 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
+
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
 
 public class PhoneSaveModel {
 
+    @NotNull(message = NUMBER_NULL_MESSAGE)
+    @Size(max = NUMBER_MAX)
     private String number;
+
+    @NotNull(message = TYPE_NULL_MESSAGE)
+    @Size(max = TYPE_MAX)
     private byte type;
 
     public PhoneSaveModel() {}

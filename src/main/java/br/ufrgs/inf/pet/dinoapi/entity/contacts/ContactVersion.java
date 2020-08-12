@@ -4,7 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.User;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
@@ -19,11 +18,9 @@ public class ContactVersion {
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
     @Column(name = "id")
     private Long id;
 
-    @Basic(optional = false)
     @NotNull(message = "Versão não pode ser nula.")
     @Column(name = "version")
     private Long version;

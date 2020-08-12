@@ -1,14 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneModel;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneSaveModel;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NUMBER_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.TYPE_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -22,25 +21,17 @@ public class Phone implements Serializable {
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Basic(optional = false)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @NotNull(message = "O tipo de número do contato não pode ser nulo.")
-    @Column(name = "type")
+    @Column(name = "type", length = TYPE_MAX, nullable = false)
     private byte type;
 
-    @Basic(optional = false)
-    @NotNull(message = "O número do contato não pode ser nulo.")
-    @Size(min = 1, max = 30)
-    @Column(name = "number", length = 30)
+    @Column(name = "number", length = NUMBER_MAX, nullable = false)
     private String number;
 
-    @JsonIgnore
-    @Valid
     @ManyToOne(fetch = FetchType.LAZY)
-    @NotNull(message = "O contato associado não pode ser nulo.")
-    @JoinColumn(name = "contact_id")
+    @JoinColumn(name = "contact_id", nullable = false)
     private Contact contact;
 
     public Phone(){}

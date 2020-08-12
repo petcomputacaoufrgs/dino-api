@@ -1,13 +1,27 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.List;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
 
 public class ContactSaveModel {
 
     private Long frontId;
+
+    @NotNull(message = NAME_NULL_MESSAGE)
+    @Size(max = NAME_MAX, message = NAME_MAX_MESSAGE)
     private String name;
+
+    @Valid
     private List<PhoneSaveModel> phones;
+
+    @Size(max = DESCRIPTION_MAX, message = DESCRIPTION_MAX_MESSAGE)
     private String description;
+
+    @Size(max = COLOR_MAX, message = COLOR_MAX_MESSAGE)
     private String color;
 
     public void setFrontId(Long frontId) {

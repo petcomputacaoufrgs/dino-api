@@ -1,8 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
+import javax.validation.constraints.NotNull;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.ID_NULL_MESSAGE;
+
 public class ContactDeleteModel {
 
-     Long id;
+    @NotNull(message = ID_NULL_MESSAGE)
+    Long id;
 
     public Long getId() {
         return id;
