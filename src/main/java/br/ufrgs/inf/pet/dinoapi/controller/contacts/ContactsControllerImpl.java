@@ -7,17 +7,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
-/** Avisando que tirei as funções prévias que manipulavam não um array de objetos mas um único objeto. Se algum dia precisar, tá feito*/
 @RestController
 @RequestMapping("/contacts/")
 public class ContactsControllerImpl implements ContactsController {
 
+    private final ContactServiceImpl contactServiceImpl;
+    private final ContactVersionServiceImpl contactVersionServiceImpl;
+
     @Autowired
-    ContactServiceImpl contactServiceImpl;
-    @Autowired
-    ContactVersionServiceImpl contactVersionServiceImpl;
+    public ContactsControllerImpl(ContactServiceImpl contactServiceImpl, ContactVersionServiceImpl contactVersionServiceImpl) {
+        this.contactServiceImpl = contactServiceImpl;
+        this.contactVersionServiceImpl = contactVersionServiceImpl;
+    }
 
     @Override
     @GetMapping("version/")
@@ -31,36 +35,34 @@ public class ContactsControllerImpl implements ContactsController {
         return contactServiceImpl.getUserContacts();
     }
 
-        @PostMapping
-        public ResponseEntity<SaveResponseModel> saveContact(@RequestBody ContactSaveModel model) {
-            return contactServiceImpl.saveContact(model);
-        }
+    @PostMapping
+    public ResponseEntity<SaveResponseModel> saveContact(@Valid @RequestBody ContactSaveModel model) {
+        return contactServiceImpl.saveContact(model);
+    }
 
-        @PostMapping("all/")
-        public ResponseEntity<SaveResponseModelAll> saveContacts(@RequestBody List<ContactSaveModel> models) {
-            return contactServiceImpl.saveContacts(models);
-        }
+    @PostMapping("all/")
+    public ResponseEntity<SaveResponseModelAll> saveContacts(@Valid @RequestBody List<ContactSaveModel> models) {
+        return contactServiceImpl.saveContacts(models);
+    }
 
-        @PutMapping
-        public ResponseEntity<?> editContact(@RequestBody ContactModel model) {
-            return contactServiceImpl.editContact(model);
-        }
+    @PutMapping
+    public ResponseEntity<?> editContact(@Valid @RequestBody ContactModel model) {
+        return contactServiceImpl.editContact(model);
+    }
 
-        @PutMapping("all/")
-        public ResponseEntity<?> editContacts(@RequestBody List<ContactModel> models) {
-            return contactServiceImpl.editContacts(models);
-        }
+    @PutMapping("all/")
+    public ResponseEntity<?> editContacts(@Valid @RequestBody List<ContactModel> models) {
+        return contactServiceImpl.editContacts(models);
+    }
 
-        @DeleteMapping
-        public ResponseEntity<?> deleteContact(@RequestBody ContactDeleteModel model) {
-            return contactServiceImpl.deleteContact(model);
-        }
+    @DeleteMapping
+    public ResponseEntity<?> deleteContact(@Valid @RequestBody ContactDeleteModel model) {
+        return contactServiceImpl.deleteContact(model);
+    }
 
-        @DeleteMapping("all/")
-        public ResponseEntity<?> deleteContacts(@RequestBody List<ContactDeleteModel> models) {
-            return contactServiceImpl.deleteContacts(models);
-        }
-
-
+    @DeleteMapping("all/")
+    public ResponseEntity<?> deleteContacts(@Valid @RequestBody List<ContactDeleteModel> models) {
+        return contactServiceImpl.deleteContacts(models);
+    }
 
 }
