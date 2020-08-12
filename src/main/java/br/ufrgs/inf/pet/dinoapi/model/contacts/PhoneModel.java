@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 public class PhoneModel {
     private Long id;
     private String number;
-    private byte type;
+    private short type;
 
     /*
     1: special short public utility numbers (see below)
@@ -33,11 +33,11 @@ public class PhoneModel {
         this.number = number;
     }
 
-    public byte getType() {
+    public short getType() {
         return type;
     }
 
-    public void setType(byte type) {
+    public void setType(short type) {
         this.type = type;
     }
 }

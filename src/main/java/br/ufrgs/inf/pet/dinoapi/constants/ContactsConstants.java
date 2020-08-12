@@ -17,6 +17,7 @@ public final class ContactsConstants {
     public final static int NUMBER_MAX = 30;
     public final static String NUMBER_NULL_MESSAGE = "O número do contato não pode ser nulo.";
 
+    public final static int TYPE_MIN = 1;
     public final static int TYPE_MAX = 9;
     public final static String TYPE_NULL_MESSAGE = "O tipo de número do contato não pode ser nulo.";
 

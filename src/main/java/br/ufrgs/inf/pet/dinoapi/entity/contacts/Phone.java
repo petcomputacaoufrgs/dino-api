@@ -7,7 +7,6 @@ import javax.persistence.*;
 import java.io.Serializable;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NUMBER_MAX;
-import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.TYPE_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -24,8 +23,8 @@ public class Phone implements Serializable {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "type", length = TYPE_MAX, nullable = false)
-    private byte type;
+    @Column(name = "type", nullable = false)
+    private short type;
 
     @Column(name = "number", length = NUMBER_MAX, nullable = false)
     private String number;
@@ -68,11 +67,11 @@ public class Phone implements Serializable {
         this.number = number;
     }
 
-    public byte getType() {
+    public short getType() {
         return type;
     }
 
-    public void setType(byte type) {
+    public void setType(short type) {
         this.type = type;
     }
 
