@@ -4,13 +4,13 @@ public class SaveResponseModel {
 
     Long version;
 
-    ContactModel responseModel;
+    ContactModel contactResponseModel;
 
     public SaveResponseModel() {}
 
     public SaveResponseModel(Long version, ContactModel model) {
         this.setVersion(version);
-        this.setResponseModel(model);
+        this.setContactResponseModel(model);
     }
 
     public Long getVersion() {
@@ -21,11 +21,11 @@ public class SaveResponseModel {
         this.version = version;
     }
 
-    public ContactModel getResponseModel() {
-        return responseModel;
+    public ContactModel getContactResponseModel() {
+        return contactResponseModel;
     }
 
-    public void setResponseModel(ContactModel responseModel) {
-        this.responseModel = responseModel;
+    public void setContactResponseModel(ContactModel contactResponseModel) {
+        this.contactResponseModel = contactResponseModel;
     }
 }

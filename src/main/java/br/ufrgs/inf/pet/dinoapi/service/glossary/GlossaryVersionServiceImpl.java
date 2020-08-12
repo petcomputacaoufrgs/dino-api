@@ -2,7 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.GlossaryVersion;
 import br.ufrgs.inf.pet.dinoapi.repository.GlossaryVersionRepository;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.glossary.GlossaryWebSocketServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.topic.AlertUpdateTopicServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,12 +14,12 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
 
     private final GlossaryVersionRepository glossaryVersionRepository;
 
-    private final GlossaryWebSocketServiceImpl glossaryWebSocketService;
+    private final AlertUpdateTopicServiceImpl alertUpdateTopicServiceImpl;
 
     @Autowired
-    public GlossaryVersionServiceImpl(GlossaryVersionRepository glossaryVersionRepository, GlossaryWebSocketServiceImpl glossaryWebSocketService) {
+    public GlossaryVersionServiceImpl(GlossaryVersionRepository glossaryVersionRepository, AlertUpdateTopicServiceImpl alertUpdateTopicServiceImpl) {
         this.glossaryVersionRepository = glossaryVersionRepository;
-        this.glossaryWebSocketService = glossaryWebSocketService;
+        this.alertUpdateTopicServiceImpl = alertUpdateTopicServiceImpl;
     }
 
     @Override
@@ -31,7 +32,7 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         }
 
         glossaryVersionRepository.save(glossary);
-        glossaryWebSocketService.sendUpdateMessage(glossary.getVersion());
+        alertUpdateTopicServiceImpl.sendUpdateMessage(glossary.getVersion(), WebSocketDestinationsEnum.ALERT_GLOSSARY_UPDATE);
 
 
         return glossary.getVersion();

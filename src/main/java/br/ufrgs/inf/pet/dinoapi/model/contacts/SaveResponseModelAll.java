@@ -6,15 +6,15 @@ public class SaveResponseModelAll {
 
     Long version;
 
-    List<ContactModel> responseModels;
+    List<ContactModel> contactResponseModels;
 
     public SaveResponseModelAll() {
-        this.setResponseModels(new ArrayList<>());
+        this.setContactResponseModels(new ArrayList<>());
     }
 
     public SaveResponseModelAll(Long version, List<ContactModel> models) {
         this.setVersion(version);
-        this.setResponseModels(models);
+        this.setContactResponseModels(models);
     }
 
         public Long getVersion() {
@@ -25,11 +25,11 @@ public class SaveResponseModelAll {
         this.version = version;
     }
 
-    public List<ContactModel> getResponseModels() {
-        return responseModels;
+    public List<ContactModel> getContactResponseModels() {
+        return contactResponseModels;
     }
 
-    public void setResponseModels(List<ContactModel> responseModels) {
-        this.responseModels = responseModels;
+    public void setContactResponseModels(List<ContactModel> contactResponseModels) {
+        this.contactResponseModels = contactResponseModels;
     }
 }
