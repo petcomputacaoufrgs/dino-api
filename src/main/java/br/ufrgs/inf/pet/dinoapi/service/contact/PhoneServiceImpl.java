@@ -18,7 +18,7 @@ public class PhoneServiceImpl implements PhoneService {
     @Autowired
     PhoneRepository phoneRepository;
 
-    public List<Phone> savePhonesDB(List<PhoneSaveModel> phoneModels, Contact contact) {
+    public List<Phone> savePhones(List<PhoneSaveModel> phoneModels, Contact contact) {
 
         List<Phone> phones = phoneModels.stream()
             .map(phoneModel -> new Phone(phoneModel, contact))
@@ -29,7 +29,7 @@ public class PhoneServiceImpl implements PhoneService {
         return phones;
     }
 
-    public void editPhonesDB(List<PhoneModel> phoneModels, Contact contact) {
+    public void editPhones(List<PhoneModel> phoneModels, Contact contact) {
 
         List<Phone> phonesToSave = new ArrayList<>();
         List<Phone> phonesToDelete = contact.getPhones();

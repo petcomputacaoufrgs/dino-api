@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface ContactsController {
 
-    ResponseEntity<ContactResponseModel> saveContacts(List<ContactSaveModel> models);
+    ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models);
 
     ResponseEntity<?> editContacts(List<ContactModel> models);
 
@@ -17,5 +17,12 @@ public interface ContactsController {
     ResponseEntity<List<ContactModel>> getUserContacts();
 
     ResponseEntity<Long> getVersion();
+
+    ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model);
+
+    ResponseEntity<?> deleteContact(ContactDeleteModel model);
+
+    ResponseEntity<?> editContact(ContactModel model);
+
 
 }

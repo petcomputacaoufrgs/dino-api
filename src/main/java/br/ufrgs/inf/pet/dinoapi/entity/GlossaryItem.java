@@ -34,11 +34,11 @@ public class GlossaryItem {
 
     public GlossaryItem() {}
 
-    public void setByGlossarySaveModel(GlossaryItemSaveRequestModel glossaryItemSaveModel) {
+    public void GlossaryItem(GlossaryItemSaveRequestModel glossaryItemSaveModel) {
         this.title = glossaryItemSaveModel.getTitle();
         this.subtitle = glossaryItemSaveModel.getSubtitle();
         this.text = glossaryItemSaveModel.getText();
-        this.fullText = glossaryItemSaveModel.getFullText().trim();
+        this.fullText = glossaryItemSaveModel.getFullText();
         this.exists = true;
     }
 
@@ -85,7 +85,7 @@ public class GlossaryItem {
         }
 
         // TODO: discutir melhor
-        if(this.fullText == null || !this.fullText.equals(updateModel.getFullText().trim())) {
+        if(this.fullText == null || !this.fullText.equals(updateModel.getFullText())) {
             this.fullText = updateModel.getFullText();
             updated = true;
         }

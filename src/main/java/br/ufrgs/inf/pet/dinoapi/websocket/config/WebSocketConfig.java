@@ -13,7 +13,7 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        config.enableSimpleBroker("/topic", "/queue");
+        config.enableSimpleBroker("/topic", "/queue"); //pra todos / pra alguns users
         config.setApplicationDestinationPrefixes("/app");
     }
 
@@ -22,8 +22,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         final String origin = new AppOriginConfig().getOrigin();
         registry
                 .addEndpoint("/websocket")
-                .setHandshakeHandler(new WebSocketUserInterceptor())
-                .setAllowedOrigins(origin)
-                .withSockJS();
+                .setHandshakeHandler(new WebSocketUserInterceptor()) //pega o user
+                .setAllowedOrigins(origin) //quem pode conectar (o localhost)
+                .withSockJS(); //pros nav velhos
     }
 }

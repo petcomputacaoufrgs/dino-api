@@ -5,7 +5,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
 import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsResponseAndRequestModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.user_app_settings.UserAppSettingsWebSocketService;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +19,13 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
     private final UserAppSettingsRepository userAppSettingsRepository;
 
-    private final UserAppSettingsWebSocketService userAppSettingsWebSocketService;
+    private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
     @Autowired
-    public UserAppSettingsServiceImpl(AuthServiceImpl authService, UserAppSettingsRepository userAppSettingsRepository, UserAppSettingsWebSocketService userAppSettingsWebSocketService) {
+    public UserAppSettingsServiceImpl(AuthServiceImpl authService, UserAppSettingsRepository userAppSettingsRepository, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
         this.authService = authService;
         this.userAppSettingsRepository = userAppSettingsRepository;
-        this.userAppSettingsWebSocketService = userAppSettingsWebSocketService;
+        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
     }
 
     @Override
@@ -79,7 +80,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
             userAppSettings = userAppSettingsRepository.save(userAppSettings);
 
-            userAppSettingsWebSocketService.sendUpdateMessage(userAppSettings.getVersion());
+            alertUpdateQueueServiceImpl.sendUpdateMessage(userAppSettings.getVersion(), WebSocketDestinationsEnum.ALERT_APP_SETTINGS_UPDATE);
         }
 
         return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);

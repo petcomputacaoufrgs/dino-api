@@ -6,7 +6,8 @@ import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.user.UserWebSocketServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,13 @@ public class UserServiceImpl implements UserService {
 
     private final AuthServiceImpl authService;
 
-    private final UserWebSocketServiceImpl userWebSocketService;
+    private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, UserWebSocketServiceImpl userWebSocketService) {
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
         this.userRepository = userRepository;
         this.authService = authService;
-        this.userWebSocketService = userWebSocketService;
+        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
     }
 
     @Override
@@ -68,7 +69,7 @@ public class UserServiceImpl implements UserService {
             currentUser.setPictureURL(model.getPictureURL());
             currentUser.updateVersion();
             currentUser = userRepository.save(currentUser);
-            userWebSocketService.sendUpdateMessage(currentUser);
+            alertUpdateQueueServiceImpl.sendUpdateMessage(currentUser.getVersion(), WebSocketDestinationsEnum.ALERT_USER_UPDATE);
 
             return new ResponseEntity<>(currentUser.getVersion(), HttpStatus.OK);
         }
@@ -108,7 +109,7 @@ public class UserServiceImpl implements UserService {
             }
             if (updated) {
                 user.updateVersion();
-                userWebSocketService.sendUpdateMessage(user);
+                alertUpdateQueueServiceImpl.sendUpdateMessage(user.getVersion(), WebSocketDestinationsEnum.ALERT_USER_UPDATE);
                 return this.save(user);
             }
 

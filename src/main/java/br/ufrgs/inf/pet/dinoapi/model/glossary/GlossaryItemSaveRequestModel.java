@@ -14,10 +14,10 @@ public class GlossaryItemSaveRequestModel {
     @Size(max = 1000, message = "text should not be more than 500.")
     private String text;
 
-    @Size(min=0, max = 20, message = "text should not be more than 20.")
+    @Size(max = 20, message = "text should not be more than 20.")
     private String subtitle;
 
-    @Size(min = 0, max = 20000, message = "text should not be more than 20000.")
+    @Size(max = 20000, message = "text should not be more than 20000.")
     private String fullText;
 
     public GlossaryItemSaveRequestModel() {}

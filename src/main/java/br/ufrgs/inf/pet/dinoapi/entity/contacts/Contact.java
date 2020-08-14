@@ -1,17 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
 
 import javax.persistence.*;
 import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -25,33 +23,24 @@ public class Contact implements Serializable {
         @Id
         @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
         @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-        @Basic(optional = false)
-        @Column(name = "id")
+        @Column(name = "id", nullable = false)
         private Long id;
 
-        @Basic(optional = false)
-        @NotNull(message = "O nome do contato não pode ser nulo.")
-        @Size(min = 1, max = 50)
-        @Column(name = "name", length = 50)
+        @Column(name = "name", length = NAME_MAX, nullable = false)
         private String name;
 
         @Valid
         @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL)
         private List<Phone> phones;
 
-        @Size(max = 500)
-        @Column(name = "description", length = 500)
+        @Column(name = "description", length = DESCRIPTION_MAX)
         private String description;
 
-        @Size(max = 10)
-        @Column(name = "color", length = 10)
+        @Column(name = "color", length = COLOR_MAX)
         private String color;
 
-        @JsonIgnore
-        @Valid
         @ManyToOne
-        @NotNull(message = "O usuário associado não pode ser nulo.")
-        @JoinColumn(name = "user_id")
+        @JoinColumn(name = "user_id", nullable = false)
         private User user;
 
         public Contact() {

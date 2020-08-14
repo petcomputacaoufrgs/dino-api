@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface ContactService {
 
-    ResponseEntity<ContactResponseModel> saveContacts(List<ContactSaveModel> contactsSaveModel);
+    ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> contactsSaveModel);
 
     ResponseEntity<?> editContacts(List<ContactModel> models);
 

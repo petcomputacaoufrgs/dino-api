@@ -4,11 +4,13 @@ import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.note.NoteWebSocketServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.Date;
 
 @Service
@@ -18,13 +20,13 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     private final NoteVersionRepository noteVersionRepository;
 
-    private final NoteWebSocketServiceImpl noteWebSocketService;
+    private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
     @Autowired
-    public NoteVersionServiceImpl(AuthServiceImpl authService, NoteVersionRepository noteVersionRepository, NoteWebSocketServiceImpl noteWebSocketService) {
+    public NoteVersionServiceImpl(AuthServiceImpl authService, NoteVersionRepository noteVersionRepository, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
         this.authService = authService;
         this.noteVersionRepository = noteVersionRepository;
-        this.noteWebSocketService = noteWebSocketService;
+        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
     }
 
     @Override
@@ -43,7 +45,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
             noteVersion.setLastUpdate(new Date());
             noteVersion = noteVersionRepository.save(noteVersion);
 
-            noteWebSocketService.sendUpdateMessage(noteVersion.getVersion());
+            alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getVersion(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE);
         }
 
         return noteVersion.getVersion();
