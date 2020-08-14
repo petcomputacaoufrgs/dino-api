@@ -64,9 +64,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList(
-                HeaderEnum.REFRESH.getValue(),
-                HeaderEnum.GOOGLE_REFRESH.getValue(),
-                HeaderEnum.GOOGLE_EXPIRES_DATE.getValue()));
+                HeaderEnum.AUTHORIZATION.getValue()));
         configuration.setAllowCredentials(true);
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

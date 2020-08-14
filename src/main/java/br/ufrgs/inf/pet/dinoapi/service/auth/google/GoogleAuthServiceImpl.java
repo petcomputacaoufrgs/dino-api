@@ -21,7 +21,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
@@ -46,7 +45,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     @Override
-    public ResponseEntity<?> googleSignIn(GoogleAuthRequestModel authModel, HttpServletRequest request) {
+    public ResponseEntity<?> googleSignIn(GoogleAuthRequestModel authModel) {
         try {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(authModel.getToken());
 
@@ -68,6 +67,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
+                        googleAuthRepository.save(googleAuth);
                     } else if (googleAuth.getRefreshToken().isEmpty()) {
                         return getRefreshTokenError();
                     }
@@ -76,7 +76,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     user = this.updateUserData(payload, user);
                 } else {
-                    if (isWithRefreshTokenEmpty(refreshToken)) {
+                    if (this.isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError();
                     }
 
@@ -86,14 +86,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     user = userService.create(name, email, pictureUrl);
 
-                    googleAuth = new GoogleAuth(googleId, refreshToken);
+                    googleAuth = new GoogleAuth(googleId, refreshToken, user);
 
-                    googleAuth.setUser(user);
+                    googleAuthRepository.save(googleAuth);
                 }
 
-                googleAuth = this.updateGoogleAccessTokenData(tokenResponse, googleAuth);
-
-                final Auth auth = authService.generateAuth(user, request);
+                final Auth auth = authService.generateAuth(user);
 
                 final UserResponseModel userResponseModel = new UserResponseModel();
 
@@ -105,25 +103,23 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 userResponseModel.setVersion(user.getVersion());
 
-                final GoogleAuthResponseModel response = new GoogleAuthResponseModel();
+                final GoogleAuthResponseModel response = this.generateGoogleAuthResponse(tokenResponse);
 
                 response.setAccessToken(auth.getAccessToken());
 
-                response.setGoogleAccessToken(googleAuth.getAccessToken());
-
-                response.setGoogleExpiresDate(googleAuth.getTokenExpiresDateInMillis());
+                response.setExpiresDate(auth.getTokenExpiresDate().getTime());
 
                 response.setUser(userResponseModel);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
-            return new ResponseEntity<>("Erro interno ao ler os dados de autenticação da aplicação com o Google", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Internal auth error.", HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
-            return new ResponseEntity<>("Erro ao resgatar dados da autenticação com o Google.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Google auth data error.", HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>("Erro na autenticação com a API do Google.", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Google auth error.", HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -131,43 +127,20 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         GoogleAuth googleAuth = this.getUserGoogleAuth();
 
         if (googleAuth != null) {
-            googleAuth = refreshGoogleAuth(googleAuth);
-
-            GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
-            response.setGoogleAccessToken(googleAuth.getAccessToken());
-            response.setGoogleExpiresDate(googleAuth.getTokenExpiresDateInMillis());
+            final GoogleRefreshAuthResponseModel response = this.refreshGoogleAuth(googleAuth);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("Falha na autenticação com o Google.", HttpStatus.BAD_REQUEST);
-    }
-
-    @Override
-    public GoogleAuth refreshGoogleAuth(GoogleAuth googleAuth) {
-        if (googleAuth != null) {
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
-
-            if (tokenResponse != null) {
-                this.updateGoogleAccessTokenData(tokenResponse, googleAuth);
-
-                return googleAuth;
-            }
-        }
-        return null;
+        return new ResponseEntity<>("Google auth fail.", HttpStatus.BAD_REQUEST);
     }
 
     @Override
     public GoogleAuth getUserGoogleAuth() {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final User user = authService.getCurrentUser();
 
-        if (auth != null) {
-            UserDetails userDetails = (UserDetails) auth.getPrincipal();
-
-            if (userDetails != null) {
-                final User userDB = userService.findUserByEmail(userDetails.getUsername());
-                return userDB.getGoogleAuth();
-            }
+        if (user != null) {
+            return user.getGoogleAuth();
         }
 
         return null;
@@ -195,13 +168,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.NON_AUTHORITATIVE_INFORMATION);
     }
 
-    /**
-     * Soma a data atual com o tempo do token expirar (converte ele de segundos para milisegundos antes)
-     * @param expiresIn - Tempo até o token expirar
-     * @return Data de expiração do token
-     */
-    private Long getTokenExpirationDateInMS(Long expiresIn) {
-        return (new Date()).getTime() + (expiresIn * 1000);
+    private Date getTokenExpiresDate(Long expiresInSeconds) {
+        return new Date(new Date().getTime() + (expiresInSeconds * 1000));
     }
 
     private User updateUserData(GoogleIdToken.Payload payload, User user) {
@@ -212,17 +180,36 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return userService.update(name, email, pictureUrl);
     }
 
-    private GoogleAuth updateGoogleAccessTokenData(GoogleTokenResponse tokenResponse, GoogleAuth googleAuth) {
+    private GoogleRefreshAuthResponseModel refreshGoogleAuth(GoogleAuth googleAuth) {
+        if (googleAuth != null) {
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
+
+            if (tokenResponse != null) {
+                GoogleAuthResponseModel authModel = this.generateGoogleAuthResponse(tokenResponse);
+
+                GoogleRefreshAuthResponseModel refreshModel = new GoogleRefreshAuthResponseModel();
+                refreshModel.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
+                refreshModel.setGoogleAccessToken(authModel.getGoogleAccessToken());
+
+                return refreshModel;
+            }
+        }
+        return null;
+    }
+
+    private GoogleAuthResponseModel generateGoogleAuthResponse(GoogleTokenResponse tokenResponse) {
+        GoogleAuthResponseModel response = new GoogleAuthResponseModel();
+
         final String accessToken = tokenResponse.getAccessToken();
 
-        final Long expiresIn = tokenResponse.getExpiresInSeconds();
+        final Long expiresInSeconds = tokenResponse.getExpiresInSeconds();
 
-        final Long tokenExpiresDateInMillis = getTokenExpirationDateInMS(expiresIn);
+        final Date tokenExpiresDate = this.getTokenExpiresDate(expiresInSeconds);
 
-        googleAuth.setAccessToken(accessToken);
+        response.setGoogleAccessToken(accessToken);
 
-        googleAuth.setTokenExpiresDateInMillis(tokenExpiresDateInMillis);
+        response.setGoogleExpiresDate(tokenExpiresDate.getTime());
 
-        return googleAuthRepository.save(googleAuth);
+        return response;
     }
 }

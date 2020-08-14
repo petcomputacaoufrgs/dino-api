@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,15 +30,10 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
     }
 
     @Override
-    public ResponseEntity<?> save(LogAppErrorRequestModel model) {
-        Auth auth = authService.getCurrentAuth();
+    public ResponseEntity<?> save(LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
+        final String userAgent = httpServletRequest.getHeader("User-Agent");
 
-        LogAppError error = new LogAppError();
-        error.setAuth(auth);
-        error.setError(model.getError());
-        error.setFile(model.getFile());
-        error.setTitle(model.getTitle());
-        error.setDate(new Date(model.getDate()));
+        LogAppError error = this.generateError(model, userAgent);
 
         logAppErrorRepository.save(error);
 
@@ -44,22 +41,25 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
     }
 
     @Override
-    public ResponseEntity<?> saveAll(LogAppErroListRequestModel model) {
-        Auth auth = authService.getCurrentAuth();
-        List<LogAppError> items = model.getItems().stream().map(item ->{
-            LogAppError error = new LogAppError();
-            error.setAuth(auth);
-            error.setError(item.getError());
-            error.setFile(item.getFile());
-            error.setTitle(item.getTitle());
-            error.setDate(new Date(item.getDate()));
+    public ResponseEntity<?> saveAll(LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
+        final String userAgent = httpServletRequest.getHeader("User-Agent");
 
-            return error;
-        }).collect(Collectors.toList());
+        List<LogAppError> items = model.getItems().stream().map(item ->
+                this.generateError(item, userAgent)).collect(Collectors.toList());
 
         logAppErrorRepository.saveAll(items);
 
         return new ResponseEntity<>("Logs saved.", HttpStatus.OK);
+    }
+
+    private LogAppError generateError(LogAppErrorRequestModel model, String userAgent) {
+        LogAppError error = new LogAppError();
+        error.setError(model.getError());
+        error.setFile(model.getFile());
+        error.setTitle(model.getTitle());
+        error.setDate(new Date(model.getDate()));
+        error.setUserAgent(userAgent);
+        return error;
     }
 
 }

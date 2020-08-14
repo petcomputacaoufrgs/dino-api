@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import java.util.Date;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -18,14 +17,8 @@ public class GoogleAuth {
     @Column(name = "google_id", length = 100, unique = true, nullable = false)
     private String googleId;
 
-    @Column(name = "access_token", length = 200, unique = true, nullable = false)
-    private String accessToken;
-
     @Column(name = "refresh_token", length = 200, unique = true, nullable = false)
     private String refreshToken;
-
-    @Column(name = "token_expires_data_in_millis", nullable = false)
-    private Long tokenExpiresDateInMillis;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
@@ -33,17 +26,10 @@ public class GoogleAuth {
 
     public GoogleAuth() {}
 
-    public GoogleAuth(String googleId, String refreshToken) {
+    public GoogleAuth(String googleId, String refreshToken, User user) {
         this.googleId = googleId;
         this.refreshToken = refreshToken;
-    }
-
-    public Long getTokenExpiresDateInMillis() {
-        return tokenExpiresDateInMillis;
-    }
-
-    public void setTokenExpiresDateInMillis(Long tokenExpiresDateInMillis) {
-        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
+        this.user = user;
     }
 
     public Long getId() {
@@ -58,14 +44,6 @@ public class GoogleAuth {
         this.googleId = googleId;
     }
 
-    public String getAccessToken() {
-        return accessToken;
-    }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
     public String getRefreshToken() {
         return refreshToken;
     }
@@ -78,9 +56,5 @@ public class GoogleAuth {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public Boolean tokenIsValid() {
-        return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
     }
 }

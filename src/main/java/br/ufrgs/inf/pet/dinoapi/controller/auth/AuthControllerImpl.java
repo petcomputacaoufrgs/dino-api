@@ -1,13 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -25,8 +24,14 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/public/auth/google/")
-    public ResponseEntity<?> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel authRequestMode, HttpServletRequest request) {
-        return googleAuthService.googleSignIn(authRequestMode, request);
+    public ResponseEntity<?> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel authRequestMode) {
+        return googleAuthService.googleSignIn(authRequestMode);
+    }
+
+    @Override
+    @PutMapping("/public/auth/refresh/")
+    public ResponseEntity<?> refreshAuth(@Valid @RequestBody AuthRefreshRequestModel authRefreshRequestModel) {
+        return authService.refreshAuth(authRefreshRequestModel);
     }
 
     @Override

@@ -17,32 +17,18 @@ public class Auth {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "access_token", length = 260, unique = true, nullable = false)
+    @Column(name = "access_token", length = 560, unique = true, nullable = false)
     private String accessToken;
 
-    @Column(name = "token_expires_data_in_millis", nullable = false)
-    private Long tokenExpiresDateInMillis;
+    @Column(name = "token_expires_date", nullable = false)
+    private Date tokenExpiresDate;
 
-    @Column(name = "user_agent", nullable = false)
-    private String userAgent;
+    @Column(name = "last_update", nullable = false)
+    private Date lastUpdate;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @OneToMany(mappedBy = "auth")
-    private List<LogAppError> errors;
-
-    public Auth() {
-        this.errors = new ArrayList<>();
-    }
-
-    public Auth(String accessToken, Long tokenExpiresDateInMillis, String userAgent) {
-        this.accessToken = accessToken;
-        this.tokenExpiresDateInMillis = tokenExpiresDateInMillis;
-        this.userAgent = userAgent;
-        this.errors = new ArrayList<>();
-    }
 
     public Long getId() {
         return id;
@@ -50,6 +36,10 @@ public class Auth {
 
     public String getAccessToken() {
         return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public User getUser() {
@@ -60,28 +50,23 @@ public class Auth {
         this.user = user;
     }
 
-    public String getUserAgent() {
-        return userAgent;
+    public Date getTokenExpiresDate() {
+        return tokenExpiresDate;
     }
 
-    public void setUserAgent(String userAgent) {
-        this.userAgent = userAgent;
-    }
-
-    public List<LogAppError> getErrors() {
-        return errors;
-    }
-
-    public void setErrors(List<LogAppError> errors) {
-        this.errors = errors;
-    }
-
-    public Long getTokenExpiresDateInMillis() {
-        return tokenExpiresDateInMillis;
+    public void setTokenExpiresDate(Date tokenExpiresDate) {
+        this.tokenExpiresDate = tokenExpiresDate;
     }
 
     public Boolean tokenIsValid() {
-        return (new Date()).getTime() <= this.tokenExpiresDateInMillis;
+        return (new Date()).getTime() <= this.tokenExpiresDate.getTime();
     }
 
+    public Date getLastUpdate() {
+        return lastUpdate;
+    }
+
+    public void setLastUpdate(Date lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
 }

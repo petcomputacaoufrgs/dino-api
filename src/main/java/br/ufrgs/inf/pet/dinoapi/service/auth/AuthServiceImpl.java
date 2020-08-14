@@ -2,8 +2,9 @@ package br.ufrgs.inf.pet.dinoapi.service.auth;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.AuthRepository;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -15,8 +16,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @Service
@@ -36,24 +35,34 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Auth refreshAuth(Auth auth, HttpServletRequest request) {
-        if (auth != null) {
-            final Auth newAuth = this.generateAuth(auth.getUser(), request);
-            authRepository.delete(auth);
+    public Auth generateAuth(User user) {
+        Auth auth = new Auth();
+        auth.setUser(user);
 
-            return newAuth;
-        }
+        List<String> roles = new ArrayList<>();
 
-        return null;
+        this.generateAccessToken(auth, roles);
+
+        return authRepository.save(auth);
     }
 
     @Override
-    public Auth generateAuth(User user, HttpServletRequest request) {
-        if (user != null) {
-            return this.createToken(user, new ArrayList<>(), request);
+    public ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
+        Optional<Auth> authSearch = authRepository.findByAccessToken(authRefreshRequestModel.getAccessToken());
+
+        if (authSearch.isPresent()) {
+            Auth auth = authSearch.get();
+
+            this.generateAccessToken(auth, new ArrayList<>());
+
+            authRepository.save(auth);
+
+            AuthRefreshResponseModel response = new AuthRefreshResponseModel(auth.getAccessToken(), auth.getTokenExpiresDate());
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return null;
+        return new ResponseEntity<>("Invalid refresh token.", HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -127,26 +136,21 @@ public class AuthServiceImpl implements AuthService {
         return (UserDetails) auth.getPrincipal();
     }
 
-    private Auth createToken(User user, List<String> roles, HttpServletRequest request) {
-        final Claims claims = Jwts.claims().setSubject(user.getEmail());
+    private void generateAccessToken(Auth auth, List<String> roles) {
+        final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
         claims.put("roles", roles);
         final Date now = new Date();
-        Date validity = new Date(now.getTime() + validityInMilliseconds);
+        Date expiresDate = new Date(now.getTime() + validityInMilliseconds);
 
         final String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
-                .setExpiration(validity)
+                .setExpiration(expiresDate)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
 
-        final String userAgent = request.getHeader("User-Agent");
-        final Auth auth = new Auth(accessToken, validity.getTime(), userAgent);
-
-        auth.setUser(user);
-
-        authRepository.save(auth);
-
-        return auth;
+        auth.setAccessToken(accessToken);
+        auth.setTokenExpiresDate(expiresDate);
+        auth.setLastUpdate(now);
     }
 }
