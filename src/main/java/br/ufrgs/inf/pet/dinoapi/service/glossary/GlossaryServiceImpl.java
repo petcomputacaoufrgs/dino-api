@@ -47,7 +47,7 @@ public class GlossaryServiceImpl implements GlossaryService {
 
                         if (glossaryItemSearchResult.isEmpty()) {
                             glossaryItem = new GlossaryItem();
-                            glossaryItem.setByGlossarySaveModel(newItem);
+                            glossaryItem.GlossaryItem(newItem);
 
                             glossaryItem = glossaryItemRepository.save(glossaryItem);
 
