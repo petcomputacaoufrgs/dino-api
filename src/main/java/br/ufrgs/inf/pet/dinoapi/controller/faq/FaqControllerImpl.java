@@ -1,8 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.controller.faq;
 
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqAllModel;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqOptionsModel;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
 import br.ufrgs.inf.pet.dinoapi.service.faq.FaqServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.faq.FaqVersionServiceimpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,24 +21,33 @@ public class FaqControllerImpl implements FaqController{
 
     private final FaqServiceImpl faqServiceImpl;
 
+    private final FaqVersionServiceimpl faqVersionServiceimpl;
+
     @Autowired
-    public FaqControllerImpl(FaqServiceImpl faqServiceImpl) {
+    public FaqControllerImpl(FaqServiceImpl faqServiceImpl,
+                             FaqVersionServiceimpl faqVersionServiceimpl) {
         this.faqServiceImpl = faqServiceImpl;
+        this.faqVersionServiceimpl = faqVersionServiceimpl;
     }
 
-    @PostMapping("public/faq/save/")
+    @PostMapping("public/faq/")
     public ResponseEntity<FaqModel> save(@Valid @RequestBody FaqSaveRequestModel model) {
         return faqServiceImpl.save(model);
     }
 
-    @PostMapping("public/faq/save/all")
+    @PostMapping("public/faq/all/")
     public ResponseEntity<List<FaqModel>> saveAll(@Valid @RequestBody List<FaqSaveRequestModel> models) {
         return faqServiceImpl.saveAll(models);
     }
-    
-    @GetMapping("public/faq/get/all")
-    public ResponseEntity<List<FaqModel>> get() {
+
+    @GetMapping("public/faq/all/")
+    public ResponseEntity<FaqAllModel> getAll() {
         return faqServiceImpl.getAll();
+    }
+
+    @GetMapping("public/faq/options")
+    public ResponseEntity<FaqOptionsModel> getFaqOptions() {
+        return faqServiceImpl.getFaqOptions();
     }
 
     /*

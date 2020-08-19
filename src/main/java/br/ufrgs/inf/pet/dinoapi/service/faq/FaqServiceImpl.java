@@ -2,8 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.service.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.*;
+import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqAllVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqTypeRepository;
@@ -32,11 +32,13 @@ public class FaqServiceImpl {
 
         private final FaqVersionServiceimpl faqVersionServiceimpl;
 
-        @Autowired
+
+    @Autowired
         public FaqServiceImpl(FaqRepository faqRepository, FaqItemRepository faqItemRepository, FaqTypeRepository faqTypeRepository,
                               FaqItemServiceImpl faqItemServiceImpl,
                               FaqTypeServiceImpl faqTypeServiceImpl,
-                              FaqVersionServiceimpl faqVersionServiceimpl) {
+                              FaqVersionServiceimpl faqVersionServiceimpl,
+                              FaqAllVersionRepository faqAllVersionRepository) {
             this.faqRepository = faqRepository;
             this.faqItemRepository = faqItemRepository;
             this.faqTypeRepository = faqTypeRepository;
@@ -46,11 +48,13 @@ public class FaqServiceImpl {
 
         }
 
-        public ResponseEntity<List<FaqModel>> getAll() {
+        public ResponseEntity<FaqAllModel> getAll() {
 
             List<Faq> contacts = Lists.newArrayList(faqRepository.findAll());
 
-            List<FaqModel> response = contacts.stream().map(FaqModel::new).collect(Collectors.toList());
+            List<FaqModel> faqs = contacts.stream().map(FaqModel::new).collect(Collectors.toList());
+
+            FaqAllModel response = new FaqAllModel(faqVersionServiceimpl.getAllFaqVersionNumber(), faqs);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -74,6 +78,8 @@ public class FaqServiceImpl {
 
             }
 
+            faqVersionServiceimpl.updateAllFaqVersion();
+
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
@@ -95,13 +101,23 @@ public class FaqServiceImpl {
                 faq.setVersion(faqVersionServiceimpl.updateFaqVersion(faq));
 
                 response.add(new FaqModel(faq));
-
-            }
-
-        }
+            }}
         );
 
+        faqVersionServiceimpl.updateAllFaqVersion();
+
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<FaqOptionsModel> getFaqOptions(){
+
+        final List<FaqOptionModel> options = Lists.newArrayList(faqRepository.findAll())
+                .stream().map(FaqOptionModel::new).collect(Collectors.toList());
+
+        final Long allVersion = faqVersionServiceimpl.getAllFaqVersionNumber();
+
+        return new ResponseEntity<>(new FaqOptionsModel(allVersion, options), HttpStatus.OK);
+
     }
 
         /*

@@ -1,11 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqAllVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqVersion;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqTypeRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqVersionRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.faq.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,17 +24,21 @@ public class FaqVersionServiceimpl {
 
     private final FaqVersionRepository faqVersionRepository;
 
+    private final FaqAllVersionRepository faqAllVersionRepository;
+
     @Autowired
     public FaqVersionServiceimpl(FaqRepository faqRepository, FaqItemRepository faqItemRepository, FaqTypeRepository faqTypeRepository,
                           FaqItemServiceImpl faqItemServiceImpl,
                           FaqTypeServiceImpl faqTypeServiceImpl,
-                                 FaqVersionRepository faqVersionRepository) {
+                                 FaqVersionRepository faqVersionRepository,
+                                 FaqAllVersionRepository faqAllVersionRepository) {
         this.faqRepository = faqRepository;
         this.faqItemRepository = faqItemRepository;
         this.faqTypeRepository = faqTypeRepository;
         this.faqItemServiceImpl = faqItemServiceImpl;
         this.faqTypeServiceImpl = faqTypeServiceImpl;
         this.faqVersionRepository = faqVersionRepository;
+        this.faqAllVersionRepository = faqAllVersionRepository;
 
     }
 
@@ -56,6 +58,19 @@ public class FaqVersionServiceimpl {
         return faqVersion;
     }
 
+    public void updateAllFaqVersion() {
+        FaqAllVersion faqAllVersion = faqAllVersionRepository.findByOrderByVersionDesc();
+        if (faqAllVersion != null) {
+            faqAllVersion.updateVersion();
+        } else {
+            faqAllVersion = new FaqAllVersion();
+        }
+
+        faqAllVersionRepository.save(faqAllVersion);
+        ///@to-do
+        // alertUpdateTopicServiceImpl.sendUpdateMessage(glossary.getVersion(), WebSocketDestinationsEnum.ALERT_GLOSSARY_UPDATE);
+    }
+
     public ResponseEntity<Long> getFaqVersion(Faq faq) {
         FaqVersion faqVersion = faqVersionRepository.findVersionDescById(faq.getId());
 
@@ -65,6 +80,28 @@ public class FaqVersionServiceimpl {
         }
 
         return new ResponseEntity<>(faqVersion.getVersion(), HttpStatus.OK);
+    }
+
+    public Long getAllFaqVersionNumber() {
+        FaqAllVersion faqAllVersion = faqAllVersionRepository.findByOrderByVersionDesc();
+        if (faqAllVersion == null) {
+            faqAllVersion = new FaqAllVersion();
+            faqAllVersionRepository.save(faqAllVersion);
+        }
+        return faqAllVersion.getVersion();
+    }
+
+    public Long getFaqOptions() {
+        FaqAllVersion faqAllVersion = faqAllVersionRepository.findByOrderByVersionDesc();
+        if (faqAllVersion != null) {
+            faqAllVersion.updateVersion();
+        } else {
+            faqAllVersion = new FaqAllVersion();
+        }
+
+        faqAllVersionRepository.save(faqAllVersion);
+
+        return faqAllVersion.getVersion();
     }
 
     /*

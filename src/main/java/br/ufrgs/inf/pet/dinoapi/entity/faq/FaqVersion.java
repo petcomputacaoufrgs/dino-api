@@ -32,7 +32,7 @@ public class FaqVersion implements Serializable {
     public FaqVersion() {}
 
     public FaqVersion(Faq faq) {
-        this.setVersion(0L);
+        this.setVersion(1L);
         this.setFaq(faq);
     }
 
