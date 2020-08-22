@@ -9,12 +9,12 @@ import java.io.Serializable;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "faq_type")
-public class FaqType implements Serializable {
+@Table(name = "faq_user")
+public class FaqUser implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final String SEQUENCE_NAME = "faq_type_seq";
+    private static final String SEQUENCE_NAME = "faq_user_seq";
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -32,7 +32,12 @@ public class FaqType implements Serializable {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
-    public FaqType() {}
+    public FaqUser() {}
+
+    public FaqUser(Faq faq, User user) {
+        this.faq = faq;
+        this.user = user;
+    }
 
     public Long getId() {
         return id;

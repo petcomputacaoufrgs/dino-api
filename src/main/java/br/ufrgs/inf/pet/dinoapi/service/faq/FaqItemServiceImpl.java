@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestItemModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqTypeRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +20,13 @@ public class FaqItemServiceImpl {
 
     private final FaqItemRepository faqItemRepository;
 
-    private final FaqTypeRepository faqTypeRepository;
+    private final FaqUserRepository faqUserRepository;
 
     @Autowired
-    public FaqItemServiceImpl(FaqRepository faqRepository, FaqItemRepository faqItemRepository, FaqTypeRepository faqTypeRepository) {
+    public FaqItemServiceImpl(FaqRepository faqRepository, FaqItemRepository faqItemRepository, FaqUserRepository faqUserRepository) {
         this.faqRepository = faqRepository;
         this.faqItemRepository = faqItemRepository;
-        this.faqTypeRepository = faqTypeRepository;
+        this.faqUserRepository = faqUserRepository;
     }
 
     public List<FaqItem> saveItems(List<FaqSaveRequestItemModel> models, Faq faq) {

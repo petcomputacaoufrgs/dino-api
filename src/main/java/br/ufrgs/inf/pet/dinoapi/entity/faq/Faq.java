@@ -34,6 +34,8 @@ public class Faq implements Serializable {
     @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL)
     private List<FaqItem> items;
 
+    @OneToOne(mappedBy = "user")
+    private FaqUser faqUser;
 
     public Faq() {
         this.items = new ArrayList<>();

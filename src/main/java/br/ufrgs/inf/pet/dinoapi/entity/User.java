@@ -1,11 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqType;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -55,7 +57,7 @@ public class User {
     private ContactVersion contactVersion;
 
     @OneToOne(mappedBy = "user")
-    private FaqType faqType;
+    private FaqUser faqUser;
     
     public User() {
         this.notes = new ArrayList<>();
@@ -163,6 +165,14 @@ public class User {
 
     public void setNoteVersion(NoteVersion noteVersion) {
         this.noteVersion = noteVersion;
+    }
+
+    public FaqUser getFaqUser() {
+        return faqUser;
+    }
+
+    public void setFaqUser(FaqUser faqUser) {
+        this.faqUser = faqUser;
     }
 
     public Boolean tokenIsValid(String token) {

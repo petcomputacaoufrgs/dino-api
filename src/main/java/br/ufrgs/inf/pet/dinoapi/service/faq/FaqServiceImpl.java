@@ -1,12 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
+import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.model.faq.*;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqAllVersionRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqTypeRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,30 +24,41 @@ public class FaqServiceImpl {
 
         private final FaqRepository faqRepository;
 
-        private final FaqItemRepository faqItemRepository;
-
-        private final FaqTypeRepository faqTypeRepository;
+        private final FaqUserRepository faqUserRepository;
 
         private final FaqItemServiceImpl faqItemServiceImpl;
 
-        private final FaqTypeServiceImpl faqTypeServiceImpl;
+        private final FaqVersionServiceImpl faqVersionServiceimpl;
 
-        private final FaqVersionServiceimpl faqVersionServiceimpl;
+        private final AuthServiceImpl authServiceImpl;
 
 
     @Autowired
-        public FaqServiceImpl(FaqRepository faqRepository, FaqItemRepository faqItemRepository, FaqTypeRepository faqTypeRepository,
+        public FaqServiceImpl(FaqRepository faqRepository,
+                              FaqUserRepository faqUserRepository,
                               FaqItemServiceImpl faqItemServiceImpl,
-                              FaqTypeServiceImpl faqTypeServiceImpl,
-                              FaqVersionServiceimpl faqVersionServiceimpl,
-                              FaqAllVersionRepository faqAllVersionRepository) {
+                              FaqVersionServiceImpl faqVersionServiceimpl,
+                              AuthServiceImpl authServiceImpl) {
             this.faqRepository = faqRepository;
-            this.faqItemRepository = faqItemRepository;
-            this.faqTypeRepository = faqTypeRepository;
+            this.faqUserRepository = faqUserRepository;
             this.faqItemServiceImpl = faqItemServiceImpl;
-            this.faqTypeServiceImpl = faqTypeServiceImpl;
             this.faqVersionServiceimpl = faqVersionServiceimpl;
+            this.authServiceImpl = authServiceImpl;
 
+        }
+
+        public ResponseEntity<FaqModel> get(FaqIdModel model) {
+
+            if (model != null && model.getId() != null) {
+                Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+
+                if (faqSearch.isPresent()) {
+                    FaqModel response = new FaqModel(faqSearch.get());
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                }
+            }
+
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         public ResponseEntity<FaqAllModel> getAll() {
@@ -54,7 +67,7 @@ public class FaqServiceImpl {
 
             List<FaqModel> faqs = contacts.stream().map(FaqModel::new).collect(Collectors.toList());
 
-            FaqAllModel response = new FaqAllModel(faqVersionServiceimpl.getAllFaqVersionNumber(), faqs);
+            FaqAllModel response = new FaqAllModel(faqVersionServiceimpl.getFaqsVersionNumber(), faqs);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -78,10 +91,54 @@ public class FaqServiceImpl {
 
             }
 
-            faqVersionServiceimpl.updateAllFaqVersion();
+            faqVersionServiceimpl.updateFaqsVersion();
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
+
+    public ResponseEntity<Long> saveFaqUser(FaqIdModel model) {
+
+        User user = authServiceImpl.getCurrentUser();
+
+        if (model != null) {
+
+            FaqUser faqUser = user.getFaqUser();
+
+            //fazer validação e ver se o id mudou
+
+            Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+
+            if(faqSearch.isPresent()) {
+
+                if(faqUser != null) {
+
+                    faqUser.setFaq(faqSearch.get());
+
+                    faqUserRepository.save(faqUser);
+
+                } else {
+                    faqUserRepository.save(new FaqUser(faqSearch.get(), user));
+                }
+
+                return new ResponseEntity<>(model.getId(), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<FaqModel> getFaqUser() {
+
+        User user = authServiceImpl.getCurrentUser();
+
+        FaqUser faqUser = user.getFaqUser();
+
+        if(faqUser != null) {
+            FaqModel response = new FaqModel(faqUser.getFaq());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
     public ResponseEntity<List<FaqModel>> saveAll(List<FaqSaveRequestModel> models) {
         List<FaqModel> response = new ArrayList<>();
@@ -104,7 +161,7 @@ public class FaqServiceImpl {
             }}
         );
 
-        faqVersionServiceimpl.updateAllFaqVersion();
+        faqVersionServiceimpl.updateFaqsVersion();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -114,9 +171,17 @@ public class FaqServiceImpl {
         final List<FaqOptionModel> options = Lists.newArrayList(faqRepository.findAll())
                 .stream().map(FaqOptionModel::new).collect(Collectors.toList());
 
-        final Long allVersion = faqVersionServiceimpl.getAllFaqVersionNumber();
+        final Long version = faqVersionServiceimpl.getFaqsVersionNumber();
 
-        return new ResponseEntity<>(new FaqOptionsModel(allVersion, options), HttpStatus.OK);
+        return new ResponseEntity<>(new FaqOptionsModel(version, options), HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<Long> getFaqOptionsVersion(){
+
+        final Long version = faqVersionServiceimpl.getFaqsVersionNumber();
+
+        return new ResponseEntity<>(version, HttpStatus.OK);
 
     }
 

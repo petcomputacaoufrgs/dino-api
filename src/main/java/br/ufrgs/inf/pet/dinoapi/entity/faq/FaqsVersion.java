@@ -7,12 +7,12 @@ import java.io.Serializable;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "faq_all_version")
-public class FaqAllVersion implements Serializable {
+@Table(name = "faqs_version")
+public class FaqsVersion implements Serializable {
 
         private static final long serialVersionUID = 1L;
 
-        private static final String SEQUENCE_NAME = "faq_all_version_seq";
+        private static final String SEQUENCE_NAME = "faqs_version_seq";
 
         @Id
         @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -21,14 +21,14 @@ public class FaqAllVersion implements Serializable {
         private Long id;
 
         @NotNull(message = "Versão não pode ser nula.")
-        @Column(name = "all_version")
+        @Column(name = "version")
         private Long version;
 
-        public FaqAllVersion() {
+        public FaqsVersion() {
             this.setVersion(1L);
         }
 
-        public FaqAllVersion(Long version) {
+        public FaqsVersion(Long version) {
             this.setVersion(version);
         }
 

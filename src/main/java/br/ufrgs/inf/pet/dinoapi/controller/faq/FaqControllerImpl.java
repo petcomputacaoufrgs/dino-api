@@ -1,11 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.controller.faq;
 
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqAllModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqOptionsModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import br.ufrgs.inf.pet.dinoapi.service.faq.FaqServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.faq.FaqVersionServiceimpl;
+import br.ufrgs.inf.pet.dinoapi.service.faq.FaqVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,11 +18,11 @@ public class FaqControllerImpl implements FaqController{
 
     private final FaqServiceImpl faqServiceImpl;
 
-    private final FaqVersionServiceimpl faqVersionServiceimpl;
+    private final FaqVersionServiceImpl faqVersionServiceimpl;
 
     @Autowired
     public FaqControllerImpl(FaqServiceImpl faqServiceImpl,
-                             FaqVersionServiceimpl faqVersionServiceimpl) {
+                             FaqVersionServiceImpl faqVersionServiceimpl) {
         this.faqServiceImpl = faqServiceImpl;
         this.faqVersionServiceimpl = faqVersionServiceimpl;
     }
@@ -40,28 +37,31 @@ public class FaqControllerImpl implements FaqController{
         return faqServiceImpl.saveAll(models);
     }
 
+    @GetMapping("faq/")
+    public ResponseEntity<FaqModel> getFaqUser() {
+        return faqServiceImpl.getFaqUser();
+    }
+
+    @PostMapping("faq/")
+    public ResponseEntity<Long> saveFaqUser(@Valid @RequestBody FaqIdModel model) {
+        return faqServiceImpl.saveFaqUser(model);
+    }
+
     @GetMapping("public/faq/all/")
     public ResponseEntity<FaqAllModel> getAll() {
         return faqServiceImpl.getAll();
     }
 
-    @GetMapping("public/faq/options")
+    @GetMapping("public/faq/options/")
     public ResponseEntity<FaqOptionsModel> getFaqOptions() {
         return faqServiceImpl.getFaqOptions();
     }
 
-    /*
-    @Override
-    @PutMapping("public/glossary/update/")
-    public ResponseEntity<?> update(@Valid @RequestBody GlossaryUpdateRequestModel glossaryUpdateRequestModel) {
-        return glossaryItemService.update(glossaryUpdateRequestModel);
+
+    @GetMapping("public/faq/options/version/")
+    public ResponseEntity<Long> getFaqOptionsVersion() {
+        return faqServiceImpl.getFaqOptionsVersion();
     }
 
-    @Override
-    @GetMapping("/glossary/version/")
-    public ResponseEntity<Long> getVersion() {
-        return glossaryVersionService.getGlossaryVersion();
-    }
 
-     */
 }
