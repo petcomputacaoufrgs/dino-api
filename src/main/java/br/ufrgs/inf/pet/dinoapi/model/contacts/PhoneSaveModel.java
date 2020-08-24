@@ -10,11 +10,11 @@ import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
 public class PhoneSaveModel {
 
     @NotNull(message = NUMBER_NULL_MESSAGE)
-    @Size(max = NUMBER_MAX)
+    @Size(min = 1, max = NUMBER_MAX, message = NUMBER_MESSAGE)
     private String number;
 
     @NotNull(message = TYPE_NULL_MESSAGE)
-    @Range(min = TYPE_MIN, max = TYPE_MAX)
+    @Range(min = 1, max = TYPE_MAX, message = TYPE_MESSAGE)
     private short type;
 
     public PhoneSaveModel() {}
