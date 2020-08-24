@@ -14,7 +14,7 @@ public class FaqModel {
 
     public FaqModel(Faq faq){
         this.setId(faq.getId());
-        this.setVersion(faq.getVersion().getVersion());
+        this.setVersion(faq.getVersion());
         this.setTitle(faq.getTitle());
         this.setItems(faq.getItems().stream().map(FaqItemModel::new).collect(Collectors.toList()));
     }

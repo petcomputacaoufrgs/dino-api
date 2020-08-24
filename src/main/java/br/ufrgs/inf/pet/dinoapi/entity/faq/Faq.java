@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.TITLE_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -24,10 +25,10 @@ public class Faq implements Serializable {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToOne(mappedBy = "faq")
-    private FaqVersion version;
+    @Column(name = "version", nullable = false)
+    private Long version;
 
-    @Column(name = "title", length = 30, nullable = false)
+    @Column(name = "title", length = TITLE_MAX, nullable = false)
     private String title;
 
     @Valid
@@ -42,6 +43,7 @@ public class Faq implements Serializable {
     }
 
     public Faq(FaqSaveRequestModel faqSaveRequestModel) {
+        this.setVersion(1L);
         this.setTitle(faqSaveRequestModel.getTitle());
         this.setItems(new ArrayList<>());
     }
@@ -70,11 +72,16 @@ public class Faq implements Serializable {
         this.id = id;
     }
 
-    public FaqVersion getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    public void setVersion(FaqVersion version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
+
+    public void updateVersion() {
+        this.version = version + 1l;
+    }
+
 }

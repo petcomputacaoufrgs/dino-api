@@ -1,13 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.*;
 import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class FaqServiceImpl {
+public class FaqServiceImpl implements FaqService{
 
         private final FaqRepository faqRepository;
 
@@ -28,24 +28,55 @@ public class FaqServiceImpl {
 
         private final FaqItemServiceImpl faqItemServiceImpl;
 
-        private final FaqVersionServiceImpl faqVersionServiceimpl;
-
         private final AuthServiceImpl authServiceImpl;
+
+        private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
 
     @Autowired
-        public FaqServiceImpl(FaqRepository faqRepository,
-                              FaqUserRepository faqUserRepository,
-                              FaqItemServiceImpl faqItemServiceImpl,
-                              FaqVersionServiceImpl faqVersionServiceimpl,
-                              AuthServiceImpl authServiceImpl) {
+        public FaqServiceImpl(FaqRepository faqRepository, FaqUserRepository faqUserRepository, FaqItemServiceImpl faqItemServiceImpl, AuthServiceImpl authServiceImpl,
+                              AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
             this.faqRepository = faqRepository;
             this.faqUserRepository = faqUserRepository;
             this.faqItemServiceImpl = faqItemServiceImpl;
-            this.faqVersionServiceimpl = faqVersionServiceimpl;
             this.authServiceImpl = authServiceImpl;
+            this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
 
         }
+
+
+        public ResponseEntity<FaqModel> editFaq(FaqModel model) {
+
+            if (model != null && model.getId() != null) {
+                Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+
+                if (faqSearch.isPresent()) {
+
+                    Faq faqDB = faqSearch.get();
+
+                    boolean changed = !model.getTitle().equals(faqDB.getTitle());
+                    if (changed) {
+                        faqDB.setTitle(model.getTitle());
+                    }
+
+                    boolean itemsChanged = faqItemServiceImpl.editItems(model.getItems(), faqDB);
+
+                    if(changed || itemsChanged) {
+                        faqDB.updateVersion();
+                    }
+
+                    faqRepository.save(faqDB);
+
+                    FaqModel response = new FaqModel(faqDB);
+
+                    //alertUpdateQueueServiceImpl.sendUpdateMessage(faqVersion.getVersion(), WebSocketDestinationsEnum.ALERT_FAQ_UPDATE);
+
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                }
+            }
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+
 
         public ResponseEntity<FaqModel> get(FaqIdModel model) {
 
@@ -61,17 +92,6 @@ public class FaqServiceImpl {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-        public ResponseEntity<FaqAllModel> getAll() {
-
-            List<Faq> contacts = Lists.newArrayList(faqRepository.findAll());
-
-            List<FaqModel> faqs = contacts.stream().map(FaqModel::new).collect(Collectors.toList());
-
-            FaqAllModel response = new FaqAllModel(faqVersionServiceimpl.getFaqsVersionNumber(), faqs);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-
         public ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel) {
             FaqModel response = new FaqModel();
 
@@ -85,13 +105,9 @@ public class FaqServiceImpl {
 
                 faq.setItems(newItems);
 
-                faq.setVersion(faqVersionServiceimpl.updateFaqVersion(faq));
-
                 response = new FaqModel(faq);
 
             }
-
-            faqVersionServiceimpl.updateFaqsVersion();
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -119,6 +135,8 @@ public class FaqServiceImpl {
                 } else {
                     faqUserRepository.save(new FaqUser(faqSearch.get(), user));
                 }
+
+                alertUpdateQueueServiceImpl.sendUpdateMessage(model.getId(), WebSocketDestinationsEnum.ALERT_FAQ_USER_UPDATE);
 
                 return new ResponseEntity<>(model.getId(), HttpStatus.OK);
             }
@@ -155,106 +173,28 @@ public class FaqServiceImpl {
 
                 faq.setItems(newItems);
 
-                faq.setVersion(faqVersionServiceimpl.updateFaqVersion(faq));
-
                 response.add(new FaqModel(faq));
             }}
         );
 
-        faqVersionServiceimpl.updateFaqsVersion();
-
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    public ResponseEntity<FaqOptionsModel> getFaqOptions(){
+    public ResponseEntity<List<FaqOptionModel>> getFaqOptions() {
 
-        final List<FaqOptionModel> options = Lists.newArrayList(faqRepository.findAll())
+        final List<FaqOptionModel> response = Lists.newArrayList(faqRepository.findAll())
                 .stream().map(FaqOptionModel::new).collect(Collectors.toList());
 
-        final Long version = faqVersionServiceimpl.getFaqsVersionNumber();
-
-        return new ResponseEntity<>(new FaqOptionsModel(version, options), HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
-    public ResponseEntity<Long> getFaqOptionsVersion(){
+    public ResponseEntity<Long> getUserFaqId() {
 
-        final Long version = faqVersionServiceimpl.getFaqsVersionNumber();
+        final FaqUser faqUser = authServiceImpl.getCurrentUser().getFaqUser();
 
-        return new ResponseEntity<>(version, HttpStatus.OK);
+        return new ResponseEntity<>(faqUser.getFaq().getId(), HttpStatus.OK);
 
     }
-
-        /*
-        public ResponseEntity<?> update(GlossaryUpdateRequestModel glossaryUpdateRequestModel) {
-            final GlossaryResponseModel response = new GlossaryResponseModel();
-            Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
-
-            if (glossaryUpdateRequestModel.getVersion() != glossaryVersion) {
-                return new ResponseEntity<>("Versão do glossário inválida.", HttpStatus.BAD_REQUEST);
-            }
-
-            if (glossaryUpdateRequestModel != null) {
-                final List<GlossaryItemUpdateRequestModel> updatedItemsList = glossaryUpdateRequestModel.getItemList();
-
-                if (updatedItemsList != null) {
-                    Optional<GlossaryItem> glossaryItemSearchResult;
-                    GlossaryItem dbGlossaryItem;
-                    Boolean updated;
-                    GlossaryItemResponseModel responseItem;
-
-                    for (GlossaryItemUpdateRequestModel updatedItem : updatedItemsList) {
-                        if (updatedItem.isValid()) {
-                            glossaryItemSearchResult = glossaryItemRepository.findById(updatedItem.getId());
-
-                            if (glossaryItemSearchResult.isPresent()) {
-                                dbGlossaryItem = glossaryItemSearchResult.get();
-
-                                updated = dbGlossaryItem.update(updatedItem);
-
-                                if (updated) {
-
-                                    dbGlossaryItem = glossaryItemRepository.save(dbGlossaryItem);
-
-                                    responseItem = new GlossaryItemResponseModel();
-
-                                    responseItem.setByGlossaryItem(dbGlossaryItem);
-
-                                    response.addItem(responseItem);
-                                }
-                            }
-                        }
-                    }
-
-
-                    if (response.getSize() > 0) {
-                        glossaryVersion = glossaryVersionService.updateGlossaryVersion();
-                    }
-
-                    response.setVersion(glossaryVersion);
-
-                    return new ResponseEntity<>(response, HttpStatus.OK);
-                }
-            }
-
-            return new ResponseEntity<>("Erro: GLossário vazio", HttpStatus.BAD_REQUEST);
-        }
-
-        public ResponseEntity<List<GlossaryItem>> get() {
-            GlossaryItemResponseModel responseItem;
-
-            final List<GlossaryItem> response = glossaryItemRepository.findAllByExistsTrue();
-
-            for (GlossaryItem item : response) {
-                responseItem = new GlossaryItemResponseModel();
-
-                responseItem.setByGlossaryItem(item);
-            }
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-    }
-
-         */
 
 }

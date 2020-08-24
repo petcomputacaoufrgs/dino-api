@@ -1,13 +1,16 @@
 package br.ufrgs.inf.pet.dinoapi.controller.faq;
 
-import br.ufrgs.inf.pet.dinoapi.model.faq.*;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqOptionModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
 import br.ufrgs.inf.pet.dinoapi.service.faq.FaqServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.faq.FaqVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
@@ -18,13 +21,9 @@ public class FaqControllerImpl implements FaqController{
 
     private final FaqServiceImpl faqServiceImpl;
 
-    private final FaqVersionServiceImpl faqVersionServiceimpl;
-
     @Autowired
-    public FaqControllerImpl(FaqServiceImpl faqServiceImpl,
-                             FaqVersionServiceImpl faqVersionServiceimpl) {
+    public FaqControllerImpl(FaqServiceImpl faqServiceImpl) {
         this.faqServiceImpl = faqServiceImpl;
-        this.faqVersionServiceimpl = faqVersionServiceimpl;
     }
 
     @PostMapping("public/faq/")
@@ -37,6 +36,21 @@ public class FaqControllerImpl implements FaqController{
         return faqServiceImpl.saveAll(models);
     }
 
+    @GetMapping("public/faq/options/")
+    public ResponseEntity<List<FaqOptionModel>> getFaqOptions() {
+        return faqServiceImpl.getFaqOptions();
+    }
+
+    @PutMapping("public/faq/")
+    public ResponseEntity<FaqModel> editFaq(@Valid @RequestBody FaqModel model) {
+        return faqServiceImpl.editFaq(model);
+    }
+
+    @GetMapping("faq/id/")
+    public ResponseEntity<Long> getUserFaqId() {
+        return faqServiceImpl.getUserFaqId();
+    }
+
     @GetMapping("faq/")
     public ResponseEntity<FaqModel> getFaqUser() {
         return faqServiceImpl.getFaqUser();
@@ -46,22 +60,4 @@ public class FaqControllerImpl implements FaqController{
     public ResponseEntity<Long> saveFaqUser(@Valid @RequestBody FaqIdModel model) {
         return faqServiceImpl.saveFaqUser(model);
     }
-
-    @GetMapping("public/faq/all/")
-    public ResponseEntity<FaqAllModel> getAll() {
-        return faqServiceImpl.getAll();
-    }
-
-    @GetMapping("public/faq/options/")
-    public ResponseEntity<FaqOptionsModel> getFaqOptions() {
-        return faqServiceImpl.getFaqOptions();
-    }
-
-
-    @GetMapping("public/faq/options/version/")
-    public ResponseEntity<Long> getFaqOptionsVersion() {
-        return faqServiceImpl.getFaqOptionsVersion();
-    }
-
-
 }
