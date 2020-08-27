@@ -4,16 +4,11 @@ import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import br.ufrgs.inf.pet.dinoapi.service.faq.FaqServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.List;
 
-@Controller
+@RestController
 public class FaqControllerImpl implements FaqController{
 
     private final FaqServiceImpl faqServiceImpl;
@@ -23,36 +18,43 @@ public class FaqControllerImpl implements FaqController{
         this.faqServiceImpl = faqServiceImpl;
     }
 
+    @Override
     @PostMapping("public/faq/")
     public ResponseEntity<FaqModel> save(@Valid @RequestBody FaqSaveRequestModel model) {
         return faqServiceImpl.save(model);
     }
 
+    @Override
     @PostMapping("public/faq/all/")
-    public ResponseEntity<List<FaqModel>> saveAll(@Valid @RequestBody List<FaqSaveRequestModel> models) {
-        return faqServiceImpl.saveAll(models);
+    public ResponseEntity<List<FaqModel>> saveAll(@Valid @RequestBody FaqListSaveRequestModel model) {
+        return faqServiceImpl.saveAll(model);
     }
 
+    @Override
     @GetMapping("public/faq/options/")
     public ResponseEntity<List<FaqOptionModel>> getFaqOptions() {
         return faqServiceImpl.getFaqOptions();
     }
 
+    @Override
     @PutMapping("public/faq/")
     public ResponseEntity<FaqModel> editFaq(@Valid @RequestBody FaqModel model) {
         return faqServiceImpl.editFaq(model);
     }
 
+    @Override
     @GetMapping("faq/version/")
-    public ResponseEntity<FaqSyncModel> getFaqUserVersion() {
+    public ResponseEntity<?> getFaqUserVersion() {
         return faqServiceImpl.getFaqUserVersion();
     }
 
+    @Override
     @GetMapping("faq/")
     public ResponseEntity<FaqModel> getFaqUser() {
         return faqServiceImpl.getFaqUser();
     }
 
+    @Override
     @PostMapping("faq/")
     public ResponseEntity<Long> saveFaqUser(@Valid @RequestBody FaqIdModel model) {
         return faqServiceImpl.saveFaqUser(model);

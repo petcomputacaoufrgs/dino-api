@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.model.faq;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.*;
@@ -16,7 +17,9 @@ public class FaqSaveRequestModel {
     @Valid
     private List<FaqSaveRequestItemModel> items;
 
-    public FaqSaveRequestModel(){}
+    public FaqSaveRequestModel(){
+        items = new ArrayList<>();
+    }
 
     public String getTitle() {
         return title;

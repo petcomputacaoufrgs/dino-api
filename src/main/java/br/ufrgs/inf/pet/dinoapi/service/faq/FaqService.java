@@ -11,13 +11,13 @@ public interface FaqService {
 
     public ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel);
 
-    public ResponseEntity<List<FaqModel>> saveAll(List<FaqSaveRequestModel> models);
+    public ResponseEntity<List<FaqModel>> saveAll(FaqListSaveRequestModel model);
 
     public ResponseEntity<Long> saveFaqUser(FaqIdModel model);
 
     public ResponseEntity<FaqModel> getFaqUser();
 
-    public ResponseEntity<FaqSyncModel> getFaqUserVersion();
+    public ResponseEntity<?> getFaqUserVersion();
 
     public ResponseEntity<FaqModel> editFaq(FaqModel model);
 

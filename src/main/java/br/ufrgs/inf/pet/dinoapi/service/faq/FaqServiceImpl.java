@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
+import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.*;
 import br.ufrgs.inf.pet.dinoapi.model.faq.*;
@@ -8,6 +9,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.topic.AlertUpdateTopicServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,95 +24,106 @@ import java.util.stream.Collectors;
 @Service
 public class FaqServiceImpl implements FaqService{
 
-        private final FaqRepository faqRepository;
+    private final FaqRepository faqRepository;
 
-        private final FaqUserRepository faqUserRepository;
+    private final FaqUserRepository faqUserRepository;
 
-        private final FaqItemServiceImpl faqItemServiceImpl;
+    private final FaqItemServiceImpl faqItemServiceImpl;
 
-        private final AuthServiceImpl authServiceImpl;
+    private final AuthServiceImpl authServiceImpl;
 
-        private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
+    private final AlertUpdateTopicServiceImpl alertUpdateTopicService;
+
+    private final AlertUpdateQueueServiceImpl alertUpdateQueueService;
 
     @Autowired
-        public FaqServiceImpl(FaqRepository faqRepository, FaqUserRepository faqUserRepository, FaqItemServiceImpl faqItemServiceImpl, AuthServiceImpl authServiceImpl,
-                              AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
-            this.faqRepository = faqRepository;
-            this.faqUserRepository = faqUserRepository;
-            this.faqItemServiceImpl = faqItemServiceImpl;
-            this.authServiceImpl = authServiceImpl;
-            this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
-        }
+    public FaqServiceImpl(FaqRepository faqRepository, FaqUserRepository faqUserRepository, FaqItemServiceImpl faqItemServiceImpl, AuthServiceImpl authServiceImpl,
+                          AlertUpdateTopicServiceImpl alertUpdateTopicService, AlertUpdateQueueServiceImpl alertUpdateQueueService) {
+        this.faqRepository = faqRepository;
+        this.faqUserRepository = faqUserRepository;
+        this.faqItemServiceImpl = faqItemServiceImpl;
+        this.authServiceImpl = authServiceImpl;
+        this.alertUpdateTopicService = alertUpdateTopicService;
+        this.alertUpdateQueueService = alertUpdateQueueService;
+    }
 
-        public ResponseEntity<FaqModel> editFaq(FaqModel model) {
+    public ResponseEntity<FaqModel> editFaq(FaqModel model) {
 
-            if (model != null && model.getId() != null) {
-                Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+        if (model != null && model.getId() != null) {
+            Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 
-                if (faqSearch.isPresent()) {
+            if (faqSearch.isPresent()) {
 
-                    Faq faqDB = faqSearch.get();
+                Faq faqDB = faqSearch.get();
 
-                    boolean changed = !model.getTitle().equals(faqDB.getTitle());
-                    if (changed) {
-                        faqDB.setTitle(model.getTitle());
-                    }
+                boolean changed = !model.getTitle().equals(faqDB.getTitle());
 
-                    boolean itemsChanged = faqItemServiceImpl.editItems(model.getItems(), faqDB);
-
-                    if(changed || itemsChanged) {
-                        faqDB.updateVersion();
-                    }
-
-                    faqRepository.save(faqDB);
-
-                    FaqModel response = new FaqModel(faqDB);
-
-                    //alertUpdateQueueServiceImpl.sendUpdateMessage(faqDB.getVersion(), WebSocketDestinationsEnum.ALERT_FAQ_UPDATE);
-
-                    return new ResponseEntity<>(response, HttpStatus.OK);
+                if (changed) {
+                    faqDB.setTitle(model.getTitle());
                 }
-            }
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
 
+                boolean itemsChanged = faqItemServiceImpl.editItems(model.getItems(), faqDB);
 
-        public ResponseEntity<FaqModel> get(FaqIdModel model) {
-
-            if (model != null && model.getId() != null) {
-                Optional<Faq> faqSearch = faqRepository.findById(model.getId());
-
-                if (faqSearch.isPresent()) {
-                    FaqModel response = new FaqModel(faqSearch.get());
-                    return new ResponseEntity<>(response, HttpStatus.OK);
+                if(changed || itemsChanged) {
+                    this.updateFaqVersion(faqDB);
                 }
-            }
 
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                FaqModel response = new FaqModel(faqDB);
+
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+
+    public ResponseEntity<FaqModel> get(FaqIdModel model) {
+
+        if (model != null && model.getId() != null) {
+            Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+
+            if (faqSearch.isPresent()) {
+                FaqModel response = new FaqModel(faqSearch.get());
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
         }
 
-        public ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel) {
-            FaqModel response = new FaqModel();
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
 
-            if (faqSaveRequestModel != null) {
+    public ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel) {
+        FaqModel response = new FaqModel();
+        Boolean isOld = false;
 
-                //fazer validação
+        if (faqSaveRequestModel != null) {
 
-                Faq faq = faqRepository.save(new Faq(faqSaveRequestModel));
+            Faq faq;
 
-                List<FaqItem> newItems = faqItemServiceImpl.saveItems(faqSaveRequestModel.getItems(), faq);
+            Optional<Faq> faqSearch = faqRepository.findByTitle(faqSaveRequestModel.getTitle());
 
-                faq.setItems(newItems);
-
-                response = new FaqModel(faq);
-
+            if (faqSearch.isPresent()) {
+                faq = faqSearch.get();
+                isOld = true;
+            } else {
+                faq = faqRepository.save(new Faq(faqSaveRequestModel));
             }
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            List<FaqItem> newItems = faqItemServiceImpl.saveItems(faqSaveRequestModel.getItems(), faq);
+
+            if (isOld && newItems.size() > 0) {
+                this.updateFaqVersion(faq);
+            }
+
+            faq.setItems(newItems);
+
+            response = new FaqModel(faq);
+
         }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     public ResponseEntity<Long> saveFaqUser(FaqIdModel model) {
-
         if (model != null && model.getId() != null) {
 
             Optional<Faq> faqSearch = faqRepository.findById(model.getId());
@@ -125,14 +138,11 @@ public class FaqServiceImpl implements FaqService{
 
                 if(faqUser != null) {
                     faqUser.setFaq(faqDB);
-
                 } else {
                     faqUser = new FaqUser(faqDB, user);
                 }
 
-                faqUserRepository.save(faqUser);
-
-                alertUpdateQueueServiceImpl.sendUpdateMessage(faqDB.getId(), WebSocketDestinationsEnum.ALERT_FAQ_USER_UPDATE);
+                this.updateFaqUserVersion(faqUser);
 
                 return new ResponseEntity<>(model.getId(), HttpStatus.OK);
             }
@@ -154,18 +164,34 @@ public class FaqServiceImpl implements FaqService{
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    public ResponseEntity<List<FaqModel>> saveAll(List<FaqSaveRequestModel> models) {
+    public ResponseEntity<List<FaqModel>> saveAll(FaqListSaveRequestModel model) {
         List<FaqModel> response = new ArrayList<>();
 
-        models.forEach(model -> {
+        List<String> titles = model.getItems().stream().map(item -> item.getTitle().toLowerCase()).collect(Collectors.toList());
 
-            if (model != null) {
+        List<Faq> savedFaqs = faqRepository.findAllByTitles(titles);
 
-                //fazer validação
+        model.getItems().forEach(item -> {
 
-                Faq faq = faqRepository.save(new Faq(model));
+            if (item != null) {
 
-                List<FaqItem> newItems = faqItemServiceImpl.saveItems(model.getItems(), faq);
+                Faq faq;
+                Boolean isOld = false;
+
+                Optional<Faq> savedFaqSearch = savedFaqs.stream().filter(f -> f.getTitle().equalsIgnoreCase(item.getTitle())).findFirst();
+
+                if (savedFaqSearch.isPresent()) {
+                    faq = savedFaqSearch.get();
+                    isOld = true;
+                } else {
+                    faq = faqRepository.save(new Faq(item));
+                }
+
+                List<FaqItem> newItems = faqItemServiceImpl.saveItems(item.getItems(), faq);
+
+                if (isOld && newItems.size() > 0) {
+                    this.updateFaqVersion(faq);
+                }
 
                 faq.setItems(newItems);
 
@@ -185,16 +211,31 @@ public class FaqServiceImpl implements FaqService{
 
     }
 
-    public ResponseEntity<FaqSyncModel> getFaqUserVersion() {
-
+    public ResponseEntity<?> getFaqUserVersion() {
         final FaqUser faqUser = authServiceImpl.getCurrentUser().getFaqUser();
 
-        final Faq faq = faqUser.getFaq();
+        if (faqUser != null) {
+            final Faq faq = faqUser.getFaq();
 
-        FaqSyncModel response = new FaqSyncModel(faq.getId(), faq.getVersion());
+            FaqSyncModel response = new FaqSyncModel(faq.getId(), faq.getVersion());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
 
+        return new ResponseEntity<>(FaqConstants.USER_WITHOUT_FAQ_MESSAGE, HttpStatus.NO_CONTENT);
     }
+
+    private void updateFaqVersion(Faq faq) {
+        faq.updateVersion();
+        faqRepository.save(faq);
+        alertUpdateTopicService.sendUpdateMessage(faq.getVersion(), WebSocketDestinationsEnum.ALERT_FAQ_UPDATE);
+    }
+
+    private void updateFaqUserVersion(FaqUser faqUser) {
+        faqUser.updateVersion();
+        faqUserRepository.save(faqUser);
+        alertUpdateQueueService.sendUpdateMessage(faqUser.getVersion(), WebSocketDestinationsEnum.ALERT_FAQ_USER_UPDATE);
+    }
+
 
 }

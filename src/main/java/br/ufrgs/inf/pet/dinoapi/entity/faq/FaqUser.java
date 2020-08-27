@@ -19,17 +19,18 @@ public class FaqUser implements Serializable {
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
     @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToOne
-    @NotNull
-    @JoinColumn(name = "faq_id", referencedColumnName = "id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "faq_id", nullable = false)
     private Faq faq;
 
+    @Column(name = "version", nullable = false)
+    private Long version;
+
     @OneToOne
-    @NotNull
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
     public FaqUser() {}
@@ -59,4 +60,19 @@ public class FaqUser implements Serializable {
         this.user = user;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
+
+    public void updateVersion() {
+        if (this.version == null) {
+            this.version = 0l;
+        } else {
+            this.version = this.version + 1l;
+        }
+    }
 }

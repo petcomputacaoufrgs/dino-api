@@ -28,15 +28,14 @@ public class Faq implements Serializable {
     @Column(name = "version", nullable = false)
     private Long version;
 
-    @Column(name = "title", length = TITLE_MAX, nullable = false)
+    @Column(name = "title", length = TITLE_MAX, nullable = false, unique = true)
     private String title;
 
-    @Valid
     @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL)
     private List<FaqItem> items;
 
-    @OneToOne(mappedBy = "user")
-    private FaqUser faqUser;
+    @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL)
+    private List<FaqUser> faqUsers;
 
     public Faq() {
         this.items = new ArrayList<>();

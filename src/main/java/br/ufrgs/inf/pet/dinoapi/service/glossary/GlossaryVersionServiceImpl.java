@@ -14,12 +14,12 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
 
     private final GlossaryVersionRepository glossaryVersionRepository;
 
-    private final AlertUpdateTopicServiceImpl alertUpdateTopicServiceImpl;
+    private final AlertUpdateTopicServiceImpl alertUpdateTopicService;
 
     @Autowired
-    public GlossaryVersionServiceImpl(GlossaryVersionRepository glossaryVersionRepository, AlertUpdateTopicServiceImpl alertUpdateTopicServiceImpl) {
+    public GlossaryVersionServiceImpl(GlossaryVersionRepository glossaryVersionRepository, AlertUpdateTopicServiceImpl alertUpdateTopicService) {
         this.glossaryVersionRepository = glossaryVersionRepository;
-        this.alertUpdateTopicServiceImpl = alertUpdateTopicServiceImpl;
+        this.alertUpdateTopicService = alertUpdateTopicService;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class GlossaryVersionServiceImpl implements GlossaryVersionService {
         }
 
         glossaryVersionRepository.save(glossary);
-        alertUpdateTopicServiceImpl.sendUpdateMessage(glossary.getVersion(), WebSocketDestinationsEnum.ALERT_GLOSSARY_UPDATE);
+        alertUpdateTopicService.sendUpdateMessage(glossary.getVersion(), WebSocketDestinationsEnum.ALERT_GLOSSARY_UPDATE);
 
 
         return glossary.getVersion();
