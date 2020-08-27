@@ -32,7 +32,6 @@ public class FaqServiceImpl implements FaqService{
 
         private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
-
     @Autowired
         public FaqServiceImpl(FaqRepository faqRepository, FaqUserRepository faqUserRepository, FaqItemServiceImpl faqItemServiceImpl, AuthServiceImpl authServiceImpl,
                               AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
@@ -41,9 +40,7 @@ public class FaqServiceImpl implements FaqService{
             this.faqItemServiceImpl = faqItemServiceImpl;
             this.authServiceImpl = authServiceImpl;
             this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
-
         }
-
 
         public ResponseEntity<FaqModel> editFaq(FaqModel model) {
 
@@ -69,7 +66,7 @@ public class FaqServiceImpl implements FaqService{
 
                     FaqModel response = new FaqModel(faqDB);
 
-                    //alertUpdateQueueServiceImpl.sendUpdateMessage(faqVersion.getVersion(), WebSocketDestinationsEnum.ALERT_FAQ_UPDATE);
+                    //alertUpdateQueueServiceImpl.sendUpdateMessage(faqDB.getVersion(), WebSocketDestinationsEnum.ALERT_FAQ_UPDATE);
 
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
@@ -114,29 +111,28 @@ public class FaqServiceImpl implements FaqService{
 
     public ResponseEntity<Long> saveFaqUser(FaqIdModel model) {
 
-        User user = authServiceImpl.getCurrentUser();
-
-        if (model != null) {
-
-            FaqUser faqUser = user.getFaqUser();
-
-            //fazer validação e ver se o id mudou
+        if (model != null && model.getId() != null) {
 
             Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 
             if(faqSearch.isPresent()) {
 
+                User user = authServiceImpl.getCurrentUser();
+
+                FaqUser faqUser = user.getFaqUser();
+
+                Faq faqDB = faqSearch.get();
+
                 if(faqUser != null) {
-
-                    faqUser.setFaq(faqSearch.get());
-
-                    faqUserRepository.save(faqUser);
+                    faqUser.setFaq(faqDB);
 
                 } else {
-                    faqUserRepository.save(new FaqUser(faqSearch.get(), user));
+                    faqUser = new FaqUser(faqDB, user);
                 }
 
-                alertUpdateQueueServiceImpl.sendUpdateMessage(model.getId(), WebSocketDestinationsEnum.ALERT_FAQ_USER_UPDATE);
+                faqUserRepository.save(faqUser);
+
+                alertUpdateQueueServiceImpl.sendUpdateMessage(faqDB.getId(), WebSocketDestinationsEnum.ALERT_FAQ_USER_UPDATE);
 
                 return new ResponseEntity<>(model.getId(), HttpStatus.OK);
             }
@@ -155,7 +151,7 @@ public class FaqServiceImpl implements FaqService{
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     public ResponseEntity<List<FaqModel>> saveAll(List<FaqSaveRequestModel> models) {
@@ -189,11 +185,15 @@ public class FaqServiceImpl implements FaqService{
 
     }
 
-    public ResponseEntity<Long> getUserFaqId() {
+    public ResponseEntity<FaqSyncModel> getFaqUserVersion() {
 
         final FaqUser faqUser = authServiceImpl.getCurrentUser().getFaqUser();
 
-        return new ResponseEntity<>(faqUser.getFaq().getId(), HttpStatus.OK);
+        final Faq faq = faqUser.getFaq();
+
+        FaqSyncModel response = new FaqSyncModel(faq.getId(), faq.getVersion());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 

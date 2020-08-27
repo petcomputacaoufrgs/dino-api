@@ -1,9 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.faq;
 
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqOptionModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -20,7 +17,7 @@ public interface FaqController {
 
     ResponseEntity<FaqModel> editFaq(@Valid @RequestBody FaqModel model);
 
-    ResponseEntity<Long> getUserFaqId();
+    ResponseEntity<FaqSyncModel> getFaqUserVersion();
 
     ResponseEntity<FaqModel> getFaqUser();
 

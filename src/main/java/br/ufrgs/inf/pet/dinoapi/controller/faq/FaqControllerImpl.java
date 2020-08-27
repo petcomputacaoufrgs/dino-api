@@ -1,9 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.faq;
 
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqOptionModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import br.ufrgs.inf.pet.dinoapi.service.faq.FaqServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -46,9 +43,9 @@ public class FaqControllerImpl implements FaqController{
         return faqServiceImpl.editFaq(model);
     }
 
-    @GetMapping("faq/id/")
-    public ResponseEntity<Long> getUserFaqId() {
-        return faqServiceImpl.getUserFaqId();
+    @GetMapping("faq/version/")
+    public ResponseEntity<FaqSyncModel> getFaqUserVersion() {
+        return faqServiceImpl.getFaqUserVersion();
     }
 
     @GetMapping("faq/")
