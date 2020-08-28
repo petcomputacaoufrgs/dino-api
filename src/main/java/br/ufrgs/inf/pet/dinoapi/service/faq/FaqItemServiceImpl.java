@@ -31,7 +31,7 @@ public class FaqItemServiceImpl implements  FaqItemService {
         if (models != null) {
             for (FaqSaveRequestItemModel newItem : models) {
                 if (newItem.isValid()) {
-                    faqItemSearchResult = faqItemRepository.findByQuestion(newItem.getQuestion());
+                    faqItemSearchResult = faqItemRepository.findByQuestionAndFaqId(newItem.getQuestion(), faq.getId());
 
                     if (faqItemSearchResult.isEmpty()) {
                         FaqItem faqItem = new FaqItem(newItem, faq);
