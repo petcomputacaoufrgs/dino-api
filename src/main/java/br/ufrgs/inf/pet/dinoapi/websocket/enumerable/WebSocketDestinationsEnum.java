@@ -6,7 +6,7 @@ public enum WebSocketDestinationsEnum {
     ALERT_NOTE_UPDATE("/queue/note/update"),
     ALERT_USER_UPDATE("/queue/user/update"),
     ALERT_CONTACT_UPDATE("/queue/contact/update"),
-    ALERT_FAQ_UPDATE("/queue/faq/update"),
+    ALERT_FAQ_UPDATE("/topic/faq/update"),
     ALERT_FAQ_USER_UPDATE("/queue/faq/update/user");
 
     private String value;
