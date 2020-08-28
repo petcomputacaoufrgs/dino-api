@@ -33,7 +33,6 @@ public class NoteResponseModel {
         this.answered = note.getAnswered();
         this.tags = note.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
         this.lastUpdate = note.getLastUpdate().getTime();
-        this.tags = new ArrayList<>();
     }
 
     public Long getId() {
