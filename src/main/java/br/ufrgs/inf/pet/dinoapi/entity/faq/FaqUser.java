@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.faq;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 import static javax.persistence.GenerationType.SEQUENCE;
@@ -22,12 +21,9 @@ public class FaqUser implements Serializable {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne
     @JoinColumn(name = "faq_id", nullable = false)
     private Faq faq;
-
-    @Column(name = "version", nullable = false)
-    private Long version;
 
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
@@ -60,19 +56,4 @@ public class FaqUser implements Serializable {
         this.user = user;
     }
 
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
-    public void updateVersion() {
-        if (this.version == null) {
-            this.version = 0l;
-        } else {
-            this.version = this.version + 1l;
-        }
-    }
 }

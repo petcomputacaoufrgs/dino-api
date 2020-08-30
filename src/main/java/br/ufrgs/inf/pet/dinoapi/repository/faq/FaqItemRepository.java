@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,7 +14,8 @@ import java.util.Optional;
 @Repository
 public interface FaqItemRepository extends CrudRepository<FaqItem, Long> {
 
-    Optional<FaqItem> findByQuestion(String title);
+    @Query("SELECT fi FROM FaqItem fi WHERE fi.question = :question AND fi.faq.id = :faqId")
+    Optional<FaqItem> findByQuestionAndFaqId(@Param("question") String question, @Param("faqId") Long faqId);
 
     @Transactional
     @Modifying

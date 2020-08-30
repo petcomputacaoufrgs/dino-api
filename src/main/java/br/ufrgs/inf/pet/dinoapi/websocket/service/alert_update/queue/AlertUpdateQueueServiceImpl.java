@@ -28,4 +28,12 @@ public class AlertUpdateQueueServiceImpl implements AlertUpdateQueueService {
         final UserDetails principal = authService.getPrincipal();
         this.simpMessagingTemplate.convertAndSendToUser(principal.getUsername(), pathEnum.getValue(), model);
     }
+
+    @Override
+    public void sendUpdateIdMessage(Long newId, WebSocketDestinationsEnum pathEnum) {
+        final AlertUpdateModel model = new AlertUpdateModel();
+        model.setNewId(newId);
+        final UserDetails principal = authService.getPrincipal();
+        this.simpMessagingTemplate.convertAndSendToUser(principal.getUsername(), pathEnum.getValue(), model);
+    }
 }

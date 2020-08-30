@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.faq;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
 
 import javax.persistence.*;
-import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,8 +33,8 @@ public class Faq implements Serializable {
     @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL)
     private List<FaqItem> items;
 
-    @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL)
-    private List<FaqUser> faqUsers;
+    @OneToOne(mappedBy = "user")
+    private FaqUser faqUser;
 
     public Faq() {
         this.items = new ArrayList<>();

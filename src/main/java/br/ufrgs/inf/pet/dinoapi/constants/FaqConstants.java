@@ -16,5 +16,4 @@ public final class FaqConstants {
     public final static String ANSWER_MESSAGE = "answer should be between 1 and MAX.";
     public final static String ANSWER_NULL_MESSAGE = "answer should not be null.";
 
-    public final static String USER_WITHOUT_FAQ_MESSAGE = "user without faq";
 }

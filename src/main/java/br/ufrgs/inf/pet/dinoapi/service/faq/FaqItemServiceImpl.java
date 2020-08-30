@@ -25,19 +25,25 @@ public class FaqItemServiceImpl implements  FaqItemService {
 
     public List<FaqItem> saveItems(List<FaqSaveRequestItemModel> models, Faq faq) {
 
-        Optional<FaqItem> faqItemSearchResult;
+        Optional<FaqItem> faqItemSearch;
         List<FaqItem> itemsResponse = new ArrayList<>();
 
         if (models != null) {
             for (FaqSaveRequestItemModel newItem : models) {
                 if (newItem.isValid()) {
-                    faqItemSearchResult = faqItemRepository.findByQuestion(newItem.getQuestion());
 
-                    if (faqItemSearchResult.isEmpty()) {
-                        FaqItem faqItem = new FaqItem(newItem, faq);
-                        faqItemRepository.save(faqItem);
-                        itemsResponse.add(faqItem);
+                    faqItemSearch = faqItemRepository.findByQuestionAndFaqId(newItem.getQuestion(), faq.getId());
+
+                    FaqItem faqItem = faqItemSearch.orElseGet(() -> new FaqItem(newItem, faq));
+
+                    if(faqItemSearch.isPresent()) {
+                        if(!faqItem.getAnswer().equals(newItem.getAnswer())) {
+                            faqItem.setAnswer(newItem.getAnswer());
+                        } else continue;
                     }
+
+                    itemsResponse.add(faqItem);
+                    faqItemRepository.save(faqItem);
                 }
             }
         }

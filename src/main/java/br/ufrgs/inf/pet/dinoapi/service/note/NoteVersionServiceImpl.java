@@ -40,13 +40,11 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     public Long updateVersion() {
         NoteVersion noteVersion = this.getNoteVersion();
 
-        if (noteVersion.getVersion() != noteVersion.DEFAULT_VERSION) {
-            noteVersion.updateVersion();
-            noteVersion.setLastUpdate(new Date());
-            noteVersion = noteVersionRepository.save(noteVersion);
+        noteVersion.updateVersion();
+        noteVersion.setLastUpdate(new Date());
+        noteVersion = noteVersionRepository.save(noteVersion);
 
-            alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getVersion(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE);
-        }
+        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getVersion(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE);
 
         return noteVersion.getVersion();
     }

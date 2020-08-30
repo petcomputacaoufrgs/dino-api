@@ -44,7 +44,9 @@ public class Note {
             inverseJoinColumns = @JoinColumn(name = "note_tag_id", nullable = false))
     private List<NoteTag> tags;
 
-    public Note() {}
+    public Note() {
+        this.tags = new ArrayList<>();
+    }
 
     public Note(Date lastUpdate, Integer order, String question, List<NoteTag> tags, User user) {
         this.lastUpdate = lastUpdate;
