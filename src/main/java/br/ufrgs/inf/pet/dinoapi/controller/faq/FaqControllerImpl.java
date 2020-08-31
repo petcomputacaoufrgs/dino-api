@@ -44,7 +44,7 @@ public class FaqControllerImpl implements FaqController{
 
     @Override
     @GetMapping("faq/version/")
-    public ResponseEntity<FaqSyncModel> getFaqUserVersion() {
+    public ResponseEntity<FaqVersionModel> getFaqUserVersion() {
         return faqServiceImpl.getFaqUserVersion();
     }
 

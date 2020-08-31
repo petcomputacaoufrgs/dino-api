@@ -7,21 +7,21 @@ import java.util.List;
 
 public interface FaqService {
 
-    public ResponseEntity<FaqModel> get(FaqIdModel model);
+    ResponseEntity<FaqModel> get(FaqIdModel model);
 
-    public ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel);
+    ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel);
 
-    public ResponseEntity<List<FaqModel>> saveAll(FaqListSaveRequestModel model);
+    ResponseEntity<List<FaqModel>> saveAll(FaqListSaveRequestModel model);
 
-    public ResponseEntity<Long> saveFaqUser(FaqIdModel model);
+    ResponseEntity<Long> saveFaqUser(FaqIdModel model);
 
-    public ResponseEntity<FaqModel> getFaqUser();
+    ResponseEntity<FaqModel> getFaqUser();
 
-    public ResponseEntity<?> getFaqUserVersion();
+    ResponseEntity<?> getFaqUserVersion();
 
-    public ResponseEntity<FaqModel> editFaq(FaqModel model);
+    ResponseEntity<FaqModel> editFaq(FaqModel model);
 
-    public ResponseEntity<List<FaqOptionModel>> getFaqOptions();
+    ResponseEntity<List<FaqOptionModel>> getFaqOptions();
 
 }
 

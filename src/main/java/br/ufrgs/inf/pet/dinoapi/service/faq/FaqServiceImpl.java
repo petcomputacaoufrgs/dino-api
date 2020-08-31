@@ -204,14 +204,14 @@ public class FaqServiceImpl implements FaqService{
 
     }
 
-    public ResponseEntity<FaqSyncModel> getFaqUserVersion() {
+    public ResponseEntity<FaqVersionModel> getFaqUserVersion() {
 
         final FaqUser faqUser = authServiceImpl.getCurrentUser().getFaqUser();
 
         if (faqUser != null) {
             final Faq faq = faqUser.getFaq();
 
-            FaqSyncModel response = new FaqSyncModel(faq.getId(), faq.getVersion());
+            FaqVersionModel response = new FaqVersionModel(faq.getId(), faq.getVersion());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -222,7 +222,7 @@ public class FaqServiceImpl implements FaqService{
     private void updateFaqVersion(Faq faq) {
         faq.updateVersion();
         faqRepository.save(faq);
-        alertUpdateTopicService.sendUpdateMessage(faq.getVersion(), WebSocketDestinationsEnum.ALERT_FAQ_UPDATE);
+        alertUpdateTopicService.sendUpdateMessage(faq.getVersion(), faq.getId(), WebSocketDestinationsEnum.ALERT_FAQ_UPDATE);
     }
 
     private void updateFaqUserId(FaqUser faqUser, Long faqId) {

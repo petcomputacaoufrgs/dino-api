@@ -1,13 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.model.faq;
 
-public class FaqSyncModel {
+public class FaqVersionModel {
 
     private Long id;
     private Long version;
 
-    public FaqSyncModel() {}
+    public FaqVersionModel() {}
 
-    public FaqSyncModel(Long id, Long version) {
+    public FaqVersionModel(Long id, Long version) {
         this.id = id;
         this.version = version;
     }

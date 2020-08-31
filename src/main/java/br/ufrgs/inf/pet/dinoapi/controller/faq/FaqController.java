@@ -14,7 +14,7 @@ public interface FaqController {
 
     ResponseEntity<FaqModel> editFaq(FaqModel model);
 
-    ResponseEntity<?> getFaqUserVersion();
+    ResponseEntity<FaqVersionModel> getFaqUserVersion();
 
     ResponseEntity<FaqModel> getFaqUser();
 
