@@ -39,13 +39,13 @@ public class GlossaryControllerImpl implements GlossaryController {
     }
 
     @Override
-    @GetMapping("/glossary/get/")
+    @GetMapping("public/glossary/get/")
     public ResponseEntity<List<GlossaryItem>> get() {
         return glossaryItemService.get();
     }
 
     @Override
-    @GetMapping("/glossary/version/")
+    @GetMapping("public/glossary/version/")
     public ResponseEntity<Long> getVersion() {
         return glossaryVersionService.getGlossaryVersion();
     }
