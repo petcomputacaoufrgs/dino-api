@@ -17,7 +17,7 @@ public class NoteTag {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", length = 100, nullable = false)
+    @Column(name = "name", length = 50, nullable = false)
     private String name;
 
     @ManyToMany(mappedBy = "tags")

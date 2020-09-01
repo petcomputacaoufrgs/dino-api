@@ -22,10 +22,10 @@ public class Note {
     @Column(name = "n_order", nullable = false)
     private Integer order;
 
-    @Column(name = "question", length = 500, nullable = false)
+    @Column(name = "question", length = 250, nullable = false)
     private String question;
 
-    @Column(name = "answer", length = 1000)
+    @Column(name = "answer", length = 500)
     private String answer;
 
     @Column(name = "answered", nullable = false)

@@ -9,7 +9,7 @@ public class NoteAnswerRequestModel {
     private Long id;
 
     @NotNull(message = "answer cannot be null.")
-    @Size(max = 1000, message = "answer should not be more than 1000.")
+    @Size(max = 500, message = "answer should not be more than 1000.")
     private String answer;
 
     public Long getId() {

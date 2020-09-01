@@ -11,12 +11,12 @@ public class NoteQuestionRequestModel {
     private Long id;
 
     @NotNull(message = "question cannot be null.")
-    @Size(max = 500, message = "question should not be more than 500.")
+    @Size(max = 250, message = "question should not be more than 500.")
     private String question;
 
     @Valid
     @Size(max = 10, message = "a note can not have more than 5 tags")
-    private List<String> tagNames;
+    private List<@Size(max=50, message = "tag should not be more than 50") String> tagNames;
 
     @NotNull(message = "lastUpdate cannot be null.")
     private Long lastUpdate;
