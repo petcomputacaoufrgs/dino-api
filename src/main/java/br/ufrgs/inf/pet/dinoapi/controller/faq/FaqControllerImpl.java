@@ -19,6 +19,18 @@ public class FaqControllerImpl implements FaqController{
     }
 
     @Override
+    @GetMapping("public/faq/")
+    public ResponseEntity<FaqModel> get(@Valid @RequestBody FaqIdModel model) {
+        return faqServiceImpl.get(model);
+    }
+
+    @Override
+    @GetMapping("public/faq/all/")
+    public ResponseEntity<List<FaqModel>> getAll() {
+        return faqServiceImpl.getAll();
+    }
+
+    @Override
     @PostMapping("public/faq/")
     public ResponseEntity<FaqModel> save(@Valid @RequestBody FaqSaveRequestModel model) {
         return faqServiceImpl.save(model);

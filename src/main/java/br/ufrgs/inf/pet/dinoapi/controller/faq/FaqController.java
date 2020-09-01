@@ -6,6 +6,10 @@ import java.util.List;
 
 public interface FaqController {
 
+    ResponseEntity<FaqModel> get(FaqIdModel model);
+
+    ResponseEntity<List<FaqModel>> getAll();
+
     ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel);
 
     ResponseEntity<List<FaqModel>> saveAll(FaqListSaveRequestModel model);

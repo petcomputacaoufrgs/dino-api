@@ -95,6 +95,19 @@ public class FaqServiceImpl implements FaqService{
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    public ResponseEntity<List<FaqModel>> getAll() {
+
+        List<Faq> faqSearch = Lists.newArrayList(faqRepository.findAll());
+
+        List<FaqModel> response = faqSearch.stream().map(FaqModel::new).collect(Collectors.toList());
+
+        if(response.size() > 0) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     public ResponseEntity<FaqModel> save(FaqSaveRequestModel faqSaveRequestModel) {
         FaqModel response = new FaqModel();
 
