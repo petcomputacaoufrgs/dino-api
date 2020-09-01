@@ -15,6 +15,7 @@ public class NoteQuestionRequestModel {
     private String question;
 
     @Valid
+    @Size(max = 5, message = "a note can not have more than 5 tags")
     private List<String> tagNames;
 
     @NotNull(message = "lastUpdate cannot be null.")

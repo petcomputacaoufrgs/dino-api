@@ -29,7 +29,6 @@ public class NoteControllerImpl implements NoteController {
         this.noteVersionService = noteVersionService;
     }
 
-
     @Override
     @GetMapping
     public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
@@ -38,7 +37,7 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PostMapping
-    public ResponseEntity<?> saveNewNote(@Valid  @RequestBody NoteSaveRequestRequestModel model) {
+    public ResponseEntity<?> saveNewNote(@Valid  @RequestBody NoteSaveRequestModel model) {
         return noteService.saveNewNote(model);
     }
 
@@ -56,7 +55,7 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PostMapping("all/")
-    public ResponseEntity<Long> saveAll(@Valid @RequestBody List<NoteSaveRequestRequestModel> models) {
+    public ResponseEntity<Long> saveAll(@Valid @RequestBody List<NoteSaveRequestModel> models) {
         return noteService.saveAll(models);
     }
 

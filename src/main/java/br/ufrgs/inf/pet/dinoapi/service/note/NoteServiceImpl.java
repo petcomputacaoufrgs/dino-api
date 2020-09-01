@@ -48,7 +48,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<?> saveNewNote(NoteSaveRequestRequestModel model) {
+    public ResponseEntity<?> saveNewNote(NoteSaveRequestModel model) {
 
         if (model.getQuestion().isBlank()) {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
@@ -129,7 +129,7 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<Long> saveAll(List<NoteSaveRequestRequestModel> models) {
+    public ResponseEntity<Long> saveAll(List<NoteSaveRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
         final List<Note> newNotes = this.createNewNotes(models, user, new Date());
@@ -203,7 +203,7 @@ public class NoteServiceImpl implements NoteService {
         final Set<Integer> uniqueOrders = new HashSet<>(orders);
 
         if (orders.size() != uniqueOrders.size()) {
-            return new ResponseEntity<>("Não podem haver itens com ordens iguais.", HttpStatus.OK);
+            return new ResponseEntity<>("Não podem haver itens com ordens iguais.", HttpStatus.BAD_REQUEST);
         }
 
         final List<Note> notes = noteRepository.findAllByIdOrderByIdAsc(ids, user.getId());

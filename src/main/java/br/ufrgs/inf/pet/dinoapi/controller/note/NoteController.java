@@ -16,11 +16,11 @@ public interface NoteController {
     /**
      * Salva uma nova anotação
      *
-     * @param model Model {@link NoteSaveRequestRequestModel} com os dadso necessários
+     * @param model Model {@link NoteSaveRequestModel} com os dadso necessários
      * @return Em caso de sucesso retorna a model {@link NoteSaveResponseModel}
      * em caso de falha retorna a mensagem com o erro
      **/
-    ResponseEntity<?> saveNewNote(NoteSaveRequestRequestModel model);
+    ResponseEntity<?> saveNewNote(NoteSaveRequestModel model);
 
     /**
      * Remove ums lista de anotações do usuário
@@ -41,10 +41,10 @@ public interface NoteController {
     /**
      * Salva uma nova lista de anotações
      *
-     * @param models Lista do tipo {@link NoteSaveRequestRequestModel}
+     * @param models Lista do tipo {@link NoteSaveRequestModel}
      * @return Em caso de sucesso retorna a nova versão das anotações
      */
-    ResponseEntity<Long> saveAll(List<NoteSaveRequestRequestModel> models);
+    ResponseEntity<Long> saveAll(List<NoteSaveRequestModel> models);
 
     /**
      * Atualiza e cria (caso não exista) uma lista de anotações
