@@ -21,7 +21,7 @@ public class FaqUser implements Serializable {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @OneToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faq_id", nullable = false)
     private Faq faq;
 
