@@ -1,9 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -11,7 +15,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 public class User {
     private static final String SEQUENCE_NAME = "dino_user_seq";
 
-    public final Long DEFAULT_VERSION = 0l;
+    public final Long DEFAULT_VERSION = 0L;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -51,6 +55,9 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private ContactVersion contactVersion;
+
+    @OneToOne(mappedBy = "user")
+    private FaqUser faqUser;
     
     public User() {
         this.notes = new ArrayList<>();
@@ -158,6 +165,14 @@ public class User {
 
     public void setNoteVersion(NoteVersion noteVersion) {
         this.noteVersion = noteVersion;
+    }
+
+    public FaqUser getFaqUser() {
+        return faqUser;
+    }
+
+    public void setFaqUser(FaqUser faqUser) {
+        this.faqUser = faqUser;
     }
 
     public Boolean tokenIsValid(String token) {

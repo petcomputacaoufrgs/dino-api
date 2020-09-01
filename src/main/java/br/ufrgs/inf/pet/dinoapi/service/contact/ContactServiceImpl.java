@@ -21,21 +21,21 @@ public class ContactServiceImpl implements ContactService {
 
     private final ContactRepository contactRepository;
     private final ContactVersionServiceImpl contactVersionServiceImpl;
-    private final AuthServiceImpl authService;
+    private final AuthServiceImpl authServiceImpl;
     private final PhoneServiceImpl phoneServiceImpl;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authService, PhoneServiceImpl phoneServiceImpl) {
+    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl) {
         this.contactRepository = contactRepository;
         this.contactVersionServiceImpl = contactVersionServiceImpl;
         this.phoneServiceImpl = phoneServiceImpl;
-        this.authService = authService;
+        this.authServiceImpl = authServiceImpl;
     }
 
 
     public ResponseEntity<List<ContactModel>> getUserContacts() {
 
-            User user = authService.getCurrentUser();
+            User user = authServiceImpl.getCurrentUser();
 
             List<Contact> contacts = user.getContacts();
 
@@ -49,7 +49,7 @@ public class ContactServiceImpl implements ContactService {
 
             //fazer segurança
 
-            User user = authService.getCurrentUser();
+            User user = authServiceImpl.getCurrentUser();
 
             Contact contact = contactRepository.save(new Contact(model, user));
 
@@ -66,7 +66,7 @@ public class ContactServiceImpl implements ContactService {
 
         public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
 
-            User user = authService.getCurrentUser();
+            User user = authServiceImpl.getCurrentUser();
 
             contactVersionServiceImpl.updateVersion(user);
 
@@ -99,7 +99,7 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        User user = authService.getCurrentUser();
+        User user = authServiceImpl.getCurrentUser();
 
         Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
@@ -116,7 +116,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<Long> deleteContacts(List<ContactDeleteModel> models) {
 
-        User user = authService.getCurrentUser();
+        User user = authServiceImpl.getCurrentUser();
 
         List<Long> validIds = models.stream()
                 .filter(Objects::nonNull)
@@ -142,7 +142,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> editContact(ContactModel model) {
 
-        User user = authService.getCurrentUser();
+        User user = authServiceImpl.getCurrentUser();
 
         Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
@@ -159,7 +159,7 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
 
-        User user = authService.getCurrentUser();
+        User user = authServiceImpl.getCurrentUser();
 
         List<ContactModel> responseFailed = new ArrayList<>();
 

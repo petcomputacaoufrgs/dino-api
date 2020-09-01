@@ -1,6 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue;
 
-import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.topic.AlertUpdateTopicService;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 
-public interface AlertUpdateQueueService extends AlertUpdateTopicService {
+public interface AlertUpdateQueueService {
+
+    void sendUpdateMessage(Long newVersion, WebSocketDestinationsEnum pathEnum);
+
+    void sendUpdateIdMessage(Long newId, WebSocketDestinationsEnum pathEnum);
 }

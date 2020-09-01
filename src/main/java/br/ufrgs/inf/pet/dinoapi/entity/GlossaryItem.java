@@ -84,7 +84,6 @@ public class GlossaryItem {
             updated = true;
         }
 
-        // TODO: discutir melhor
         if(this.fullText == null || !this.fullText.equals(updateModel.getFullText())) {
             this.fullText = updateModel.getFullText();
             updated = true;

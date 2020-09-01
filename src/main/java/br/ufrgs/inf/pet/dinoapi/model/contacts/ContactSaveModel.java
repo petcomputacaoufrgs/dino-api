@@ -12,7 +12,7 @@ public class ContactSaveModel {
     private Long frontId;
 
     @NotNull(message = NAME_NULL_MESSAGE)
-    @Size(max = NAME_MAX, message = NAME_MAX_MESSAGE)
+    @Size(min = 1, max = NAME_MAX, message = NAME_MAX_MESSAGE)
     private String name;
 
     @Valid
