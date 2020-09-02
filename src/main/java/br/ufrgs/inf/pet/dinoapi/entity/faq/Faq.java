@@ -36,6 +36,9 @@ public class Faq implements Serializable {
     @OneToMany(mappedBy = "user")
     private List<FaqUser> faqUsers;
 
+    @OneToMany(mappedBy = "user")
+    private List<UserQuestion> faqUserQuestions;
+
     public Faq() {
         this.items = new ArrayList<>();
     }
