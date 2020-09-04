@@ -13,14 +13,12 @@ import java.util.Optional;
 @Repository
 public interface NoteRepository extends CrudRepository<Note, Long> {
 
-        @Query("SELECT n FROM Note n WHERE n.id IN :ids AND n.user.id = :userId")
+        @Query("SELECT n FROM Note n WHERE (n.id IN :ids) AND n.user.id = :userId")
         List<Note> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 
         @Query("SELECT n FROM Note n WHERE n.question = :question AND n.user.id = :userId")
         List<Note> findByQuestionAndUserId(@Param("question") String question, @Param("userId") Long userId);
 
-        @Query("SELECT n.question FROM Note n WHERE n.question IN :questions AND n.user.id = :userId")
-        List<String> findAllQuestionsByQuestionsAndUserId(@Param("questions") List<String> questions, @Param("userId") Long userId);
 
         @Query("SELECT n FROM Note n WHERE n.id IN :ids AND n.user.id = :userId ORDER BY n.id ASC")
         List<Note> findAllByIdOrderByIdAsc(@Param("ids") List<Long> ids, @Param("userId") Long userId);
@@ -35,10 +33,6 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
         @Query("DELETE FROM Note n WHERE n.id = :id AND n.user.id = :userId")
         int deleteByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
-        @Query("SELECT n FROM Note n WHERE n.id = :id AND n.user.id = :userId")
-        Optional<Note> findOneByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
-
         @Query("SELECT MAX(n.order) FROM Note n WHERE n.user.id = :userId")
         Optional<Integer> findMaxOrderByUserId(@Param("userId") Long userId);
-
 }

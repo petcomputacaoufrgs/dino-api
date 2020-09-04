@@ -20,7 +20,7 @@ public interface NoteController {
      * @return Em caso de sucesso retorna a model {@link NoteSaveResponseModel}
      * em caso de falha retorna a mensagem com o erro
      **/
-    ResponseEntity<?> saveNewNote(NoteSaveRequestModel model);
+    ResponseEntity<?> saveNote(NoteSaveRequestModel model);
 
     /**
      * Remove ums lista de anotações do usuário
@@ -39,20 +39,12 @@ public interface NoteController {
     ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model);
 
     /**
-     * Salva uma nova lista de anotações
+     * Atualiza e cria (caso não exista) uma lista de anotações
      *
      * @param models Lista do tipo {@link NoteSaveRequestModel}
      * @return Em caso de sucesso retorna a nova versão das anotações
      */
-    ResponseEntity<Long> saveAll(List<NoteSaveRequestModel> models);
-
-    /**
-     * Atualiza e cria (caso não exista) uma lista de anotações
-     *
-     * @param models Lista do tipo {@link NoteUpdateRequestModel}
-     * @return Em caso de sucesso retorna a nova versão das anotações
-     */
-    ResponseEntity<Long> updateAll(List<NoteUpdateRequestModel> models);
+    ResponseEntity<Long> updateAll(List<NoteSaveRequestModel> models);
 
     /**
      *  Atualiza a ordem das anotações
@@ -61,22 +53,6 @@ public interface NoteController {
      * @return Em caso de sucesso retorna a nova versão das anotações, em caso de erro retorna a mensagem do erro
      **/
     ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models);
-
-    /**
-     * Atualiza a pergunta e as tags da anotação
-     *
-     * @param model Model do tipo {@link NoteQuestionRequestModel}
-     * @return Em caso de sucesso retorna a nova versão das anotações, em caso de erro retorna a mensagem do erro
-     **/
-    ResponseEntity<?> updateNoteQuestion(NoteQuestionRequestModel model);
-
-    /**
-     * Atualiza a resposta
-     *
-     * @param model Model com os dados para atualizar a resposta
-     * @return Em caso de sucesso retorna a nova versão das anotações, em caso de erro retorna a mensagem do erro
-     **/
-    ResponseEntity<?> updateNoteAnswer(NoteAnswerRequestModel model);
 
     /**
      * Retorna todas as tags salvas relacionadas as anotações do usuário

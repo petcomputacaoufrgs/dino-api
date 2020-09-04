@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
-import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
@@ -48,7 +47,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<?> saveNewNote(NoteSaveRequestModel model) {
+    public ResponseEntity<?> saveNote(NoteSaveRequestModel model) {
 
         if (model.getQuestion().isBlank()) {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
@@ -56,31 +55,46 @@ public class NoteServiceImpl implements NoteService {
 
         final User user = authService.getCurrentAuth().getUser();
 
-        final List<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
+        Note note;
 
-        if (noteSearch.size() > 0) {
-            return new ResponseEntity<>("Pergunta já cadastrada", HttpStatus.BAD_REQUEST);
+        if (model.getId() == null) {
+            final List<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
+
+            if (noteSearch.size() > 0) {
+                note = noteSearch.get(0);
+            } else {
+                final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
+
+                Integer order = 0;
+
+                if (maxOrderSearch.isPresent()) {
+                    order = maxOrderSearch.get() + 1;
+                }
+
+                note = new Note(user, order);
+            }
+        } else {
+            final Optional<Note> noteSearch = noteRepository.findById(model.getId());
+
+            if (noteSearch.isPresent()) {
+                note = noteSearch.get();
+            } else {
+                return new ResponseEntity<>("Note not found", HttpStatus.NOT_FOUND);
+            }
         }
 
-        final List<NoteTag> tags = this.createNewTags(model);
+        final List<NoteTag> tags = this.createNotSavedTags(model);
 
-        final Date date = new Date(model.getLastUpdate());
-
-        final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
-
-        Integer order = 0;
-
-        if (maxOrderSearch.isPresent()) {
-            order = maxOrderSearch.get() + 1;
-        }
-
-        final Note note = new Note(date, order, model.getQuestion(), tags, user);
+        note.setLastUpdate(new Date(model.getLastUpdate()));
+        note.setQuestion(model.getQuestion());
+        note.setAnswer(model.getAnswer());
+        note.setTags(tags);
 
         Long newNoteVersion = noteVersionService.updateVersion();
 
         final Note savedNote = noteRepository.save(note);
 
-        final NoteSaveResponseModel response = new NoteSaveResponseModel(newNoteVersion, savedNote.getId());
+        final NoteSaveResponseModel response = new NoteSaveResponseModel(newNoteVersion, savedNote);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -129,54 +143,33 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<Long> saveAll(List<NoteSaveRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
-
-        final List<Note> newNotes = this.createNewNotes(models, user, new Date());
-
-        noteRepository.saveAll(newNotes);
-
-        Long newNoteVersion = noteVersionService.updateVersion();
-
-        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
-    }
-
     @Override
-    public ResponseEntity<Long> updateAll(List<NoteUpdateRequestModel> models) {
+    public ResponseEntity<Long> updateAll(List<NoteSaveRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
+        final List<Note> notes = new ArrayList<>();
 
-        final List<Long> idsToUpdate = models.stream()
-                .filter(m -> m.getId() != null)
-                .map(m -> m.getId())
-                .collect(Collectors.toList());
+        final List<NoteSaveRequestModel> changedNotes = new ArrayList<>();
+        final List<NoteSaveRequestModel> newNotes = new ArrayList<>();
+        final List<Long> idsToUpdate = new ArrayList<>();
+        final List<Integer> orders = new ArrayList<>();
+        final List<String> questions = new ArrayList<>();
 
-        List<Note> notes = new ArrayList<>();
-
-        if (idsToUpdate.size() > 0) {
-           notes = noteRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
-        }
-
-        notes.forEach(note -> {
-            Optional<NoteUpdateRequestModel> modelSearch = models.stream().filter(m -> m.getId() == note.getId()).findFirst();
-
-            if (modelSearch.isPresent()) {
-                NoteUpdateRequestModel model = modelSearch.get();
-
-                note.setAnswered(model.getAnswered());
-
-                note.setAnswer(model.getAnswer());
-
-                note.setQuestion(model.getQuestion());
-
-                note.setLastUpdate(new Date());
-
-                this.updateTags(note, model);
+        models.forEach(model -> {
+            if (model.getId() != null) {
+                changedNotes.add(model);
+                idsToUpdate.add(model.getId());
+            } else {
+                newNotes.add(model);
             }
+            orders.add(model.getOrder());
+            questions.add(model.getQuestion());
         });
 
-        final List<Note> newNotes = this.createNewNotes(models, user, new Date());
+        final List<Note> databaseNotes = noteRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
 
-        notes.addAll(newNotes);
+        notes.addAll(this.updateSavedNotes(changedNotes, databaseNotes));
+
+        notes.addAll(this.createNewNotes(newNotes, user));
 
         noteRepository.saveAll(notes);
 
@@ -227,146 +220,54 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<?> updateNoteQuestion(NoteQuestionRequestModel model) {
+    private List<Note> updateSavedNotes(List<NoteSaveRequestModel> models, List<Note> notes) {
+        final List<Note> updatedNotes = new ArrayList<>();
+        final Date now = new Date();
 
-        if (model.getQuestion().isBlank()) {
-            return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
-        }
+        for (NoteSaveRequestModel model : models)  {
+            Optional<Note> noteSearch = notes.stream().filter(n -> n.getId() == model.getId()).findFirst();
 
-        final User user = authService.getCurrentAuth().getUser();
+            if (noteSearch.isPresent()) {
+                Note note = noteSearch.get();
 
-        final Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
+                note.setAnswer(model.getAnswer());
 
-        if (noteSearch.isEmpty()) {
-            return new ResponseEntity<>("Anotação não encontrada", HttpStatus.BAD_REQUEST);
-        }
+                note.setQuestion(model.getQuestion());
 
-        final Note note = noteSearch.get();
+                note.setLastUpdate(now);
 
-        Boolean changed = false;
+                note.setOrder(model.getOrder());
 
-        final Boolean questionChanged = !model.getQuestion().equalsIgnoreCase(note.getQuestion());
+                this.updateTags(note, model);
 
-        if (questionChanged) {
-            final List<Note> notesSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
-
-            if (notesSearch.size() > 0) {
-                return new ResponseEntity<>("Pergunta já cadastrada", HttpStatus.BAD_REQUEST);
+                updatedNotes.add(note);
             }
-
-            note.setQuestion(model.getQuestion());
-            changed = true;
         }
 
-        Boolean anyTagUpdated = this.updateTags(note, model);
-
-        if (anyTagUpdated) {
-            changed = true;
-        }
-
-        final Date date = new Date(model.getLastUpdate());
-
-        if (changed) {
-            note.setLastUpdate(date);
-
-            noteRepository.save(note);
-
-            Long newNoteVersion = noteVersionService.updateVersion();
-
-            return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+        return updatedNotes;
     }
 
-    @Override
-    public ResponseEntity<?> updateNoteAnswer(NoteAnswerRequestModel model) {
+    private List<Note> createNewNotes(List<NoteSaveRequestModel> models, User user) {
+        final List<Note> newNotes = new ArrayList<>();
+        final Date now = new Date();
 
-        final User user = authService.getCurrentAuth().getUser();
-
-        final Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
-
-        if (noteSearch.isEmpty()) {
-            return new ResponseEntity<>("Anotação não encontrada", HttpStatus.BAD_REQUEST);
-        }
-
-        final Note note = noteSearch.get();
-
-        final NoteVersion version = user.getNoteVersion();
-
-        final Boolean answerChanged = note.getAnswer() != null ? !note.getAnswer().equalsIgnoreCase(model.getAnswer()) : true;
-
-        if (answerChanged) {
-            note.setAnswer(model.getAnswer());
-
-            final Boolean noteNotAnswered = !note.getAnswered();
-
-            if (noteNotAnswered) {
-                note.setAnswered(true);
-            }
-
-            noteRepository.save(note);
-
-            Long newNoteVersion = noteVersionService.updateVersion();
-
-            return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
-    }
-
-    private List<Note> createNewNotes(List<? extends NoteQuestionRequestModel> models, User user, Date date) {
-        final List<Note> savedNotes = new ArrayList<>();
-
-        final List<NoteQuestionRequestModel> notesToCreate = models.stream()
-                .filter(m -> m.getId() == null)
-                .collect(Collectors.toList());
-
-        final List<String> questions = notesToCreate.stream().map(n -> n.getQuestion()).collect(Collectors.toList());
-
-        List<String> questionsAlreadySaved = new ArrayList<>();
-
-        if (questions.size() > 0) {
-            questionsAlreadySaved = noteRepository.findAllQuestionsByQuestionsAndUserId(questions, user.getId());
-        }
-
-        final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
-
-        Integer order = 0;
-
-        if (maxOrderSearch.isPresent()) {
-            order = maxOrderSearch.get() + 1;
-        }
-
-        for(NoteQuestionRequestModel model : notesToCreate) {
-            final Boolean alreadySaved = questionsAlreadySaved.stream().anyMatch(q -> q.equalsIgnoreCase(model.getQuestion()));
-
-            if (alreadySaved) {
-                break;
-            }
-
-            if (model.getQuestion().isBlank()) {
-                break;
-            }
-
-            List<NoteTag> tags = createNewTags(model);
+        for(NoteSaveRequestModel model : models) {
+            List<NoteTag> tags = createNotSavedTags(model);
 
             Note note = new Note();
-            note.setAnswered(model.getAnswered());
-            note.setLastUpdate(date);
-            note.setOrder(order++);
+            note.setLastUpdate(now);
+            note.setOrder(model.getOrder());
             note.setQuestion(model.getQuestion());
             note.setTags(tags);
             note.setUser(user);
 
-            savedNotes.add(note);
+            newNotes.add(note);
         }
 
-        return savedNotes;
+        return newNotes;
     }
 
-    private List<NoteTag> createNewTags(NoteQuestionRequestModel model) {
+    private List<NoteTag> createNotSavedTags(NoteSaveRequestModel model) {
         List<NoteTag> tags = new ArrayList<>();
 
         if (model.getTagNames() != null && model.getTagNames().size() > 0) {
@@ -392,7 +293,7 @@ public class NoteServiceImpl implements NoteService {
         return tags;
     }
 
-    private boolean updateTags(Note note, NoteQuestionRequestModel model) {
+    private boolean updateTags(Note note, NoteSaveRequestModel model) {
         boolean changed = false;
 
         final List<NoteTag> removedTags = note.getTags().stream()

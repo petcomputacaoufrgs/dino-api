@@ -1,30 +1,34 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
-public class NoteSaveResponseModel {
-    private Long version;
+import br.ufrgs.inf.pet.dinoapi.entity.Note;
 
-    private Long noteId;
+public class NoteSaveResponseModel extends NoteSaveRequestModel {
+    private Long userNoteVersion;
+
+    private Long id;
 
     public NoteSaveResponseModel() {}
 
-    public NoteSaveResponseModel(Long version, Long noteId) {
-        this.version = version;
-        this.noteId = noteId;
+    public NoteSaveResponseModel(Long userNoteVersion, Note note) {
+        this.userNoteVersion = userNoteVersion;
+        this.id = note.getId();
     }
 
-    public Long getVersion() {
-        return version;
+    public Long getNoteVersion() {
+        return userNoteVersion;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
+    public void setNoteVersion(Long noteVersion) {
+        this.userNoteVersion = noteVersion;
     }
 
-    public Long getNoteId() {
-        return noteId;
+    @Override
+    public Long getId() {
+        return id;
     }
 
-    public void setNoteId(Long noteId) {
-        this.noteId = noteId;
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 }

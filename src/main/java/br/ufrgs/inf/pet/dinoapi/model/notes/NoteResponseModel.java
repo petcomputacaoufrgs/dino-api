@@ -15,8 +15,6 @@ public class NoteResponseModel {
 
     private String answer;
 
-    private Boolean answered;
-
     private List<String> tags;
 
     private Long lastUpdate;
@@ -30,7 +28,6 @@ public class NoteResponseModel {
         this.order = note.getOrder();
         this.question = note.getQuestion();
         this.answer = note.getAnswer();
-        this.answered = note.getAnswered();
         this.tags = note.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
         this.lastUpdate = note.getLastUpdate().getTime();
     }
@@ -65,14 +62,6 @@ public class NoteResponseModel {
 
     public void setAnswer(String answer) {
         this.answer = answer;
-    }
-
-    public Boolean getAnswered() {
-        return answered;
-    }
-
-    public void setAnswered(Boolean answered) {
-        this.answered = answered;
     }
 
     public List<String> getTags() {

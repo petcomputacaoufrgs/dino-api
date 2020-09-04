@@ -28,9 +28,6 @@ public class Note {
     @Column(name = "answer", length = 500)
     private String answer;
 
-    @Column(name = "answered", nullable = false)
-    private Boolean answered;
-
     @Column(name = "last_update_day", nullable = false)
     private Date lastUpdate;
 
@@ -48,18 +45,9 @@ public class Note {
         this.tags = new ArrayList<>();
     }
 
-    public Note(Date lastUpdate, Integer order, String question, List<NoteTag> tags, User user) {
-        this.lastUpdate = lastUpdate;
-        this.order = order;
-        this.question = question;
+    public Note(User user, Integer order) {
         this.user = user;
-        this.setAnswered(false);
-
-        if (tags != null) {
-            this.tags = tags;
-        } else {
-            this.tags = new ArrayList<>();
-        }
+        this.setOrder(order);
     }
 
     public Long getId() {
@@ -92,14 +80,6 @@ public class Note {
         }
 
         this.answer = answer;
-    }
-
-    public Boolean getAnswered() {
-        return answered;
-    }
-
-    public void setAnswered(Boolean answered) {
-        this.answered = answered;
     }
 
     public Date getLastUpdate() {

@@ -8,20 +8,14 @@ public interface NoteService {
 
     ResponseEntity<List<NoteResponseModel>> getUserNotes();
 
-    ResponseEntity<?> saveNewNote(NoteSaveRequestModel model);
+    ResponseEntity<?> saveNote(NoteSaveRequestModel model);
 
     ResponseEntity<Long> deleteAll(List<NoteDeleteRequestModel> models);
 
     ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model);
 
-    ResponseEntity<?> saveAll(List<NoteSaveRequestModel> models);
-
-    ResponseEntity<?> updateAll(List<NoteUpdateRequestModel> models);
+    ResponseEntity<?> updateAll(List<NoteSaveRequestModel> models);
 
     ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models);
-
-    ResponseEntity<?> updateNoteQuestion(NoteQuestionRequestModel model);
-
-    ResponseEntity<?> updateNoteAnswer(NoteAnswerRequestModel model);
 
 }

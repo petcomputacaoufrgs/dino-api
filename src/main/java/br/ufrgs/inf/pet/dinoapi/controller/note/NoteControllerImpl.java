@@ -8,7 +8,6 @@ import br.ufrgs.inf.pet.dinoapi.service.note.NoteVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -37,8 +36,8 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PostMapping
-    public ResponseEntity<?> saveNewNote(@Valid  @RequestBody NoteSaveRequestModel model) {
-        return noteService.saveNewNote(model);
+    public ResponseEntity<?> saveNote(@Valid  @RequestBody NoteSaveRequestModel model) {
+        return noteService.saveNote(model);
     }
 
     @Override
@@ -54,14 +53,8 @@ public class NoteControllerImpl implements NoteController {
     }
 
     @Override
-    @PostMapping("all/")
-    public ResponseEntity<Long> saveAll(@Valid @RequestBody List<NoteSaveRequestModel> models) {
-        return noteService.saveAll(models);
-    }
-
-    @Override
     @PutMapping("all/")
-    public ResponseEntity<Long> updateAll(@Valid @RequestBody List<NoteUpdateRequestModel> models) {
+    public ResponseEntity<Long> updateAll(@Valid @RequestBody List<NoteSaveRequestModel> models) {
         return noteService.updateAll(models);
     }
 
@@ -69,18 +62,6 @@ public class NoteControllerImpl implements NoteController {
     @PutMapping("order/")
     public ResponseEntity<?> updateNotesOrder(@Valid @RequestBody List<NoteOrderRequestModel> models) {
         return noteService.updateNotesOrder(models);
-    }
-
-    @Override
-    @PutMapping("question/")
-    public ResponseEntity<?> updateNoteQuestion(@Valid @RequestBody NoteQuestionRequestModel model) {
-        return noteService.updateNoteQuestion(model);
-    }
-
-    @Override
-    @PutMapping("answer/")
-    public ResponseEntity<?> updateNoteAnswer(@Valid @RequestBody NoteAnswerRequestModel model) {
-        return noteService.updateNoteAnswer(model);
     }
 
     @Override
