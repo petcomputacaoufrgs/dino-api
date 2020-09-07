@@ -77,17 +77,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
     }
 
     private GoogleClientSecrets getClientSecrets() throws IOException {
-        final String googleSecret = "{\n" +
-                "\"web\": {\n" +
-                "\"client_id\": \"398811150587-ho9mjuqlb96u7pe2ruh498nn35jk158e.apps.googleusercontent.com\",\n" +
-                "\"project_id\": \"dinoapp-285513\",\n" +
-                "\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\",\n" +
-                "\"token_uri\": \"https://oauth2.googleapis.com/token\",\n" +
-                "\"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\",\n" +
-                "\"client_secret\": \"gR8uVDgGdsHY8UIJSleHIRsl\",\n" +
-                "\"javascript_origins\": [\"http://localhost:3000\"]\n" +
-                "}\n" +
-                "}";
+        final String googleSecret = "{\"web\":{\"client_id\":\"398811150587-720e3bk1uvvij6t1a59d8220f620hj6d.apps.googleusercontent.com\",\"project_id\":\"dinoapp-285513\",\"auth_uri\":\"https://accounts.google.com/o/oauth2/auth\",\"token_uri\":\"https://oauth2.googleapis.com/token\",\"auth_provider_x509_cert_url\":\"https://www.googleapis.com/oauth2/v1/certs\",\"client_secret\":\"2n8Y_xTxfb_jPfJM6mAPZg_i\",\"javascript_origins\":[\"http://localhost:3000\"]}}";
         return GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(), new StringReader(googleSecret));
     }
 

@@ -71,4 +71,9 @@ public class FaqControllerImpl implements FaqController{
     public ResponseEntity<Long> saveFaqUser(@Valid @RequestBody FaqIdModel model) {
         return faqServiceImpl.saveFaqUser(model);
     }
+
+    @PostMapping("faq/question/")
+    public ResponseEntity<?> saveFaqUserQuestion(@Valid @RequestBody UserQuestionSaveRequestModel model) {
+        return faqServiceImpl.saveUserQuestion(model);
+    }
 }

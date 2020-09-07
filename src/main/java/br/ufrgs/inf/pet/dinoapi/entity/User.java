@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.UserQuestion;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -58,6 +59,9 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private FaqUser faqUser;
+
+    @OneToMany(mappedBy = "user")
+    private List<UserQuestion> faqUserQuestions;
     
     public User() {
         this.notes = new ArrayList<>();
