@@ -1,4 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.entity;
+package br.ufrgs.inf.pet.dinoapi.entity.note;
+
+import br.ufrgs.inf.pet.dinoapi.entity.User;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -30,6 +32,10 @@ public class Note {
 
     @Column(name = "last_update_day", nullable = false)
     private Date lastUpdate;
+
+    @ManyToOne
+    @JoinColumn(name = "note_column_id", nullable = false)
+    private NoteColumn noteColumn;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -110,5 +116,13 @@ public class Note {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public NoteColumn getNoteColumn() {
+        return noteColumn;
+    }
+
+    public void setNoteColumn(NoteColumn noteColumn) {
+        this.noteColumn = noteColumn;
     }
 }

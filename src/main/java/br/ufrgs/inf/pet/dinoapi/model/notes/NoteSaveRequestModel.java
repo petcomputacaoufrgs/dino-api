@@ -26,6 +26,9 @@ public class NoteSaveRequestModel {
     @NotNull(message = "order cannot be null.")
     protected Integer order;
 
+    @NotNull(message = "columnTitle cannot be null.")
+    private String columnTitle;
+
     public Long getId() {
         return id;
     }
@@ -74,4 +77,11 @@ public class NoteSaveRequestModel {
         this.order = order;
     }
 
+    public String getColumnTitle() {
+        return columnTitle;
+    }
+
+    public void setColumnTitle(String columnTitle) {
+        this.columnTitle = columnTitle;
+    }
 }

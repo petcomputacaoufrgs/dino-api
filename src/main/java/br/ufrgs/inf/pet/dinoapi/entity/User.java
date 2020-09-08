@@ -1,6 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumnVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,8 +48,14 @@ public class User {
     @OneToOne(mappedBy = "user")
     private NoteVersion noteVersion;
 
+    @OneToOne(mappedBy = "user")
+    private NoteColumnVersion noteColumnVersion;
+
     @OneToMany(mappedBy = "user")
     private List<Note> notes;
+
+    @OneToMany(mappedBy = "user")
+    private List<NoteColumn> noteColumns;
 
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
@@ -111,8 +122,6 @@ public class User {
         this.version = version;
     }
 
-
-
     public GoogleAuth getGoogleAuth() {
         return googleAuth;
     }
@@ -133,13 +142,24 @@ public class User {
         return notes;
     }
 
-
     public void setNotes(List<Note> notes) {
         this.notes = notes;
     }
 
+    public List<NoteColumn> getNoteColumns() {
+        return noteColumns;
+    }
+
+    public void setNoteColumns(List<NoteColumn> noteColumns) {
+        this.noteColumns = noteColumns;
+    }
+
     public NoteVersion getNoteVersion() {
         return noteVersion;
+    }
+
+    public NoteColumnVersion getNoteColumnVersion() {
+        return noteColumnVersion;
     }
 
     public void setContacts(List<Contact> contacts) {

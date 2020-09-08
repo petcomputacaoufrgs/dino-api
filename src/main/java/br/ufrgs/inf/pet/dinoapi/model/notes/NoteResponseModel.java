@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +19,8 @@ public class NoteResponseModel {
 
     private Long lastUpdate;
 
+    private String columnTitle;
+
     public NoteResponseModel() {
         this.tags = new ArrayList<>();
     }
@@ -30,6 +32,7 @@ public class NoteResponseModel {
         this.answer = note.getAnswer();
         this.tags = note.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
         this.lastUpdate = note.getLastUpdate().getTime();
+        this.columnTitle = note.getNoteColumn().getTitle();
     }
 
     public Long getId() {
@@ -78,5 +81,13 @@ public class NoteResponseModel {
 
     public void setLastUpdate(Long lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public String getColumnTitle() {
+        return columnTitle;
+    }
+
+    public void setColumnTitle(String columnTitle) {
+        this.columnTitle = columnTitle;
     }
 }

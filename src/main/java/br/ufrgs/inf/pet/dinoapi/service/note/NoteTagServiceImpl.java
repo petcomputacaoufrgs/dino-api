@@ -1,8 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
-import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.note.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

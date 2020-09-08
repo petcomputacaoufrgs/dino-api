@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteTagServiceImpl;

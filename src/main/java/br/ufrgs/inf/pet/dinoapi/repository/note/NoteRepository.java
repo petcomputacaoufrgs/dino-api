@@ -1,6 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.repository;
+package br.ufrgs.inf.pet.dinoapi.repository.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -19,9 +19,14 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
         @Query("SELECT n FROM Note n WHERE n.question = :question AND n.user.id = :userId")
         List<Note> findByQuestionAndUserId(@Param("question") String question, @Param("userId") Long userId);
 
-
         @Query("SELECT n FROM Note n WHERE n.id IN :ids AND n.user.id = :userId ORDER BY n.id ASC")
         List<Note> findAllByIdOrderByIdAsc(@Param("ids") List<Long> ids, @Param("userId") Long userId);
+
+        @Query("SELECT COUNT(n) FROM Note n WHERE n.user.id = :userId AND n.noteColumn.id = :columnId")
+        Integer countNotesInColumn(@Param("columnId") Long columnId, @Param("userId") Long userID);
+
+        @Query("SELECT COUNT(n) FROM Note n WHERE n.user.id = :userId AND n.noteColumn.id IN :columnIds")
+        Integer countNotesInColumns(@Param("columnIds") List<Long> columnIds, @Param("userId") Long userID);
 
         @Transactional
         @Modifying

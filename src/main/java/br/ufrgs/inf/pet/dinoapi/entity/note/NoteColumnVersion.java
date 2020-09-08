@@ -1,14 +1,16 @@
-package br.ufrgs.inf.pet.dinoapi.entity;
+package br.ufrgs.inf.pet.dinoapi.entity.note;
+
+import br.ufrgs.inf.pet.dinoapi.entity.User;
 
 import javax.persistence.*;
 import java.util.Date;
+
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "note_version")
-public class NoteVersion {
-
-    private static final String SEQUENCE_NAME = "note_version_seq";
+@Table(name = "note_column_version")
+public class NoteColumnVersion {
+    private static final String SEQUENCE_NAME = "note_column_version_seq";
 
     public final Long DEFAULT_VERSION = 0l;
 
@@ -25,12 +27,12 @@ public class NoteVersion {
     private Date lastUpdate;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public NoteVersion() { }
+    public NoteColumnVersion() { }
 
-    public NoteVersion(User user) {
+    public NoteColumnVersion(User user) {
         this.user = user;
         this.lastUpdate = new Date();
         this.version = this.DEFAULT_VERSION;
