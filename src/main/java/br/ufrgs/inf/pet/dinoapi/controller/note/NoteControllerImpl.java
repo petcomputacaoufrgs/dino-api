@@ -42,8 +42,8 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @DeleteMapping("all/")
-    public ResponseEntity<Long> deleteAll(@Valid @RequestBody List<NoteDeleteRequestModel> models) {
-        return noteService.deleteAll(models);
+    public ResponseEntity<Long> deleteAll(@Valid @RequestBody NoteDeleteAllRequestModel model) {
+        return noteService.deleteAll(model.getItems());
     }
 
     @Override
@@ -54,14 +54,14 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PutMapping("all/")
-    public ResponseEntity<Long> updateAll(@Valid @RequestBody List<NoteSaveRequestModel> models) {
-        return noteService.updateAll(models);
+    public ResponseEntity<Long> updateAll(@Valid @RequestBody NoteUpdateAllRequestModel model) {
+        return noteService.updateAll(model.getItems());
     }
 
     @Override
     @PutMapping("order/")
-    public ResponseEntity<?> updateNotesOrder(@Valid @RequestBody List<NoteOrderRequestModel> models) {
-        return noteService.updateNotesOrder(models);
+    public ResponseEntity<?> updateNotesOrder(@Valid @RequestBody NoteOrderAllRequestModel model) {
+        return noteService.updateNotesOrder(model.getItems());
     }
 
     @Override

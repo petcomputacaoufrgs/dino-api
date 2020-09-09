@@ -31,31 +31,31 @@ public class NoteColumnControllerImpl implements NoteColumnController {
 
     @Override
     @PostMapping
-    public ResponseEntity<?> save(@Valid NoteColumnSaveRequestModel model) {
+    public ResponseEntity<?> save(@Valid @RequestBody NoteColumnSaveRequestModel model) {
         return noteColumnService.save(model);
     }
 
     @Override
     @DeleteMapping("all/")
-    public ResponseEntity<Long> deleteAll(@Valid NoteColumnDeleteAllRequestModel model) {
+    public ResponseEntity<Long> deleteAll(@Valid @RequestBody NoteColumnDeleteAllRequestModel model) {
         return noteColumnService.deleteAll(model.getItems());
     }
 
     @Override
     @DeleteMapping
-    public ResponseEntity<Long> delete(@Valid NoteColumnDeleteRequestModel model) {
+    public ResponseEntity<Long> delete(@Valid @RequestBody NoteColumnDeleteRequestModel model) {
         return noteColumnService.delete(model);
     }
 
     @Override
     @PutMapping("all/")
-    public ResponseEntity<Long> updateAll(@Valid NoteColumnUpdateAllRequestModel model) {
+    public ResponseEntity<Long> updateAll(@Valid @RequestBody NoteColumnUpdateAllRequestModel model) {
         return noteColumnService.updateAll(model.getItems());
     }
 
     @Override
     @PutMapping("order/")
-    public ResponseEntity<?> updateOrder(@Valid NoteColumnOrderAllRequestModel model) {
+    public ResponseEntity<?> updateOrder(@Valid @RequestBody NoteColumnOrderAllRequestModel model) {
         return noteColumnService.updateOrder(model.getItems());
     }
 
