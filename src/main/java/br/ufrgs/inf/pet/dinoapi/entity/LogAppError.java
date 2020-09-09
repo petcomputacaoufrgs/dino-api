@@ -2,6 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
 import java.util.Date;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.LogAppErrorConstants.*;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -15,13 +17,13 @@ public class LogAppError {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "title", length = 10000)
+    @Column(name = "title", length = TITLE_MAX)
     private String title;
 
-    @Column(name = "file", length = 500)
+    @Column(name = "file", length = FILE_MAX)
     private String file;
 
-    @Column(name = "error", length = 20000, nullable = false)
+    @Column(name = "error", length = ERROR_MAX, nullable = false)
     private String error;
 
     @Column(name = "log_date", nullable = false)

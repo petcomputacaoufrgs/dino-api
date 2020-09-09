@@ -5,10 +5,12 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.LogAppErrorConstants.ITEMS_NULL_MESSAGE;
+
 public class LogAppErroListRequestModel {
 
     @Valid
-    @NotNull(message = "items can't be null.")
+    @NotNull(message = ITEMS_NULL_MESSAGE)
     private List<LogAppErrorRequestModel> items;
 
     public LogAppErroListRequestModel() {
