@@ -7,4 +7,6 @@ public interface NoteVersionService {
     ResponseEntity<Long> getVersion();
 
     Long updateVersion();
+
+    Long updateColumnVersion();
 }

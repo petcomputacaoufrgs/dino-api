@@ -14,10 +14,10 @@ public class NoteColumnControllerImpl implements NoteColumnController {
 
     private final NoteColumnServiceImpl noteColumnService;
 
-    private final NoteColumnVersionServiceImpl noteVersionService;
+    private final NoteVersionServiceImpl noteVersionService;
 
     @Autowired
-    public NoteColumnControllerImpl(NoteColumnServiceImpl noteColumnService, NoteColumnVersionServiceImpl noteVersionService) {
+    public NoteColumnControllerImpl(NoteColumnServiceImpl noteColumnService, NoteVersionServiceImpl noteVersionService) {
         this.noteColumnService = noteColumnService;
         this.noteVersionService = noteVersionService;
     }

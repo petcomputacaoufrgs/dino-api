@@ -18,14 +18,14 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     private final NoteColumnRepository noteColumnRepository;
 
-    private final NoteColumnVersionServiceImpl noteColumnVersionService;
+    private final NoteVersionServiceImpl noteVersionService;
 
     private final AuthServiceImpl authService;
 
     @Autowired
-    public NoteColumnServiceImpl(NoteColumnRepository noteColumnRepository, NoteColumnVersionServiceImpl noteColumnVersionService, AuthServiceImpl authService) {
+    public NoteColumnServiceImpl(NoteColumnRepository noteColumnRepository, NoteVersionServiceImpl noteVersionService, AuthServiceImpl authService) {
         this.noteColumnRepository = noteColumnRepository;
-        this.noteColumnVersionService = noteColumnVersionService;
+        this.noteVersionService = noteVersionService;
         this.authService = authService;
     }
 
@@ -33,7 +33,8 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     public ResponseEntity<List<NoteColumnResponseModel>> getUserColumns() {
         final User user = authService.getCurrentAuth().getUser();
 
-        final List<NoteColumn> columns = user.getNoteColumns();
+        //final List<NoteColumn> columns = user.getNoteColumns();
+        final List<NoteColumn> columns = new ArrayList<>();
 
         final List<NoteColumnResponseModel> model = columns.stream().map(NoteColumnResponseModel::new).collect(Collectors.toList());
 
@@ -79,7 +80,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         noteColumn.setLastUpdate(new Date(model.getLastUpdate()));
         noteColumn.setTitle(model.getTitle());
 
-        Long newNoteColumnVersion = noteColumnVersionService.updateVersion();
+        Long newNoteColumnVersion = noteVersionService.updateColumnVersion();
 
         final NoteColumn savedNoteColumn = noteColumnRepository.save(noteColumn);
 
@@ -102,13 +103,13 @@ public class NoteColumnServiceImpl implements NoteColumnService {
             deletedItems = noteColumnRepository.deleteAllByIdAndUserId(validIds, user.getId());
 
             if (deletedItems > 0) {
-                Long newNoteVersion = noteColumnVersionService.updateVersion();
+                Long newNoteVersion = noteVersionService.updateColumnVersion();
 
                 return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
             }
         }
 
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getColumnVersion(), HttpStatus.OK);
     }
 
     @Override
@@ -116,18 +117,18 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         final User user = authService.getCurrentAuth().getUser();
 
         if (model == null || model.getId() == null) {
-            return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+            return new ResponseEntity<>(user.getNoteVersion().getColumnVersion(), HttpStatus.OK);
         }
 
         final int deletedItems = noteColumnRepository.deleteByIdAndUserId(model.getId(), user.getId());
 
         if (deletedItems > 0) {
-            Long newNoteVersion = noteColumnVersionService.updateVersion();
+            Long newNoteVersion = noteVersionService.updateColumnVersion();
 
             return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getColumnVersion(), HttpStatus.OK);
     }
 
     @Override
@@ -160,7 +161,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
         noteColumnRepository.saveAll(noteColumns);
 
-        Long newNoteVersion = noteColumnVersionService.updateVersion();
+        Long newNoteVersion = noteVersionService.updateColumnVersion();
 
         return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
@@ -202,7 +203,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
         noteColumnRepository.saveAll(noteColumns);
 
-        Long newNoteVersion = noteColumnVersionService.updateVersion();
+        Long newNoteVersion = noteVersionService.updateColumnVersion();
 
         return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }

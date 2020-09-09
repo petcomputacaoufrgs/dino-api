@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class NoteVersionServiceImpl implements NoteVersionService {
@@ -38,7 +39,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     @Override
     public Long updateVersion() {
-        NoteVersion noteVersion = this.getNoteVersion();
+        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
 
         noteVersion.updateVersion();
         noteVersion.setLastUpdate(new Date());
@@ -49,16 +50,35 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         return noteVersion.getVersion();
     }
 
+    @Override
+    public Long updateColumnVersion() {
+        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
+
+        noteVersion.updateColumnVersion();
+        noteVersion.setLastColumnUpdate(new Date());
+        noteVersion = noteVersionRepository.save(noteVersion);
+
+        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getVersion(), WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_UPDATE);
+
+        return noteVersion.getColumnVersion();
+    }
+
     private NoteVersion getNoteVersion() {
         final User user = authService.getCurrentAuth().getUser();
 
-        NoteVersion noteVersion = user.getNoteVersion();
+        Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
 
-        if (noteVersion == null) {
-            noteVersion = new NoteVersion(user);
+        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> noteVersionRepository.save(new NoteVersion(user)));
 
-            noteVersion = noteVersionRepository.save(noteVersion);
-        }
+        return noteVersion;
+    }
+
+    private NoteVersion getOrCreateWithoutSaveNoteVersion() {
+        final User user = authService.getCurrentAuth().getUser();
+
+        Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
+
+        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> new NoteVersion(user));
 
         return noteVersion;
     }

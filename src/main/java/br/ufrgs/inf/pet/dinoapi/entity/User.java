@@ -1,9 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
-import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
-import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumnVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
 
 import javax.persistence.*;
@@ -16,7 +14,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 public class User {
     private static final String SEQUENCE_NAME = "dino_user_seq";
 
-    public final Long DEFAULT_VERSION = 0l;
+    public static final Long DEFAULT_VERSION = 0l;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -36,9 +34,6 @@ public class User {
     @Column(name = "version", nullable = false)
     private Long version;
 
-    @OneToMany(mappedBy = "user")
-    private List<Auth> auths;
-
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
@@ -48,11 +43,8 @@ public class User {
     @OneToOne(mappedBy = "user")
     private NoteVersion noteVersion;
 
-    @OneToOne(mappedBy = "user")
-    private NoteColumnVersion noteColumnVersion;
-
     @OneToMany(mappedBy = "user")
-    private List<Note> notes;
+    private List<Auth> auths;
 
     @OneToMany(mappedBy = "user")
     private List<NoteColumn> noteColumns;
@@ -64,9 +56,9 @@ public class User {
     private ContactVersion contactVersion;
     
     public User() {
-        this.notes = new ArrayList<>();
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
+        this.noteColumns = new ArrayList<>();
     }
 
     public User(String name, String email, String pictureURL) {
@@ -74,8 +66,9 @@ public class User {
         this.email = email;
         this.pictureURL = pictureURL;
         this.version = this.DEFAULT_VERSION;
-        this.notes = new ArrayList<>();
         this.auths = new ArrayList<>();
+        this.contacts = new ArrayList<>();
+        this.noteColumns = new ArrayList<>();
     }
 
     public Long getId() {
@@ -138,14 +131,6 @@ public class User {
         this.userAppSettings = userAppSettings;
     }
 
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
-    }
-
     public List<NoteColumn> getNoteColumns() {
         return noteColumns;
     }
@@ -156,10 +141,6 @@ public class User {
 
     public NoteVersion getNoteVersion() {
         return noteVersion;
-    }
-
-    public NoteColumnVersion getNoteColumnVersion() {
-        return noteColumnVersion;
     }
 
     public void setContacts(List<Contact> contacts) {

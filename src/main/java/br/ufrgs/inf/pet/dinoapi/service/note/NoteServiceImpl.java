@@ -43,7 +43,11 @@ public class NoteServiceImpl implements NoteService {
     public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
         final User user = authService.getCurrentAuth().getUser();
 
-        final List<Note> notes = user.getNotes();
+        final List<Note> notes = new ArrayList<>();
+
+        user.getNoteColumns().forEach(nc -> {
+            notes.addAll(nc.getNotes());
+        });
 
         final List<NoteResponseModel> model = notes.stream().map(NoteResponseModel::new).collect(Collectors.toList());
 
@@ -52,7 +56,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<?> saveNote(NoteSaveRequestModel model) {
-
         if (model.getQuestion().isBlank()) {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
         }
@@ -75,7 +78,9 @@ public class NoteServiceImpl implements NoteService {
                     order = maxOrderSearch.get() + 1;
                 }
 
-                note = new Note(user, order);
+                NoteColumn noteColumn = noteColumnService.findOneByUserIdAndTitle(model.getColumnTitle(), user.getId());
+
+                note = new Note(noteColumn, order);
             }
         } else {
             final Optional<Note> noteSearch = noteRepository.findById(model.getId());
@@ -84,6 +89,21 @@ public class NoteServiceImpl implements NoteService {
                 note = noteSearch.get();
             } else {
                 return new ResponseEntity<>("Note not found", HttpStatus.NOT_FOUND);
+            }
+        }
+
+        Boolean columnChanged = note.getNoteColumn() == null || (note.getNoteColumn().getTitle() != model.getColumnTitle());
+
+        if (columnChanged) {
+            NoteColumn noteColumn = noteColumnService.findOneByUserIdAndTitle(model.getColumnTitle(), user.getId());
+
+            if (noteColumn != null) {
+                note.setNoteColumn(noteColumn);
+            } else {
+                Integer maxOrder = noteColumnService.getMaxOrder(user.getId());
+                noteColumn = new NoteColumn(user, maxOrder);
+
+                note.setNoteColumn(noteColumn);
             }
         }
 
@@ -317,7 +337,6 @@ public class NoteServiceImpl implements NoteService {
             note.setOrder(model.getOrder());
             note.setQuestion(model.getQuestion());
             note.setTags(tags);
-            note.setUser(user);
             note.setNoteColumn(noteColumn);
 
             newNotes.add(note);

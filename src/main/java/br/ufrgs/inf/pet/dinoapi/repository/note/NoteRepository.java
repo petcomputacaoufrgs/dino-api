@@ -13,31 +13,25 @@ import java.util.Optional;
 @Repository
 public interface NoteRepository extends CrudRepository<Note, Long> {
 
-        @Query("SELECT n FROM Note n WHERE (n.id IN :ids) AND n.user.id = :userId")
+        @Query("SELECT n FROM Note n WHERE (n.id IN :ids) AND n.noteColumn.user.id = :userId")
         List<Note> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 
-        @Query("SELECT n FROM Note n WHERE n.question = :question AND n.user.id = :userId")
+        @Query("SELECT n FROM Note n WHERE n.question = :question AND n.noteColumn.user.id = :userId")
         List<Note> findByQuestionAndUserId(@Param("question") String question, @Param("userId") Long userId);
 
-        @Query("SELECT n FROM Note n WHERE n.id IN :ids AND n.user.id = :userId ORDER BY n.id ASC")
+        @Query("SELECT n FROM Note n WHERE n.id IN :ids AND n.noteColumn.user.id = :userId ORDER BY n.id ASC")
         List<Note> findAllByIdOrderByIdAsc(@Param("ids") List<Long> ids, @Param("userId") Long userId);
-
-        @Query("SELECT COUNT(n) FROM Note n WHERE n.user.id = :userId AND n.noteColumn.id = :columnId")
-        Integer countNotesInColumn(@Param("columnId") Long columnId, @Param("userId") Long userID);
-
-        @Query("SELECT COUNT(n) FROM Note n WHERE n.user.id = :userId AND n.noteColumn.id IN :columnIds")
-        Integer countNotesInColumns(@Param("columnIds") List<Long> columnIds, @Param("userId") Long userID);
 
         @Transactional
         @Modifying
-        @Query("DELETE FROM Note n WHERE n.id IN :ids AND n.user.id = :userId")
+        @Query("DELETE FROM Note n WHERE n.id IN :ids AND n.noteColumn.user.id = :userId")
         int deleteAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
         @Transactional
         @Modifying
-        @Query("DELETE FROM Note n WHERE n.id = :id AND n.user.id = :userId")
+        @Query("DELETE FROM Note n WHERE n.id = :id AND n.noteColumn.user.id = :userId")
         int deleteByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
-        @Query("SELECT MAX(n.order) FROM Note n WHERE n.user.id = :userId")
+        @Query("SELECT MAX(n.order) FROM Note n WHERE n.noteColumn.user.id = :userId")
         Optional<Integer> findMaxOrderByUserId(@Param("userId") Long userId);
 }

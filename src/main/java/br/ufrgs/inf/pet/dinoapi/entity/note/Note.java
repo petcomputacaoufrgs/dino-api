@@ -9,9 +9,7 @@ import java.util.List;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "note", uniqueConstraints={
-        @UniqueConstraint(columnNames={"question", "user_id"})
-})
+@Table(name = "note")
 public class Note {
     private static final String SEQUENCE_NAME = "note_seq";
 
@@ -37,10 +35,6 @@ public class Note {
     @JoinColumn(name = "note_column_id", nullable = false)
     private NoteColumn noteColumn;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
     @ManyToMany
     @JoinTable(name = "note__note_tag",
             joinColumns = @JoinColumn(name = "note_id", nullable = false),
@@ -51,9 +45,10 @@ public class Note {
         this.tags = new ArrayList<>();
     }
 
-    public Note(User user, Integer order) {
-        this.user = user;
+    public Note(NoteColumn noteColumn, Integer order) {
         this.setOrder(order);
+        this.setNoteColumn(noteColumn);
+        this.tags = new ArrayList<>();
     }
 
     public Long getId() {
@@ -108,14 +103,6 @@ public class Note {
 
     public void deleteTags(List<NoteTag> tags) {
         this.tags.removeAll(tags);
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 
     public NoteColumn getNoteColumn() {

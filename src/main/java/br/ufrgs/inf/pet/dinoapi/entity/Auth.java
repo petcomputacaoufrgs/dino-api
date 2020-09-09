@@ -1,9 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -17,7 +15,7 @@ public class Auth {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "access_token", length = 560, unique = true, nullable = false)
+    @Column(name = "access_token", length = 1000, unique = true, nullable = false)
     private String accessToken;
 
     @Column(name = "token_expires_date", nullable = false)

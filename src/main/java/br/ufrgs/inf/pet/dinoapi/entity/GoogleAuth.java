@@ -21,7 +21,7 @@ public class GoogleAuth {
     private String refreshToken;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
     public GoogleAuth() {}

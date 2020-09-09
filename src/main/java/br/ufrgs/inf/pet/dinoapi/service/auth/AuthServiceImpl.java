@@ -48,10 +48,10 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
-        Optional<Auth> authSearch = authRepository.findByAccessToken(authRefreshRequestModel.getAccessToken());
+        List<Auth> authSearch = authRepository.findByAccessToken(authRefreshRequestModel.getAccessToken());
 
-        if (authSearch.isPresent()) {
-            Auth auth = authSearch.get();
+        if (authSearch.size() > 0) {
+            Auth auth = authSearch.get(0);
 
             this.generateAccessToken(auth, new ArrayList<>());
 
@@ -67,14 +67,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Auth findByAccessToken(String accessToken) {
-        if (accessToken.isEmpty()) {
+        if (accessToken.isBlank()) {
             return null;
         }
 
-        final Optional<Auth> authSearch = authRepository.findByAccessToken(accessToken);
+        final List<Auth> authSearch = authRepository.findByAccessToken(accessToken);
 
-        if (authSearch.isPresent()) {
-            return authSearch.get();
+        if (authSearch.size() > 0) {
+            return authSearch.get(0);
         }
 
         return null;
