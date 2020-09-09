@@ -209,8 +209,6 @@ public class NoteServiceImpl implements NoteService {
     public ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
-        models = models.stream().filter(model -> model.getId() != null && model.getOrder() != null).collect(Collectors.toList());
-
         final List<Long> ids = models.stream()
                 .map(m -> m.getId())
                 .collect(Collectors.toList());

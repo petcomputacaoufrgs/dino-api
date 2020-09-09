@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
@@ -43,10 +44,6 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public ResponseEntity<?> save(NoteColumnSaveRequestModel model) {
-        if (model.getTitle().isBlank()) {
-            return new ResponseEntity<>("O título deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
-        }
-
         final User user = authService.getCurrentAuth().getUser();
 
         NoteColumn noteColumn;
@@ -170,11 +167,27 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     public ResponseEntity<?> updateOrder(List<NoteColumnOrderRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
-        models = models.stream().filter(model -> model.getId() != null && model.getOrder() != null).collect(Collectors.toList());
+        final List<String> titlesWithoutId = models.stream().filter(model -> model.getId() == null).map(model -> model.getColumnTitle()).collect(Collectors.toList());
 
-        final List<Long> ids = models.stream()
-                .map(m -> m.getId())
-                .collect(Collectors.toList());
+        final List<Long> ids = new ArrayList<>();
+
+        final List<NoteColumn> savedNotes = new ArrayList<>();
+
+        if (titlesWithoutId.size() > 0) {
+            savedNotes.addAll(noteColumnRepository.findByTitlesAndUserId(titlesWithoutId, user.getId()));
+        }
+
+        models.stream().forEach(m -> {
+            if (m.getId() == null && !m.getColumnTitle().isBlank()) {
+                List<NoteColumn> savedNoteSearch = savedNotes.stream().filter(sn -> sn.getTitle().equals(m.getColumnTitle())).collect(Collectors.toList());
+
+                if (savedNoteSearch.size() > 0) {
+                    m.setId(savedNotes.get(0).getId());
+                }
+            }
+
+            ids.add(m.getId());
+        });
 
         final List<Integer> orders = models.stream()
                 .sorted(Comparator.comparing(NoteColumnOrderRequestModel::getId))
