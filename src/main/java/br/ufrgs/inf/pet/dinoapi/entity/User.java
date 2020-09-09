@@ -9,6 +9,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.*;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -24,13 +25,13 @@ public class User {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", length = 100, nullable = false)
+    @Column(name = "name", length = NAME_MAX, nullable = false)
     private String name;
 
-    @Column(name = "email", length = 100, unique = true, nullable = false)
+    @Column(name = "email", length = EMAIL_MAX, unique = true, nullable = false)
     private String email;
 
-    @Column(name = "picture_url", length = 500, nullable = false)
+    @Column(name = "picture_url", length = PICTURE_URL_MAX, nullable = false)
     private String pictureURL;
 
     @Column(name = "version", nullable = false)
