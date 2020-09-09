@@ -25,10 +25,10 @@ public interface NoteColumnController {
     /**
      * Remove ums lista de colunas do usuário
      *
-     * @param models Lista da model {@link NoteColumnDeleteRequestModel}
+     * @param model Model do tipo {@link NoteColumnDeleteAllRequestModel}
      * @return Em caso de sucesso retorna a nova versão das colunas do usuário
      */
-    ResponseEntity<Long> deleteAll(List<NoteColumnDeleteRequestModel> models);
+    ResponseEntity<Long> deleteAll(NoteColumnDeleteAllRequestModel model);
 
     /**
      * Remove permanentemente uma coluna
@@ -41,18 +41,18 @@ public interface NoteColumnController {
     /**
      * Atualiza e cria (caso não exista) uma lista de colunas
      *
-     * @param models Lista do tipo {@link NoteColumnSaveRequestModel}
+     * @param models Model do tipo {@link NoteColumnUpdateAllRequestModel}
      * @return Em caso de sucesso retorna a nova versão das colunas
      */
-    ResponseEntity<Long> updateAll(List<NoteColumnSaveRequestModel> models);
+    ResponseEntity<Long> updateAll(NoteColumnUpdateAllRequestModel models);
 
     /**
      *  Atualiza a ordem das colunas
      *
-     * @param models Lista do tipo {@link NoteOrderRequestModel}
+     * @param model do tipo {@link NoteColumnOrderAllRequestModel}
      * @return Em caso de sucesso retorna a nova versão das colunas, em caso de erro retorna a mensagem do erro
      **/
-    ResponseEntity<?> updateOrder(List<NoteColumnOrderRequestModel> models);
+    ResponseEntity<?> updateOrder(NoteColumnOrderAllRequestModel model);
 
     /**
      * Retorna a versão das anotações do usuário

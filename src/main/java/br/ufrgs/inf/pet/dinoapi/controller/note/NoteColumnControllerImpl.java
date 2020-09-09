@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -30,32 +31,32 @@ public class NoteColumnControllerImpl implements NoteColumnController {
 
     @Override
     @PostMapping
-    public ResponseEntity<?> save(NoteColumnSaveRequestModel model) {
+    public ResponseEntity<?> save(@Valid NoteColumnSaveRequestModel model) {
         return noteColumnService.save(model);
     }
 
     @Override
     @DeleteMapping("all/")
-    public ResponseEntity<Long> deleteAll(List<NoteColumnDeleteRequestModel> models) {
-        return noteColumnService.deleteAll(models);
+    public ResponseEntity<Long> deleteAll(@Valid NoteColumnDeleteAllRequestModel model) {
+        return noteColumnService.deleteAll(model.getItems());
     }
 
     @Override
     @DeleteMapping
-    public ResponseEntity<Long> delete(NoteColumnDeleteRequestModel model) {
+    public ResponseEntity<Long> delete(@Valid NoteColumnDeleteRequestModel model) {
         return noteColumnService.delete(model);
     }
 
     @Override
     @PutMapping("all/")
-    public ResponseEntity<Long> updateAll(List<NoteColumnSaveRequestModel> models) {
-        return noteColumnService.updateAll(models);
+    public ResponseEntity<Long> updateAll(@Valid NoteColumnUpdateAllRequestModel model) {
+        return noteColumnService.updateAll(model.getItems());
     }
 
     @Override
     @PutMapping("order/")
-    public ResponseEntity<?> updateOrder(List<NoteColumnOrderRequestModel> models) {
-        return noteColumnService.updateOrder(models);
+    public ResponseEntity<?> updateOrder(@Valid NoteColumnOrderAllRequestModel model) {
+        return noteColumnService.updateOrder(model.getItems());
     }
 
     @Override
