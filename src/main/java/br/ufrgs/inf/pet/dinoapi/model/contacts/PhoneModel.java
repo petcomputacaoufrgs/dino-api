@@ -3,15 +3,10 @@ package br.ufrgs.inf.pet.dinoapi.model.contacts;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 
 public class PhoneModel {
+
     private Long id;
     private String number;
     private short type;
-
-    /*
-    1: special short public utility numbers (see below)
-    2 to 5: landlines
-    6 to 9: mobile phones
-    */
 
     public PhoneModel(){}
 
