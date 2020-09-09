@@ -2,9 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 import javax.validation.constraints.NotNull;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.ORDER_NULL_MESSAGE;
+
 public class NoteSaveRequestRequestModel extends NoteQuestionRequestModel {
 
-    @NotNull(message = "order cannot be null.")
+    @NotNull(message = ORDER_NULL_MESSAGE)
     private Integer order;
 
     public Integer getOrder() {

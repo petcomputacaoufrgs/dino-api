@@ -4,6 +4,9 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.ANSWER_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.QUESTION_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -22,10 +25,10 @@ public class Note {
     @Column(name = "n_order", nullable = false)
     private Integer order;
 
-    @Column(name = "question", length = 500, nullable = false)
+    @Column(name = "question", length = QUESTION_MAX, nullable = false)
     private String question;
 
-    @Column(name = "answer", length = 1000)
+    @Column(name = "answer", length = ANSWER_MAX)
     private String answer;
 
     @Column(name = "answered", nullable = false)

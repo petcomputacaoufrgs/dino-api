@@ -5,13 +5,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.*;
+
 public class NoteQuestionRequestModel {
 
-    @NotNull(message = "id cannot be null.")
+    @NotNull(message = ID_NULL_MESSAGE)
     private Long id;
 
-    @NotNull(message = "question cannot be null.")
-    @Size(max = 500, message = "question should not be more than 500.")
+    @NotNull(message = QUESTION_NULL_MESSAGE)
+    @Size(max = 500, message = QUESTION_MESSAGE)
     private String question;
 
     @Valid

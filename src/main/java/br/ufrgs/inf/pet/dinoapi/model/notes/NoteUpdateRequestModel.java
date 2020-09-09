@@ -2,9 +2,12 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 import javax.validation.constraints.Size;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.ANSWER_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.ANSWER_MESSAGE;
+
 public class NoteUpdateRequestModel extends NoteQuestionRequestModel {
 
-    @Size(max = 1000, message ="answer should not be more than 10000.")
+    @Size(max = ANSWER_MAX, message = ANSWER_MESSAGE)
     private String answer;
 
     public String getAnswer() {

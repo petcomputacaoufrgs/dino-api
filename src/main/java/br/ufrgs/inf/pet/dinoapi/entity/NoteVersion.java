@@ -10,7 +10,7 @@ public class NoteVersion {
 
     private static final String SEQUENCE_NAME = "note_version_seq";
 
-    public final Long DEFAULT_VERSION = 0l;
+    public final Long DEFAULT_VERSION = 0L;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
