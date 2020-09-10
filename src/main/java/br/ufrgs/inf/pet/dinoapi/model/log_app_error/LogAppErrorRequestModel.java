@@ -3,19 +3,21 @@ package br.ufrgs.inf.pet.dinoapi.model.log_app_error;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.LogAppErrorConstants.*;
+
 public class LogAppErrorRequestModel {
 
-    @Size(max = 10000, message = "title should not be more than 10000.")
+    @Size(max = TITLE_MAX, message = TITLE_MESSAGE)
     private String title;
 
-    @Size(max = 500, message = "file should not be more than 500.")
+    @Size(max = FILE_MAX, message = FILE_MESSAGE)
     private String file;
 
-    @Size(max = 20000, message = "error should not be more than 20000.")
-    @NotNull(message = "error cannot be null.")
+    @Size(max = ERROR_MAX, message = ERROR_MESSAGE)
+    @NotNull(message = ERROR_NULL_MESSAGE)
     private String error;
 
-    @NotNull(message = "date cannot be null.")
+    @NotNull(message = DATE_NULL_MESSAGE)
     private Long date;
 
     public String getTitle() {

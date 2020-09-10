@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 import static javax.persistence.GenerationType.SEQUENCE;
 
@@ -21,13 +20,11 @@ public class ContactVersion {
     @Column(name = "id")
     private Long id;
 
-    @NotNull(message = "Versão não pode ser nula.")
-    @Column(name = "version")
+    @Column(name = "version", nullable = false)
     private Long version;
 
     @OneToOne
-    @NotNull
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
     public Long getId() {

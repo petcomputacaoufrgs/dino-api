@@ -3,13 +3,15 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.*;
+
 public class NoteAnswerRequestModel {
 
-    @NotNull(message = "id cannot be null.")
+    @NotNull(message = ID_NULL_MESSAGE)
     private Long id;
 
-    @NotNull(message = "answer cannot be null.")
-    @Size(max = 1000, message = "answer should not be more than 1000.")
+    @NotNull(message = ANSWER_NULL_MESSAGE)
+    @Size(max = ANSWER_MAX, message = ANSWER_MESSAGE)
     private String answer;
 
     public Long getId() {

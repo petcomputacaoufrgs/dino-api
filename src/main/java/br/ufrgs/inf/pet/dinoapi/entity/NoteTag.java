@@ -3,6 +3,8 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.TAG_NAME_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -17,7 +19,7 @@ public class NoteTag {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", length = 100, nullable = false)
+    @Column(name = "name", length = TAG_NAME_MAX, nullable = false)
     private String name;
 
     @ManyToMany(mappedBy = "tags")
