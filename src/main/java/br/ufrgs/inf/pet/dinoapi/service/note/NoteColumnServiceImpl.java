@@ -48,7 +48,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
         NoteColumn noteColumn;
 
-        if (model.getId() == null) {
+        if (model.getId() == null && model.getOldTitle() == null) {
             final Optional<NoteColumn> noteColumnSearch = noteColumnRepository.findByTitleAndUserId(model.getTitle(), user.getId());
 
             if (noteColumnSearch.isPresent()) {
@@ -65,9 +65,15 @@ public class NoteColumnServiceImpl implements NoteColumnService {
                 noteColumn = new NoteColumn(user, order);
             }
         } else {
-            final Optional<NoteColumn> noteColumnSearch = noteColumnRepository.findById(model.getId());
+            Optional<NoteColumn> noteColumnSearch = Optional.empty();
 
-            if (noteColumnSearch.isPresent()) {
+            if (model.getId() != null) {
+                noteColumnSearch = noteColumnRepository.findByIdAndUserId(model.getId(), user.getId());
+            } else if (model.getTitle() != null) {
+                noteColumnSearch = noteColumnRepository.findByTitleAndUserId(model.getOldTitle(), user.getId());
+            }
+
+            if (noteColumnSearch != null && noteColumnSearch.isPresent()) {
                 noteColumn = noteColumnSearch.get();
             } else {
                 return new ResponseEntity<>("Note Column not found", HttpStatus.NOT_FOUND);
