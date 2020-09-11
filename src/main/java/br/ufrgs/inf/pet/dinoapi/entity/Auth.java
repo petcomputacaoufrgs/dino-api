@@ -2,6 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
 import java.util.Date;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.ACCESS_TOKEN_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -15,7 +17,7 @@ public class Auth {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "access_token", length = 1000, unique = true, nullable = false)
+    @Column(name = "access_token", length = ACCESS_TOKEN_MAX, unique = true, nullable = false)
     private String accessToken;
 
     @Column(name = "token_expires_date", nullable = false)

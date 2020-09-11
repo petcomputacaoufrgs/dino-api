@@ -3,6 +3,8 @@ package br.ufrgs.inf.pet.dinoapi.entity;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateRequestModel;
 import javax.persistence.*;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants.*;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -17,16 +19,16 @@ public class GlossaryItem {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "title", length = 100, nullable = false, unique = true)
+    @Column(name = "title", length = TITLE_MAX, nullable = false, unique = true)
     private String title;
 
-    @Column(name = "text", length = 1000, nullable = false)
+    @Column(name = "text", length = TEXT_MAX, nullable = false)
     private String text;
 
-    @Column(name = "subtitle", length = 20)
+    @Column(name = "subtitle", length = SUBTITLE_MAX)
     private String subtitle;
 
-    @Column(name = "full_text", length = 20000)
+    @Column(name = "full_text", length = FULLTEXT_MAX)
     private String fullText;
 
     @Column(name = "exists", nullable = false)
@@ -84,7 +86,6 @@ public class GlossaryItem {
             updated = true;
         }
 
-        // TODO: discutir melhor
         if(this.fullText == null || !this.fullText.equals(updateModel.getFullText())) {
             this.fullText = updateModel.getFullText();
             updated = true;

@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.LANGUAGE_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -17,7 +19,7 @@ public class UserAppSettings {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "language", length = 5, nullable = false)
+    @Column(name = "language", length = LANGUAGE_MAX, nullable = false)
     private String language;
 
     @Column(name = "version", nullable = false)

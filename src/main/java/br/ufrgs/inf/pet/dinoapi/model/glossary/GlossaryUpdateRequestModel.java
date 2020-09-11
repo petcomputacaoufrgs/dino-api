@@ -5,13 +5,16 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants.ITEM_LIST_NULL_MESSAGE;
+import static br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants.VERSION_NULL_MESSAGE;
+
 public class GlossaryUpdateRequestModel {
 
-    @NotNull(message = "version cannot be null.")
+    @NotNull(message = VERSION_NULL_MESSAGE)
     private Long version;
 
     @Valid
-    @NotNull(message = "itemList cannot be null.")
+    @NotNull(message = ITEM_LIST_NULL_MESSAGE)
     private List<GlossaryItemUpdateRequestModel> itemList;
 
     public GlossaryUpdateRequestModel(){

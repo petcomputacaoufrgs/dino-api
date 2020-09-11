@@ -1,6 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.GOOGLE_ID_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.REFRESH_TOKEN_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -14,10 +17,10 @@ public class GoogleAuth {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "google_id", length = 100, unique = true, nullable = false)
+    @Column(name = "google_id", length = GOOGLE_ID_MAX, unique = true, nullable = false)
     private String googleId;
 
-    @Column(name = "refresh_token", length = 200, unique = true, nullable = false)
+    @Column(name = "refresh_token", length = REFRESH_TOKEN_MAX, unique = true, nullable = false)
     private String refreshToken;
 
     @OneToOne

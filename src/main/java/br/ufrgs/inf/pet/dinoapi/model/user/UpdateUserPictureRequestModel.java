@@ -3,10 +3,12 @@ package br.ufrgs.inf.pet.dinoapi.model.user;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.*;
+
 public class UpdateUserPictureRequestModel {
 
-    @NotNull(message = "pictureURL cannot be null.")
-    @Size(max = 500, message = "pictureURL should not be more than 500.")
+    @NotNull(message = PICTURE_URL_NULL_MESSAGE)
+    @Size(max = PICTURE_URL_MAX, message = PICTURE_URL_MESSAGE)
     private String pictureURL;
 
     public UpdateUserPictureRequestModel() {}

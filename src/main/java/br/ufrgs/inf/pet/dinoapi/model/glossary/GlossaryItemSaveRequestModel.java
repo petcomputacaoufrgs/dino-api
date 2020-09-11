@@ -4,20 +4,22 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants.*;
+
 public class GlossaryItemSaveRequestModel {
 
-    @NotNull(message = "title can't be null.")
-    @Size(max = 100, message = "title should not be more than 500.")
+    @NotNull(message = TITLE_NULL_MESSAGE)
+    @Size(min = 1, max = TITLE_MAX, message = TITLE_MESSAGE)
     private String title;
 
-    @NotNull(message = "text can't be null.")
-    @Size(max = 1000, message = "text should not be more than 500.")
+    @NotNull(message = TEXT_NULL_MESSAGE)
+    @Size(min = 1, max = TEXT_MAX, message = TEXT_MESSAGE)
     private String text;
 
-    @Size(max = 20, message = "text should not be more than 20.")
+    @Size(max = SUBTITLE_MAX, message = SUBTITLE_MESSAGE)
     private String subtitle;
 
-    @Size(max = 20000, message = "text should not be more than 20000.")
+    @Size(max = FULLTEXT_MAX, message = FULLTEXT_MESSAGE)
     private String fullText;
 
     public GlossaryItemSaveRequestModel() {}
