@@ -1,12 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Note;
-import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
-import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteTag;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
-import br.ufrgs.inf.pet.dinoapi.repository.NoteRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.NoteTagRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.notes.NoteRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.notes.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;

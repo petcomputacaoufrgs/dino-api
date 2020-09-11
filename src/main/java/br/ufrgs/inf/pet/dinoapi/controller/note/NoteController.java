@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import org.springframework.http.ResponseEntity;
 import java.util.List;

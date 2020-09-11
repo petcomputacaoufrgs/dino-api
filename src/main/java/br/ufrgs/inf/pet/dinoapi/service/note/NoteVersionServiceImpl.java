@@ -1,8 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.NoteVersion;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
-import br.ufrgs.inf.pet.dinoapi.repository.NoteVersionRepository;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.repository.notes.NoteVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;

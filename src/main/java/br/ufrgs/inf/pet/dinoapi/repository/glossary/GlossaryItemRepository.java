@@ -1,6 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.repository;
+package br.ufrgs.inf.pet.dinoapi.repository.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
+import br.ufrgs.inf.pet.dinoapi.entity.glossary.GlossaryItem;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

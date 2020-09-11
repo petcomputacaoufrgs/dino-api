@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;

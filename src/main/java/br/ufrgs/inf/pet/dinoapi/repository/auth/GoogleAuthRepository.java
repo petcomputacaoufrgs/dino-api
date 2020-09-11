@@ -1,7 +1,7 @@
-package br.ufrgs.inf.pet.dinoapi.repository;
+package br.ufrgs.inf.pet.dinoapi.repository.auth;
 
 
-import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.GoogleAuth;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,4 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.entity;
+package br.ufrgs.inf.pet.dinoapi.entity.notes;
+
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.QUESTION_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "note", uniqueConstraints={
+@Table(name = "notes", uniqueConstraints={
         @UniqueConstraint(columnNames={"question", "user_id"})
 })
 public class Note {

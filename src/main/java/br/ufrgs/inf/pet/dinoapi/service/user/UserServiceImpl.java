@@ -1,10 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
-import br.ufrgs.inf.pet.dinoapi.repository.UserRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
