@@ -58,7 +58,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         noteVersion.setLastColumnUpdate(new Date());
         noteVersion = noteVersionRepository.save(noteVersion);
 
-        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getVersion(), WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_UPDATE);
+        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getColumnVersion(), WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_UPDATE);
 
         return noteVersion.getColumnVersion();
     }

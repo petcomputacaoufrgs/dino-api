@@ -1,11 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.User;
-import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,8 +34,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     public ResponseEntity<List<NoteColumnResponseModel>> getUserColumns() {
         final User user = authService.getCurrentAuth().getUser();
 
-        //final List<NoteColumn> columns = user.getNoteColumns();
-        final List<NoteColumn> columns = new ArrayList<>();
+        final List<NoteColumn> columns = user.getNoteColumns();
 
         final List<NoteColumnResponseModel> model = columns.stream().map(NoteColumnResponseModel::new).collect(Collectors.toList());
 
