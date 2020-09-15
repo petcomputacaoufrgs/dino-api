@@ -15,7 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class NoteServiceImpl implements NoteService {
@@ -65,20 +64,21 @@ public class NoteServiceImpl implements NoteService {
         Note note;
 
         if (model.getId() == null) {
-            final List<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
+            final Optional<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
 
-            if (noteSearch.size() > 0) {
-                note = noteSearch.get(0);
+            if (noteSearch.isPresent()) {
+                note = noteSearch.get();
             } else {
-                final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
+                NoteColumn noteColumn = noteColumnService.findOneOrCreateByUserAndTitle(model.getColumnTitle(), user);
 
                 Integer order = 0;
 
-                if (maxOrderSearch.isPresent()) {
-                    order = maxOrderSearch.get() + 1;
+                if (noteColumn.getId() != null) {
+                    final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserIdAndColumnId(user.getId(), noteColumn.getId());
+                    if (maxOrderSearch.isPresent()) {
+                        order = maxOrderSearch.get() + 1;
+                    }
                 }
-
-                NoteColumn noteColumn = noteColumnService.findOneByUserIdAndTitle(model.getColumnTitle(), user.getId());
 
                 note = new Note(noteColumn, order);
             }
@@ -95,16 +95,9 @@ public class NoteServiceImpl implements NoteService {
         Boolean columnChanged = note.getNoteColumn() == null || (note.getNoteColumn().getTitle() != model.getColumnTitle());
 
         if (columnChanged) {
-            NoteColumn noteColumn = noteColumnService.findOneByUserIdAndTitle(model.getColumnTitle(), user.getId());
+            NoteColumn noteColumn = noteColumnService.findOneOrCreateByUserAndTitle(model.getColumnTitle(), user);
 
-            if (noteColumn != null) {
-                note.setNoteColumn(noteColumn);
-            } else {
-                Integer maxOrder = noteColumnService.getMaxOrder(user.getId());
-                noteColumn = new NoteColumn(user, maxOrder);
-
-                note.setNoteColumn(noteColumn);
-            }
+            note.setNoteColumn(noteColumn);
         }
 
         final List<NoteTag> tags = this.createNotSavedTags(model);
@@ -209,25 +202,17 @@ public class NoteServiceImpl implements NoteService {
     public ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
-        final List<Long> ids = models.stream()
-                .map(m -> m.getId())
-                .collect(Collectors.toList());
+        final List<Long> ids = new ArrayList<>();
 
-        final List<Integer> orders = models.stream()
-                .sorted(Comparator.comparing(NoteOrderRequestModel::getId))
-                .map(m -> m.getOrder())
-                .collect(Collectors.toList());
+        final List<Integer> orders = new ArrayList<>();
 
-        final List<String> columnTitles = models.stream()
-                .sorted(Comparator.comparing(NoteOrderRequestModel::getId))
-                .map(m -> m.getColumnTitle())
-                .collect(Collectors.toList());
+        final List<String> columnTitles = new ArrayList<>();
 
-        final Set<Integer> uniqueOrders = new HashSet<>(orders);
-
-        if (orders.size() != uniqueOrders.size()) {
-            return new ResponseEntity<>("Não podem haver itens com ordens iguais.", HttpStatus.BAD_REQUEST);
-        }
+        models.stream().sorted(Comparator.comparing(NoteOrderRequestModel::getId)).forEach(m -> {
+            ids.add(m.getId());
+            orders.add(m.getOrder());
+            columnTitles.add(m.getColumnTitle());
+        });
 
         final List<NoteColumn> columns = noteColumnService.findAllByUserIdAndTitle(columnTitles, user.getId());
 

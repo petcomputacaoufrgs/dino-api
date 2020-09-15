@@ -36,7 +36,7 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PostMapping
-    public ResponseEntity<?> saveNote(@Valid  @RequestBody NoteSaveRequestModel model) {
+    public ResponseEntity<?> saveNote(@Valid @RequestBody NoteSaveRequestModel model) {
         return noteService.saveNote(model);
     }
 

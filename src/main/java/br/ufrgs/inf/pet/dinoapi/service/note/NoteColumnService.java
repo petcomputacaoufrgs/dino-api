@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
+import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public interface NoteColumnService {
 
     List<NoteColumn> findAllByUserIdAndTitle(List<String> titles, Long userId);
 
-    NoteColumn findOneByUserIdAndTitle(String title, Long userId);
+    NoteColumn findOneOrCreateByUserAndTitle(String title, User user);
 
     Integer getMaxOrder(Long userId);
 

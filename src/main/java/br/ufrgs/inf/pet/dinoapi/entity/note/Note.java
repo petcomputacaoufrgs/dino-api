@@ -1,7 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.entity.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;

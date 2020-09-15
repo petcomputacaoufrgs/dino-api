@@ -232,14 +232,16 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     }
 
     @Override
-    public NoteColumn findOneByUserIdAndTitle(String title, Long userId) {
-        Optional<NoteColumn> search = noteColumnRepository.findByTitleAndUserId(title, userId);
+    public NoteColumn findOneOrCreateByUserAndTitle(String title, User user) {
+        Optional<NoteColumn> search = noteColumnRepository.findByTitleAndUserId(title, user.getId());
 
         if (search.isPresent()) {
             return search.get();
-        }
+        } else {
+            Integer maxOrder = this.getMaxOrder(user.getId());
 
-        return null;
+            return new NoteColumn(user, maxOrder);
+        }
     }
 
     @Override
