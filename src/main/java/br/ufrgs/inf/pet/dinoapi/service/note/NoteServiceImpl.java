@@ -80,7 +80,7 @@ public class NoteServiceImpl implements NoteService {
                     }
                 }
 
-                note = new Note(noteColumn, order);
+                note = new Note(noteColumn, order, new Date(model.getLastOrderUpdate()));
             }
         } else {
             final Optional<Note> noteSearch = noteRepository.findById(model.getId());
@@ -168,9 +168,7 @@ public class NoteServiceImpl implements NoteService {
         final List<NoteSaveRequestModel> changedNotes = new ArrayList<>();
         final List<NoteSaveRequestModel> newNotes = new ArrayList<>();
         final List<Long> idsToUpdate = new ArrayList<>();
-        final List<Integer> orders = new ArrayList<>();
         final List<String> questions = new ArrayList<>();
-        final List<String> columnTitles = new ArrayList<>();
 
         models.forEach(model -> {
             if (model.getId() != null) {
@@ -179,18 +177,14 @@ public class NoteServiceImpl implements NoteService {
             } else {
                 newNotes.add(model);
             }
-            orders.add(model.getOrder());
             questions.add(model.getQuestion());
-            columnTitles.add(model.getColumnTitle());
         });
 
         final List<Note> databaseNotes = noteRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
 
-        final List<NoteColumn> noteColumns = noteColumnService.findAllByUserIdAndTitle(columnTitles, user.getId());
+        notes.addAll(this.updateSavedNotes(changedNotes, databaseNotes, user));
 
-        notes.addAll(this.updateSavedNotes(changedNotes, databaseNotes, noteColumns, user));
-
-        notes.addAll(this.createNewNotes(newNotes, user, noteColumns));
+        notes.addAll(this.createNewNotes(newNotes, user));
 
         noteRepository.saveAll(notes);
 
@@ -238,7 +232,7 @@ public class NoteServiceImpl implements NoteService {
             final Long lastUpdateInModel = lastOrderUpdates.get(count);
 
             if (note.getLastOrderUpdate().getTime() < lastUpdateInModel) {
-                note.setLastUpdate(new Date(lastUpdateInModel));
+                note.setLastOrderUpdate(new Date(lastUpdateInModel));
                 note.setOrder(orders.get(count));
 
                 final int internalCount = count;
@@ -268,24 +262,13 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
 
-    private List<Note> updateSavedNotes(List<NoteSaveRequestModel> models, List<Note> notes, List<NoteColumn> noteColumns, User user) {
+    private List<Note> updateSavedNotes(List<NoteSaveRequestModel> models, List<Note> notes, User user) {
         final List<Note> updatedNotes = new ArrayList<>();
         final Date now = new Date();
         Integer noteColumnMaxOrder = noteColumnService.getMaxOrder(user.getId());
 
         for (NoteSaveRequestModel model : models)  {
             Optional<Note> noteSearch = notes.stream().filter(n -> n.getId() == model.getId()).findFirst();
-
-            List<NoteColumn> noteColumnSearch = noteColumns.stream().filter(nc -> nc.getTitle() == model.getColumnTitle()).collect(Collectors.toList());
-
-            NoteColumn noteColumn;
-
-            if (noteColumnSearch.size() > 0) {
-                noteColumn = noteColumnSearch.get(0);
-            } else {
-                noteColumn = new NoteColumn(user, noteColumnMaxOrder);
-                noteColumnMaxOrder++;
-            }
 
             if (noteSearch.isPresent()) {
                 Note note = noteSearch.get();
@@ -296,10 +279,6 @@ public class NoteServiceImpl implements NoteService {
 
                 note.setLastUpdate(now);
 
-                note.setOrder(model.getOrder());
-
-                note.setNoteColumn(noteColumn);
-
                 this.updateTags(note, model);
 
                 updatedNotes.add(note);
@@ -309,31 +288,19 @@ public class NoteServiceImpl implements NoteService {
         return updatedNotes;
     }
 
-    private List<Note> createNewNotes(List<NoteSaveRequestModel> models, User user, List<NoteColumn> noteColumns) {
+    private List<Note> createNewNotes(List<NoteSaveRequestModel> models, User user) {
         final List<Note> newNotes = new ArrayList<>();
         final Date now = new Date();
         Integer noteColumnMaxOrder = noteColumnService.getMaxOrder(user.getId());
 
         for(NoteSaveRequestModel model : models) {
-            List<NoteColumn> noteColumnSearch = noteColumns.stream().filter(nc -> nc.getTitle() == model.getColumnTitle()).collect(Collectors.toList());
-
-            NoteColumn noteColumn;
-
-            if (noteColumnSearch.size() > 0) {
-                noteColumn = noteColumnSearch.get(0);
-            } else {
-                noteColumn = new NoteColumn(user, noteColumnMaxOrder);
-                noteColumnMaxOrder++;
-            }
-
             List<NoteTag> tags = createNotSavedTags(model);
 
             Note note = new Note();
             note.setLastUpdate(now);
-            note.setOrder(model.getOrder());
             note.setQuestion(model.getQuestion());
             note.setTags(tags);
-            note.setNoteColumn(noteColumn);
+            note.setLastOrderUpdate(new Date(model.getLastOrderUpdate()));
 
             newNotes.add(note);
         }

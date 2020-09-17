@@ -20,10 +20,11 @@ public class NoteSaveRequestModel {
     @NotNull(message = "lastUpdate cannot be null.")
     protected Long lastUpdate;
 
+    protected Long lastOrderUpdate;
+
     @Size(max = 500, message ="answer should not be more than 10000.")
     protected String answer;
 
-    @NotNull(message = "order cannot be null.")
     protected Integer order;
 
     @NotNull(message = "columnTitle cannot be null.")
@@ -83,5 +84,13 @@ public class NoteSaveRequestModel {
 
     public void setColumnTitle(String columnTitle) {
         this.columnTitle = columnTitle;
+    }
+
+    public Long getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Long lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 }

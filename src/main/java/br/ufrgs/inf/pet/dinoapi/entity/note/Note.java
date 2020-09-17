@@ -46,9 +46,10 @@ public class Note {
         this.tags = new ArrayList<>();
     }
 
-    public Note(NoteColumn noteColumn, Integer order) {
-        this.setOrder(order);
-        this.setNoteColumn(noteColumn);
+    public Note(NoteColumn noteColumn, Integer order, Date lastOrderUpdate) {
+        this.order = order;
+        this.noteColumn = noteColumn;
+        this.lastOrderUpdate = lastOrderUpdate;
         this.tags = new ArrayList<>();
     }
 
