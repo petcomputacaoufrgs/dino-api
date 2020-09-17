@@ -209,10 +209,13 @@ public class NoteServiceImpl implements NoteService {
 
         final List<String> columnTitles = new ArrayList<>();
 
+        final List<Long> lastOrderUpdates = new ArrayList<>();
+
         models.stream().sorted(Comparator.comparing(NoteOrderRequestModel::getId)).forEach(m -> {
             ids.add(m.getId());
             orders.add(m.getOrder());
             columnTitles.add(m.getColumnTitle());
+            lastOrderUpdates.add(m.getLastOrderUpdate());
         });
 
         final List<NoteColumn> columns = noteColumnService.findAllByUserIdAndTitle(columnTitles, user.getId());
@@ -229,27 +232,36 @@ public class NoteServiceImpl implements NoteService {
 
         int count = 0;
 
+        final List<Note> updatedNotes = new ArrayList<>();
+
         for (Note note : notes) {
-            note.setOrder(orders.get(count));
+            final Long lastUpdateInModel = lastOrderUpdates.get(count);
 
-            final int internalCount = count;
+            if (note.getLastOrderUpdate().getTime() < lastUpdateInModel) {
+                note.setLastUpdate(new Date(lastUpdateInModel));
+                note.setOrder(orders.get(count));
 
-            List<NoteColumn> noteColumnSearch = columns.stream().filter(column -> column.getTitle().equalsIgnoreCase(columnTitles.get(internalCount))).collect(Collectors.toList());
+                final int internalCount = count;
 
-            if (noteColumnSearch.size() > 0) {
-                note.setNoteColumn(noteColumnSearch.get(0));
-            } else {
-                NoteColumn noteColumn = new NoteColumn(user, noteColumnMaxOrder);
-                noteColumn = noteColumnService.save(noteColumn);
-                noteColumnMaxOrder++;
+                List<NoteColumn> noteColumnSearch = columns.stream().filter(column -> column.getTitle().equalsIgnoreCase(columnTitles.get(internalCount))).collect(Collectors.toList());
 
-                note.setNoteColumn(noteColumn);
+                if (noteColumnSearch.size() > 0) {
+                    note.setNoteColumn(noteColumnSearch.get(0));
+                } else {
+                    NoteColumn noteColumn = new NoteColumn(user, noteColumnMaxOrder);
+                    noteColumn = noteColumnService.save(noteColumn);
+                    noteColumnMaxOrder++;
+
+                    note.setNoteColumn(noteColumn);
+                }
+
+                updatedNotes.add(note);
             }
 
             count++;
         }
 
-        noteRepository.saveAll(notes);
+        noteRepository.saveAll(updatedNotes);
 
         Long newNoteVersion = noteVersionService.updateNoteVersion();
 

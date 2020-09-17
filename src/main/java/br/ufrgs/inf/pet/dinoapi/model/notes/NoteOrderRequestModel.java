@@ -2,8 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.model.notes;
 
 import javax.validation.constraints.NotNull;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.ID_NULL_MESSAGE;
-import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.ORDER_NULL_MESSAGE;
+import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.*;
 
 public class NoteOrderRequestModel {
 
@@ -13,8 +12,11 @@ public class NoteOrderRequestModel {
     @NotNull(message = ORDER_NULL_MESSAGE)
     private Integer order;
 
-    @NotNull(message = "columnTitle cannot be null.")
+    @NotNull(message = COLUMN_TITLE_NULL_MESSAGE)
     private String columnTitle;
+
+    @NotNull(message = LAST_ORDER_UPDATE_NULL_MESSAGE)
+    private Long lastOrderUpdate;
 
     public Long getId() {
         return id;
@@ -38,5 +40,13 @@ public class NoteOrderRequestModel {
 
     public void setColumnTitle(String columnTitle) {
         this.columnTitle = columnTitle;
+    }
+
+    public Long getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Long lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 }

@@ -19,6 +19,8 @@ public class NoteResponseModel {
 
     private Long lastUpdate;
 
+    private Long lastOrderUpdate;
+
     private String columnTitle;
 
     public NoteResponseModel() {
@@ -33,6 +35,7 @@ public class NoteResponseModel {
         this.tags = note.getTags().stream().map(tag -> tag.getName()).collect(Collectors.toList());
         this.lastUpdate = note.getLastUpdate().getTime();
         this.columnTitle = note.getNoteColumn().getTitle();
+        this.lastOrderUpdate = note.getLastOrderUpdate().getTime();
     }
 
     public Long getId() {
@@ -89,5 +92,13 @@ public class NoteResponseModel {
 
     public void setColumnTitle(String columnTitle) {
         this.columnTitle = columnTitle;
+    }
+
+    public Long getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Long lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 }

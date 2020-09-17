@@ -26,8 +26,11 @@ public class Note {
     @Column(name = "answer", length = 500)
     private String answer;
 
-    @Column(name = "last_update_day", nullable = false)
+    @Column(name = "last_update", nullable = false)
     private Date lastUpdate;
+
+    @Column(name = "last_order_update", nullable = false)
+    private Date lastOrderUpdate;
 
     @ManyToOne
     @JoinColumn(name = "note_column_id", nullable = false)
@@ -87,6 +90,14 @@ public class Note {
 
     public void setLastUpdate(Date lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public Date getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Date lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 
     public List<NoteTag> getTags() {

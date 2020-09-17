@@ -16,5 +16,9 @@ public final class NoteConstants {
 
         public final static String ORDER_NULL_MESSAGE = "order cannot be null.";
 
+        public final static String LAST_ORDER_UPDATE_NULL_MESSAGE = "last order update cannot be null.";
+
+        public final static String COLUMN_TITLE_NULL_MESSAGE = "columnTitle cannot be null.";
+
 
 }
