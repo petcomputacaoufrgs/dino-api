@@ -32,14 +32,4 @@ public interface NoteColumnRepository extends CrudRepository<NoteColumn, Long> {
     @Query("SELECT n FROM NoteColumn n WHERE n.id IN :ids AND n.user.id = :userId ORDER BY n.id ASC")
     List<NoteColumn> findAllByIdOrderByIdAsc(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM NoteColumn n WHERE n.id = :id AND n.user.id = :userId AND n.notes.size = 0")
-    int deleteByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
-
-    @Transactional
-    @Modifying
-    @Query("DELETE FROM NoteColumn n WHERE n.id IN :ids AND n.user.id = :userId AND n.notes.size = 0")
-    int deleteAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
-
 }

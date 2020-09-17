@@ -13,6 +13,9 @@ import java.util.Optional;
 @Repository
 public interface NoteRepository extends CrudRepository<Note, Long> {
 
+        @Query("SELECT n FROM Note n WHERE n.id = :id AND n.noteColumn.user.id = :userId")
+        Optional<Note> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userID);
+
         @Query("SELECT n FROM Note n WHERE (n.id IN :ids) AND n.noteColumn.user.id = :userId")
         List<Note> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 
@@ -21,11 +24,6 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
 
         @Query("SELECT n FROM Note n WHERE n.id IN :ids AND n.noteColumn.user.id = :userId ORDER BY n.id ASC")
         List<Note> findAllByIdOrderByIdAsc(@Param("ids") List<Long> ids, @Param("userId") Long userId);
-
-        @Transactional
-        @Modifying
-        @Query("DELETE FROM Note n WHERE n.id IN :ids AND n.noteColumn.user.id = :userId")
-        int deleteAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
         @Transactional
         @Modifying

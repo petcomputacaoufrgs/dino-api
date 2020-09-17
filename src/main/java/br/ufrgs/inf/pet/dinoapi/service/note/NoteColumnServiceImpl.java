@@ -5,7 +5,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,14 +43,17 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     @Override
     public ResponseEntity<?> save(NoteColumnSaveRequestModel model) {
         final User user = authService.getCurrentAuth().getUser();
-
+        final String newTitle = model.getTitle();
+        String oldTitle = model.getTitle();
         NoteColumn noteColumn;
+        Long newNoteColumnVersion;
 
         if (model.getId() == null && model.getOldTitle() == null) {
             final Optional<NoteColumn> noteColumnSearch = noteColumnRepository.findByTitleAndUserId(model.getTitle(), user.getId());
 
             if (noteColumnSearch.isPresent()) {
                 noteColumn = noteColumnSearch.get();
+                oldTitle = noteColumn.getTitle();
             } else {
                 final Optional<Integer> maxOrderSearch = noteColumnRepository.findMaxOrderByUserId(user.getId());
 
@@ -74,6 +76,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
             if (noteColumnSearch != null && noteColumnSearch.isPresent()) {
                 noteColumn = noteColumnSearch.get();
+                oldTitle = noteColumn.getTitle();
             } else {
                 return new ResponseEntity<>("Note Column not found", HttpStatus.NOT_FOUND);
             }
@@ -82,7 +85,11 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         noteColumn.setLastUpdate(new Date(model.getLastUpdate()));
         noteColumn.setTitle(model.getTitle());
 
-        Long newNoteColumnVersion = noteVersionService.updateColumnVersion();
+        if (oldTitle.equals(newTitle)) {
+            newNoteColumnVersion = noteVersionService.updateColumnVersion();
+        } else {
+            newNoteColumnVersion = noteVersionService.updateColumnVersionTitle(newTitle, oldTitle);
+        }
 
         final NoteColumn savedNoteColumn = noteColumnRepository.save(noteColumn);
 
@@ -95,20 +102,18 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     public ResponseEntity<Long> deleteAll(List<NoteColumnDeleteRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
 
-        final List<Long> validIds = models.stream()
-                .filter(model -> model.getId() != null)
+        final List<Long> ids = models.stream()
                 .map(model -> model.getId()).collect(Collectors.toList());
 
-        int deletedItems = 0;
+        List<NoteColumn> noteColumns = noteColumnRepository.findAllByIdAndUserId(ids, user.getId());
 
-        if (validIds.size() > 0) {
-            deletedItems = noteColumnRepository.deleteAllByIdAndUserId(validIds, user.getId());
+        if (noteColumns.size() > 0) {
+            noteColumnRepository.deleteAll(noteColumns);
 
-            if (deletedItems > 0) {
-                Long newNoteVersion = noteVersionService.updateColumnVersion();
-
-                return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
-            }
+            Long newNoteColumnVersion = noteVersionService.updateColumnVersionDelete(
+                    noteColumns.stream().map(noteColumn -> noteColumn.getTitle()).collect(Collectors.toList()));
+            
+            return new ResponseEntity<>(newNoteColumnVersion, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(user.getNoteVersion().getColumnVersion(), HttpStatus.OK);
@@ -122,10 +127,14 @@ public class NoteColumnServiceImpl implements NoteColumnService {
             return new ResponseEntity<>(user.getNoteVersion().getColumnVersion(), HttpStatus.OK);
         }
 
-        final int deletedItems = noteColumnRepository.deleteByIdAndUserId(model.getId(), user.getId());
+        final Optional<NoteColumn> noteSearch = noteColumnRepository.findByIdAndUserId(model.getId(), user.getId());
 
-        if (deletedItems > 0) {
-            Long newNoteVersion = noteVersionService.updateColumnVersion();
+        if (noteSearch.isPresent()) {
+            NoteColumn noteColumn = noteSearch.get();
+
+            noteColumnRepository.delete(noteColumn);
+
+            Long newNoteVersion = noteVersionService.updateColumnVersionDelete(noteColumn.getTitle());
 
             return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
@@ -221,7 +230,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
         noteColumnRepository.saveAll(noteColumns);
 
-        Long newNoteVersion = noteVersionService.updateColumnVersion();
+        Long newNoteVersion = noteVersionService.updateColumnVersionOrder(noteColumns);
 
         return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }

@@ -107,7 +107,7 @@ public class NoteServiceImpl implements NoteService {
         note.setAnswer(model.getAnswer());
         note.setTags(tags);
 
-        Long newNoteVersion = noteVersionService.updateVersion();
+        Long newNoteVersion = noteVersionService.updateNoteVersion();
 
         final Note savedNote = noteRepository.save(note);
 
@@ -124,13 +124,13 @@ public class NoteServiceImpl implements NoteService {
                 .filter(model -> model.getId() != null)
                 .map(model -> model.getId()).collect(Collectors.toList());
 
-        int deletedItems = 0;
-
         if (validIds.size() > 0) {
-            deletedItems = noteRepository.deleteAllByIdAndUserId(validIds, user.getId());
+            final List<Note> notes = noteRepository.findAllByIdAndUserId(validIds, user.getId());
 
-            if (deletedItems > 0) {
-                Long newNoteVersion = noteVersionService.updateVersion();
+            if (notes.size() > 0) {
+                noteRepository.deleteAll(notes);
+
+                Long newNoteVersion = noteVersionService.updateNoteVersion();
 
                 return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
             }
@@ -147,11 +147,12 @@ public class NoteServiceImpl implements NoteService {
             return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
         }
 
-        final int deletedItems = noteRepository.deleteByIdAndUserId(model.getId(), user.getId());
+        final Optional<Note> noteSearch = noteRepository.findByIdAndUserId(model.getId(), user.getId());
 
+        if (noteSearch.isPresent()) {
+            noteRepository.delete(noteSearch.get());
 
-        if (deletedItems > 0) {
-            Long newNoteVersion = noteVersionService.updateVersion();
+            Long newNoteVersion = noteVersionService.updateNoteVersion();
 
             return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
@@ -193,7 +194,7 @@ public class NoteServiceImpl implements NoteService {
 
         noteRepository.saveAll(notes);
 
-        Long newNoteVersion = noteVersionService.updateVersion();
+        Long newNoteVersion = noteVersionService.updateNoteVersion();
 
         return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
@@ -250,7 +251,7 @@ public class NoteServiceImpl implements NoteService {
 
         noteRepository.saveAll(notes);
 
-        Long newNoteVersion = noteVersionService.updateVersion();
+        Long newNoteVersion = noteVersionService.updateNoteVersion();
 
         return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
     }
