@@ -73,6 +73,6 @@ public class NoteControllerImpl implements NoteController {
     @Override
     @GetMapping("version/")
     public ResponseEntity<Long> getVersion() {
-        return noteVersionService.getVersion();
+        return noteVersionService.getNoteVersion();
     }
 }

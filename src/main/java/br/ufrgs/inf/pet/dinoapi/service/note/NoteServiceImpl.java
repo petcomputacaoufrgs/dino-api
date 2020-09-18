@@ -136,7 +136,7 @@ public class NoteServiceImpl implements NoteService {
             }
         }
 
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getNoteVersion(), HttpStatus.OK);
     }
 
     @Override
@@ -144,7 +144,7 @@ public class NoteServiceImpl implements NoteService {
         final User user = authService.getCurrentAuth().getUser();
 
         if (model == null || model.getId() == null) {
-            return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+            return new ResponseEntity<>(user.getNoteVersion().getNoteVersion(), HttpStatus.OK);
         }
 
         final Optional<Note> noteSearch = noteRepository.findByIdAndUserId(model.getId(), user.getId());
@@ -157,7 +157,7 @@ public class NoteServiceImpl implements NoteService {
             return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getNoteVersion(), HttpStatus.OK);
     }
 
     @Override
@@ -242,7 +242,7 @@ public class NoteServiceImpl implements NoteService {
                 if (noteColumnSearch.size() > 0) {
                     note.setNoteColumn(noteColumnSearch.get(0));
                 } else {
-                    NoteColumn noteColumn = new NoteColumn(user, noteColumnMaxOrder);
+                    NoteColumn noteColumn = new NoteColumn(user, noteColumnMaxOrder, new Date());
                     noteColumn = noteColumnService.save(noteColumn);
                     noteColumnMaxOrder++;
 

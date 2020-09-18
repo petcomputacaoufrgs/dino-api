@@ -63,7 +63,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
                     order = maxOrderSearch.get() + 1;
                 }
 
-                noteColumn = new NoteColumn(user, order);
+                noteColumn = new NoteColumn(user, order, new Date(model.getLastOrderUpdate()));
             }
         } else {
             Optional<NoteColumn> noteColumnSearch = Optional.empty();
@@ -150,7 +150,6 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         final List<NoteColumnSaveRequestModel> changedNoteColumns = new ArrayList<>();
         final List<NoteColumnSaveRequestModel> newNoteColumns = new ArrayList<>();
         final List<Long> idsToUpdate = new ArrayList<>();
-        final List<Integer> orders = new ArrayList<>();
         final List<String> titles = new ArrayList<>();
 
         models.forEach(model -> {
@@ -160,7 +159,6 @@ public class NoteColumnServiceImpl implements NoteColumnService {
             } else {
                 newNoteColumns.add(model);
             }
-            orders.add(model.getOrder());
             titles.add(model.getTitle());
         });
 
@@ -185,33 +183,42 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
         final List<Long> ids = new ArrayList<>();
 
-        final List<NoteColumn> savedNotes = new ArrayList<>();
+        final List<Integer> orders = new ArrayList<>();
+
+        final List<NoteColumn> savedNoteColumns = new ArrayList<>();
+
+        final List<Long> lastOrderUpdates = new ArrayList<>();
 
         if (titlesWithoutId.size() > 0) {
-            savedNotes.addAll(noteColumnRepository.findByTitlesAndUserId(titlesWithoutId, user.getId()));
+            savedNoteColumns.addAll(noteColumnRepository.findByTitlesAndUserId(titlesWithoutId, user.getId()));
         }
 
-        models.stream().forEach(m -> {
-            if (m.getId() == null && !m.getColumnTitle().isBlank()) {
-                List<NoteColumn> savedNoteSearch = savedNotes.stream().filter(sn -> sn.getTitle().equals(m.getColumnTitle())).collect(Collectors.toList());
+        models.stream().forEach(model -> {
+            if (model.getId() == null) {
+                List<NoteColumn> savedColumn = savedNoteColumns.stream()
+                        .filter(savedNote ->
+                                savedNote.getTitle().equals(model.getColumnTitle())).collect(Collectors.toList());
 
-                if (savedNoteSearch.size() > 0) {
-                    m.setId(savedNotes.get(0).getId());
+                if (savedColumn.size() > 0) {
+                    model.setId(savedColumn.get(0).getId());
+                } else {
+                    NoteColumn noteColumn = new NoteColumn(user, model.getOrder(), new Date(model.getLastOrderUpdate()));
+                    noteColumn = noteColumnRepository.save(noteColumn);
+                    model.setId(noteColumn.getId());
                 }
             }
-
-            ids.add(m.getId());
         });
 
-        final List<Integer> orders = models.stream()
-                .sorted(Comparator.comparing(NoteColumnOrderRequestModel::getId))
-                .map(m -> m.getOrder())
-                .collect(Collectors.toList());
+        models.stream().sorted(Comparator.comparing(NoteColumnOrderRequestModel::getId)).forEach(m -> {
+            ids.add(m.getId());
+            orders.add(m.getOrder());
+            lastOrderUpdates.add(m.getLastOrderUpdate());
+        });
 
         final Set<Integer> uniqueOrders = new HashSet<>(orders);
 
         if (orders.size() != uniqueOrders.size()) {
-            return new ResponseEntity<>("Não podem haver itens com ordens iguais.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Não podem haver colunas com ordens iguais.", HttpStatus.BAD_REQUEST);
         }
 
         final List<NoteColumn> noteColumns = noteColumnRepository.findAllByIdOrderByIdAsc(ids, user.getId());
@@ -223,9 +230,11 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         }
 
         IntStream.range(0, noteColumns.size())
-                .forEach(i ->
-                        noteColumns.get(i).setOrder(orders.get(i))
-                );
+                .forEach(i -> {
+                    NoteColumn noteColumn = noteColumns.get(i);
+                    noteColumn.setOrder(orders.get(i));
+                    noteColumn.setLastOrderUpdate(new Date(lastOrderUpdates.get(i)));
+                });
 
 
         noteColumnRepository.saveAll(noteColumns);
@@ -249,7 +258,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         } else {
             Integer maxOrder = this.getMaxOrder(user.getId());
 
-            return new NoteColumn(user, maxOrder);
+            return new NoteColumn(user, maxOrder, new Date());
         }
     }
 

@@ -30,6 +30,9 @@ public class NoteColumn {
     @Column(name = "last_update_day", nullable = false)
     private Date lastUpdate;
 
+    @Column(name = "last_order_update", nullable = false)
+    private Date lastOrderUpdate;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -39,9 +42,10 @@ public class NoteColumn {
 
     public NoteColumn() {}
 
-    public NoteColumn(User user, Integer order) {
+    public NoteColumn(User user, Integer order, Date lastOrderUpdate) {
         this.user = user;
         this.order = order;
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 
     public Long getId() {
@@ -86,5 +90,13 @@ public class NoteColumn {
 
     public void setNotes(List<Note> notes) {
         this.notes = notes;
+    }
+
+    public Date getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Date lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 }

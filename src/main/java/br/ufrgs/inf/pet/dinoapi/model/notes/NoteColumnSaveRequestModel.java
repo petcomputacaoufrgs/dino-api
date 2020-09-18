@@ -6,7 +6,6 @@ import javax.validation.constraints.Size;
 public class NoteColumnSaveRequestModel {
     private Long id;
 
-    @NotNull
     private Integer order;
 
     @NotNull
@@ -16,8 +15,10 @@ public class NoteColumnSaveRequestModel {
     @Size(max = 50, message = "oldTitle should not be more than 50.")
     private String oldTitle;
 
-    @NotNull
+    @NotNull(message = "lastUpdate cannot be null.")
     private Long lastUpdate;
+
+    private Long lastOrderUpdate;
 
     public Long getId() {
         return id;
@@ -57,5 +58,13 @@ public class NoteColumnSaveRequestModel {
 
     public void setOldTitle(String oldTitle) {
         this.oldTitle = oldTitle;
+    }
+
+    public Long getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Long lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 }

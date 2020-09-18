@@ -8,7 +8,9 @@ import java.util.List;
 
 public interface NoteVersionService {
 
-    ResponseEntity<Long> getVersion();
+    ResponseEntity<Long> getNoteVersion();
+
+    ResponseEntity<Long> getNoteColumnVersion();
 
     Long updateNoteVersion();
 

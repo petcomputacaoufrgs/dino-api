@@ -20,14 +20,14 @@ public class NoteVersion {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "version", nullable = false)
-    private Long version;
+    @Column(name = "note_version", nullable = false)
+    private Long noteVersion;
 
-    @Column(name = "version_column", nullable = false)
+    @Column(name = "column_version", nullable = false)
     private Long columnVersion;
 
-    @Column(name = "last_update", nullable = false)
-    private Date lastUpdate;
+    @Column(name = "last_note_update", nullable = false)
+    private Date lastNoteUpdate;
 
     @Column(name = "last_column_update", nullable = false)
     private Date lastColumnUpdate;
@@ -38,35 +38,27 @@ public class NoteVersion {
 
     public NoteVersion() { }
 
-    public NoteVersion(User user) {
-        this.user = user;
-        this.lastUpdate = new Date();
-        this.lastColumnUpdate = new Date();
-        this.version = this.DEFAULT_VERSION;
-        this.columnVersion = this.DEFAULT_VERSION;
-    }
-
     public Long getId() {
         return id;
     }
 
-    public Long getVersion() {
-        return version;
+    public Long getNoteVersion() {
+        return noteVersion;
     }
 
     public void updateVersion() {
-        this.version = version + 1l;
+        this.noteVersion = noteVersion + 1l;
     }
 
-    public void setVersion(Long version) {
-        this.version = version;
+    public void setNoteVersion(Long version) {
+        this.noteVersion = version;
     }
 
     public Long getColumnVersion() {
         return columnVersion;
     }
 
-    public void setColumnVersion(Long versionColumn) {
+    public void setColumnVersion(Long columnVersion) {
         this.columnVersion = columnVersion;
     }
 
@@ -74,12 +66,12 @@ public class NoteVersion {
         this.columnVersion = columnVersion + 1l;
     }
 
-    public Date getLastUpdate() {
-        return lastUpdate;
+    public Date getLastNoteUpdate() {
+        return lastNoteUpdate;
     }
 
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
+    public void setLastNoteUpdate(Date lastUpdate) {
+        this.lastNoteUpdate = lastUpdate;
     }
 
     public Date getLastColumnUpdate() {

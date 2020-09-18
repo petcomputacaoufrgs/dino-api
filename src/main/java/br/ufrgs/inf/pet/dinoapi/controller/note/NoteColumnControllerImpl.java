@@ -62,6 +62,6 @@ public class NoteColumnControllerImpl implements NoteColumnController {
     @Override
     @GetMapping("version/")
     public ResponseEntity<Long> getVersion() {
-        return noteVersionService.getVersion();
+        return noteVersionService.getNoteColumnVersion();
     }
 }

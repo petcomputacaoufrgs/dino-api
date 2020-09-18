@@ -14,6 +14,8 @@ public class NoteColumnResponseModel {
 
     private Long lastUpdate;
 
+    private Long lastOrderUpdate;
+
     public NoteColumnResponseModel() {}
 
     public NoteColumnResponseModel(NoteColumn noteColumn) {
@@ -21,6 +23,7 @@ public class NoteColumnResponseModel {
         this.title = noteColumn.getTitle();
         this.order = noteColumn.getOrder();
         this.lastUpdate = noteColumn.getLastUpdate().getTime();
+        this.lastOrderUpdate = noteColumn.getLastOrderUpdate().getTime();
     }
 
     public Long getId() {
@@ -53,5 +56,13 @@ public class NoteColumnResponseModel {
 
     public void setLastUpdate(Long lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public Long getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Long lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 }

@@ -40,10 +40,17 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     }
 
     @Override
-    public ResponseEntity<Long> getVersion() {
-        final NoteVersion noteVersion = this.getNoteVersion();
+    public ResponseEntity<Long> getNoteVersion() {
+        final NoteVersion noteVersion = this.getVersion();
 
-        return new ResponseEntity<>(noteVersion.getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(noteVersion.getNoteVersion(), HttpStatus.OK);
+    }
+
+    @Override
+    public ResponseEntity<Long> getNoteColumnVersion() {
+        final NoteVersion noteVersion = this.getVersion();
+
+        return new ResponseEntity<>(noteVersion.getColumnVersion(), HttpStatus.OK);
     }
 
     @Override
@@ -51,12 +58,12 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
 
         noteVersion.updateVersion();
-        noteVersion.setLastUpdate(new Date());
+        noteVersion.setLastNoteUpdate(new Date());
         noteVersion = noteVersionRepository.save(noteVersion);
 
-        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getVersion(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE);
+        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getNoteVersion(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE);
 
-        return noteVersion.getVersion();
+        return noteVersion.getNoteVersion();
     }
 
     @Override
@@ -84,7 +91,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         model.setNewTitle(newTitle);
         model.setOldTitle(oldTitle);
         model.setNewVersion(noteVersion.getColumnVersion());
-        model.setLastUpdate(noteVersion.getLastUpdate().getTime());
+        model.setLastUpdate(noteVersion.getLastNoteUpdate().getTime());
 
         try {
             alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_TITLE_UPDATE);
@@ -144,12 +151,12 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         return noteVersion.getColumnVersion();
     }
 
-    private NoteVersion getNoteVersion() {
+    private NoteVersion getVersion() {
         final User user = authService.getCurrentAuth().getUser();
 
         Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
 
-        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> noteVersionRepository.save(new NoteVersion(user)));
+        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> noteVersionRepository.save(this.createNoteVersion(user)));
 
         return noteVersion;
     }
@@ -159,7 +166,19 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
         Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
 
-        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> new NoteVersion(user));
+        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> this.createNoteVersion(user));
+
+        return noteVersion;
+    }
+
+    private NoteVersion createNoteVersion(User user) {
+        NoteVersion noteVersion = new NoteVersion();
+
+        noteVersion.setUser(user);
+        noteVersion.setLastColumnUpdate(new Date());
+        noteVersion.setLastNoteUpdate(new Date());
+        noteVersion.setColumnVersion(noteVersion.DEFAULT_VERSION);
+        noteVersion.setNoteVersion(noteVersion.DEFAULT_VERSION);
 
         return noteVersion;
     }
