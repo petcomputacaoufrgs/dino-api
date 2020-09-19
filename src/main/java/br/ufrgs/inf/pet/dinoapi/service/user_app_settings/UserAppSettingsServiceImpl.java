@@ -1,9 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.user_app_settings;
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
-import br.ufrgs.inf.pet.dinoapi.entity.UserAppSettings;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.UserAppSettings;
 import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsResponseAndRequestModel;
-import br.ufrgs.inf.pet.dinoapi.repository.UserAppSettingsRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.user.UserAppSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;

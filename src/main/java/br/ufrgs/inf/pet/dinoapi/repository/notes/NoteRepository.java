@@ -1,6 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.repository;
+package br.ufrgs.inf.pet.dinoapi.repository.notes;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.Note;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;

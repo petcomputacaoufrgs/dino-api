@@ -1,6 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.repository;
+package br.ufrgs.inf.pet.dinoapi.repository.auth;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

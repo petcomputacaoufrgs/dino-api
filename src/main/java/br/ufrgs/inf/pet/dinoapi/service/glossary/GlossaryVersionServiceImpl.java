@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.entity.GlossaryVersion;
-import br.ufrgs.inf.pet.dinoapi.repository.GlossaryVersionRepository;
+import br.ufrgs.inf.pet.dinoapi.entity.glossary.GlossaryVersion;
+import br.ufrgs.inf.pet.dinoapi.repository.glossary.GlossaryVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.topic.AlertUpdateTopicServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;

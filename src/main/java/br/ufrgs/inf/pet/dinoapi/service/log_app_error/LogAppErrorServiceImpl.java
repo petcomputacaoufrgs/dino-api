@@ -1,10 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.log_app_error;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.LogAppError;
+import br.ufrgs.inf.pet.dinoapi.entity.log_app_error.LogAppError;
 import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErroListRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErrorRequestModel;
-import br.ufrgs.inf.pet.dinoapi.repository.LogAppErrorRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.log_app_error.LogAppErrorRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

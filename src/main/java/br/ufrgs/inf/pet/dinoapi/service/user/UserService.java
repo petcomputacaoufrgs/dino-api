@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

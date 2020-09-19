@@ -1,4 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.entity;
+package br.ufrgs.inf.pet.dinoapi.entity.auth;
+
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
 import java.util.Date;

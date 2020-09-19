@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;

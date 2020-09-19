@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.user_details;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
@@ -30,7 +30,7 @@ public class DinoUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        final br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
+        final br.ufrgs.inf.pet.dinoapi.entity.user.User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
             return new User(userDB.getEmail(), "", new ArrayList<>());

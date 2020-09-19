@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.entity;
+package br.ufrgs.inf.pet.dinoapi.entity.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateRequestModel;

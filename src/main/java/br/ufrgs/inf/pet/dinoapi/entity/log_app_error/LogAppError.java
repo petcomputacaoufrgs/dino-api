@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.entity;
+package br.ufrgs.inf.pet.dinoapi.entity.log_app_error;
 
 import javax.persistence.*;
 import java.util.Date;

@@ -1,10 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
-import br.ufrgs.inf.pet.dinoapi.repository.AuthRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.auth.AuthRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;

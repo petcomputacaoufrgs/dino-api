@@ -1,24 +1,21 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleAPICommunicationImpl;
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleRefreshAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
-import br.ufrgs.inf.pet.dinoapi.repository.GoogleAuthRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.auth.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

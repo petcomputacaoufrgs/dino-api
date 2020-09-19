@@ -1,14 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.filter;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
-import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;

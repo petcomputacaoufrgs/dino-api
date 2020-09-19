@@ -1,9 +1,13 @@
-package br.ufrgs.inf.pet.dinoapi.entity;
+package br.ufrgs.inf.pet.dinoapi.entity.user;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.UserQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteVersion;
 
 import javax.persistence.*;
 import java.util.ArrayList;

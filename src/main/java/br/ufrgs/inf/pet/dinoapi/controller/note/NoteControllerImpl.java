@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.NoteTag;
+import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteTagServiceImpl;
@@ -13,7 +13,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/note/")
+@RequestMapping("/notes/")
 public class NoteControllerImpl implements NoteController {
 
     private final NoteServiceImpl noteService;
