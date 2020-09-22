@@ -21,7 +21,7 @@ public interface NoteColumnService {
 
     ResponseEntity<?> updateOrder(List<NoteColumnOrderRequestModel> models);
 
-    List<NoteColumn> findAllByUserIdAndTitle(List<String> titles, Long userId);
+    List<NoteColumn> findAllByUserIdAndTitles(List<String> titles, Long userId);
 
     NoteColumn findOneOrCreateByUserAndTitle(String title, User user);
 

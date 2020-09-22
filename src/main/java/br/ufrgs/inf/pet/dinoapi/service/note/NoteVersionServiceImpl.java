@@ -1,15 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.note.ColumnDeleteModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.note.ColumnOrderItemUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.note.ColumnOrderUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.note.ColumnTitleUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.note.*;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,6 +65,46 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     }
 
     @Override
+    public void updateNoteOrder(List<Note> noteList) {
+        NoteOrderUpdateModel model = new NoteOrderUpdateModel();
+        model.setItems(noteList.stream().map(NoteOrderItemUpdateModel::new).collect(Collectors.toList()));
+
+        try {
+            alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_ORDER_UPDATE);
+        } catch (JsonProcessingException e) {
+            this.updateColumnVersion();
+        }
+    }
+
+    @Override
+    public Long updateNoteVersionDelete(Long id) {
+        List<Long> idList = new ArrayList<>();
+        idList.add(id);
+        return this.updateNoteVersionDelete(idList);
+    }
+
+    @Override
+    public Long updateNoteVersionDelete(List<Long> idList) {
+        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
+
+        noteVersion.updateColumnVersion();
+        noteVersion.setLastColumnUpdate(new Date());
+        noteVersion = noteVersionRepository.save(noteVersion);
+
+        NoteDeleteModel model = new NoteDeleteModel();
+        model.setNewVersion(noteVersion.getColumnVersion());
+        model.setIdList(idList);
+
+        try {
+            alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_DELETE);
+        } catch (JsonProcessingException e) {
+            this.updateNoteVersion();
+        }
+
+        return noteVersion.getColumnVersion();
+    }
+
+    @Override
     public Long updateColumnVersion() {
         NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
 
@@ -80,47 +118,15 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     }
 
     @Override
-    public Long updateColumnVersionTitle(String newTitle, String oldTitle) {
-        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
-
-        noteVersion.updateColumnVersion();
-        noteVersion.setLastColumnUpdate(new Date());
-        noteVersion = noteVersionRepository.save(noteVersion);
-
-        ColumnTitleUpdateModel model = new ColumnTitleUpdateModel();
-        model.setNewTitle(newTitle);
-        model.setOldTitle(oldTitle);
-        model.setNewVersion(noteVersion.getColumnVersion());
-        model.setLastUpdate(noteVersion.getLastNoteUpdate().getTime());
-
-        try {
-            alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_TITLE_UPDATE);
-        } catch (JsonProcessingException e) {
-            this.updateNoteVersion();
-        }
-
-        return noteVersion.getColumnVersion();
-    }
-
-    @Override
-    public Long updateColumnVersionOrder(List<NoteColumn> columnList) {
-        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
-
-        noteVersion.updateColumnVersion();
-        noteVersion.setLastColumnUpdate(new Date());
-        noteVersion = noteVersionRepository.save(noteVersion);
-
+    public void updateColumnOrder(List<NoteColumn> columnList) {
         ColumnOrderUpdateModel model = new ColumnOrderUpdateModel();
         model.setItems(columnList.stream().map(ColumnOrderItemUpdateModel::new).collect(Collectors.toList()));
-        model.setNewVersion(noteVersion.getColumnVersion());
 
         try {
             alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_ORDER_UPDATE);
         } catch (JsonProcessingException e) {
-            this.updateNoteVersion();
+            this.updateColumnVersion();
         }
-
-        return noteVersion.getColumnVersion();
     }
 
     @Override

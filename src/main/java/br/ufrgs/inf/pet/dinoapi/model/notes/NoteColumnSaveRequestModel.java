@@ -12,9 +12,6 @@ public class NoteColumnSaveRequestModel {
     @Size(max = 50, message = "title should not be more than 50.")
     private String title;
 
-    @Size(max = 50, message = "oldTitle should not be more than 50.")
-    private String oldTitle;
-
     @NotNull(message = "lastUpdate cannot be null.")
     private Long lastUpdate;
 
@@ -50,14 +47,6 @@ public class NoteColumnSaveRequestModel {
 
     public void setLastUpdate(Long lastUpdate) {
         this.lastUpdate = lastUpdate;
-    }
-
-    public String getOldTitle() {
-        return oldTitle;
-    }
-
-    public void setOldTitle(String oldTitle) {
-        this.oldTitle = oldTitle;
     }
 
     public Long getLastOrderUpdate() {

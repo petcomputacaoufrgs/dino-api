@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
@@ -14,11 +15,15 @@ public interface NoteVersionService {
 
     Long updateNoteVersion();
 
+    void updateNoteOrder(List<Note> noteList);
+
+    Long updateNoteVersionDelete(Long id);
+
+    Long updateNoteVersionDelete(List<Long> idList);
+
     Long updateColumnVersion();
 
-    Long updateColumnVersionTitle(String newTitle, String oldTitle) throws JsonProcessingException;
-
-    Long updateColumnVersionOrder(List<NoteColumn> columnList);
+    void updateColumnOrder(List<NoteColumn> columnList);
 
     Long updateColumnVersionDelete(String title);
 

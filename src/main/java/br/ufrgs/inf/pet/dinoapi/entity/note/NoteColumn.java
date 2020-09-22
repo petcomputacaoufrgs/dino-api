@@ -9,9 +9,7 @@ import java.util.List;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "note_column", uniqueConstraints={
-        @UniqueConstraint(columnNames={"title", "user_id"})
-})
+@Table(name = "note_column")
 public class NoteColumn {
     private static final String SEQUENCE_NAME = "note_column_seq";
 
