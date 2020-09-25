@@ -54,7 +54,7 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PutMapping("all/")
-    public ResponseEntity<Long> updateAll(@Valid @RequestBody NoteUpdateAllRequestModel model) {
+    public ResponseEntity<NoteUpdateAllResponseModel> updateAll(@Valid @RequestBody NoteUpdateAllRequestModel model) {
         return noteService.updateAll(model.getItems());
     }
 

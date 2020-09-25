@@ -42,9 +42,9 @@ public interface NoteController {
      * Atualiza e cria (caso não exista) uma lista de anotações
      *
      * @param model do tipo {@link NoteUpdateAllRequestModel}
-     * @return Em caso de sucesso retorna a nova versão das anotações
+     * @return Em caso de sucesso retorna a nova versão das anotações e os seus ids no objeto {@link NoteUpdateAllResponseModel}
      */
-    ResponseEntity<Long> updateAll(NoteUpdateAllRequestModel model);
+    ResponseEntity<NoteUpdateAllResponseModel> updateAll(NoteUpdateAllRequestModel model);
 
     /**
      *  Atualiza a ordem das anotações

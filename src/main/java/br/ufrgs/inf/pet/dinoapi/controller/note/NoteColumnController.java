@@ -42,9 +42,9 @@ public interface NoteColumnController {
      * Atualiza e cria (caso não exista) uma lista de colunas
      *
      * @param models Model do tipo {@link NoteColumnUpdateAllRequestModel}
-     * @return Em caso de sucesso retorna a nova versão das colunas
+     * @return Em caso de sucesso retorna um objeto do tipo {@link NoteColumnUpdateAllResponseModel}
      */
-    ResponseEntity<Long> updateAll(NoteColumnUpdateAllRequestModel models);
+    ResponseEntity<NoteColumnUpdateAllResponseModel> updateAll(NoteColumnUpdateAllRequestModel models);
 
     /**
      *  Atualiza a ordem das colunas

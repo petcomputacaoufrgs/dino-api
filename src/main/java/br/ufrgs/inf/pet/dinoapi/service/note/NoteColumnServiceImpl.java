@@ -104,7 +104,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
             noteColumnRepository.deleteAll(noteColumns);
 
             Long newNoteColumnVersion = noteVersionService.updateColumnVersionDelete(
-                    noteColumns.stream().map(noteColumn -> noteColumn.getTitle()).collect(Collectors.toList()));
+                    noteColumns.stream().map(noteColumn -> noteColumn.getId()).collect(Collectors.toList()));
 
             if (deletedNotesCount > 0) {
                 noteVersionService.updateNoteVersion();
@@ -133,7 +133,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
             noteColumnRepository.delete(noteColumn);
 
-            Long newNoteVersion = noteVersionService.updateColumnVersionDelete(noteColumn.getTitle());
+            Long newNoteVersion = noteVersionService.updateColumnVersionDelete(noteColumn.getId());
 
             if (deletedNotesCount > 0) {
                 noteVersionService.updateNoteVersion();
@@ -146,7 +146,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     }
 
     @Override
-    public ResponseEntity<Long> updateAll(List<NoteColumnSaveRequestModel> models) {
+    public ResponseEntity<NoteColumnUpdateAllResponseModel> updateAll(List<NoteColumnSaveRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
         final List<NoteColumn> noteColumns = new ArrayList<>();
 
@@ -173,9 +173,11 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
         noteColumnRepository.saveAll(noteColumns);
 
-        Long newNoteVersion = noteVersionService.updateColumnVersion();
+        Long newNoteColumnVersion = noteVersionService.updateColumnVersion();
 
-        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
+        NoteColumnUpdateAllResponseModel model = new NoteColumnUpdateAllResponseModel(noteColumns, newNoteColumnVersion);
+
+        return new ResponseEntity<>(model, HttpStatus.OK);
     }
 
     @Override

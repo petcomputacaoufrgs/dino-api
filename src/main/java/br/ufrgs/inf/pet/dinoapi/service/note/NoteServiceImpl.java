@@ -165,7 +165,7 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<Long> updateAll(List<NoteSaveRequestModel> models) {
+    public ResponseEntity<NoteUpdateAllResponseModel> updateAll(List<NoteSaveRequestModel> models) {
         final User user = authService.getCurrentAuth().getUser();
         final List<Note> notes = new ArrayList<>();
 
@@ -200,7 +200,9 @@ public class NoteServiceImpl implements NoteService {
 
         Long newNoteVersion = noteVersionService.updateNoteVersion();
 
-        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
+        NoteUpdateAllResponseModel responseModel = new NoteUpdateAllResponseModel(notes, newNoteVersion);
+
+        return new ResponseEntity<>(responseModel, HttpStatus.OK);
     }
 
     @Override

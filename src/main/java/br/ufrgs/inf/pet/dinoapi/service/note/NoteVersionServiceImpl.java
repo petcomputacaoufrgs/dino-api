@@ -130,14 +130,14 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     }
 
     @Override
-    public Long updateColumnVersionDelete(String title) {
-        List<String> titleList = new ArrayList<>();
-        titleList.add(title);
-        return this.updateColumnVersionDelete(titleList);
+    public Long updateColumnVersionDelete(Long id) {
+        List<Long> idList = new ArrayList<>();
+        idList.add(id);
+        return this.updateColumnVersionDelete(idList);
     }
 
     @Override
-    public Long updateColumnVersionDelete(List<String> titleList) {
+    public Long updateColumnVersionDelete(List<Long> idList) {
         NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
 
         noteVersion.updateColumnVersion();
@@ -146,7 +146,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
         ColumnDeleteModel model = new ColumnDeleteModel();
         model.setNewVersion(noteVersion.getColumnVersion());
-        model.setTitleList(titleList);
+        model.setIdList(idList);
 
         try {
             alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_DELETE);

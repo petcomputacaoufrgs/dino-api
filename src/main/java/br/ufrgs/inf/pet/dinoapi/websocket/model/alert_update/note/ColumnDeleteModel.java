@@ -3,16 +3,16 @@ package br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.note;
 import java.util.List;
 
 public class ColumnDeleteModel {
-    private List<String> titleList;
+    private List<Long> idList;
 
     private Long newVersion;
 
-    public List<String> getTitleList() {
-        return titleList;
+    public List<Long> getIdList() {
+        return idList;
     }
 
-    public void setTitleList(List<String> titleList) {
-        this.titleList = titleList;
+    public void setIdList(List<Long> idList) {
+        this.idList = idList;
     }
 
     public Long getNewVersion() {

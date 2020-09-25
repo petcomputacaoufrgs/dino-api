@@ -25,8 +25,8 @@ public interface NoteVersionService {
 
     void updateColumnOrder(List<NoteColumn> columnList);
 
-    Long updateColumnVersionDelete(String title);
+    Long updateColumnVersionDelete(Long id);
 
-    Long updateColumnVersionDelete(List<String> titleList);
+    Long updateColumnVersionDelete(List<Long> idList);
 
 }
