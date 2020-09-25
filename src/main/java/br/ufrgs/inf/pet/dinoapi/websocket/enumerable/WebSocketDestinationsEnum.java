@@ -5,7 +5,7 @@ public enum WebSocketDestinationsEnum {
     ALERT_APP_SETTINGS_UPDATE("/queue/user_app_settings/update"),
     ALERT_NOTE_UPDATE("/queue/note/update"),
     ALERT_NOTE_ORDER_UPDATE("/queue/note/order/update"),
-    ALERT_NOTE_DELETE("/queue/note_column/delete"),
+    ALERT_NOTE_DELETE("/queue/note/delete"),
     ALERT_USER_UPDATE("/queue/user/update"),
     ALERT_CONTACT_UPDATE("/queue/contact/update"),
     ALERT_FAQ_UPDATE("/topic/faq/update"),

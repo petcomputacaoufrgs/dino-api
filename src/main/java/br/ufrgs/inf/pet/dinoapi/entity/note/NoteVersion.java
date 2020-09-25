@@ -46,7 +46,7 @@ public class NoteVersion {
         return noteVersion;
     }
 
-    public void updateVersion() {
+    public void updateNoteVersion() {
         this.noteVersion = noteVersion + 1l;
     }
 

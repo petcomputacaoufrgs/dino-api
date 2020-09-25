@@ -55,7 +55,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     public Long updateNoteVersion() {
         NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
 
-        noteVersion.updateVersion();
+        noteVersion.updateNoteVersion();
         noteVersion.setLastNoteUpdate(new Date());
         noteVersion = noteVersionRepository.save(noteVersion);
 
@@ -87,12 +87,12 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     public Long updateNoteVersionDelete(List<Long> idList) {
         NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
 
-        noteVersion.updateColumnVersion();
-        noteVersion.setLastColumnUpdate(new Date());
+        noteVersion.updateNoteVersion();
+        noteVersion.setLastNoteUpdate(new Date());
         noteVersion = noteVersionRepository.save(noteVersion);
 
         NoteDeleteModel model = new NoteDeleteModel();
-        model.setNewVersion(noteVersion.getColumnVersion());
+        model.setNewVersion(noteVersion.getNoteVersion());
         model.setIdList(idList);
 
         try {
@@ -101,7 +101,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
             this.updateNoteVersion();
         }
 
-        return noteVersion.getColumnVersion();
+        return noteVersion.getNoteVersion();
     }
 
     @Override
