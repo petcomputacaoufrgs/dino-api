@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteTagRepository;
@@ -30,18 +31,10 @@ public class NoteTagServiceImpl implements NoteTagService {
 
     @Override
     public ResponseEntity<List<NoteTag>> getTags() {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        final List<Note> userNotes = new ArrayList<>();
+        final List<NoteTag> tags= noteTagRepository.findAllByUserId(user.getId());
 
-        user.getNoteColumns().forEach(nc -> {
-            userNotes.addAll(nc.getNotes());
-        });
-
-        final Set<Long> noteIds = userNotes.stream().map(n -> n.getId()).collect(Collectors.toSet());
-
-        final List<NoteTag> notes = noteTagRepository.findAllByNotes(noteIds);
-
-        return new ResponseEntity<>(notes, HttpStatus.OK);
+        return new ResponseEntity<>(tags, HttpStatus.OK);
     }
 }

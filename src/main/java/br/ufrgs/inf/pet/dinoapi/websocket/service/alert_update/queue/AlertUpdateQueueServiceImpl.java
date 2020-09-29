@@ -5,13 +5,11 @@ import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.AlertUpdateModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
+import java.util.List;
 
 @Service
 public class AlertUpdateQueueServiceImpl implements AlertUpdateQueueService {
@@ -30,22 +28,31 @@ public class AlertUpdateQueueServiceImpl implements AlertUpdateQueueService {
     public void sendUpdateMessage(Long newVersion, WebSocketDestinationsEnum pathEnum) {
         final AlertUpdateModel model = new AlertUpdateModel();
         model.setNewVersion(newVersion);
-        final UserDetails principal = authService.getPrincipal();
-        this.simpMessagingTemplate.convertAndSendToUser(principal.getUsername(), pathEnum.getValue(), model);
+
+        final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptCurrentByUser();
+        webSocketTokens.forEach(webSocketToken -> {
+            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, pathEnum.getValue(), model);
+        });
     }
 
     @Override
     public void sendUpdateIdMessage(Long newId, WebSocketDestinationsEnum pathEnum) {
         final AlertUpdateModel model = new AlertUpdateModel();
         model.setNewId(newId);
-        final UserDetails principal = authService.getPrincipal();
-        this.simpMessagingTemplate.convertAndSendToUser(principal.getUsername(), pathEnum.getValue(), model);
+
+        final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptCurrentByUser();
+        webSocketTokens.forEach(webSocketToken -> {
+            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, pathEnum.getValue(), model);
+        });
     }
 
     @Override
     public void sendUpdateObjectMessage(Object object, WebSocketDestinationsEnum pathEnum) throws JsonProcessingException {
-        final UserDetails principal = authService.getPrincipal();
-        this.simpMessagingTemplate.convertAndSendToUser(principal.getUsername(), pathEnum.getValue(), JsonUtils.convertObjectToJSON(object));
+        final String message = JsonUtils.convertObjectToJSON(object);
+        final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptCurrentByUser();
+        webSocketTokens.forEach(webSocketToken -> {
+            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, pathEnum.getValue(), message);
+        });
     }
 
 }

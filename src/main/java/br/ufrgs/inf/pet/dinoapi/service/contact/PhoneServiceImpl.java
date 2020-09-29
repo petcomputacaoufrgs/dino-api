@@ -15,8 +15,12 @@ import java.util.stream.Collectors;
 @Service
 public class PhoneServiceImpl implements PhoneService {
 
+    private PhoneRepository phoneRepository;
+
     @Autowired
-    PhoneRepository phoneRepository;
+    public PhoneServiceImpl(PhoneRepository phoneRepository) {
+        this.phoneRepository = phoneRepository;
+    }
 
     public List<Phone> savePhones(List<PhoneSaveModel> phoneModels, Contact contact) {
 

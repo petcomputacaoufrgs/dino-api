@@ -16,6 +16,9 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
         @Query("SELECT n FROM Note n WHERE n.id = :id AND n.noteColumn.user.id = :userId")
         Optional<Note> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userID);
 
+        @Query("SELECT n FROM Note n WHERE n.noteColumn.user.id = :userId")
+        List<Note> findAllByUserId(@Param("userId") Long userID);
+
         @Query("SELECT n FROM Note n WHERE (n.id IN :ids) AND n.noteColumn.user.id = :userId")
         List<Note> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 

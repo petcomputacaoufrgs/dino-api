@@ -34,10 +34,9 @@ public class ContactServiceImpl implements ContactService {
 
 
     public ResponseEntity<List<ContactModel>> getUserContacts() {
-
             User user = authServiceImpl.getCurrentUser();
 
-            List<Contact> contacts = user.getContacts();
+            List<Contact> contacts = contactRepository.findByUserId(user.getId());
 
             List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
 

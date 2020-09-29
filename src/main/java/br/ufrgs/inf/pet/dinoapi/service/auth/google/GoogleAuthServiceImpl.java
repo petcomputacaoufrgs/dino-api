@@ -13,6 +13,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
+import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -93,6 +94,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final Auth auth = authService.generateAuth(user);
 
+                final Claims claims = authService.decodeAccessToken(auth.getAccessToken());
+
                 final UserResponseModel userResponseModel = new UserResponseModel();
 
                 userResponseModel.setEmail(user.getEmail());
@@ -107,7 +110,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setAccessToken(auth.getAccessToken());
 
-                response.setExpiresDate(auth.getTokenExpiresDate().getTime());
+                response.setExpiresDate(claims.getExpiration().getTime());
 
                 response.setUser(userResponseModel);
 

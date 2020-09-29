@@ -40,13 +40,9 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        final List<Note> notes = new ArrayList<>();
-
-        user.getNoteColumns().forEach(nc -> {
-            notes.addAll(nc.getNotes());
-        });
+        final List<Note> notes = noteRepository.findAllByUserId(user.getId());
 
         final List<NoteResponseModel> model = notes.stream().map(NoteResponseModel::new).collect(Collectors.toList());
 
@@ -59,7 +55,7 @@ public class NoteServiceImpl implements NoteService {
             return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
         }
 
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         Note note;
 
@@ -118,7 +114,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<Long> deleteAll(List<NoteDeleteRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         final List<Long> validIds = models.stream()
                 .filter(model -> model.getId() != null)
@@ -143,7 +139,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         if (model == null || model.getId() == null) {
             return new ResponseEntity<>(user.getNoteVersion().getNoteVersion(), HttpStatus.OK);
@@ -166,7 +162,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<NoteUpdateAllResponseModel> updateAll(List<NoteSaveRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
         final List<Note> notes = new ArrayList<>();
 
         final List<NoteSaveRequestModel> changedNotes = new ArrayList<>();
@@ -207,7 +203,7 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         final List<Long> ids = new ArrayList<>();
 

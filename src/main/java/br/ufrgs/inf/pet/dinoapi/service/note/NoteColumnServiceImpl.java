@@ -36,9 +36,9 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public ResponseEntity<List<NoteColumnResponseModel>> getUserColumns() {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        final List<NoteColumn> columns = user.getNoteColumns();
+        final List<NoteColumn> columns = noteColumnRepository.findAllByUserId(user.getId());
 
         final List<NoteColumnResponseModel> model = columns.stream().map(NoteColumnResponseModel::new).collect(Collectors.toList());
 
@@ -47,7 +47,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public ResponseEntity<?> save(NoteColumnSaveRequestModel model) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
         NoteColumn noteColumn;
         Long newNoteColumnVersion;
 
@@ -91,7 +91,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public ResponseEntity<Long> deleteAll(List<NoteColumnDeleteRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         final List<Long> ids = models.stream()
                 .map(model -> model.getId()).collect(Collectors.toList());
@@ -118,7 +118,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public ResponseEntity<Long> delete(NoteColumnDeleteRequestModel model) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         if (model == null || model.getId() == null) {
             return new ResponseEntity<>(user.getNoteVersion().getColumnVersion(), HttpStatus.OK);
@@ -147,7 +147,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public ResponseEntity<NoteColumnUpdateAllResponseModel> updateAll(List<NoteColumnSaveRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
         final List<NoteColumn> noteColumns = new ArrayList<>();
 
         final List<NoteColumnSaveRequestModel> changedNoteColumns = new ArrayList<>();
@@ -182,7 +182,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public ResponseEntity<?> updateOrder(List<NoteColumnOrderRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         final List<String> titlesWithoutId = models.stream().filter(model -> model.getId() == null).map(model -> model.getColumnTitle()).collect(Collectors.toList());
 

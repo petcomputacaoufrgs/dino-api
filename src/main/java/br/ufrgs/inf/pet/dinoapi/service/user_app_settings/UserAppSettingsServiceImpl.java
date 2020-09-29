@@ -31,13 +31,13 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
     @Override
     public ResponseEntity<?> getUserAppSettings() {
 
-        final User userDB = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        if (userDB == null) {
+        if (user == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
         }
 
-        final UserAppSettings userAppSettings = userDB.getUserAppSettings();
+        final UserAppSettings userAppSettings = user.getUserAppSettings();
 
         final UserAppSettingsResponseAndRequestModel model = new UserAppSettingsResponseAndRequestModel();
 
@@ -52,18 +52,18 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
         }
 
-        final User userDB = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        if (userDB == null) {
+        if (user == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
         }
 
-        UserAppSettings userAppSettings = userDB.getUserAppSettings();
+        UserAppSettings userAppSettings = user.getUserAppSettings();
 
         Boolean changed = false;
 
         if (userAppSettings == null) {
-            userAppSettings = new UserAppSettings(userDB);
+            userAppSettings = new UserAppSettings(user);
             changed = true;
         }
 
@@ -88,13 +88,13 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
     @Override
     public ResponseEntity<?> getUserAppSettingsVersion() {
-        final User userDB = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        if (userDB == null) {
+        if (user == null) {
             return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
         }
 
-        final UserAppSettings userAppSettings = userDB.getUserAppSettings();
+        final UserAppSettings userAppSettings = user.getUserAppSettings();
 
         if (userAppSettings != null) {
             return new ResponseEntity<>(userAppSettings.getVersion(), HttpStatus.OK);

@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.config;
 
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
-import br.ufrgs.inf.pet.dinoapi.filter.AuthFilter;
+import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -85,6 +85,10 @@ public class User {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public boolean hasGoogleAuth() {
         return googleAuth != null;
     }
@@ -177,18 +181,6 @@ public class User {
 
     public void setFaqUser(FaqUser faqUser) {
         this.faqUser = faqUser;
-    }
-
-    public Boolean tokenIsValid(String token) {
-        boolean isValid = false;
-
-        for (Auth auth : auths) {
-            if (auth.getAccessToken().equals(token) && auth.tokenIsValid()) {
-                isValid = true;
-            }
-        }
-
-        return isValid;
     }
 
 }

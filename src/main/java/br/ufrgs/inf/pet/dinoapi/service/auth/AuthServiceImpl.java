@@ -4,7 +4,10 @@ import br.ufrgs.inf.pet.dinoapi.entity.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
 import br.ufrgs.inf.pet.dinoapi.repository.AuthRepository;
+import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
+import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,8 +17,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import javax.xml.bind.DatatypeConverter;
 import java.util.*;
 
 @Service
@@ -25,7 +29,11 @@ public class AuthServiceImpl implements AuthService {
 
     private String key = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
-    private String secretKey = Base64.getEncoder().encodeToString(key.getBytes());
+    private String encodedKey = Base64.getEncoder().encodeToString(key.getBytes());
+
+    private String webSocketKey = "m.|TGrhhXkp+(=Q-{6F{m2KFShSD[[D]WQEL.P[WAS]D@$JHW=qLukasdsdas224334432$@#@#hi/&l{Udnk@!@!@F%4&<0;X3l1gsSd$";
+
+    private String webSocketEncodedKey = Base64.getEncoder().encodeToString(webSocketKey.getBytes());
 
     private long validityInMilliseconds = 3600000;
 
@@ -38,6 +46,7 @@ public class AuthServiceImpl implements AuthService {
     public Auth generateAuth(User user) {
         Auth auth = new Auth();
         auth.setUser(user);
+        auth.setWebSocketConnected(false);
 
         List<String> roles = new ArrayList<>();
 
@@ -47,17 +56,30 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest() {
+        final Auth auth = this.getCurrentAuth();
+        auth.setWebSocketConnected(false);
+        this.generateWebSocketToken(auth);
+
+        authRepository.save(auth);
+
+        final WebSocketAuthResponse model = new WebSocketAuthResponse(auth);
+
+        return new ResponseEntity<>(model, HttpStatus.OK);
+    }
+
+    @Override
     public ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
-        List<Auth> authSearch = authRepository.findByAccessToken(authRefreshRequestModel.getAccessToken());
+        Optional<Auth> authSearch = authRepository.findByAccessToken(authRefreshRequestModel.getAccessToken());
 
-        if (authSearch.size() > 0) {
-            Auth auth = authSearch.get(0);
+        if (authSearch.isPresent()) {
+            Auth auth = authSearch.get();
 
-            this.generateAccessToken(auth, new ArrayList<>());
+            final Date tokenExpiresDate = this.generateAccessToken(auth, new ArrayList<>());
 
             authRepository.save(auth);
 
-            AuthRefreshResponseModel response = new AuthRefreshResponseModel(auth.getAccessToken(), auth.getTokenExpiresDate());
+            AuthRefreshResponseModel response = new AuthRefreshResponseModel(auth.getAccessToken(), tokenExpiresDate);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -67,49 +89,51 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Auth findByAccessToken(String accessToken) {
-        if (accessToken.isBlank()) {
-            return null;
-        }
+        if (!accessToken.isBlank()) {
+            final Optional<Auth> authSearch = authRepository.findByAccessToken(accessToken);
 
-        final List<Auth> authSearch = authRepository.findByAccessToken(accessToken);
-
-        if (authSearch.size() > 0) {
-            return authSearch.get(0);
+            if (authSearch.isPresent()) {
+                return authSearch.get();
+            }
         }
 
         return null;
+    }
+
+    @Override
+    public Auth findByWebSocketToken(String webSocketToken) {
+        if (!webSocketToken.isBlank()) {
+            final Optional<Auth> authSearch = authRepository.findByWebSocketToken(webSocketToken);
+
+            if (authSearch.isPresent()) {
+                return authSearch.get();
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Boolean canConnectToWebSocket(Auth auth) {
+        return !auth.getWebSocketConnected();
     }
 
     @Override
     public Auth getCurrentAuth() {
-        final UserDetails userDetails = this.getPrincipal();
+        final DinoCredentials dinoCredentials = this.getCredentials();
 
-        if (userDetails == null) {
-            return null;
-        }
-
-        final String accessToken = userDetails.getPassword();
-
-        return findByAccessToken(accessToken);
+        return dinoCredentials.getAuth();
     }
 
     @Override
     public User getCurrentUser() {
-        final UserDetails userDetails = this.getPrincipal();
+        final DinoUser dinoUser = this.getPrincipal();
 
-        if (userDetails == null) {
+        if (dinoUser == null) {
             return null;
         }
 
-        final String accessToken = userDetails.getPassword();
-
-        Auth auth = this.findByAccessToken(accessToken);
-
-        if (auth != null) {
-            return auth.getUser();
-        }
-
-        return null;
+        return dinoUser.getUser();
     }
 
     @Override
@@ -120,7 +144,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserDetails getPrincipal() {
+    public DinoUser getPrincipal() {
         final SecurityContext context =  SecurityContextHolder.getContext();
 
         if (context == null) {
@@ -133,10 +157,71 @@ public class AuthServiceImpl implements AuthService {
             return null;
         }
 
-        return (UserDetails) auth.getPrincipal();
+        return (DinoUser) auth.getPrincipal();
     }
 
-    private void generateAccessToken(Auth auth, List<String> roles) {
+    @Override
+    public DinoCredentials getCredentials() {
+        final SecurityContext context =  SecurityContextHolder.getContext();
+
+        if (context == null) {
+            return null;
+        }
+
+        final Authentication auth = context.getAuthentication();
+
+        if (auth == null) {
+            return null;
+        }
+
+        return (DinoCredentials) auth.getCredentials();
+    }
+
+    public Claims decodeAccessToken(String accessToken) {
+        return Jwts.parser()
+                .setSigningKey(DatatypeConverter.parseBase64Binary(this.encodedKey))
+                .parseClaimsJws(accessToken).getBody();
+    }
+
+    @Override
+    public List<String> getAllUserWebSocketTokenExceptCurrentByUser() {
+        Auth auth = this.getCurrentAuth();
+
+        return authRepository.findAllWebSocketTokensExceptOneByUser(auth.getUser(), auth.getWebSocketToken());
+    }
+
+    @Override
+    public void setWebSocketConnected() {
+        Auth auth = this.getCurrentAuth();
+        if (auth != null) {
+            auth.setWebSocketConnected(true);
+            authRepository.save(auth);
+        }
+    }
+
+    public Boolean isValidToken(Auth auth) {
+        Claims claims = decodeAccessToken(auth.getAccessToken());
+        Long currentDate = new Date().getTime();
+
+        return claims.getExpiration().getTime() >= currentDate;
+    }
+
+    private void generateWebSocketToken(Auth auth) {
+        final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
+        claims.put("roles", new ArrayList<>());
+        final Date now = new Date();
+
+        final String webSocketToken = Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(now)
+                .setExpiration(now)
+                .signWith(SignatureAlgorithm.HS256, this.webSocketEncodedKey)
+                .compact();
+
+        auth.setWebSocketToken(webSocketToken);
+    }
+
+    private Date generateAccessToken(Auth auth, List<String> roles) {
         final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
         claims.put("roles", roles);
         final Date now = new Date();
@@ -146,11 +231,11 @@ public class AuthServiceImpl implements AuthService {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiresDate)
-                .signWith(SignatureAlgorithm.HS256, secretKey)
+                .signWith(SignatureAlgorithm.HS256, this.encodedKey)
                 .compact();
 
         auth.setAccessToken(accessToken);
-        auth.setTokenExpiresDate(expiresDate);
-        auth.setLastUpdate(now);
+
+        return expiresDate;
     }
 }

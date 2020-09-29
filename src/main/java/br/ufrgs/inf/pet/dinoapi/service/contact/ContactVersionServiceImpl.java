@@ -14,15 +14,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class ContactVersionServiceImpl {
 
+    private ContactVersionRepository contactVersionRepository;
+    private AuthServiceImpl authService;
+    private AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
+
     @Autowired
-    ContactVersionRepository contactVersionRepository;
-    @Autowired
-    AuthServiceImpl authService;
-    @Autowired
-    AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
+    public ContactVersionServiceImpl(ContactVersionRepository contactVersionRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
+        this.contactVersionRepository = contactVersionRepository;
+        this.authService = authService;
+        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
+    }
 
     public void updateVersion(User user) {
-
         ContactVersion version = user.getContactVersion();
 
         if (version == null) {

@@ -1,18 +1,13 @@
-package br.ufrgs.inf.pet.dinoapi.filter;
+package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
-import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
@@ -25,11 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-/**
- * Implementação de um filtro para tratar os dados de autorização da API
- *
- * @author joao.silva
- */
 @Component
 public class AuthFilter extends OncePerRequestFilter {
 
@@ -56,17 +46,18 @@ public class AuthFilter extends OncePerRequestFilter {
 
         final String token = this.getAuthToken(httpServletRequest);
 
-            if (token != null) {
+        if (token != null) {
             final Auth auth = authService.findByAccessToken(token);
 
-            if (auth != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                if(auth.tokenIsValid()) {
-                    UserDetails userDetails = this.dinoUserDetailsService.loadUserDetailsByAuth(auth);
+            this.setAuthToken(httpServletRequest, auth);
+        } else {
+            final String wsToken = this.getWSToken(httpServletRequest);
 
-                    final UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+            if (wsToken != null) {
+                final Auth auth = authService.findByWebSocketToken(wsToken);
 
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                if (authService.canConnectToWebSocket(auth)) {
+                    this.setAuthToken(httpServletRequest, auth);
                 }
             }
         }
@@ -74,14 +65,22 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private String getAuthToken(HttpServletRequest httpServletRequest) {
-        String token = httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue());
+    private void setAuthToken(HttpServletRequest httpServletRequest, Auth auth) {
+        final Boolean isAuthValidAndNecessary = SecurityContextHolder.getContext().getAuthentication() == null && auth != null && authService.isValidToken(auth);
+        if(isAuthValidAndNecessary) {
+            final DinoAuthenticationToken dinoAuthToken = this.dinoUserDetailsService.loadDinoUserByAuth(auth);
+            dinoAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-        if (token == null) {
-            token = httpServletRequest.getParameter(HeaderEnum.AUTHORIZATION.getValue());
+            SecurityContextHolder.getContext().setAuthentication(dinoAuthToken);
         }
+    }
 
-        return token;
+    private String getAuthToken(HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getHeader(HeaderEnum.AUTHORIZATION.getValue());
+    }
+
+    private String getWSToken(HttpServletRequest httpServletRequest) {
+        return httpServletRequest.getParameter(HeaderEnum.WS_AUTHORIZATION.getValue());
     }
 
     private void startServices(HttpServletRequest httpServletRequest) {

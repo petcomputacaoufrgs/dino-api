@@ -158,7 +158,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     }
 
     private NoteVersion getVersion() {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
 
@@ -168,7 +168,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     }
 
     private NoteVersion getOrCreateWithoutSaveNoteVersion() {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
 

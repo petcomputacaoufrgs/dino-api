@@ -1,9 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.entity;
 
 import javax.persistence.*;
-import java.util.Date;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.ACCESS_TOKEN_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.WS_TOKEN_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -20,11 +20,11 @@ public class Auth {
     @Column(name = "access_token", length = ACCESS_TOKEN_MAX, unique = true, nullable = false)
     private String accessToken;
 
-    @Column(name = "token_expires_date", nullable = false)
-    private Date tokenExpiresDate;
+    @Column(name = "web_socket_token", length = WS_TOKEN_MAX, unique = true)
+    private String webSocketToken;
 
-    @Column(name = "last_update", nullable = false)
-    private Date lastUpdate;
+    @Column(name = "web_socket_connected", nullable = false)
+    private Boolean webSocketConnected;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -32,6 +32,10 @@ public class Auth {
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getAccessToken() {
@@ -50,23 +54,19 @@ public class Auth {
         this.user = user;
     }
 
-    public Date getTokenExpiresDate() {
-        return tokenExpiresDate;
+    public String getWebSocketToken() {
+        return webSocketToken;
     }
 
-    public void setTokenExpiresDate(Date tokenExpiresDate) {
-        this.tokenExpiresDate = tokenExpiresDate;
+    public void setWebSocketToken(String webSocketToken) {
+        this.webSocketToken = webSocketToken;
     }
 
-    public Boolean tokenIsValid() {
-        return (new Date()).getTime() <= this.tokenExpiresDate.getTime();
+    public Boolean getWebSocketConnected() {
+        return webSocketConnected;
     }
 
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
+    public void setWebSocketConnected(Boolean webSocketConnected) {
+        this.webSocketConnected = webSocketConnected;
     }
 }
