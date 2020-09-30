@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
-import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 
 import java.util.List;

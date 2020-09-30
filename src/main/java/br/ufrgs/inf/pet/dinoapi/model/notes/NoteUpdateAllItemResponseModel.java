@@ -11,7 +11,6 @@ public class NoteUpdateAllItemResponseModel {
         this.id = note.getId();
     }
 
-
     public String getQuestion() {
         return question;
     }
