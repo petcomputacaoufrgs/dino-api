@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -8,11 +10,11 @@ public class NoteColumnSaveRequestModel {
 
     private Integer order;
 
-    @NotNull
-    @Size(max = 50, message = "title should not be more than 50.")
+    @NotNull(message = NoteColumnConstants.TITLE_NULL_MESSAGE)
+    @Size(max = NoteColumnConstants.TITLE_MAX, min = NoteColumnConstants.TITLE_MIN, message = NoteColumnConstants.TITLE_SIZE_MESSAGE)
     private String title;
 
-    @NotNull(message = "lastUpdate cannot be null.")
+    @NotNull(message = NoteColumnConstants.LAST_UPDATE_NULL_MESSAGE)
     private Long lastUpdate;
 
     private Long lastOrderUpdate;

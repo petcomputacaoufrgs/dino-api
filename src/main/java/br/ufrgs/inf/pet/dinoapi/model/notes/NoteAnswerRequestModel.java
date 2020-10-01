@@ -11,7 +11,7 @@ public class NoteAnswerRequestModel {
     private Long id;
 
     @NotNull(message = ANSWER_NULL_MESSAGE)
-    @Size(max = ANSWER_MAX, message = ANSWER_MESSAGE)
+    @Size(max = ANSWER_MAX, message = ANSWER_SIZE_MESSAGE)
     private String answer;
 
     public Long getId() {

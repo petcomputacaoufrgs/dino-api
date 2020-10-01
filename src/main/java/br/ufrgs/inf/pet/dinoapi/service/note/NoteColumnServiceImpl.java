@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
+import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
@@ -51,6 +53,12 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         NoteColumn noteColumn;
         Long newNoteColumnVersion;
 
+        Integer count = noteColumnRepository.countNoteColumnByUserId(user.getId());
+
+        if (count > NoteColumnConstants.MAX_COLUMNS) {
+            return new ResponseEntity<>(NoteColumnConstants.MAX_COLUMNS_MESSAGE, HttpStatus.NOT_FOUND);
+        }
+
         if (model.getId() == null) {
             final Optional<NoteColumn> noteColumnSearch = noteColumnRepository.findByTitleAndUserId(model.getTitle(), user.getId());
 
@@ -73,7 +81,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
             if (noteColumnSearch != null && noteColumnSearch.isPresent()) {
                 noteColumn = noteColumnSearch.get();
             } else {
-                return new ResponseEntity<>("Note Column not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(NoteColumnConstants.NOTE_COLUMN_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
             }
         }
 
@@ -146,7 +154,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     }
 
     @Override
-    public ResponseEntity<NoteColumnUpdateAllResponseModel> updateAll(List<NoteColumnSaveRequestModel> models) {
+    public ResponseEntity<?> updateAll(List<NoteColumnSaveRequestModel> models) {
         final User user = authService.getCurrentUser();
         final List<NoteColumn> noteColumns = new ArrayList<>();
 
@@ -166,6 +174,10 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         });
 
         final List<NoteColumn> databaseNoteColumns = noteColumnRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
+
+        if (databaseNoteColumns.size() > 2*NoteColumnConstants.MAX_COLUMNS) {
+            return new ResponseEntity<>(NoteColumnConstants.MAX_COLUMNS_MESSAGE, HttpStatus.BAD_REQUEST);
+        }
 
         noteColumns.addAll(this.updateSavedColumns(changedNoteColumns, databaseNoteColumns));
 
@@ -223,14 +235,18 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         final Set<Integer> uniqueOrders = new HashSet<>(orders);
 
         if (orders.size() != uniqueOrders.size()) {
-            return new ResponseEntity<>("Não podem haver colunas com ordens iguais.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(NoteColumnConstants.SAME_ORDER_MESSAGE, HttpStatus.BAD_REQUEST);
         }
 
         final List<NoteColumn> noteColumns = noteColumnRepository.findAllByIdOrderByIdAsc(ids, user.getId());
 
         if (noteColumns.size() != ids.size()) {
             return new ResponseEntity<>(
-                    "Nem todos os itens foram encontrados, encontramos " + noteColumns.size() + " item de um total de  " + ids.size() + " buscados.",
+                    NoteColumnConstants.COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT1
+                            + noteColumns.size()
+                            + NoteColumnConstants.COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT2
+                            + ids.size()
+                            + NoteColumnConstants.COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT3,
                     HttpStatus.OK);
         }
 

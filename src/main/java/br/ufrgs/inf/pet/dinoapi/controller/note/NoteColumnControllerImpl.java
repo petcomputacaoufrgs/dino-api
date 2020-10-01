@@ -49,7 +49,7 @@ public class NoteColumnControllerImpl implements NoteColumnController {
 
     @Override
     @PutMapping("all/")
-    public ResponseEntity<NoteColumnUpdateAllResponseModel> updateAll(@Valid @RequestBody NoteColumnUpdateAllRequestModel model) {
+    public ResponseEntity<?> updateAll(@Valid @RequestBody NoteColumnUpdateAllRequestModel model) {
         return noteColumnService.updateAll(model.getItems());
     }
 

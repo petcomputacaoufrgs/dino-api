@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -9,25 +11,25 @@ public class NoteSaveRequestModel {
 
     protected Long id;
 
-    @NotNull(message = "question cannot be null.")
-    @Size(max = 250, message = "question should not be more than 500.")
+    @NotNull(message = NoteConstants.QUESTION_NULL_MESSAGE)
+    @Size(max = NoteConstants.QUESTION_MAX, message = NoteConstants.QUESTION_SIZE_MESSAGE)
     protected String question;
 
     @Valid
-    @Size(max = 10, message = "a note can not have more than 5 tags")
-    protected List<@Size(max=50, message = "tag should not be more than 50") String> tagNames;
+    @Size(max = NoteConstants.MAX_TAGS, message = NoteConstants.MAX_TAGS_MESSAGE)
+    protected List<String> tagNames;
 
-    @NotNull(message = "lastUpdate cannot be null.")
+    @NotNull(message = NoteConstants.LAST_UPDATE_NULL_MESSAGE)
     protected Long lastUpdate;
 
     protected Long lastOrderUpdate;
 
-    @Size(max = 500, message ="answer should not be more than 10000.")
+    @Size(max = NoteConstants.ANSWER_MAX, message = NoteConstants.ANSWER_SIZE_MESSAGE)
     protected String answer;
 
     protected Integer order;
 
-    @NotNull(message = "columnTitle cannot be null.")
+    @NotNull(message = NoteConstants.COLUMN_TITLE_NULL_MESSAGE)
     private String columnTitle;
 
     public Long getId() {

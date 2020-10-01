@@ -44,7 +44,7 @@ public interface NoteColumnController {
      * @param models Model do tipo {@link NoteColumnUpdateAllRequestModel}
      * @return Em caso de sucesso retorna um objeto do tipo {@link NoteColumnUpdateAllResponseModel}
      */
-    ResponseEntity<NoteColumnUpdateAllResponseModel> updateAll(NoteColumnUpdateAllRequestModel models);
+    ResponseEntity<?> updateAll(NoteColumnUpdateAllRequestModel models);
 
     /**
      *  Atualiza a ordem das colunas

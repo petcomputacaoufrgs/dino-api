@@ -1,19 +1,20 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class NoteColumnOrderRequestModel {
     private Long id;
 
-    @NotNull(message = "order cannot be null.")
+    @NotNull(message = NoteColumnConstants.ORDER_NULL_MESSAGE)
     private Integer order;
 
-    @Size(min = 1, message = "columnTitle cannot be blank.")
-    @NotNull(message = "columnTitle cannot be null.")
+    @Size(min = NoteColumnConstants.TITLE_MIN, max = NoteColumnConstants.TITLE_MAX, message = NoteColumnConstants.TITLE_SIZE_MESSAGE)
+    @NotNull(message = NoteColumnConstants.TITLE_NULL_MESSAGE)
     private String columnTitle;
 
-    @NotNull(message = "lastOrderUpdate cannot be null.")
+    @NotNull(message = NoteColumnConstants.LAST_UPDATE_ORDER_NULL_MESSAGE)
     private Long lastOrderUpdate;
 
     public Long getId() {

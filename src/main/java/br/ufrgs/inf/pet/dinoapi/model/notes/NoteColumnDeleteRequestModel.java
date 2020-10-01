@@ -1,9 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.model.notes;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
+
 import javax.validation.constraints.NotNull;
 
 public class NoteColumnDeleteRequestModel {
-    @NotNull(message = "id cannot be null.")
+    @NotNull(message = NoteColumnConstants.ID_NULL_MESSAGE)
     private Long id;
 
     public Long getId() {
