@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
@@ -51,10 +52,6 @@ public class NoteServiceImpl implements NoteService {
 
     @Override
     public ResponseEntity<?> saveNote(NoteSaveRequestModel model) {
-        if (model.getQuestion().isBlank()) {
-            return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
-        }
-
         final User user = authService.getCurrentUser();
 
         Note note;
@@ -66,6 +63,10 @@ public class NoteServiceImpl implements NoteService {
                 note = noteSearch.get();
             } else {
                 NoteColumn noteColumn = noteColumnService.findOneOrCreateByUserAndTitle(model.getColumnTitle(), user);
+
+                if (noteColumn.getNotes().size() >= NoteConstants.MAX_NOTES_PER_COLUMN) {
+                    return new ResponseEntity<>(NoteConstants.MAX_NOTES_PER_COLUMN_MESSAGE, HttpStatus.BAD_REQUEST);
+                }
 
                 Integer order = 0;
 
@@ -84,7 +85,7 @@ public class NoteServiceImpl implements NoteService {
             if (noteSearch.isPresent()) {
                 note = noteSearch.get();
             } else {
-                return new ResponseEntity<>("Note not found", HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>(NoteConstants.NOTE_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
             }
         }
 
@@ -228,7 +229,11 @@ public class NoteServiceImpl implements NoteService {
 
         if (notes.size() != ids.size()) {
             return new ResponseEntity<>(
-                    "Nem todos os itens foram encontrados, encontramos " + notes.size() + " item de um total de  " + ids.size() + " buscados.",
+                    NoteConstants.NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT1
+                            + notes.size()
+                            + NoteConstants.NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT2
+                            + ids.size()
+                            + NoteConstants.NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT3,
                     HttpStatus.OK);
         }
 

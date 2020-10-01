@@ -12,7 +12,7 @@ public class NoteSaveRequestModel {
     protected Long id;
 
     @NotNull(message = NoteConstants.QUESTION_NULL_MESSAGE)
-    @Size(max = NoteConstants.QUESTION_MAX, message = NoteConstants.QUESTION_SIZE_MESSAGE)
+    @Size(min=NoteConstants.QUESTION_MIN, max = NoteConstants.QUESTION_MAX, message = NoteConstants.QUESTION_SIZE_MESSAGE)
     protected String question;
 
     @Valid

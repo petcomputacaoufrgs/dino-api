@@ -23,7 +23,7 @@ public class NoteColumnConstants {
 
     public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT1 = "Total of ";
 
-    public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT2 = "items found of ";
+    public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT2 = " items found of ";
 
-    public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT3 = "items.";
+    public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT3 = " items.";
 }
