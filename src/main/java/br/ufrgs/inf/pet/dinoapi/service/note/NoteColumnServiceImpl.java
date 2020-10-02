@@ -172,7 +172,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         if (hasDeletedColumns || hasChangedColumns || hasNewColumns) {
             version = noteVersionService.updateColumnVersion();
         } else {
-            version = noteVersionService.getVersion().getNoteVersion();
+            version = noteVersionService.getVersion().getColumnVersion();
             if (hasChangedOrder) {
                 final List<NoteColumn> columns = noteColumnRepository.findAllByUserId(user.getId());
                 noteVersionService.updateColumnOrder(columns);
@@ -412,23 +412,23 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     private boolean deleteColumns(List<NoteColumnSyncDeleteRequestModel> deletedColumns, User user) {
         final List<Long> deletedIds = deletedColumns.stream().map(NoteColumnDeleteRequestModel::getId).collect(Collectors.toList());
         final List<NoteColumn> savedColumns = noteColumnRepository.findAllByIdAndUserId(deletedIds, user.getId());
-        final List<NoteColumn> deletedNoteColumns = new ArrayList<>();
+        final List<NoteColumn> columnsToDelete = new ArrayList<>();
 
         savedColumns.forEach(savedColumn -> {
             deletedColumns.stream().filter(deletedColumn -> deletedColumn.getId().equals(savedColumn.getId())).findFirst().ifPresent(deletedModel -> {
                 final Date deletedLastUpdate = new Date(deletedModel.getLastUpdate());
-                if (deletedLastUpdate.after(savedColumn.getLastUpdate())) {
+                if (!savedColumn.getLastUpdate().after(deletedLastUpdate)) {
                     final boolean columnNoteMoreUpdated = savedColumn.getNotes().stream().anyMatch(note -> note.getLastUpdate().after(deletedLastUpdate));
 
-                    if (columnNoteMoreUpdated) {
-                        deletedNoteColumns.add(savedColumn);
+                    if (!columnNoteMoreUpdated) {
+                        columnsToDelete.add(savedColumn);
                     }
                 }
             });
         });
 
-        if (deletedNoteColumns.size() > 0) {
-            noteColumnRepository.deleteAll(deletedNoteColumns);
+        if (columnsToDelete.size() > 0) {
+            noteColumnRepository.deleteAll(columnsToDelete);
             return true;
         }
 

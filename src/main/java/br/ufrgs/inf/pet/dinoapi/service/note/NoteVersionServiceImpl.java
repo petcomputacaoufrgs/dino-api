@@ -72,7 +72,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         try {
             alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_ORDER_UPDATE);
         } catch (JsonProcessingException e) {
-            this.updateColumnVersion();
+            this.updateNoteVersion();
         }
     }
 

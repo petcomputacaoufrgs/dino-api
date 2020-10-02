@@ -177,7 +177,7 @@ public class NoteServiceImpl implements NoteService {
         Long version;
 
         if (hasDeletedNotes || hasChangedNotes || hasNewNotes) {
-            version = noteVersionService.updateColumnVersion();
+            version = noteVersionService.updateNoteVersion();
         } else {
             version = noteVersionService.getVersion().getNoteVersion();
             if (hasChangedOrder) {
@@ -401,7 +401,7 @@ public class NoteServiceImpl implements NoteService {
         savedNotes.forEach(savedNote -> {
             deletedNotes.stream().filter(deletedNote -> deletedNote.getId().equals(savedNote.getId())).findFirst().ifPresent(deletedModel -> {
                 final Date deletedLastUpdate = new Date(deletedModel.getLastUpdate());
-                if (deletedLastUpdate.after(savedNote.getLastUpdate())) {
+                if (!savedNote.getLastUpdate().after(deletedLastUpdate)) {
                     notesToDelete.add(savedNote);
                 }
             });
@@ -432,9 +432,11 @@ public class NoteServiceImpl implements NoteService {
 
                 noteColumnSearch.ifPresent(column -> {
                     noteSearch.ifPresent(note -> {
-                        note.setOrder(item.getOrder());
-                        note.setLastOrderUpdate(new Date(item.getLastOrderUpdate()));
-                        note.setNoteColumn(column);
+                        if (!note.getLastOrderUpdate().after(new Date(item.getLastOrderUpdate()))) {
+                            note.setOrder(item.getOrder());
+                            note.setLastOrderUpdate(new Date(item.getLastOrderUpdate()));
+                            note.setNoteColumn(column);
+                        }
                     });
                 });
             });
