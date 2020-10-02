@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.controller.note;
 
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.NoteColumnSyncRequestModel;
 import br.ufrgs.inf.pet.dinoapi.service.note.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -48,9 +49,9 @@ public class NoteColumnControllerImpl implements NoteColumnController {
     }
 
     @Override
-    @PutMapping("all/")
-    public ResponseEntity<?> updateAll(@Valid @RequestBody NoteColumnUpdateAllRequestModel model) {
-        return noteColumnService.updateAll(model.getItems());
+    @PutMapping("sync/")
+    public ResponseEntity<?> sync(@Valid @RequestBody NoteColumnSyncRequestModel model) {
+        return noteColumnService.sync(model);
     }
 
     @Override

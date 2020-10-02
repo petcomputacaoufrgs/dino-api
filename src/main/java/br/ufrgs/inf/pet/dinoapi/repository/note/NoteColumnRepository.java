@@ -1,11 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.repository.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Repository;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,4 +38,10 @@ public interface NoteColumnRepository extends CrudRepository<NoteColumn, Long> {
     @Query("SELECT COUNT(n.id) FROM NoteColumn n WHERE n.user.id = :userId")
     Integer countNoteColumnByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT n.title FROM NoteColumn n WHERE n.user.id = :userId")
+    List<String> findAllTitlesByUserId(@Param("userId") Long userId);
+
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE NoteColumn nc SET nc.order=:order, nc.lastOrderUpdate=:lastOrderUpdate WHERE nc.user.id=:userId AND nc.id=:id AND nc.lastOrderUpdate < :lastOrderUpdate")
+    void updateColumnsOrder(@Param("id") Long id, @Param("order") Integer order, @Param("lastOrderUpdate") Date lastOrderUpdate, @Param("userId") Long userId);
 }

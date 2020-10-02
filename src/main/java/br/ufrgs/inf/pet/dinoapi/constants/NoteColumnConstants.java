@@ -7,7 +7,7 @@ public class NoteColumnConstants {
     public final static String TITLE_NULL_MESSAGE = "title  cannot be null.";
     public final static String TITLE_SIZE_MESSAGE = "title should be between 0 and 50.";
     public final static int TITLE_MAX = 50;
-    public final static int TITLE_MIN = 50;
+    public final static int TITLE_MIN = 0;
 
     public final static String LAST_UPDATE_NULL_MESSAGE = "lastUpdate cannot be null.";
 
@@ -26,4 +26,5 @@ public class NoteColumnConstants {
     public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT2 = " items found of ";
 
     public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT3 = " items.";
+
 }

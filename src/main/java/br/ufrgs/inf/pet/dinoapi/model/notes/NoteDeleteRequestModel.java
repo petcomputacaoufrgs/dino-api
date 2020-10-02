@@ -5,7 +5,6 @@ import javax.validation.constraints.NotNull;
 import static br.ufrgs.inf.pet.dinoapi.constants.NoteConstants.ID_NULL_MESSAGE;
 
 public class NoteDeleteRequestModel {
-
     @NotNull(message = ID_NULL_MESSAGE)
     private Long id;
 

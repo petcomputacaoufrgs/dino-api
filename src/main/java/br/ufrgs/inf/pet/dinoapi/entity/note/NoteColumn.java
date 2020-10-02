@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.note;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 
 import javax.persistence.*;
@@ -19,7 +20,7 @@ public class NoteColumn {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "title", length = 50, nullable = false)
+    @Column(name = "title", length = NoteColumnConstants.TITLE_MAX, nullable = false)
     private String title;
 
     @Column(name = "n_order", nullable = false)

@@ -1,10 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
-import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.NoteColumnSyncDeleteRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.NoteColumnSyncOrderRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.NoteColumnSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.NoteColumnSyncResponse;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -154,42 +157,43 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     }
 
     @Override
-    public ResponseEntity<?> updateAll(List<NoteColumnSaveRequestModel> models) {
+    public ResponseEntity<?> sync(NoteColumnSyncRequestModel model) {
         final User user = authService.getCurrentUser();
-        final List<NoteColumn> noteColumns = new ArrayList<>();
 
-        final List<NoteColumnSaveRequestModel> changedNoteColumns = new ArrayList<>();
-        final List<NoteColumnSaveRequestModel> newNoteColumns = new ArrayList<>();
-        final List<Long> idsToUpdate = new ArrayList<>();
-        final List<String> titles = new ArrayList<>();
+        final List<Long> idsToUpdate = model.getChangedColumns().stream().map(column -> column.getId()).collect(Collectors.toList());
 
-        models.forEach(model -> {
-            if (model.getId() != null) {
-                changedNoteColumns.add(model);
-                idsToUpdate.add(model.getId());
-            } else {
-                newNoteColumns.add(model);
-            }
-            titles.add(model.getTitle());
-        });
+        final List<NoteColumn> savedColumns = noteColumnRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
 
-        final List<NoteColumn> databaseNoteColumns = noteColumnRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
+        final boolean hasDeletedColumns = this.deleteColumns(model.getDeletedColumns(), user);
 
-        if (databaseNoteColumns.size() > 2*NoteColumnConstants.MAX_COLUMNS) {
-            return new ResponseEntity<>(NoteColumnConstants.MAX_COLUMNS_MESSAGE, HttpStatus.BAD_REQUEST);
+        final boolean hasChangedColumns = this.updateSavedColumns(model.getChangedColumns(), savedColumns, user);
+
+        final boolean hasNewColumns = this.createNewColumns(model.getNewColumns(), user);
+
+        final boolean hasChangedOrder = this.syncColumnsOrder(model.getOrderColumns(), user);
+
+        Long version;
+
+        if (hasDeletedColumns || hasChangedColumns || hasNewColumns) {
+            version = noteVersionService.updateColumnVersion();
+        } else {
+            version = noteVersionService.getVersion().getNoteVersion();
         }
 
-        noteColumns.addAll(this.updateSavedColumns(changedNoteColumns, databaseNoteColumns));
+        if (hasChangedOrder) {
+            List<NoteColumn> columns = noteColumnRepository.findAllByUserId(user.getId());
+            noteVersionService.updateColumnOrder(columns);
+        }
 
-        noteColumns.addAll(this.createNewColumns(newNoteColumns, user));
+        final List<NoteColumn> columns = noteColumnRepository.findAllByUserId(user.getId());
 
-        noteColumnRepository.saveAll(noteColumns);
+        final List<NoteColumnResponseModel> columnsModel = columns.stream().map(NoteColumnResponseModel::new).collect(Collectors.toList());
 
-        Long newNoteColumnVersion = noteVersionService.updateColumnVersion();
+        NoteColumnSyncResponse response = new NoteColumnSyncResponse();
+        response.setColumns(columnsModel);
+        response.setVersion(version);
 
-        NoteColumnUpdateAllResponseModel model = new NoteColumnUpdateAllResponseModel(noteColumns, newNoteColumnVersion);
-
-        return new ResponseEntity<>(model, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
@@ -299,43 +303,183 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         return noteColumnRepository.save(noteColumn);
     }
 
-    private List<NoteColumn> updateSavedColumns(List<NoteColumnSaveRequestModel> models, List<NoteColumn> columns) {
+    private boolean updateSavedColumns(List<NoteColumnChangedRequestModel> changedColumns, List<NoteColumn> savedColumns, User user) {
         final List<NoteColumn> updatedColumns = new ArrayList<>();
-        final Date now = new Date();
+        Date changedLastUpdateDate;
+        Date changedLastUpdateOrderDate;
+        boolean changed;
 
-        for (NoteColumnSaveRequestModel model : models)  {
-            Optional<NoteColumn> noteColumnSearch = columns.stream().filter(n -> n.getId() == model.getId()).findFirst();
+        final List<String> usedTitles = noteColumnRepository.findAllTitlesByUserId(user.getId());
+        Integer maxOrder = noteColumnRepository.findMaxOrderByUserId(user.getId()).orElse(-1);
 
-            if (noteColumnSearch.isPresent()) {
-                NoteColumn noteColumn = noteColumnSearch.get();
+        for (NoteColumnChangedRequestModel changedColumn : changedColumns)  {
+            changedLastUpdateDate = new Date(changedColumn.getLastUpdate());
+            Optional<NoteColumn> savedColumnSearch = savedColumns.stream().filter(n -> n.getId() == changedColumn.getId()).findFirst();
 
-                noteColumn.setTitle(model.getTitle());
+            if (savedColumnSearch.isPresent()) {
+                NoteColumn savedColumn = savedColumnSearch.get();
+                changed = false;
 
-                noteColumn.setLastUpdate(now);
+                if (changedLastUpdateDate.after(savedColumn.getLastUpdate())) {
 
-                updatedColumns.add(noteColumn);
+                    if (!changedColumn.getTitle().equals(savedColumn.getTitle())) {
+                        boolean success = this.removeTitleConflict(usedTitles, changedColumn);
+                        if (success) {
+                            usedTitles.add(changedColumn.getTitle());
+                            savedColumn.setTitle(changedColumn.getTitle());
+                        }
+                    }
+                    savedColumn.setLastUpdate(changedLastUpdateDate);
+                    changed = true;
+                }
+                if (changedColumn.getLastOrderUpdate() != null) {
+                    changedLastUpdateOrderDate = new Date(changedColumn.getLastOrderUpdate());
+                    if (changedLastUpdateOrderDate.after(savedColumn.getLastOrderUpdate())) {
+                        savedColumn.setOrder(changedColumn.getOrder());
+                        savedColumn.setLastOrderUpdate(changedLastUpdateOrderDate);
+
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    updatedColumns.add(savedColumn);
+                }
+            } else {
+                NoteColumn noteColumn = this.createNewNoteColumn(usedTitles, changedColumn, maxOrder, user);
+                if (noteColumn != null) {
+                    updatedColumns.add(noteColumn);
+                }
             }
         }
 
-        return updatedColumns;
-    }
-
-    private List<NoteColumn> createNewColumns(List<NoteColumnSaveRequestModel> models, User user) {
-        final List<NoteColumn> newNoteColumns = new ArrayList<>();
-        final Date now = new Date();
-
-        for(NoteColumnSaveRequestModel model : models) {
-            NoteColumn noteColumn = new NoteColumn();
-            noteColumn.setLastUpdate(new Date(model.getLastUpdate()));
-            noteColumn.setLastOrderUpdate(new Date(model.getLastOrderUpdate()));
-            noteColumn.setOrder(model.getOrder());
-            noteColumn.setTitle(model.getTitle());
-            noteColumn.setUser(user);
-
-            newNoteColumns.add(noteColumn);
+        if (updatedColumns.size() > 0) {
+            noteColumnRepository.saveAll(updatedColumns);
+            return true;
         }
 
-        return newNoteColumns;
+        return false;
     }
 
+    private boolean createNewColumns(List<NoteColumnSaveRequestModel> newColumns, User user) {
+        final List<NoteColumn> newNoteColumns = new ArrayList<>();
+
+        final List<String> usedTitles = noteColumnRepository.findAllTitlesByUserId(user.getId());
+
+        Integer maxOrder = noteColumnRepository.findMaxOrderByUserId(user.getId()).orElse(-1);
+
+        for (NoteColumnSaveRequestModel newColumn : newColumns) {
+            NoteColumn noteColumn = this.createNewNoteColumn(usedTitles, newColumn, maxOrder, user);
+            if (noteColumn != null) {
+                newNoteColumns.add(noteColumn);
+            }
+        }
+
+        if (newNoteColumns.size() > 0) {
+            noteColumnRepository.saveAll(newNoteColumns);
+            return true;
+        }
+
+        return false;
+    }
+
+    private NoteColumn createNewNoteColumn(List<String> usedTitles, NoteColumnSaveRequestModel newColumn, Integer maxOrder, User user) {
+        boolean success = this.removeTitleConflict(usedTitles, newColumn);
+        if (success) {
+            usedTitles.add(newColumn.getTitle());
+
+            maxOrder++;
+
+            NoteColumn noteColumn = new NoteColumn();
+            noteColumn.setLastUpdate(new Date(newColumn.getLastUpdate()));
+            noteColumn.setLastOrderUpdate(new Date());
+            noteColumn.setOrder(maxOrder);
+            noteColumn.setTitle(newColumn.getTitle());
+            noteColumn.setUser(user);
+
+           return noteColumn;
+        }
+
+        return null;
+    }
+
+    private boolean deleteColumns(List<NoteColumnSyncDeleteRequestModel> deletedColumns, User user) {
+        final List<Long> deletedIds = deletedColumns.stream().map(deletedColumn -> deletedColumn.getId()).collect(Collectors.toList());
+        final List<NoteColumn> savedColumns = noteColumnRepository.findAllByIdAndUserId(deletedIds, user.getId());
+        final List<NoteColumn> deletedNoteColumns = new ArrayList<>();
+
+        savedColumns.forEach(savedColumn -> {
+            deletedColumns.stream().filter(deletedColumn -> deletedColumn.getId() == savedColumn.getId()).findFirst().ifPresent(deletedModel -> {
+                final Date deletedLastUpdate = new Date(deletedModel.getLastUpdate());
+                if (deletedLastUpdate.after(savedColumn.getLastUpdate())) {
+                    deletedNoteColumns.add(savedColumn);
+                }
+            });
+        });
+
+        if (deletedNoteColumns.size() > 0) {
+            noteColumnRepository.deleteAll(deletedNoteColumns);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean syncColumnsOrder(List<NoteColumnSyncOrderRequestModel> orderList, User user) {
+        final List<Long> ids = orderList.stream().map(item -> item.getId()).collect(Collectors.toList());
+        final List<NoteColumn> columns = noteColumnRepository.findAllByIdAndUserId(ids, user.getId());
+
+        if (columns.size() > 0) {
+            orderList.stream().forEach(item -> {
+                Optional<NoteColumn> columnSearch = columns.stream()
+                        .filter(column -> column.getId() == item.getId()).findFirst();
+
+                columnSearch.ifPresent(column -> {
+                    column.setOrder(item.getOrder());
+                    column.setLastOrderUpdate(new Date(item.getLastOrderUpdate()));
+                });
+            });
+
+            noteColumnRepository.saveAll(columns);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean removeTitleConflict(List<String> usedTitles, NoteColumnSaveRequestModel newColumn) {
+        boolean sameTitle = usedTitles.stream().anyMatch(title -> title.equals(newColumn.getTitle()));
+
+        if (sameTitle) {
+            final int titleLength = newColumn.getTitle().length();
+            final String resumeTitle = "...";
+            int count = 0;
+            int extraLength = 0;
+            String repeatCounter;
+            String newTitle;
+
+            do {
+                count++;
+                repeatCounter = " ("+count+")";
+                extraLength = repeatCounter.length() + resumeTitle.length();
+
+                if (extraLength > NoteColumnConstants.TITLE_MAX) {
+                    return false;
+                }
+
+                if (titleLength + repeatCounter.length() > NoteColumnConstants.TITLE_MAX) {
+                    newTitle = newColumn.getTitle().substring(0, NoteColumnConstants.TITLE_MAX - extraLength) + resumeTitle + repeatCounter;
+                } else {
+                    newTitle = newColumn.getTitle() + repeatCounter;
+                }
+                final String finalNewTitle = newTitle;
+                sameTitle = usedTitles.stream().anyMatch(title -> title.equals(finalNewTitle));
+
+            } while(sameTitle);
+
+            newColumn.setTitle(newTitle);
+        }
+
+        return true;
+    }
 }

@@ -157,7 +157,8 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         return noteVersion.getColumnVersion();
     }
 
-    private NoteVersion getVersion() {
+    @Override
+    public NoteVersion getVersion() {
         final User user = authService.getCurrentUser();
 
         Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());

@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
 
@@ -28,5 +29,7 @@ public interface NoteVersionService {
     Long updateColumnVersionDelete(Long id);
 
     Long updateColumnVersionDelete(List<Long> idList);
+
+    NoteVersion getVersion();
 
 }
