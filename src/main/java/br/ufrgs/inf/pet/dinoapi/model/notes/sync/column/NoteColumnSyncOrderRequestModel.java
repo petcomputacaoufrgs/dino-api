@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.notes.sync;
+package br.ufrgs.inf.pet.dinoapi.model.notes.sync.column;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
 

@@ -5,13 +5,13 @@ import java.util.List;
 
 public class NoteUpdateAllRequestModel {
     @Valid
-    private List<NoteSaveRequestModel> items;
+    private List<NoteColumnSaveRequestModel> items;
 
-    public List<NoteSaveRequestModel> getItems() {
+    public List<NoteColumnSaveRequestModel> getItems() {
         return items;
     }
 
-    public void setItems(List<NoteSaveRequestModel> items) {
+    public void setItems(List<NoteColumnSaveRequestModel> items) {
         this.items = items;
     }
 }

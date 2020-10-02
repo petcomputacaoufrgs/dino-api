@@ -27,4 +27,11 @@ public class NoteColumnConstants {
 
     public final static String COLUMN_NOT_FOUND_IN_ORDER_MESSAGE_PT3 = " items.";
 
+    public final static String CHANGED_COLUMNS_NULL_MESSAGE = "changedColumns cannot be null.";
+
+    public final static String NEW_COLUMNS_NULL_MESSAGE = "newColumns cannot be null.";
+
+    public final static String DELETED_COLUMNS_NULL_MESSAGE = "deletedColumns cannot be null.";
+
+    public final static String COLUMN_ORDER_NULL_MESSAGE = "columnsOrder cannot be null.";
 }

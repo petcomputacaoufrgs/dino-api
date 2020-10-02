@@ -3,10 +3,12 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
-import br.ufrgs.inf.pet.dinoapi.model.notes.sync.NoteColumnSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface NoteColumnService {
 
@@ -18,7 +20,7 @@ public interface NoteColumnService {
 
     ResponseEntity<Long> delete(NoteColumnDeleteRequestModel model);
 
-    ResponseEntity<?> sync(NoteColumnSyncRequestModel model);
+    ResponseEntity<NoteColumnSyncResponse> sync(NoteColumnSyncRequestModel model);
 
     ResponseEntity<?> updateOrder(List<NoteColumnOrderRequestModel> models);
 
@@ -30,4 +32,7 @@ public interface NoteColumnService {
 
     NoteColumn save(NoteColumn noteColumn);
 
+    Optional<NoteColumn> getNoteColumnByIdAndUser(Long columnId, User user);
+
+    List<NoteColumn> findAllByUserAndIds(User user, List<Long> columnIds);
 }

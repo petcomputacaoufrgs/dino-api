@@ -1,12 +1,11 @@
-package br.ufrgs.inf.pet.dinoapi.model.notes;
+package br.ufrgs.inf.pet.dinoapi.model.notes.sync.note;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
+import br.ufrgs.inf.pet.dinoapi.model.notes.NoteSaveBaseModel;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class NoteSaveRequestModel extends NoteSaveBaseModel {
-
-    protected Long id;
+public class NoteSyncSaveRequestModel extends NoteSaveBaseModel {
 
     @NotNull(message = NoteConstants.QUESTION_NULL_MESSAGE)
     @Size(min=NoteConstants.QUESTION_MIN, max = NoteConstants.QUESTION_MAX, message = NoteConstants.QUESTION_SIZE_MESSAGE)
@@ -22,16 +21,8 @@ public class NoteSaveRequestModel extends NoteSaveBaseModel {
 
     protected Integer order;
 
-    @NotNull(message = NoteConstants.COLUMN_TITLE_NULL_MESSAGE)
-    private String columnTitle;
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @NotNull(message = NoteConstants.COLUMN_ID_NULL_MESSAGE)
+    protected Long columnId;
 
     public String getQuestion() {
         return question;
@@ -47,6 +38,14 @@ public class NoteSaveRequestModel extends NoteSaveBaseModel {
 
     public void setLastUpdate(Long lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public Long getLastOrderUpdate() {
+        return lastOrderUpdate;
+    }
+
+    public void setLastOrderUpdate(Long lastOrderUpdate) {
+        this.lastOrderUpdate = lastOrderUpdate;
     }
 
     public String getAnswer() {
@@ -65,19 +64,11 @@ public class NoteSaveRequestModel extends NoteSaveBaseModel {
         this.order = order;
     }
 
-    public String getColumnTitle() {
-        return columnTitle;
+    public Long getColumnId() {
+        return columnId;
     }
 
-    public void setColumnTitle(String columnTitle) {
-        this.columnTitle = columnTitle;
-    }
-
-    public Long getLastOrderUpdate() {
-        return lastOrderUpdate;
-    }
-
-    public void setLastOrderUpdate(Long lastOrderUpdate) {
-        this.lastOrderUpdate = lastOrderUpdate;
+    public void setColumnId(Long columnId) {
+        this.columnId = columnId;
     }
 }

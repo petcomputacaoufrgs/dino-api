@@ -1,7 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.controller.note;
 
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
-import br.ufrgs.inf.pet.dinoapi.model.notes.sync.NoteColumnSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public interface NoteColumnController {
     /**
      * Salva uma nova coluna
      *
-     * @param model Model {@link NoteSaveRequestModel} com os dadso necessários
+     * @param model Model {@link NoteColumnSaveRequestModel} com os dadso necessários
      * @return Em caso de sucesso retorna a model {@link NoteSaveResponseModel}
      * em caso de falha retorna a mensagem com o erro
      **/
@@ -40,12 +41,12 @@ public interface NoteColumnController {
     ResponseEntity<Long> delete(NoteColumnDeleteRequestModel model);
 
     /**
-     * Atualiza e cria (caso não exista) uma lista de colunas
+     * Sincroniza colunas não salvas individualmente com o servidor
      *
-     * @param models Model do tipo {@link NoteColumnSyncRequestModel}
-     * @return Em caso de sucesso retorna um objeto do tipo {@link NoteColumnUpdateAllResponseModel}
+     * @param model Model do tipo {@link NoteColumnSyncResponse}
+     * @return Em caso de sucesso retorna um objeto do tipo {@link NoteColumnSyncResponse}
      */
-    ResponseEntity<?> sync(NoteColumnSyncRequestModel model);
+    ResponseEntity<NoteColumnSyncResponse> sync(NoteColumnSyncRequestModel model);
 
     /**
      *  Atualiza a ordem das colunas

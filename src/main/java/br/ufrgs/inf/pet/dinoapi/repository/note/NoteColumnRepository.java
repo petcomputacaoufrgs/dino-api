@@ -40,8 +40,4 @@ public interface NoteColumnRepository extends CrudRepository<NoteColumn, Long> {
 
     @Query("SELECT n.title FROM NoteColumn n WHERE n.user.id = :userId")
     List<String> findAllTitlesByUserId(@Param("userId") Long userId);
-
-    @Modifying(clearAutomatically = true)
-    @Query("UPDATE NoteColumn nc SET nc.order=:order, nc.lastOrderUpdate=:lastOrderUpdate WHERE nc.user.id=:userId AND nc.id=:id AND nc.lastOrderUpdate < :lastOrderUpdate")
-    void updateColumnsOrder(@Param("id") Long id, @Param("order") Integer order, @Param("lastOrderUpdate") Date lastOrderUpdate, @Param("userId") Long userId);
 }

@@ -24,6 +24,8 @@ public final class NoteConstants {
 
         public final static String COLUMN_TITLE_NULL_MESSAGE = "columnTitle cannot be null.";
 
+        public final static String COLUMN_ID_NULL_MESSAGE = "id cannot be null.";
+
         public final static int MAX_NOTES_PER_COLUMN = 30;
         public final static String MAX_NOTES_PER_COLUMN_MESSAGE = "a column can't have more than 30 notes.";
 
@@ -34,5 +36,15 @@ public final class NoteConstants {
         public final static String NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT2 = " items found of ";
 
         public final static String NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT3 = " items.";
+
+        public final static String LAST_UPDATE_ORDER_NULL_MESSAGE = "lastUpdateOrder cannot be null.";
+
+        public final static String CHANGED_NOTES_NULL_MESSAGE = "changedNotes cannot be null.";
+
+        public final static String NEW_NOTES_NULL_MESSAGE = "newNotes cannot be null.";
+
+        public final static String DELETED_NOTES_NULL_MESSAGE = "deletedNotes cannot be null.";
+
+        public final static String NOTE_ORDER_NULL_MESSAGE = "notesOrder cannot be null.";
 
 }

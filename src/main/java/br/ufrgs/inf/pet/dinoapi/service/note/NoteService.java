@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.note.NoteSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.note.NoteSyncResponseModel;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 
@@ -14,7 +16,7 @@ public interface NoteService {
 
     ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model);
 
-    ResponseEntity<NoteUpdateAllResponseModel> updateAll(List<NoteSaveRequestModel> models);
+    ResponseEntity<NoteSyncResponseModel> sync(NoteSyncRequestModel model);
 
     ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models);
 

@@ -1,10 +1,11 @@
-package br.ufrgs.inf.pet.dinoapi.model.notes;
+package br.ufrgs.inf.pet.dinoapi.model.notes.sync.column;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
+import br.ufrgs.inf.pet.dinoapi.model.notes.NoteColumnSaveRequestModel;
 
 import javax.validation.constraints.NotNull;
 
-public class NoteColumnChangedRequestModel extends NoteColumnSaveRequestModel {
+public class NoteColumnSyncChangedRequestModel extends NoteColumnSaveRequestModel {
 
     @NotNull(message = NoteColumnConstants.ID_NULL_MESSAGE)
     private Long id;

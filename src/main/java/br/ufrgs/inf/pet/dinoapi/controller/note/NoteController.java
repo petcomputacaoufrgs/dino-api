@@ -2,6 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.controller.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.note.NoteSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.note.NoteSyncResponseModel;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
 
@@ -16,7 +18,7 @@ public interface NoteController {
     /**
      * Salva uma nova anotação
      *
-     * @param model Model {@link NoteSaveRequestModel} com os dadso necessários
+     * @param model Model {@link NoteColumnSaveRequestModel} com os dadso necessários
      * @return Em caso de sucesso retorna a model {@link NoteSaveResponseModel}
      * em caso de falha retorna a mensagem com o erro
      **/
@@ -39,12 +41,12 @@ public interface NoteController {
     ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model);
 
     /**
-     * Atualiza e cria (caso não exista) uma lista de anotações
+     * Sincroniza colunas não salvas individualmente com o servidor
      *
-     * @param model do tipo {@link NoteUpdateAllRequestModel}
-     * @return Em caso de sucesso retorna a nova versão das anotações e os seus ids no objeto {@link NoteUpdateAllResponseModel}
+     * @param model do tipo {@link NoteSyncRequestModel}
+     * @return Em caso de sucesso retorna o objeto {@link NoteSyncResponseModel}
      */
-    ResponseEntity<NoteUpdateAllResponseModel> updateAll(NoteUpdateAllRequestModel model);
+    ResponseEntity<NoteSyncResponseModel> sync(NoteSyncRequestModel model);
 
     /**
      *  Atualiza a ordem das anotações

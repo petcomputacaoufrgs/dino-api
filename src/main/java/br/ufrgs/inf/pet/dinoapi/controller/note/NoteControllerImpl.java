@@ -2,6 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.controller.note;
 
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.note.NoteSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.notes.sync.note.NoteSyncResponseModel;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteTagServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteVersionServiceImpl;
@@ -53,9 +55,9 @@ public class NoteControllerImpl implements NoteController {
     }
 
     @Override
-    @PutMapping("all/")
-    public ResponseEntity<NoteUpdateAllResponseModel> updateAll(@Valid @RequestBody NoteUpdateAllRequestModel model) {
-        return noteService.updateAll(model.getItems());
+    @PutMapping("sync/")
+    public ResponseEntity<NoteSyncResponseModel> sync(@Valid @RequestBody NoteSyncRequestModel model) {
+        return noteService.sync(model);
     }
 
     @Override
