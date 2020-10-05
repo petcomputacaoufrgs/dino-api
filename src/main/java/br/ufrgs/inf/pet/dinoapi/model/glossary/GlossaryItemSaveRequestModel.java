@@ -12,8 +12,8 @@ public class GlossaryItemSaveRequestModel {
     @Size(min = 1, max = TITLE_MAX, message = TITLE_MESSAGE)
     private String title;
 
-    @NotNull(message = TEXT_NULL_MESSAGE)
-    @Size(min = 1, max = TEXT_MAX, message = TEXT_MESSAGE)
+    //@NotNull(message = TEXT_NULL_MESSAGE)
+    @Size(max = TEXT_MAX, message = TEXT_MESSAGE)
     private String text;
 
     @Size(max = SUBTITLE_MAX, message = SUBTITLE_MESSAGE)

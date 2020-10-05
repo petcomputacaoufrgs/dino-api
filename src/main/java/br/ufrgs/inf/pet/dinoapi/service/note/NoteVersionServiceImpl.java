@@ -3,12 +3,13 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.alert_update.note.*;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.note.*;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.generic.GenericQueueMessageServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,11 +31,14 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
+    private final GenericQueueMessageServiceImpl genericQueueMessageService;
+
     @Autowired
-    public NoteVersionServiceImpl(AuthServiceImpl authService, NoteVersionRepository noteVersionRepository, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
+    public NoteVersionServiceImpl(AuthServiceImpl authService, NoteVersionRepository noteVersionRepository, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl, GenericQueueMessageServiceImpl genericQueueMessageService) {
         this.authService = authService;
         this.noteVersionRepository = noteVersionRepository;
         this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
+        this.genericQueueMessageService = genericQueueMessageService;
     }
 
     @Override
@@ -70,7 +74,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         model.setItems(noteList.stream().map(NoteOrderItemUpdateModel::new).collect(Collectors.toList()));
 
         try {
-            alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_ORDER_UPDATE);
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_ORDER_UPDATE);
         } catch (JsonProcessingException e) {
             this.updateNoteVersion();
         }
@@ -96,7 +100,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         model.setIdList(idList);
 
         try {
-            alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_DELETE);
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_DELETE);
         } catch (JsonProcessingException e) {
             this.updateNoteVersion();
         }
@@ -123,7 +127,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         model.setItems(columnList.stream().map(ColumnOrderItemUpdateModel::new).collect(Collectors.toList()));
 
         try {
-            alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_ORDER_UPDATE);
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_ORDER_UPDATE);
         } catch (JsonProcessingException e) {
             this.updateColumnVersion();
         }
@@ -149,7 +153,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         model.setIdList(idList);
 
         try {
-            alertUpdateQueueServiceImpl.sendUpdateObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_DELETE);
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_DELETE);
         } catch (JsonProcessingException e) {
             this.updateNoteVersion();
         }

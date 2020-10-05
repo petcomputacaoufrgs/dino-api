@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.user_details;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
 import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
 import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
@@ -38,7 +39,7 @@ public class DinoUserDetailsService implements UserDetailsService {
 
     @Override
     public DinoUser loadUserByUsername(String email) throws UsernameNotFoundException {
-        final br.ufrgs.inf.pet.dinoapi.entity.User userDB = userService.findUserByEmail(email);
+        final User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
             final DinoUser dinoUser = new DinoUser(userDB);

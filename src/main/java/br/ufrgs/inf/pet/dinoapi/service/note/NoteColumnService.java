@@ -1,10 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
-import br.ufrgs.inf.pet.dinoapi.model.notes.*;
-import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncResponse;
+import br.ufrgs.inf.pet.dinoapi.model.note.delete.NoteColumnDeleteRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.get.NoteColumnResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.order.NoteColumnOrderRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.save.NoteColumnSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.sync.column.NoteColumnSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.sync.column.NoteColumnSyncResponse;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

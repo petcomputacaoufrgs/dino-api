@@ -1,18 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
-import br.ufrgs.inf.pet.dinoapi.entity.User;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.UserQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.UserQuestionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.topic.AlertUpdateTopicServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.alert_update.AlertUpdateTopicServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -169,13 +169,12 @@ public class FaqServiceImpl implements FaqService{
     }
 
     public ResponseEntity<FaqModel> getFaqUser() {
-
         User user = authServiceImpl.getCurrentUser();
 
-        FaqUser faqUser = user.getFaqUser();
+        Optional<FaqUser> faqUser = faqUserRepository.findByUserId(user.getId());
 
-        if(faqUser != null) {
-            FaqModel response = new FaqModel(faqUser.getFaq());
+        if(faqUser.isPresent()) {
+            FaqModel response = new FaqModel(faqUser.get().getFaq());
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 

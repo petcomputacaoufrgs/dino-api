@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.security;
 
-import br.ufrgs.inf.pet.dinoapi.entity.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;

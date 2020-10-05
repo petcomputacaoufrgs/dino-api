@@ -1,8 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.controller.note;
 
-import br.ufrgs.inf.pet.dinoapi.model.notes.*;
-import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.notes.sync.column.NoteColumnSyncResponse;
+import br.ufrgs.inf.pet.dinoapi.model.note.delete.NoteColumnDeleteAllRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.delete.NoteColumnDeleteRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.get.NoteColumnResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.order.NoteColumnOrderAllRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.save.NoteColumnSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.sync.column.NoteColumnSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.sync.column.NoteColumnSyncResponse;
 import br.ufrgs.inf.pet.dinoapi.service.note.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -16,7 +16,7 @@ public class GlossaryItemUpdateRequestModel {
     @Size(max = TITLE_MAX, message = TITLE_MESSAGE)
     private String title;
 
-    @NotNull(message = TEXT_NULL_MESSAGE)
+    //@NotNull(message = TEXT_NULL_MESSAGE)
     @Size(max = TEXT_MAX, message = TEXT_MESSAGE)
     private String text;
 

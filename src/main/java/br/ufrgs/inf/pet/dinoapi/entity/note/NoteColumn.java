@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity.note;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
-import br.ufrgs.inf.pet.dinoapi.entity.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
 import java.util.Date;

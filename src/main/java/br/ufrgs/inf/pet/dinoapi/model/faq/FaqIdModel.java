@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.model.faq;
 public class FaqIdModel {
     private Long id;
 
-    public FaqIdModel() {} //NUNCA SE ESQUECER DESSA MERDA
+    public FaqIdModel() {}
 
     public FaqIdModel(Long id) {
         this.id = id;

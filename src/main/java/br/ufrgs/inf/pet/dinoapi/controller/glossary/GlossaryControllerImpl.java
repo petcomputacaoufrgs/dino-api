@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
+import br.ufrgs.inf.pet.dinoapi.entity.glossary.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateRequestModel;

@@ -1,13 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.entity.GlossaryItem;
+import br.ufrgs.inf.pet.dinoapi.entity.glossary.GlossaryItem;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateRequestModel;
-import br.ufrgs.inf.pet.dinoapi.repository.GlossaryItemRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.glossary.GlossaryItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

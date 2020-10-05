@@ -16,7 +16,7 @@ public final class GlossaryConstants {
 
     public final static int TEXT_MAX = 1000;
     public final static String TEXT_MESSAGE = "text should be between 1 and MAX.";
-    public final static String TEXT_NULL_MESSAGE = "text should not be null..";
+    //public final static String TEXT_NULL_MESSAGE = "text should not be null..";
 
 
     public final static int SUBTITLE_MAX = 20;
