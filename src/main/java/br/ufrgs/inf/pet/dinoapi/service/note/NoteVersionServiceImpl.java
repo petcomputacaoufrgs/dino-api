@@ -1,17 +1,26 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.repository.notes.NoteVersionRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.note.NoteVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.note.*;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.generic.GenericQueueMessageServiceImpl;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class NoteVersionServiceImpl implements NoteVersionService {
@@ -22,43 +31,165 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
+    private final GenericQueueMessageServiceImpl genericQueueMessageService;
+
     @Autowired
-    public NoteVersionServiceImpl(AuthServiceImpl authService, NoteVersionRepository noteVersionRepository, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
+    public NoteVersionServiceImpl(AuthServiceImpl authService, NoteVersionRepository noteVersionRepository, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl, GenericQueueMessageServiceImpl genericQueueMessageService) {
         this.authService = authService;
         this.noteVersionRepository = noteVersionRepository;
         this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
+        this.genericQueueMessageService = genericQueueMessageService;
     }
 
     @Override
-    public ResponseEntity<Long> getVersion() {
-        final NoteVersion noteVersion = this.getNoteVersion();
+    public ResponseEntity<Long> getNoteVersion() {
+        final NoteVersion noteVersion = this.getVersion();
 
-        return new ResponseEntity<>(noteVersion.getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(noteVersion.getNoteVersion(), HttpStatus.OK);
     }
 
     @Override
-    public Long updateVersion() {
-        NoteVersion noteVersion = this.getNoteVersion();
+    public ResponseEntity<Long> getNoteColumnVersion() {
+        final NoteVersion noteVersion = this.getVersion();
 
-        noteVersion.updateVersion();
-        noteVersion.setLastUpdate(new Date());
+        return new ResponseEntity<>(noteVersion.getColumnVersion(), HttpStatus.OK);
+    }
+
+    @Override
+    public Long updateNoteVersion() {
+        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
+
+        noteVersion.updateNoteVersion();
+        noteVersion.setLastNoteUpdate(new Date());
         noteVersion = noteVersionRepository.save(noteVersion);
 
-        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getVersion(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE);
+        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getNoteVersion(), WebSocketDestinationsEnum.ALERT_NOTE_UPDATE);
 
-        return noteVersion.getVersion();
+        return noteVersion.getNoteVersion();
     }
 
-    private NoteVersion getNoteVersion() {
-        final User user = authService.getCurrentAuth().getUser();
+    @Override
+    public void updateNoteOrder(List<Note> noteList) {
+        NoteOrderUpdateModel model = new NoteOrderUpdateModel();
+        model.setItems(noteList.stream().map(NoteOrderItemUpdateModel::new).collect(Collectors.toList()));
 
-        NoteVersion noteVersion = user.getNoteVersion();
-
-        if (noteVersion == null) {
-            noteVersion = new NoteVersion(user);
-
-            noteVersion = noteVersionRepository.save(noteVersion);
+        try {
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_ORDER_UPDATE);
+        } catch (JsonProcessingException e) {
+            this.updateNoteVersion();
         }
+    }
+
+    @Override
+    public Long updateNoteVersionDelete(Long id) {
+        List<Long> idList = new ArrayList<>();
+        idList.add(id);
+        return this.updateNoteVersionDelete(idList);
+    }
+
+    @Override
+    public Long updateNoteVersionDelete(List<Long> idList) {
+        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
+
+        noteVersion.updateNoteVersion();
+        noteVersion.setLastNoteUpdate(new Date());
+        noteVersion = noteVersionRepository.save(noteVersion);
+
+        NoteDeleteModel model = new NoteDeleteModel();
+        model.setNewVersion(noteVersion.getNoteVersion());
+        model.setIdList(idList);
+
+        try {
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_DELETE);
+        } catch (JsonProcessingException e) {
+            this.updateNoteVersion();
+        }
+
+        return noteVersion.getNoteVersion();
+    }
+
+    @Override
+    public Long updateColumnVersion() {
+        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
+
+        noteVersion.updateColumnVersion();
+        noteVersion.setLastColumnUpdate(new Date());
+        noteVersion = noteVersionRepository.save(noteVersion);
+
+        alertUpdateQueueServiceImpl.sendUpdateMessage(noteVersion.getColumnVersion(), WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_UPDATE);
+
+        return noteVersion.getColumnVersion();
+    }
+
+    @Override
+    public void updateColumnOrder(List<NoteColumn> columnList) {
+        ColumnOrderUpdateModel model = new ColumnOrderUpdateModel();
+        model.setItems(columnList.stream().map(ColumnOrderItemUpdateModel::new).collect(Collectors.toList()));
+
+        try {
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_ORDER_UPDATE);
+        } catch (JsonProcessingException e) {
+            this.updateColumnVersion();
+        }
+    }
+
+    @Override
+    public Long updateColumnVersionDelete(Long id) {
+        List<Long> idList = new ArrayList<>();
+        idList.add(id);
+        return this.updateColumnVersionDelete(idList);
+    }
+
+    @Override
+    public Long updateColumnVersionDelete(List<Long> idList) {
+        NoteVersion noteVersion = this.getOrCreateWithoutSaveNoteVersion();
+
+        noteVersion.updateColumnVersion();
+        noteVersion.setLastColumnUpdate(new Date());
+        noteVersion = noteVersionRepository.save(noteVersion);
+
+        ColumnDeleteModel model = new ColumnDeleteModel();
+        model.setNewVersion(noteVersion.getColumnVersion());
+        model.setIdList(idList);
+
+        try {
+            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_DELETE);
+        } catch (JsonProcessingException e) {
+            this.updateNoteVersion();
+        }
+
+        return noteVersion.getColumnVersion();
+    }
+
+    @Override
+    public NoteVersion getVersion() {
+        final User user = authService.getCurrentUser();
+
+        Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
+
+        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> noteVersionRepository.save(this.createNoteVersion(user)));
+
+        return noteVersion;
+    }
+
+    private NoteVersion getOrCreateWithoutSaveNoteVersion() {
+        final User user = authService.getCurrentUser();
+
+        Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
+
+        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> this.createNoteVersion(user));
+
+        return noteVersion;
+    }
+
+    private NoteVersion createNoteVersion(User user) {
+        NoteVersion noteVersion = new NoteVersion();
+
+        noteVersion.setUser(user);
+        noteVersion.setLastColumnUpdate(new Date());
+        noteVersion.setLastNoteUpdate(new Date());
+        noteVersion.setColumnVersion(noteVersion.DEFAULT_VERSION);
+        noteVersion.setNoteVersion(noteVersion.DEFAULT_VERSION);
 
         return noteVersion;
     }

@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,12 @@ public class AuthControllerImpl implements AuthController {
     @PostMapping("/public/auth/google/")
     public ResponseEntity<?> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel authRequestMode) {
         return googleAuthService.googleSignIn(authRequestMode);
+    }
+
+    @Override
+    @GetMapping("/auth/web_socket/")
+    public ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest() {
+        return authService.webSocketAuthRequest();
     }
 
     @Override

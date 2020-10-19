@@ -1,10 +1,35 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface NoteVersionService {
 
-    ResponseEntity<Long> getVersion();
+    ResponseEntity<Long> getNoteVersion();
 
-    Long updateVersion();
+    ResponseEntity<Long> getNoteColumnVersion();
+
+    Long updateNoteVersion();
+
+    void updateNoteOrder(List<Note> noteList);
+
+    Long updateNoteVersionDelete(Long id);
+
+    Long updateNoteVersionDelete(List<Long> idList);
+
+    Long updateColumnVersion();
+
+    void updateColumnOrder(List<NoteColumn> columnList);
+
+    Long updateColumnVersionDelete(Long id);
+
+    Long updateColumnVersionDelete(List<Long> idList);
+
+    NoteVersion getVersion();
+
 }

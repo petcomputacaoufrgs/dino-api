@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.interceptor;
 
+import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
@@ -10,7 +11,8 @@ public class WebSocketUserInterceptor extends DefaultHandshakeHandler {
 
     @Override
     protected Principal determineUser(ServerHttpRequest request, WebSocketHandler wsHandler, Map<String, Object> attributes) {
-        return request.getPrincipal();
+        final DinoAuthenticationToken dinoAuthenticationToken = (DinoAuthenticationToken)request.getPrincipal();
+        final WebSocketAuthenticationToken webSocketUser = new WebSocketAuthenticationToken(dinoAuthenticationToken);
+        return webSocketUser;
     }
-
 }

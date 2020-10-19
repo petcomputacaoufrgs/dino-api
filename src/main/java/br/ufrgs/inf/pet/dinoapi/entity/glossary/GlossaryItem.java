@@ -11,7 +11,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 @Table(name = "glossary_item")
 public class GlossaryItem {
 
-    private static final String SEQUENCE_NAME = "glossary_seq";
+    private static final String SEQUENCE_NAME = "glossary_item_seq";
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)

@@ -1,39 +1,50 @@
 package br.ufrgs.inf.pet.dinoapi.service.user_details;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.service.user.UserService;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
+import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
+import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 
 @Service
 public class DinoUserDetailsService implements UserDetailsService {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
+
+    private final AuthServiceImpl authService;
 
     @Autowired
-    public DinoUserDetailsService(UserService userService) {
+    public DinoUserDetailsService(UserServiceImpl userService, AuthServiceImpl authService) {
         this.userService = userService;
+        this.authService = authService;
     }
 
-    public UserDetails loadUserDetailsByAuth(Auth auth) throws UsernameNotFoundException {
+    public DinoAuthenticationToken loadDinoUserByAuth(Auth auth) throws UsernameNotFoundException {
         if (auth != null) {
-            return new User(auth.getUser().getEmail(), auth.getAccessToken(), new ArrayList<>());
+            final DinoUser dinoUser = new DinoUser(auth.getUser());
+            final DinoCredentials dinoCredentials = new DinoCredentials(auth);
+            return new DinoAuthenticationToken(dinoUser, dinoCredentials, new ArrayList<>());
         }
 
         throw new UsernameNotFoundException("Autenticação vazia.");
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        final br.ufrgs.inf.pet.dinoapi.entity.user.User userDB = userService.findUserByEmail(email);
+    public DinoUser loadUserByUsername(String email) throws UsernameNotFoundException {
+        final User userDB = userService.findUserByEmail(email);
 
         if (userDB != null) {
-            return new User(userDB.getEmail(), "", new ArrayList<>());
+            final DinoUser dinoUser = new DinoUser(userDB);
+
+            return dinoUser;
         }
 
         throw new UsernameNotFoundException("Email inválido: " + email);

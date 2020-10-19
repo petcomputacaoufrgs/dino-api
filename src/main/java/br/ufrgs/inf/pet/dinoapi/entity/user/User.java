@@ -6,9 +6,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.UserQuestion;
-import br.ufrgs.inf.pet.dinoapi.entity.notes.Note;
-import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteVersion;
-
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 public class User {
     private static final String SEQUENCE_NAME = "dino_user_seq";
 
-    public final Long DEFAULT_VERSION = 0L;
+    public static final Long DEFAULT_VERSION = 0l;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -41,9 +40,6 @@ public class User {
     @Column(name = "version", nullable = false)
     private Long version;
 
-    @OneToMany(mappedBy = "user")
-    private List<Auth> auths;
-
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
@@ -54,7 +50,10 @@ public class User {
     private NoteVersion noteVersion;
 
     @OneToMany(mappedBy = "user")
-    private List<Note> notes;
+    private List<Auth> auths;
+
+    @OneToMany(mappedBy = "user")
+    private List<NoteColumn> noteColumns;
 
     @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
@@ -69,9 +68,9 @@ public class User {
     private List<UserQuestion> faqUserQuestions;
     
     public User() {
-        this.notes = new ArrayList<>();
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
+        this.noteColumns = new ArrayList<>();
     }
 
     public User(String name, String email, String pictureURL) {
@@ -79,12 +78,17 @@ public class User {
         this.email = email;
         this.pictureURL = pictureURL;
         this.version = this.DEFAULT_VERSION;
-        this.notes = new ArrayList<>();
         this.auths = new ArrayList<>();
+        this.contacts = new ArrayList<>();
+        this.noteColumns = new ArrayList<>();
     }
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public boolean hasGoogleAuth() {
@@ -127,8 +131,6 @@ public class User {
         this.version = version;
     }
 
-
-
     public GoogleAuth getGoogleAuth() {
         return googleAuth;
     }
@@ -145,13 +147,12 @@ public class User {
         this.userAppSettings = userAppSettings;
     }
 
-    public List<Note> getNotes() {
-        return notes;
+    public List<NoteColumn> getNoteColumns() {
+        return noteColumns;
     }
 
-
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
+    public void setNoteColumns(List<NoteColumn> noteColumns) {
+        this.noteColumns = noteColumns;
     }
 
     public NoteVersion getNoteVersion() {
@@ -182,18 +183,6 @@ public class User {
 
     public void setFaqUser(FaqUser faqUser) {
         this.faqUser = faqUser;
-    }
-
-    public Boolean tokenIsValid(String token) {
-        boolean isValid = false;
-
-        for (Auth auth : auths) {
-            if (auth.getAccessToken().equals(token) && auth.tokenIsValid()) {
-                isValid = true;
-            }
-        }
-
-        return isValid;
     }
 
 }

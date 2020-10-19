@@ -24,7 +24,7 @@ public class ContactVersion {
     private Long version;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id" , nullable = false)
     private User user;
 
     public Long getId() {

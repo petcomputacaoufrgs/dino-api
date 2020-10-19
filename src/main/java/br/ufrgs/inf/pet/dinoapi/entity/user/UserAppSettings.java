@@ -11,7 +11,7 @@ public class UserAppSettings {
 
     private static final String SEQUENCE_NAME = "user_app_settings_seq";
 
-    public final Long DEFAULT_VERSION = 0L;
+    public static final Long DEFAULT_VERSION = 0l;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)

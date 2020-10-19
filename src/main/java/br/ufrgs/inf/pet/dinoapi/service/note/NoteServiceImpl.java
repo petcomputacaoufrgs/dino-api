@@ -1,12 +1,19 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.notes.Note;
-import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteTag;
-import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteVersion;
+import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.notes.*;
-import br.ufrgs.inf.pet.dinoapi.repository.notes.NoteRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.notes.NoteTagRepository;
+import br.ufrgs.inf.pet.dinoapi.model.note.delete.NoteDeleteRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.get.NoteResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.order.NoteOrderRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.save.NoteSaveBaseModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.save.NoteSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.save.NoteSaveResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.sync.note.*;
+import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.note.NoteTagRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +22,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 @Service
 public class NoteServiceImpl implements NoteService {
@@ -26,21 +32,24 @@ public class NoteServiceImpl implements NoteService {
 
     private final NoteVersionServiceImpl noteVersionService;
 
+    private final NoteColumnServiceImpl noteColumnService;
+
     private final AuthServiceImpl authService;
 
     @Autowired
-    public NoteServiceImpl(NoteRepository noteRepository, NoteTagRepository noteTagRepository, NoteVersionServiceImpl noteVersionService, AuthServiceImpl authService) {
+    public NoteServiceImpl(NoteRepository noteRepository, NoteTagRepository noteTagRepository, NoteVersionServiceImpl noteVersionService, AuthServiceImpl authService, NoteColumnServiceImpl noteColumnService) {
         this.noteRepository = noteRepository;
         this.noteTagRepository = noteTagRepository;
         this.noteVersionService = noteVersionService;
         this.authService = authService;
+        this.noteColumnService = noteColumnService;
     }
 
     @Override
     public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        final List<Note> notes = user.getNotes();
+        final List<Note> notes = noteRepository.findAllByUserId(user.getId());
 
         final List<NoteResponseModel> model = notes.stream().map(NoteResponseModel::new).collect(Collectors.toList());
 
@@ -48,339 +57,413 @@ public class NoteServiceImpl implements NoteService {
     }
 
     @Override
-    public ResponseEntity<?> saveNewNote(NoteSaveRequestRequestModel model) {
+    public ResponseEntity<?> saveNote(NoteSaveRequestModel model) {
+        final User user = authService.getCurrentUser();
 
-        if (model.getQuestion().isBlank()) {
-            return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
+        Note note;
+
+        if (model.getId() == null) {
+            final Optional<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
+
+            if (noteSearch.isPresent()) {
+                note = noteSearch.get();
+            } else {
+                NoteColumn noteColumn = noteColumnService.findOneOrCreateByUserAndTitle(model.getColumnTitle(), user);
+
+                if (noteColumn.getNotes().size() >= NoteConstants.MAX_NOTES_PER_COLUMN) {
+                    return new ResponseEntity<>(NoteConstants.MAX_NOTES_PER_COLUMN_MESSAGE, HttpStatus.BAD_REQUEST);
+                }
+
+                int order = 0;
+
+                if (noteColumn.getId() != null) {
+                    final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserIdAndColumnId(user.getId(), noteColumn.getId());
+                    if (maxOrderSearch.isPresent()) {
+                        order = maxOrderSearch.get() + 1;
+                    }
+                }
+
+                note = new Note(noteColumn, order, new Date(model.getLastOrderUpdate()));
+            }
+        } else {
+            final Optional<Note> noteSearch = noteRepository.findById(model.getId());
+
+            if (noteSearch.isPresent()) {
+                note = noteSearch.get();
+            } else {
+                return new ResponseEntity<>(NoteConstants.NOTE_NOT_FOUND_MESSAGE, HttpStatus.NOT_FOUND);
+            }
         }
 
-        final User user = authService.getCurrentAuth().getUser();
+        boolean columnChanged = note.getNoteColumn() == null || (!note.getNoteColumn().getTitle().equals(model.getColumnTitle()));
 
-        final List<Note> noteSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
+        if (columnChanged) {
+            NoteColumn noteColumn = noteColumnService.findOneOrCreateByUserAndTitle(model.getColumnTitle(), user);
 
-        if (noteSearch.size() > 0) {
-            return new ResponseEntity<>("Pergunta já cadastrada", HttpStatus.BAD_REQUEST);
+            note.setNoteColumn(noteColumn);
         }
 
-        final List<NoteTag> tags = this.createNewTags(model);
+        final List<NoteTag> tags = this.createNotSavedTags(model);
 
-        final Date date = new Date(model.getLastUpdate());
+        note.setLastUpdate(new Date(model.getLastUpdate()));
+        note.setQuestion(model.getQuestion());
+        note.setAnswer(model.getAnswer());
+        note.setTags(tags);
 
-        final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
-
-        Integer order = 0;
-
-        if (maxOrderSearch.isPresent()) {
-            order = maxOrderSearch.get() + 1;
-        }
-
-        final Note note = new Note(date, order, model.getQuestion(), tags, user);
-
-        Long newNoteVersion = noteVersionService.updateVersion();
+        Long newNoteVersion = noteVersionService.updateNoteVersion();
 
         final Note savedNote = noteRepository.save(note);
 
-        final NoteSaveResponseModel response = new NoteSaveResponseModel(newNoteVersion, savedNote.getId());
+        final NoteSaveResponseModel response = new NoteSaveResponseModel(newNoteVersion, savedNote);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<Long> deleteAll(List<NoteDeleteRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         final List<Long> validIds = models.stream()
                 .filter(model -> model.getId() != null)
-                .map(model -> model.getId()).collect(Collectors.toList());
-
-        int deletedItems = 0;
+                .map(NoteDeleteRequestModel::getId).collect(Collectors.toList());
 
         if (validIds.size() > 0) {
-            deletedItems = noteRepository.deleteAllByIdAndUserId(validIds, user.getId());
+            final List<Note> notes = noteRepository.findAllByIdAndUserId(validIds, user.getId());
 
-            if (deletedItems > 0) {
-                Long newNoteVersion = noteVersionService.updateVersion();
+            if (notes.size() > 0) {
+                final List<Long> noteIds = notes.stream().map(Note::getId).collect(Collectors.toList());
+
+                noteRepository.deleteAll(notes);
+
+                Long newNoteVersion = noteVersionService.updateNoteVersionDelete(noteIds);
 
                 return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
             }
         }
 
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getNoteVersion(), HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<Long> deleteNote(NoteDeleteRequestModel model) {
-
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
         if (model == null || model.getId() == null) {
-            return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+            return new ResponseEntity<>(user.getNoteVersion().getNoteVersion(), HttpStatus.OK);
         }
 
-        final int deletedItems = noteRepository.deleteByIdAndUserId(model.getId(), user.getId());
+        final Optional<Note> noteSearch = noteRepository.findByIdAndUserId(model.getId(), user.getId());
 
+        if (noteSearch.isPresent()) {
+            Note note = noteSearch.get();
+            Long noteId = note.getId();
+            noteRepository.delete(note);
 
-        if (deletedItems > 0) {
-            Long newNoteVersion = noteVersionService.updateVersion();
+            Long newNoteVersion = noteVersionService.updateNoteVersionDelete(noteId);
 
             return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
-    }
-
-    public ResponseEntity<Long> saveAll(List<NoteSaveRequestRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
-
-        final List<Note> newNotes = this.createNewNotes(models, user, new Date());
-
-        noteRepository.saveAll(newNotes);
-
-        Long newNoteVersion = noteVersionService.updateVersion();
-
-        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
+        return new ResponseEntity<>(user.getNoteVersion().getNoteVersion(), HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<Long> updateAll(List<NoteUpdateRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+    public ResponseEntity<NoteSyncResponseModel> sync(NoteSyncRequestModel model) {
+        final User user = authService.getCurrentUser();
 
-        final List<Long> idsToUpdate = models.stream()
-                .filter(m -> m.getId() != null)
-                .map(m -> m.getId())
-                .collect(Collectors.toList());
+        final boolean hasDeletedNotes = this.deleteNotes(model.getDeletedNotes(), user);
 
-        List<Note> notes = new ArrayList<>();
+        final boolean hasChangedNotes = this.updateSavedNotes(model.getChangedNotes(), user);
 
-        if (idsToUpdate.size() > 0) {
-           notes = noteRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
+        final boolean hasNewNotes = this.createNewNotes(model.getNewNotes(), user);
+
+        final boolean hasChangedOrder = this.syncNotesOrder(model.getNotesOrder(), user);
+
+        Long version;
+
+        if (hasDeletedNotes || hasChangedNotes || hasNewNotes) {
+            version = noteVersionService.updateNoteVersion();
+        } else {
+            version = noteVersionService.getVersion().getNoteVersion();
+            if (hasChangedOrder) {
+                final List<Note> notes = noteRepository.findAllByUserId(user.getId());
+                noteVersionService.updateNoteOrder(notes);
+            }
         }
 
-        notes.forEach(note -> {
-            Optional<NoteUpdateRequestModel> modelSearch = models.stream().filter(m -> m.getId() == note.getId()).findFirst();
+        final List<Note> notes = noteRepository.findAllByUserId(user.getId());
 
-            if (modelSearch.isPresent()) {
-                NoteUpdateRequestModel model = modelSearch.get();
+        final List<NoteResponseModel> notesModel = notes.stream().map(NoteResponseModel::new).collect(Collectors.toList());
 
-                note.setAnswered(model.getAnswered());
+        NoteSyncResponseModel response = new NoteSyncResponseModel();
+        response.setNotes(notesModel);
+        response.setVersion(version);
 
-                note.setAnswer(model.getAnswer());
-
-                note.setQuestion(model.getQuestion());
-
-                note.setLastUpdate(new Date());
-
-                this.updateTags(note, model);
-            }
-        });
-
-        final List<Note> newNotes = this.createNewNotes(models, user, new Date());
-
-        notes.addAll(newNotes);
-
-        noteRepository.saveAll(notes);
-
-        Long newNoteVersion = noteVersionService.updateVersion();
-
-        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models) {
-        final User user = authService.getCurrentAuth().getUser();
+        final User user = authService.getCurrentUser();
 
-        models = models.stream().filter(model -> model.getId() != null && model.getOrder() != null).collect(Collectors.toList());
+        final List<Long> ids = new ArrayList<>();
 
-        final List<Long> ids = models.stream()
-                .map(m -> m.getId())
-                .collect(Collectors.toList());
+        final List<Integer> orders = new ArrayList<>();
 
-        final List<Integer> orders = models.stream()
-                .sorted(Comparator.comparing(NoteOrderRequestModel::getId))
-                .map(m -> m.getOrder())
-                .collect(Collectors.toList());
+        final List<String> columnTitles = new ArrayList<>();
 
-        final Set<Integer> uniqueOrders = new HashSet<>(orders);
+        final List<Long> lastOrderUpdates = new ArrayList<>();
 
-        if (orders.size() != uniqueOrders.size()) {
-            return new ResponseEntity<>("Não podem haver itens com ordens iguais.", HttpStatus.OK);
-        }
+        models.stream().sorted(Comparator.comparing(NoteOrderRequestModel::getId)).forEach(m -> {
+            ids.add(m.getId());
+            orders.add(m.getOrder());
+            columnTitles.add(m.getColumnTitle());
+            lastOrderUpdates.add(m.getLastOrderUpdate());
+        });
+
+        final List<NoteColumn> columns = noteColumnService.findAllByUserIdAndTitles(columnTitles, user.getId());
 
         final List<Note> notes = noteRepository.findAllByIdOrderByIdAsc(ids, user.getId());
 
         if (notes.size() != ids.size()) {
             return new ResponseEntity<>(
-                    "Nem todos os itens foram encontrados, encontramos " + notes.size() + " item de um total de  " + ids.size() + " buscados.",
+                    NoteConstants.NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT1
+                            + notes.size()
+                            + NoteConstants.NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT2
+                            + ids.size()
+                            + NoteConstants.NOTE_NOT_FOUND_IN_ORDER_MESSAGE_PT3,
                     HttpStatus.OK);
         }
 
-        IntStream.range(0, notes.size())
-                .forEach(i ->
-                        notes.get(i).setOrder(orders.get(i))
-                );
+        Integer noteColumnMaxOrder = noteColumnService.getMaxOrder(user.getId());
 
+        int count = 0;
 
-        noteRepository.saveAll(notes);
+        final List<Note> updatedNotes = new ArrayList<>();
 
-        Long newNoteVersion = noteVersionService.updateVersion();
+        for (Note note : notes) {
+            final Long lastUpdateInModel = lastOrderUpdates.get(count);
 
-        return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
+            if (note.getLastOrderUpdate().getTime() < lastUpdateInModel) {
+                note.setLastOrderUpdate(new Date(lastUpdateInModel));
+                note.setOrder(orders.get(count));
+
+                final int internalCount = count;
+
+                List<NoteColumn> noteColumnSearch = columns.stream().filter(column -> column.getTitle().equalsIgnoreCase(columnTitles.get(internalCount))).collect(Collectors.toList());
+
+                if (noteColumnSearch.size() > 0) {
+                    note.setNoteColumn(noteColumnSearch.get(0));
+                } else {
+                    NoteColumn noteColumn = new NoteColumn(user, noteColumnMaxOrder, new Date());
+                    noteColumn = noteColumnService.save(noteColumn);
+                    noteColumnMaxOrder++;
+
+                    note.setNoteColumn(noteColumn);
+                }
+
+                updatedNotes.add(note);
+            }
+
+            count++;
+        }
+
+        noteRepository.saveAll(updatedNotes);
+
+        noteVersionService.updateNoteOrder(updatedNotes);
+
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Override
-    public ResponseEntity<?> updateNoteQuestion(NoteQuestionRequestModel model) {
+    private boolean updateSavedNotes(List<NoteSyncChangedRequestModel> changedNotes, User user) {
+        final List<Note> updatedNotes = new ArrayList<>();
 
-        if (model.getQuestion().isBlank()) {
-            return new ResponseEntity<>("Pergunta deve conter um ou mais caracteres excluindo espaços em branco.", HttpStatus.BAD_REQUEST);
-        }
+        final List<Long> idsToUpdate = changedNotes.stream().map(NoteSyncChangedRequestModel::getId).collect(Collectors.toList());
 
-        final User user = authService.getCurrentAuth().getUser();
+        final List<Note> savedNotes = noteRepository.findAllByIdAndUserId(idsToUpdate, user.getId());
 
-        final Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
+        final Date now = new Date();
 
-        if (noteSearch.isEmpty()) {
-            return new ResponseEntity<>("Anotação não encontrada", HttpStatus.BAD_REQUEST);
-        }
+        Date changedLastUpdateDate;
+        Date changedLastUpdateOrderDate;
+        boolean changed;
 
-        final Note note = noteSearch.get();
+        final List<String> usedQuestions = noteRepository.findAllQuestionsByUserId(user.getId());
 
-        Boolean changed = false;
+        for (NoteSyncChangedRequestModel changedNote : changedNotes)  {
+            changedLastUpdateDate = new Date(changedNote.getLastUpdate());
+            Optional<Note> savedNoteSearch = savedNotes.stream().filter(n -> n.getId().equals(changedNote.getId())).findFirst();
 
-        final Boolean questionChanged = !model.getQuestion().equalsIgnoreCase(note.getQuestion());
+            if (savedNoteSearch.isPresent()) {
+                Note savedNote = savedNoteSearch.get();
+                changed = false;
 
-        if (questionChanged) {
-            final List<Note> notesSearch = noteRepository.findByQuestionAndUserId(model.getQuestion(), user.getId());
+                if (changedLastUpdateDate.after(savedNote.getLastUpdate())) {
+                    if (!changedNote.getQuestion().equals(savedNote.getQuestion())) {
+                        boolean success = this.removeQuestionConflict(usedQuestions, changedNote);
+                        if (success) {
+                            usedQuestions.add(changedNote.getQuestion());
+                            savedNote.setQuestion(changedNote.getQuestion());
+                        }
+                    }
+                    savedNote.setLastUpdate(changedLastUpdateDate);
+                    changed = true;
+                }
+                if (changedNote.getLastOrderUpdate() != null) {
+                    changedLastUpdateOrderDate = new Date(changedNote.getLastOrderUpdate());
+                    if (changedLastUpdateOrderDate.after(savedNote.getLastOrderUpdate())) {
+                        final List<NoteTag> tags = this.createNotSavedTags(changedNote);
 
-            if (notesSearch.size() > 0) {
-                return new ResponseEntity<>("Pergunta já cadastrada", HttpStatus.BAD_REQUEST);
+                        if (!changedNote.getColumnId().equals(savedNote.getNoteColumn().getId())) {
+                            noteColumnService.getNoteColumnByIdAndUser(changedNote.getColumnId(), user).ifPresent(savedNote::setNoteColumn);
+                        }
+
+                        savedNote.setOrder(changedNote.getOrder());
+                        savedNote.setLastOrderUpdate(changedLastUpdateOrderDate);
+                        savedNote.setTags(tags);
+
+                        changed = true;
+                    }
+                }
+
+                if (changed) {
+                    updatedNotes.add(savedNote);
+                }
+            } else {
+                final Optional<NoteColumn> columnSearch = noteColumnService.getNoteColumnByIdAndUser(changedNote.getColumnId(), user);
+
+                if (columnSearch.isPresent()) {
+                    final NoteColumn column = columnSearch.get();
+                    final List<NoteTag> tags = this.createNotSavedTags(changedNote);
+
+                    final Note newNote = this.createNewNote(usedQuestions, changedNote, column, now, tags);
+                    updatedNotes.add(newNote);
+                }
             }
-
-            note.setQuestion(model.getQuestion());
-            changed = true;
         }
 
-        Boolean anyTagUpdated = this.updateTags(note, model);
-
-        if (anyTagUpdated) {
-            changed = true;
+        if (updatedNotes.size() > 0) {
+            noteRepository.saveAll(updatedNotes);
+            return true;
         }
 
-        final Date date = new Date(model.getLastUpdate());
-
-        if (changed) {
-            note.setLastUpdate(date);
-
-            noteRepository.save(note);
-
-            Long newNoteVersion = noteVersionService.updateVersion();
-
-            return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(user.getNoteVersion().getVersion(), HttpStatus.OK);
+        return false;
     }
 
-    @Override
-    public ResponseEntity<?> updateNoteAnswer(NoteAnswerRequestModel model) {
+    private boolean createNewNotes(List<NoteSyncSaveRequestModel> models, User user) {
+        final List<Note> newNotes = new ArrayList<>();
+        final Date now = new Date();
+        final List<String> usedQuestions = noteRepository.findAllQuestionsByUserId(user.getId());
 
-        final User user = authService.getCurrentAuth().getUser();
+        for(NoteSyncSaveRequestModel model : models) {
+            final Optional<NoteColumn> noteColumnSearch = noteColumnService.getNoteColumnByIdAndUser(model.getColumnId(), user);
 
-        final Optional<Note> noteSearch = noteRepository.findOneByIdAndUserId(model.getId(), user.getId());
+            if (noteColumnSearch.isPresent()) {
+                List<NoteTag> tags = createNotSavedTags(model);
 
-        if (noteSearch.isEmpty()) {
-            return new ResponseEntity<>("Anotação não encontrada", HttpStatus.BAD_REQUEST);
-        }
+                Note note = this.createNewNote(usedQuestions, model, noteColumnSearch.get(), now, tags);
 
-        final Note note = noteSearch.get();
-
-        final NoteVersion version = user.getNoteVersion();
-
-        final Boolean answerChanged = note.getAnswer() != null ? !note.getAnswer().equalsIgnoreCase(model.getAnswer()) : true;
-
-        if (answerChanged) {
-            note.setAnswer(model.getAnswer());
-
-            final Boolean noteNotAnswered = !note.getAnswered();
-
-            if (noteNotAnswered) {
-                note.setAnswered(true);
+                newNotes.add(note);
             }
-
-            noteRepository.save(note);
-
-            Long newNoteVersion = noteVersionService.updateVersion();
-
-            return new ResponseEntity<>(newNoteVersion, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>(version.getVersion(), HttpStatus.OK);
+        if (newNotes.size() > 0) {
+            noteRepository.saveAll(newNotes);
+
+            return true;
+        }
+
+        return false;
     }
 
-    private List<Note> createNewNotes(List<? extends NoteQuestionRequestModel> models, User user, Date date) {
-        final List<Note> savedNotes = new ArrayList<>();
+    private Note createNewNote(List<String> usedQuestions, NoteSyncSaveRequestModel newNote, NoteColumn noteColumn, Date now, List<NoteTag> tags) {
+        boolean success = this.removeQuestionConflict(usedQuestions, newNote);
+        if (success) {
+            usedQuestions.add(newNote.getQuestion());
 
-        final List<NoteQuestionRequestModel> notesToCreate = models.stream()
-                .filter(m -> m.getId() == null)
-                .collect(Collectors.toList());
-
-        final List<String> questions = notesToCreate.stream().map(n -> n.getQuestion()).collect(Collectors.toList());
-
-        List<String> questionsAlreadySaved = new ArrayList<>();
-
-        if (questions.size() > 0) {
-            questionsAlreadySaved = noteRepository.findAllQuestionsByQuestionsAndUserId(questions, user.getId());
-        }
-
-        final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserId(user.getId());
-
-        Integer order = 0;
-
-        if (maxOrderSearch.isPresent()) {
-            order = maxOrderSearch.get() + 1;
-        }
-
-        for(NoteQuestionRequestModel model : notesToCreate) {
-            final Boolean alreadySaved = questionsAlreadySaved.stream().anyMatch(q -> q.equalsIgnoreCase(model.getQuestion()));
-
-            if (alreadySaved) {
-                break;
-            }
-
-            if (model.getQuestion().isBlank()) {
-                break;
-            }
-
-            List<NoteTag> tags = createNewTags(model);
+            Integer maxOrder = noteColumn.getNotes().stream().map(Note::getOrder).max(Integer::compare).orElse(-1);
 
             Note note = new Note();
-            note.setAnswered(model.getAnswered());
-            note.setLastUpdate(date);
-            note.setOrder(order++);
-            note.setQuestion(model.getQuestion());
+            note.setLastUpdate(new Date(newNote.getLastUpdate()));
+            note.setQuestion(newNote.getQuestion());
+            note.setAnswer(newNote.getAnswer());
             note.setTags(tags);
-            note.setUser(user);
+            note.setLastOrderUpdate(now);
+            note.setOrder(maxOrder + 1);
+            note.setNoteColumn(noteColumn);
 
-            savedNotes.add(note);
+            return note;
         }
 
-        return savedNotes;
+        return null;
     }
 
-    private List<NoteTag> createNewTags(NoteQuestionRequestModel model) {
+    private boolean deleteNotes(List<NoteSyncDeleteRequest> deletedNotes, User user) {
+        final List<Long> deletedIds = deletedNotes.stream().map(NoteDeleteRequestModel::getId).collect(Collectors.toList());
+        final List<Note> savedNotes = noteRepository.findAllByIdAndUserId(deletedIds, user.getId());
+        final List<Note> notesToDelete = new ArrayList<>();
+
+        savedNotes.forEach(savedNote -> {
+            deletedNotes.stream().filter(deletedNote -> deletedNote.getId().equals(savedNote.getId())).findFirst().ifPresent(deletedModel -> {
+                final Date deletedLastUpdate = new Date(deletedModel.getLastUpdate());
+                if (!savedNote.getLastUpdate().after(deletedLastUpdate)) {
+                    notesToDelete.add(savedNote);
+                }
+            });
+        });
+
+        if (notesToDelete.size() > 0) {
+            noteRepository.deleteAll(notesToDelete);
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean syncNotesOrder(List<NoteSyncOrderRequestModel> notesOrder, User user) {
+        final List<Long> ids = notesOrder.stream().map(NoteSyncOrderRequestModel::getId).collect(Collectors.toList());
+        final List<Note> notes = noteRepository.findAllByIdAndUserId(ids, user.getId());
+
+        final List<Long> columnIds = notesOrder.stream().map(NoteSyncOrderRequestModel::getColumnId).collect(Collectors.toList());
+        final List<NoteColumn> columns = noteColumnService.findAllByUserAndIds(user, columnIds);
+
+        if (notes.size() > 0) {
+            notesOrder.forEach(item -> {
+                Optional<Note> noteSearch = notes.stream()
+                        .filter(note -> note.getId().equals(item.getId())).findFirst();
+
+                Optional<NoteColumn> noteColumnSearch = columns.stream()
+                        .filter(column -> column.getId().equals(item.getColumnId())).findFirst();
+
+                noteColumnSearch.ifPresent(column -> {
+                    noteSearch.ifPresent(note -> {
+                        if (!note.getLastOrderUpdate().after(new Date(item.getLastOrderUpdate()))) {
+                            note.setOrder(item.getOrder());
+                            note.setLastOrderUpdate(new Date(item.getLastOrderUpdate()));
+                            note.setNoteColumn(column);
+                        }
+                    });
+                });
+            });
+
+            noteRepository.saveAll(notes);
+            return true;
+        }
+
+        return false;
+    }
+
+    private List<NoteTag> createNotSavedTags(NoteSaveBaseModel model) {
         List<NoteTag> tags = new ArrayList<>();
 
         if (model.getTagNames() != null && model.getTagNames().size() > 0) {
             tags = noteTagRepository.findAllByName(model.getTagNames());
 
-            final List<String> tagNames = tags.stream().map(tag -> tag.getName()).collect(Collectors.toList());
+            final List<String> tagNames = tags.stream().map(NoteTag::getName).collect(Collectors.toList());
 
             List<NoteTag> newTags = model.getTagNames().stream()
                     .filter(name -> !tagNames.contains(name))
-                    .map(name -> {
-                        NoteTag tag = new NoteTag(name);
-
-                        return tag;
-                    })
+                    .map(NoteTag::new)
                     .collect(Collectors.toList());
 
             if (newTags.size() > 0) {
@@ -392,44 +475,39 @@ public class NoteServiceImpl implements NoteService {
         return tags;
     }
 
-    private boolean updateTags(Note note, NoteQuestionRequestModel model) {
-        boolean changed = false;
+    private boolean removeQuestionConflict(List<String> usedTitles, NoteSyncSaveRequestModel newNote) {
+        boolean sameTitle = usedTitles.stream().anyMatch(title -> title.equals(newNote.getQuestion()));
 
-        final List<NoteTag> removedTags = note.getTags().stream()
-                .filter(tag -> model.getTagNames().stream().allMatch(tagName -> !tagName.equalsIgnoreCase(tag.getName())))
-                .collect(Collectors.toList());
+        if (sameTitle) {
+            final int titleLength = newNote.getQuestion().length();
+            final String resumeTitle = "...";
+            int count = 0;
+            int extraLength = 0;
+            String repeatCounter;
+            String newQuestion;
 
-        if (removedTags.size() > 0) {
-            note.deleteTags(removedTags);
-            changed = true;
+            do {
+                count++;
+                repeatCounter = " ("+count+")";
+                extraLength = repeatCounter.length() + resumeTitle.length();
+
+                if (extraLength > NoteConstants.QUESTION_MAX) {
+                    return false;
+                }
+
+                if (titleLength + repeatCounter.length() > NoteConstants.QUESTION_MAX) {
+                    newQuestion = newNote.getQuestion().substring(0, NoteConstants.QUESTION_MAX - extraLength) + resumeTitle + repeatCounter;
+                } else {
+                    newQuestion = newNote.getQuestion() + repeatCounter;
+                }
+                final String finalNewQuestion = newQuestion;
+                sameTitle = usedTitles.stream().anyMatch(title -> title.equals(finalNewQuestion));
+
+            } while(sameTitle);
+
+            newNote.setQuestion(newQuestion);
         }
 
-        final List<String> newTagNames = model.getTagNames().stream()
-                .filter(tagName -> note.getTags().stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
-                .collect(Collectors.toList());
-
-        if (newTagNames.size() > 0) {
-            final List<NoteTag> newTagsAlreadyExists = noteTagRepository.findAllByName(newTagNames);
-
-            note.addTags(newTagsAlreadyExists);
-
-            final List<NoteTag> newTagsNotExists = newTagNames.stream()
-                    .filter(tagName -> newTagsAlreadyExists.stream().allMatch(tag -> !tag.getName().equalsIgnoreCase(tagName)))
-                    .map(tagName -> {
-                        NoteTag tag = new NoteTag();
-                        tag.setName(tagName);
-
-                        return tag;
-                    })
-                    .collect(Collectors.toList());
-
-            final List<NoteTag> newCreatedTags = Lists.newArrayList(noteTagRepository.saveAll(newTagsNotExists));
-
-            note.addTags(newCreatedTags);
-
-            changed = true;
-        }
-
-        return changed;
+        return true;
     }
 }

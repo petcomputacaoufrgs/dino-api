@@ -1,11 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactVersionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.alert_update.queue.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,15 +14,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class ContactVersionServiceImpl {
 
+    private ContactVersionRepository contactVersionRepository;
+    private AuthServiceImpl authService;
+    private AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
+
     @Autowired
-    ContactVersionRepository contactVersionRepository;
-    @Autowired
-    AuthServiceImpl authService;
-    @Autowired
-    AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
+    public ContactVersionServiceImpl(ContactVersionRepository contactVersionRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl) {
+        this.contactVersionRepository = contactVersionRepository;
+        this.authService = authService;
+        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
+    }
 
     public void updateVersion(User user) {
-
         ContactVersion version = user.getContactVersion();
 
         if (version == null) {

@@ -1,14 +1,19 @@
 package br.ufrgs.inf.pet.dinoapi.controller.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.notes.NoteTag;
-import br.ufrgs.inf.pet.dinoapi.model.notes.*;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteTag;
+import br.ufrgs.inf.pet.dinoapi.model.note.delete.NoteDeleteAllRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.delete.NoteDeleteRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.get.NoteResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.order.NoteOrderAllRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.save.NoteSaveRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.sync.note.NoteSyncRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.note.sync.note.NoteSyncResponseModel;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteTagServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.note.NoteVersionServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import javax.validation.Valid;
 import java.util.List;
 
@@ -29,7 +34,6 @@ public class NoteControllerImpl implements NoteController {
         this.noteVersionService = noteVersionService;
     }
 
-
     @Override
     @GetMapping
     public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
@@ -38,14 +42,14 @@ public class NoteControllerImpl implements NoteController {
 
     @Override
     @PostMapping
-    public ResponseEntity<?> saveNewNote(@Valid  @RequestBody NoteSaveRequestRequestModel model) {
-        return noteService.saveNewNote(model);
+    public ResponseEntity<?> saveNote(@Valid @RequestBody NoteSaveRequestModel model) {
+        return noteService.saveNote(model);
     }
 
     @Override
     @DeleteMapping("all/")
-    public ResponseEntity<Long> deleteAll(@Valid @RequestBody List<NoteDeleteRequestModel> models) {
-        return noteService.deleteAll(models);
+    public ResponseEntity<Long> deleteAll(@Valid @RequestBody NoteDeleteAllRequestModel model) {
+        return noteService.deleteAll(model.getItems());
     }
 
     @Override
@@ -55,33 +59,15 @@ public class NoteControllerImpl implements NoteController {
     }
 
     @Override
-    @PostMapping("all/")
-    public ResponseEntity<Long> saveAll(@Valid @RequestBody List<NoteSaveRequestRequestModel> models) {
-        return noteService.saveAll(models);
-    }
-
-    @Override
-    @PutMapping("all/")
-    public ResponseEntity<Long> updateAll(@Valid @RequestBody List<NoteUpdateRequestModel> models) {
-        return noteService.updateAll(models);
+    @PutMapping("sync/")
+    public ResponseEntity<NoteSyncResponseModel> sync(@Valid @RequestBody NoteSyncRequestModel model) {
+        return noteService.sync(model);
     }
 
     @Override
     @PutMapping("order/")
-    public ResponseEntity<?> updateNotesOrder(@Valid @RequestBody List<NoteOrderRequestModel> models) {
-        return noteService.updateNotesOrder(models);
-    }
-
-    @Override
-    @PutMapping("question/")
-    public ResponseEntity<?> updateNoteQuestion(@Valid @RequestBody NoteQuestionRequestModel model) {
-        return noteService.updateNoteQuestion(model);
-    }
-
-    @Override
-    @PutMapping("answer/")
-    public ResponseEntity<?> updateNoteAnswer(@Valid @RequestBody NoteAnswerRequestModel model) {
-        return noteService.updateNoteAnswer(model);
+    public ResponseEntity<?> updateNotesOrder(@Valid @RequestBody NoteOrderAllRequestModel model) {
+        return noteService.updateNotesOrder(model.getItems());
     }
 
     @Override
@@ -93,6 +79,6 @@ public class NoteControllerImpl implements NoteController {
     @Override
     @GetMapping("version/")
     public ResponseEntity<Long> getVersion() {
-        return noteVersionService.getVersion();
+        return noteVersionService.getNoteVersion();
     }
 }

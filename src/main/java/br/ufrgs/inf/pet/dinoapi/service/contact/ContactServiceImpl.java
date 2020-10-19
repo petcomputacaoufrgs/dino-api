@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -34,10 +34,9 @@ public class ContactServiceImpl implements ContactService {
 
 
     public ResponseEntity<List<ContactModel>> getUserContacts() {
-
             User user = authServiceImpl.getCurrentUser();
 
-            List<Contact> contacts = user.getContacts();
+            List<Contact> contacts = contactRepository.findByUserId(user.getId());
 
             List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
 

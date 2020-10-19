@@ -7,9 +7,9 @@ import static javax.persistence.GenerationType.SEQUENCE;
 @Entity
 @Table(name = "glossary_version")
 public class GlossaryVersion {
-    private static final String SEQUENCE_NAME = "glossary_seq";
+    private static final String SEQUENCE_NAME = "glossary_version_seq";
 
-    public final Long DEFAULT_VERSION = 0L;
+    public static final Long DEFAULT_VERSION = 0l;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
