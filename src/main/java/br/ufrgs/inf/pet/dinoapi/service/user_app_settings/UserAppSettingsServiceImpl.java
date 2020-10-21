@@ -1,7 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.user_app_settings;
 
+import br.ufrgs.inf.pet.dinoapi.constants.AppSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserAppSettings;
+import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
 import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsResponseAndRequestModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserAppSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -34,13 +36,13 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         final User user = authService.getCurrentUser();
 
         if (user == null) {
-            return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(AppSettingsConstants.INVALID_USER, HttpStatus.BAD_REQUEST);
         }
 
         final UserAppSettings userAppSettings = user.getUserAppSettings();
 
         final UserAppSettingsResponseAndRequestModel model = new UserAppSettingsResponseAndRequestModel();
-
+        model.setColorTheme(userAppSettings.getColorTheme());
         model.setLanguage(userAppSettings.getLanguage());
 
         return new ResponseEntity<>(model, HttpStatus.OK);
@@ -49,13 +51,21 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
     @Override
     public ResponseEntity<?> saveUserAppSettings(UserAppSettingsResponseAndRequestModel userAppSettingsModel) {
         if (userAppSettingsModel == null) {
-            return new ResponseEntity<>("Requisição nula", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(AppSettingsConstants.NULL_REQUEST_BODY, HttpStatus.BAD_REQUEST);
+        }
+
+        int colorTheme = userAppSettingsModel.getColorTheme();
+
+        boolean isValidaColorTheme = this.isValidColorTheme(colorTheme);
+
+        if (!isValidaColorTheme) {
+            return new ResponseEntity<>(AppSettingsConstants.INVALID_COLOR_THEME, HttpStatus.BAD_REQUEST);
         }
 
         final User user = authService.getCurrentUser();
 
         if (user == null) {
-            return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(AppSettingsConstants.INVALID_USER, HttpStatus.BAD_REQUEST);
         }
 
         UserAppSettings userAppSettings = user.getUserAppSettings();
@@ -75,6 +85,14 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             changed = true;
         }
 
+        final Integer newColorTheme = userAppSettingsModel.getColorTheme();
+        final Integer currentColorTheme = userAppSettings.getColorTheme();
+
+        if (newColorTheme != currentColorTheme) {
+            userAppSettings.setColorTheme(newColorTheme);
+            changed = true;
+        }
+
         if (changed) {
             userAppSettings.updateVersion();
 
@@ -91,7 +109,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         final User user = authService.getCurrentUser();
 
         if (user == null) {
-            return new ResponseEntity<>("Usuário inválido", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(AppSettingsConstants.INVALID_USER, HttpStatus.BAD_REQUEST);
         }
 
         final UserAppSettings userAppSettings = user.getUserAppSettings();
@@ -101,5 +119,14 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         } else {
             return new ResponseEntity<>(0, HttpStatus.OK);
         }
+    }
+
+    private boolean isValidColorTheme(Integer colorTheme) {
+        ColorTheme[] colorThemes = ColorTheme.values();
+
+        for (ColorTheme theme : colorThemes)
+            if (theme.getValue() == colorTheme)
+                return true;
+        return false;
     }
 }
