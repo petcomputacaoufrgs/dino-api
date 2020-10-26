@@ -1,5 +1,4 @@
 package br.ufrgs.inf.pet.dinoapi.model.user_app_settings;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -11,6 +10,9 @@ public class UserAppSettingsResponseAndRequestModel {
     @Size(max = LANGUAGE_MAX, message = LANGUAGE_MESSAGE)
     private String language;
 
+    @NotNull(message = COLOR_THEME__NULL_MESSAGE)
+    private Integer colorTheme;
+
     public String getLanguage() {
         return language;
     }
@@ -19,4 +21,11 @@ public class UserAppSettingsResponseAndRequestModel {
         this.language = language;
     }
 
+    public Integer getColorTheme() {
+        return colorTheme;
+    }
+
+    public void setColorTheme(Integer colorTheme) {
+        this.colorTheme = colorTheme;
+    }
 }

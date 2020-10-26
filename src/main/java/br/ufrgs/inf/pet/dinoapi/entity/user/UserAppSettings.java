@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity.user;
 
+import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
+
 import javax.persistence.*;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.LANGUAGE_MAX;
@@ -25,6 +27,9 @@ public class UserAppSettings {
     @Column(name = "version", nullable = false)
     private Long version;
 
+    @Column(name = "color_theme", nullable = false)
+    private Integer colorTheme;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -34,6 +39,7 @@ public class UserAppSettings {
     public UserAppSettings(User user) {
         this.user = user;
         this.version = this.DEFAULT_VERSION;
+        this.colorTheme = ColorTheme.CLASSIC.getValue();
     }
 
     public Long getId() {
@@ -66,5 +72,13 @@ public class UserAppSettings {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public Integer getColorTheme() {
+        return colorTheme;
+    }
+
+    public void setColorTheme(Integer colorTheme) {
+        this.colorTheme = colorTheme;
     }
 }

@@ -8,11 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
-/**
- * Implementação de: {@link UserAppSettingsController}
- *
- * @author joao.silva
- */
 @RestController
 @RequestMapping("/user_app_settings/")
 public class UserAppSettingsControllerImpl implements  UserAppSettingsController {

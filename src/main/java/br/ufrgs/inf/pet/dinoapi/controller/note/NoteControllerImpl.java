@@ -18,7 +18,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/notes/")
+@RequestMapping("/note/")
 public class NoteControllerImpl implements NoteController {
 
     private final NoteServiceImpl noteService;
