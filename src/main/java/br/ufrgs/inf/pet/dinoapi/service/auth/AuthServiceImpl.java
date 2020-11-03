@@ -25,17 +25,17 @@ import java.util.*;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private static final String KEY = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
+
+    private static final String ENCODED_KEY = Base64.getEncoder().encodeToString(KEY.getBytes());
+
+    private static final String WEB_SOCKET_KEY = "m.|TGrhhXkp+(=Q-{6F{m2KFShSD[[D]WQEL.P[WAS]D@$JHW=qLukasdsdas224334432$@#@#hi/&l{Udnk@!@!@F%4&<0;X3l1gsSd$";
+
+    private static final String WEB_SOCKET_ENCODED_KEY = Base64.getEncoder().encodeToString(WEB_SOCKET_KEY.getBytes());
+
+    private static final long TOKEN_LIFE_TIME_IN_MS = 3600000;
+
     private final AuthRepository authRepository;
-
-    private String key = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
-
-    private String encodedKey = Base64.getEncoder().encodeToString(key.getBytes());
-
-    private String webSocketKey = "m.|TGrhhXkp+(=Q-{6F{m2KFShSD[[D]WQEL.P[WAS]D@$JHW=qLukasdsdas224334432$@#@#hi/&l{Udnk@!@!@F%4&<0;X3l1gsSd$";
-
-    private String webSocketEncodedKey = Base64.getEncoder().encodeToString(webSocketKey.getBytes());
-
-    private long validityInMilliseconds = 3600000;
 
     @Autowired
     public AuthServiceImpl(AuthRepository authRepository) {
@@ -179,7 +179,7 @@ public class AuthServiceImpl implements AuthService {
 
     public Claims decodeAccessToken(String accessToken) {
         return Jwts.parser()
-                .setSigningKey(DatatypeConverter.parseBase64Binary(this.encodedKey))
+                .setSigningKey(DatatypeConverter.parseBase64Binary(this.ENCODED_KEY))
                 .parseClaimsJws(accessToken).getBody();
     }
 
@@ -215,7 +215,7 @@ public class AuthServiceImpl implements AuthService {
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(now)
-                .signWith(SignatureAlgorithm.HS256, this.webSocketEncodedKey)
+                .signWith(SignatureAlgorithm.HS256, this.WEB_SOCKET_ENCODED_KEY)
                 .compact();
 
         auth.setWebSocketToken(webSocketToken);
@@ -225,13 +225,13 @@ public class AuthServiceImpl implements AuthService {
         final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
         claims.put("roles", roles);
         final Date now = new Date();
-        Date expiresDate = new Date(now.getTime() + validityInMilliseconds);
+        Date expiresDate = new Date(now.getTime() + this.TOKEN_LIFE_TIME_IN_MS);
 
         final String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
                 .setExpiration(expiresDate)
-                .signWith(SignatureAlgorithm.HS256, this.encodedKey)
+                .signWith(SignatureAlgorithm.HS256, this.ENCODED_KEY)
                 .compact();
 
         auth.setAccessToken(accessToken);
