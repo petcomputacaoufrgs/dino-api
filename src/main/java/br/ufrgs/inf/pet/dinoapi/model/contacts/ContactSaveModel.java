@@ -21,8 +21,7 @@ public class ContactSaveModel {
     @Size(max = DESCRIPTION_MAX, message = DESCRIPTION_MAX_MESSAGE)
     private String description;
 
-    @Size(max = COLOR_MAX, message = COLOR_MAX_MESSAGE)
-    private String color;
+    private Byte color;
 
     public void setFrontId(Long frontId) {
         this.frontId = frontId;
@@ -48,7 +47,7 @@ public class ContactSaveModel {
         return phones;
     }
 
-    public void setColor(String color) {
+    public void setColor(Byte color) {
         this.color = color;
     }
 
@@ -60,7 +59,7 @@ public class ContactSaveModel {
         return name;
     }
 
-    public String getColor() {
+    public Byte getColor() {
         return color;
     }
 }

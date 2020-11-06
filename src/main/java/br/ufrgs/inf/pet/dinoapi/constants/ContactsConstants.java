@@ -11,9 +11,6 @@ public final class ContactsConstants {
     public final static int DESCRIPTION_MAX = 500;
     public final static String DESCRIPTION_MAX_MESSAGE = "description should not be more than MAX.";
 
-    public final static int COLOR_MAX = 10;
-    public final static String COLOR_MAX_MESSAGE = "color should not be more than MAX.";
-
     public final static int NUMBER_MAX = 30;
     public final static String NUMBER_NULL_MESSAGE = "O número do contato não pode ser nulo.";
     public final static String NUMBER_MESSAGE = "number should be between 1 and MAX.";

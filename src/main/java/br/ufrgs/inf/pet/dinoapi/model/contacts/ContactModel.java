@@ -9,7 +9,7 @@ public class ContactModel {
     private String name;
     private List<PhoneModel> phones;
     private String description;
-    private String color;
+    private Byte color;
 
     public ContactModel(){}
 
@@ -37,7 +37,7 @@ public class ContactModel {
         this.description = description;
     }
 
-    public void setColor(String color) {
+    public void setColor(Byte color) {
         this.color = color;
     }
 
@@ -52,7 +52,7 @@ public class ContactModel {
 
     public String getName() { return name; }
 
-    public String getColor() { return color; }
+    public Byte getColor() { return color; }
 
 }
 
