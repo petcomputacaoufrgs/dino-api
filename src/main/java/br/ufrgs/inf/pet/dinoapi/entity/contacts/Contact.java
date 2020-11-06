@@ -36,8 +36,8 @@ public class Contact implements Serializable {
         @Column(name = "description", length = DESCRIPTION_MAX)
         private String description;
 
-        @Column(name = "color", length = COLOR_MAX)
-        private String color;
+        @Column(name = "color")
+        private Byte color;
 
         @ManyToOne
         @JoinColumn(name = "user_id", nullable = false)
@@ -78,11 +78,11 @@ public class Contact implements Serializable {
 
         public void setDescription (String description) { this.description = description; }
 
-        public String getColor() {
+        public Byte getColor() {
                 return color;
         }
 
-        public void setColor (String color) { this.color = color; }
+        public void setColor (Byte color) { this.color = color; }
 
         public User getUser() {
             return user;
