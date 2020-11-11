@@ -20,7 +20,7 @@ import static javax.persistence.GenerationType.SEQUENCE;
 public class User {
     private static final String SEQUENCE_NAME = "dino_user_seq";
 
-    public static final Long DEFAULT_VERSION = 0l;
+    public static final Long DEFAULT_VERSION = 0L;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -77,7 +77,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.pictureURL = pictureURL;
-        this.version = this.DEFAULT_VERSION;
+        this.version = DEFAULT_VERSION;
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
         this.noteColumns = new ArrayList<>();

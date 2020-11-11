@@ -15,15 +15,21 @@ public class PhoneSaveModel {
 
     @NotNull(message = TYPE_NULL_MESSAGE)
     @Range(min = 1, max = TYPE_MAX, message = TYPE_MESSAGE)
-    private short type;
+    private Byte type;
 
     public PhoneSaveModel() {}
 
-    public short getType() {
+    public PhoneSaveModel(@NotNull(message = NUMBER_NULL_MESSAGE) @Size(min = 1, max = NUMBER_MAX, message = NUMBER_MESSAGE) String number,
+                          @NotNull(message = TYPE_NULL_MESSAGE) @Range(min = 1, max = TYPE_MAX, message = TYPE_MESSAGE) Byte type) {
+        this.number = number;
+        this.type = type;
+    }
+
+    public Byte getType() {
         return type;
     }
 
-    public void setType(short type) {
+    public void setType(Byte type) {
         this.type = type;
     }
 

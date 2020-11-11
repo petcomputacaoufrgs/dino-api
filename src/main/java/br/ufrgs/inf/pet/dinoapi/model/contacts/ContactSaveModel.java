@@ -23,6 +23,19 @@ public class ContactSaveModel {
 
     private Byte color;
 
+    public ContactSaveModel(Long frontId,
+                            @NotNull(message = NAME_NULL_MESSAGE)
+                            @Size(min = 1, max = NAME_MAX, message = NAME_MAX_MESSAGE) String name,
+                            @Valid List<PhoneSaveModel> phones,
+                            @Size(max = DESCRIPTION_MAX, message = DESCRIPTION_MAX_MESSAGE) String description,
+                            Byte color) {
+        this.frontId = frontId;
+        this.name = name;
+        this.phones = phones;
+        this.description = description;
+        this.color = color;
+    }
+
     public void setFrontId(Long frontId) {
         this.frontId = frontId;
     }
