@@ -39,7 +39,7 @@ public class UserAppSettings {
     public UserAppSettings(User user) {
         this.user = user;
         this.version = this.DEFAULT_VERSION;
-        this.colorTheme = ColorTheme.CLASSIC.getValue();
+        this.colorTheme = ColorTheme.DEVICE.getValue();
     }
 
     public Long getId() {

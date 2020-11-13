@@ -54,11 +54,11 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             return new ResponseEntity<>(AppSettingsConstants.NULL_REQUEST_BODY, HttpStatus.BAD_REQUEST);
         }
 
-        int colorTheme = userAppSettingsModel.getColorTheme();
+        final Integer newColorTheme = userAppSettingsModel.getColorTheme();
 
-        boolean isValidaColorTheme = this.isValidColorTheme(colorTheme);
+        final boolean isInvalidColorTheme = !this.isValidColorTheme(newColorTheme);
 
-        if (!isValidaColorTheme) {
+        if (isInvalidColorTheme) {
             return new ResponseEntity<>(AppSettingsConstants.INVALID_COLOR_THEME, HttpStatus.BAD_REQUEST);
         }
 
@@ -85,7 +85,6 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             changed = true;
         }
 
-        final Integer newColorTheme = userAppSettingsModel.getColorTheme();
         final Integer currentColorTheme = userAppSettings.getColorTheme();
 
         if (newColorTheme != currentColorTheme) {
