@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.faq;
 
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestModel;
 
 import javax.persistence.*;
@@ -38,6 +39,9 @@ public class Faq implements Serializable {
 
     @OneToMany(mappedBy = "user")
     private List<UserQuestion> faqUserQuestions;
+
+    @OneToMany(mappedBy = "faq")
+    private List<EssentialContact> essentialContacts;
 
     public Faq() {
         this.items = new ArrayList<>();
