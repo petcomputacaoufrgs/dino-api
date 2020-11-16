@@ -65,6 +65,14 @@ public class Contact implements Serializable {
                 this.setColor(model.getColor());
         }
 
+        public Contact(EssentialContact essContact, User user) {
+                this.setName(essContact.getContact().getName());
+                this.setDescription(essContact.getContact().getDescription());
+                this.setColor(essContact.getContact().getColor());
+                this.setPhones(essContact.getContact().getPhones());
+                this.setUser(user);
+        }
+
         public Long getId() {
             return id;
         }

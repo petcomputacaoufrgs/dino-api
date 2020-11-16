@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
@@ -13,8 +14,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EssentialContactServiceImpl {
@@ -76,6 +79,8 @@ public class EssentialContactServiceImpl {
 
     public ResponseEntity<?> saveEssentialContacts(List<EssentialContactSaveModel> models) {
 
+        List<EssentialContact> itemsResponse = new ArrayList<>();
+
         models.forEach(model -> {
 
                 Contact contact = new Contact(model);
@@ -89,35 +94,32 @@ public class EssentialContactServiceImpl {
                 if (faqIds != null) {
 
                     Contact finalContact = contact;
+
                     faqIds.forEach(faqId -> {
+
                         Optional<Faq> faqSearch = faqRepository.findById(faqId);
 
-                        Faq faqDB = null;
+                        if (faqSearch.isPresent()) {
 
-                        if (faqSearch.isPresent()) faqDB = faqSearch.get();
+                            Faq faqDB = faqSearch.get();
 
-                        essentialContactRepository.save(new EssentialContact(faqDB, finalContact));
-
+                            itemsResponse.add(essentialContactRepository
+                                    .save(new EssentialContact(faqDB, finalContact)));
+                        }
                     });
                 } else {
-                    essentialContactRepository.save(new EssentialContact(contact));
+                    itemsResponse.add(essentialContactRepository
+                            .save(new EssentialContact(contact)));
                 }
         });
 
-        return new ResponseEntity<>(HttpStatus.OK);
-
-
-        /*
-        //ATUALIZAR OS ID
-        List<ContactModel> responseModels = contacts.stream()
-                .map(ContactModel::new)
+        List<EssentialContactModel> response = itemsResponse.stream()
+                .map(EssentialContactModel::new)
                 .collect(Collectors.toList());
 
-        SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-
-         */
+        return response.size() > 0
+                ? new ResponseEntity<>(response, HttpStatus.OK)
+                : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
     /*

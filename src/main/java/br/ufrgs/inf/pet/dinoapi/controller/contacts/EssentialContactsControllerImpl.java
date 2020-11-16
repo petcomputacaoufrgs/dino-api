@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/public/contacts/essencial/")
-public class EssentialContactsControllerImpl {
+public class EssentialContactsControllerImpl implements EssentialContactsController {
 
     private final EssentialContactServiceImpl essentialContactServiceImpl;
 

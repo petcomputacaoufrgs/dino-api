@@ -29,6 +29,8 @@ public class EssentialContact implements Serializable {
     @JoinColumn(name = "contact_id", nullable = false)
     private Contact contact;
 
+    public EssentialContact() {}
+
     public EssentialContact(Faq faq, Contact contact) {
         this.faq = faq;
         this.contact = contact;
@@ -36,6 +38,14 @@ public class EssentialContact implements Serializable {
 
     public EssentialContact(Contact contact) {
         this.contact = contact;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Faq getFaq() {
