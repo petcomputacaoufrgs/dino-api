@@ -56,27 +56,26 @@ public class FaqServiceImpl implements FaqService{
     }
 
     public ResponseEntity<FaqModel> editFaq(FaqModel model) {
-
         if (model != null && model.getId() != null) {
-            Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+            final Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 
             if (faqSearch.isPresent()) {
+                final Faq faqDB = faqSearch.get();
 
-                Faq faqDB = faqSearch.get();
-
-                boolean changed = !model.getTitle().equals(faqDB.getTitle());
+                final boolean changed = !model.getTitle().equals(faqDB.getTitle());
 
                 if (changed) {
                     faqDB.setTitle(model.getTitle());
                 }
 
-                boolean itemsChanged = faqItemServiceImpl.editItems(model.getItems(), faqDB);
+                final boolean itemsChanged = faqItemServiceImpl.editItems(model.getItems(), faqDB);
 
                 if(changed || itemsChanged) {
-
                     this.updateFaqVersion(faqDB);
 
-                    FaqModel response = new FaqModel(faqDB);
+                    final List<FaqItem> faqItems = faqItemServiceImpl.getItemsByFaq(faqDB);
+
+                    final FaqModel response = new FaqModel(faqDB, faqItems);
 
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
@@ -89,12 +88,13 @@ public class FaqServiceImpl implements FaqService{
 
 
     public ResponseEntity<FaqModel> get(FaqIdModel model) {
-
         if (model != null && model.getId() != null) {
-            Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+            final Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 
             if (faqSearch.isPresent()) {
-                FaqModel response = new FaqModel(faqSearch.get());
+                final Faq faq = faqSearch.get();
+                final List<FaqItem> faqItems = faqItemServiceImpl.getItemsByFaq(faq);
+                FaqModel response = new FaqModel(faq, faqItems);
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         }
@@ -103,10 +103,9 @@ public class FaqServiceImpl implements FaqService{
     }
 
     public ResponseEntity<List<FaqModel>> getAll() {
+        final List<Faq> faqSearch = faqRepository.findAllWithFaqItems();
 
-        List<Faq> faqSearch = Lists.newArrayList(faqRepository.findAll());
-
-        List<FaqModel> response = faqSearch.stream().map(FaqModel::new).collect(Collectors.toList());
+        final List<FaqModel> response = faqSearch.stream().map(FaqModel::new).collect(Collectors.toList());
 
         if(response.size() > 0) {
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -119,14 +118,11 @@ public class FaqServiceImpl implements FaqService{
         FaqModel response = new FaqModel();
 
         if (faqSaveRequestModel != null) {
+            final Optional<Faq> faqSearch = faqRepository.findByTitle(faqSaveRequestModel.getTitle());
 
-            Faq faq;
+            final Faq faq = faqSearch.orElseGet(() -> faqRepository.save(new Faq(faqSaveRequestModel)));
 
-            Optional<Faq> faqSearch = faqRepository.findByTitle(faqSaveRequestModel.getTitle());
-
-            faq = faqSearch.orElseGet(() -> faqRepository.save(new Faq(faqSaveRequestModel)));
-
-            List<FaqItem> newItems = faqItemServiceImpl.saveItems(faqSaveRequestModel.getItems(), faq);
+            final List<FaqItem> newItems = faqItemServiceImpl.saveItems(faqSaveRequestModel.getItems(), faq);
 
             if (faqSearch.isPresent() && newItems.size() > 0) {
                 this.updateFaqVersion(faq);
@@ -134,8 +130,7 @@ public class FaqServiceImpl implements FaqService{
 
             faq.setItems(newItems);
 
-            response = new FaqModel(faq);
-
+            response = new FaqModel(faq, newItems);
         }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -143,16 +138,14 @@ public class FaqServiceImpl implements FaqService{
 
     public ResponseEntity<Long> saveFaqUser(FaqIdModel model) {
         if (model != null && model.getId() != null) {
-
-            Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+            final Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 
             if(faqSearch.isPresent()) {
-
-                User user = authServiceImpl.getCurrentUser();
+                final User user = authServiceImpl.getCurrentUser();
 
                 FaqUser faqUser = user.getFaqUser();
 
-                Faq faqDB = faqSearch.get();
+                final Faq faqDB = faqSearch.get();
 
                 if(faqUser != null) {
                     faqUser.setFaq(faqDB);
@@ -169,68 +162,58 @@ public class FaqServiceImpl implements FaqService{
     }
 
     public ResponseEntity<FaqModel> getFaqUser() {
-        User user = authServiceImpl.getCurrentUser();
+        final User user = authServiceImpl.getCurrentUser();
 
-        Optional<FaqUser> faqUser = faqUserRepository.findByUserId(user.getId());
+        final Optional<FaqUser> faqUserSearch = faqUserRepository.findByUserId(user.getId());
 
-        if(faqUser.isPresent()) {
-            FaqModel response = new FaqModel(faqUser.get().getFaq());
+        if(faqUserSearch.isPresent()) {
+            final FaqUser faqUser = faqUserSearch.get();
+            final List<FaqItem> faqItems = faqItemServiceImpl.getItemsByFaq(faqUser.getFaq());
+            final FaqModel response = new FaqModel(faqUser.getFaq(), faqItems);
+
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //tem suporte para editar RESPOSTAS (através da question) e adicionar ITEMS de faqs existentes (através da title), não tem como excluir ITEMS (usar o edit)
     public ResponseEntity<List<FaqModel>> saveAll(FaqListSaveRequestModel model) {
-
-        List<FaqModel> response = new ArrayList<>();
+        final List<FaqModel> response = new ArrayList<>();
 
         model.getItems().forEach(faqModel -> {
-
             if (faqModel != null) {
+                final Optional<Faq> faqSearch = faqRepository.findByTitle(faqModel.getTitle());
 
-                Optional<Faq> faqSearch = faqRepository.findByTitle(faqModel.getTitle());
+                final Faq faq = faqSearch.orElseGet(() -> faqRepository.save(new Faq(faqModel)));
 
-                Faq faq = faqSearch.orElseGet(() -> faqRepository.save(new Faq(faqModel)));
+                final List<FaqItem> newItems = faqItemServiceImpl.saveItems(faqModel.getItems(), faq);
 
-                List<FaqItem> newItems = faqItemServiceImpl.saveItems(faqModel.getItems(), faq);
-
-                faq.setItems(newItems);
-
-                if (newItems.size() > 0) { //para aparecer só as models MODIFICADAS na response JUNTO com os novos items
+                if (newItems.size() > 0) {
                     if(faqSearch.isPresent()) {
                         this.updateFaqVersion(faq);
                     }
-                    response.add(new FaqModel(faq));
+                    response.add(new FaqModel(faq, newItems));
                 }
             }}
         );
-
-        if(response.size() == 0) {
-            return new ResponseEntity<>(HttpStatus.NOT_MODIFIED);
-        }
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     public ResponseEntity<List<FaqOptionModel>> getFaqOptions() {
-
         final List<FaqOptionModel> response = Lists.newArrayList(faqRepository.findAll())
                 .stream().map(FaqOptionModel::new).collect(Collectors.toList());
 
         return new ResponseEntity<>(response, HttpStatus.OK);
-
     }
 
     public ResponseEntity<FaqVersionModel> getFaqUserVersion() {
-
         final FaqUser faqUser = authServiceImpl.getCurrentUser().getFaqUser();
 
         if (faqUser != null) {
             final Faq faq = faqUser.getFaq();
 
-            FaqVersionModel response = new FaqVersionModel(faq.getId(), faq.getVersion());
+            final FaqVersionModel response = new FaqVersionModel(faq.getId(), faq.getVersion());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -239,16 +222,16 @@ public class FaqServiceImpl implements FaqService{
     }
 
     public ResponseEntity<?> saveUserQuestion(UserQuestionSaveRequestModel model) {
-
-        Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+        final Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 
         if(faqSearch.isPresent()) {
-            User user = authServiceImpl.getCurrentUser();
-            UserQuestion userQuestion = new UserQuestion(faqSearch.get(), user, model.getQuestion(), new Date());
+            final User user = authServiceImpl.getCurrentUser();
+            final UserQuestion userQuestion = new UserQuestion(faqSearch.get(), user, model.getQuestion(), new Date());
             userQuestionRepository.save(userQuestion);
 
             return new ResponseEntity<>(HttpStatus.OK);
         }
+
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 

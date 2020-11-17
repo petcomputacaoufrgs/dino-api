@@ -9,7 +9,7 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-public class FaqControllerImpl implements FaqController{
+public class FaqControllerImpl implements FaqController {
 
     private final FaqServiceImpl faqServiceImpl;
 

@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
@@ -62,14 +61,12 @@ public class ContactServiceImpl implements ContactService {
         }
 
         public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
-
-            User user = authServiceImpl.getCurrentUser();
+            final  User user = authServiceImpl.getCurrentUser();
 
             contactVersionServiceImpl.updateVersion(user);
 
-            List<Contact> contacts = models.stream()
+            final List<Contact> contacts = models.stream()
                     .map(modelContact -> {
-
                         Contact contact = new Contact(modelContact, user);
 
                         contact = contactRepository.save(contact);
@@ -80,28 +77,26 @@ public class ContactServiceImpl implements ContactService {
                     })
                     .collect(Collectors.toList());
 
-            //ATUALIZAR OS ID
-            List<ContactModel> responseModels = contacts.stream()
+            final List<ContactModel> responseModels = contacts.stream()
                     .map(ContactModel::new)
                     .collect(Collectors.toList());
 
-            SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
+            final SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
     public ResponseEntity<?> deleteContact(ContactDeleteModel model) {
-
         if (model == null || model.getId() == null) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        User user = authServiceImpl.getCurrentUser();
+        final User user = authServiceImpl.getCurrentUser();
 
-        Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+        final Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
         if(contactToDeleteSearch.isPresent()) {
-            Contact contactToDelete = contactToDeleteSearch.get();
+            final Contact contactToDelete = contactToDeleteSearch.get();
 
             contactRepository.delete(contactToDelete);
 
@@ -112,21 +107,18 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public ResponseEntity<Long> deleteContacts(List<ContactDeleteModel> models) {
+        final User user = authServiceImpl.getCurrentUser();
 
-        User user = authServiceImpl.getCurrentUser();
-
-        List<Long> validIds = models.stream()
+        final List<Long> validIds = models.stream()
                 .filter(Objects::nonNull)
                 .map(ContactDeleteModel::getId)
                 .collect(Collectors.toList());
 
         if (validIds.size() > 0) {
-
-            Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
+            final Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
 
             if (contactsToDeleteSearch.isPresent()) {
-
-                List<Contact> contactsToDelete = contactsToDeleteSearch.get();
+                final List<Contact> contactsToDelete = contactsToDeleteSearch.get();
 
                 contactRepository.deleteAll(contactsToDelete);
 
@@ -138,39 +130,36 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public ResponseEntity<?> editContact(ContactModel model) {
+        final User user = authServiceImpl.getCurrentUser();
 
-        User user = authServiceImpl.getCurrentUser();
-
-        Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+        final Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
         if (contactSearch.isPresent()) {
+            final Contact contact = contactSearch.get();
 
-            Contact contact = contactSearch.get();
-
-            checkEdits(contact, model);
+            this.checkEdits(contact, model);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
+        final User user = authServiceImpl.getCurrentUser();
 
-        User user = authServiceImpl.getCurrentUser();
-
-        List<ContactModel> responseFailed = new ArrayList<>();
+        final List<ContactModel> responseFailed = new ArrayList<>();
 
         models.forEach(model -> {
-
-            Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+            final Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
             if (contactSearch.isPresent()) {
+                final Contact contact = contactSearch.get();
 
-                Contact contact = contactSearch.get();
-
-                checkEdits(contact, model);
+                this.checkEdits(contact, model);
+            } else {
+                responseFailed.add(model);
             }
-            else responseFailed.add(model);
         });
 
         if(models.size() > responseFailed.size()) {

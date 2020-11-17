@@ -12,8 +12,8 @@ import java.util.Optional;
 @Repository
 public interface FaqRepository extends CrudRepository<Faq, Long> {
 
-    @Query("SELECT f FROM Faq f WHERE lower(f.title) IN :titles")
-    List<Faq> findAllByTitles(@Param("titles") List<String> titles);
+    @Query("SELECT f FROM Faq f JOIN FETCH f.items")
+    List<Faq> findAllWithFaqItems();
 
     @Query("SELECT f FROM Faq f WHERE lower(f.title) = lower(:title)")
     Optional<Faq> findByTitle(@Param("title") String title);

@@ -30,13 +30,13 @@ public class Faq implements Serializable {
     @Column(name = "title", length = TITLE_MAX, nullable = false, unique = true)
     private String title;
 
-    @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<FaqItem> items;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<FaqUser> faqUsers;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<UserQuestion> faqUserQuestions;
 
     public Faq() {
@@ -79,6 +79,22 @@ public class Faq implements Serializable {
 
     public void setVersion(Long version) {
         this.version = version;
+    }
+
+    public List<FaqUser> getFaqUsers() {
+        return faqUsers;
+    }
+
+    public void setFaqUsers(List<FaqUser> faqUsers) {
+        this.faqUsers = faqUsers;
+    }
+
+    public List<UserQuestion> getFaqUserQuestions() {
+        return faqUserQuestions;
+    }
+
+    public void setFaqUserQuestions(List<UserQuestion> faqUserQuestions) {
+        this.faqUserQuestions = faqUserQuestions;
     }
 
     public void updateVersion() {
