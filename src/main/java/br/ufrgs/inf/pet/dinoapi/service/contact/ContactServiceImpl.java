@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
@@ -34,31 +35,28 @@ public class ContactServiceImpl implements ContactService {
 
 
     public ResponseEntity<List<ContactModel>> getUserContacts() {
-            User user = authServiceImpl.getCurrentUser();
+            final User user = authServiceImpl.getCurrentUser();
 
-            List<Contact> contacts = contactRepository.findByUserId(user.getId());
+            final List<Contact> contacts = contactRepository.findByUserId(user.getId());
 
-            List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
+            final List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
 
         public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
+            final User user = authServiceImpl.getCurrentUser();
 
-            //fazer segurança
-
-            User user = authServiceImpl.getCurrentUser();
-
-            Contact contact = contactRepository.save(new Contact(model, user));
+            final Contact contact = contactRepository.save(new Contact(model, user));
 
             contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
 
             contactVersionServiceImpl.updateVersion(user);
 
-            ContactModel responseModel = new ContactModel(contact);
+            final ContactModel responseModel = new ContactModel(contact);
 
-            SaveResponseModel response = new SaveResponseModel(user.getContactVersion().getVersion(), responseModel);
+            final SaveResponseModel response = new SaveResponseModel(user.getContactVersion().getVersion(), responseModel);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
@@ -185,7 +183,6 @@ public class ContactServiceImpl implements ContactService {
     }
 
     private void checkEdits(Contact contact, ContactModel model) {
-
         boolean changed = ! model.getName().equals(contact.getName());
         if (changed) {
             contact.setName(model.getName());

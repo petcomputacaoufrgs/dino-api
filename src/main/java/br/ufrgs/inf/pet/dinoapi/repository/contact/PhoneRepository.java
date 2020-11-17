@@ -17,4 +17,7 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
     @Modifying
     @Query("DELETE FROM Phone p WHERE p.id IN :ids")
     int deleteAllById(List<Long> ids);
+
+    @Query("SELECT p FROM Phone p WHERE p.contact.id = :contactId")
+    List<Phone> getPhonesByContactId(Long contactId);
 }
