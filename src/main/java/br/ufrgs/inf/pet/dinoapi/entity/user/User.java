@@ -49,13 +49,13 @@ public class User {
     @OneToOne(mappedBy = "user")
     private NoteVersion noteVersion;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Auth> auths;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<NoteColumn> noteColumns;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Contact> contacts;
 
     @OneToOne(mappedBy = "user")
