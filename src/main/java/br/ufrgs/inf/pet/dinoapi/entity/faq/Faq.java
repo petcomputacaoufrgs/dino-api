@@ -37,7 +37,7 @@ public class Faq implements Serializable {
     private List<FaqUser> faqUsers;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<UserQuestion> faqUserQuestions;
+    private List<FaqUserQuestion> faqFaqUserQuestions;
 
     public Faq() {
         this.items = new ArrayList<>();
@@ -89,12 +89,12 @@ public class Faq implements Serializable {
         this.faqUsers = faqUsers;
     }
 
-    public List<UserQuestion> getFaqUserQuestions() {
-        return faqUserQuestions;
+    public List<FaqUserQuestion> getFaqFaqUserQuestions() {
+        return faqFaqUserQuestions;
     }
 
-    public void setFaqUserQuestions(List<UserQuestion> faqUserQuestions) {
-        this.faqUserQuestions = faqUserQuestions;
+    public void setFaqFaqUserQuestions(List<FaqUserQuestion> faqFaqUserQuestions) {
+        this.faqFaqUserQuestions = faqFaqUserQuestions;
     }
 
     public void updateVersion() {

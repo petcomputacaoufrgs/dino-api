@@ -10,9 +10,8 @@ import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.USER_QUESTION_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "user_question")
-public class UserQuestion implements Serializable {
-
+@Table(name = "faq_user_question")
+public class FaqUserQuestion implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private static final String SEQUENCE_NAME = "user_question_seq";
@@ -37,9 +36,9 @@ public class UserQuestion implements Serializable {
     @Column(name = "date", nullable = false)
     private Date date;
 
-    public UserQuestion() {}
+    public FaqUserQuestion() {}
 
-    public UserQuestion(Faq faq, User user, String question, Date date) {
+    public FaqUserQuestion(Faq faq, User user, String question, Date date) {
         this.faq = faq;
         this.user = user;
         this.question = question;

@@ -3,12 +3,12 @@ package br.ufrgs.inf.pet.dinoapi.service.faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.UserQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.UserQuestionRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserQuestionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
@@ -32,7 +32,7 @@ public class FaqServiceImpl implements FaqService{
 
     private final FaqUserRepository faqUserRepository;
 
-    private final UserQuestionRepository userQuestionRepository;
+    private final FaqUserQuestionRepository faqUserQuestionRepository;
 
     private final FaqItemServiceImpl faqItemServiceImpl;
 
@@ -45,14 +45,14 @@ public class FaqServiceImpl implements FaqService{
     @Autowired
     public FaqServiceImpl(FaqRepository faqRepository, FaqUserRepository faqUserRepository, FaqItemServiceImpl faqItemServiceImpl, AuthServiceImpl authServiceImpl,
                           AlertUpdateTopicServiceImpl alertUpdateTopicService, AlertUpdateQueueServiceImpl alertUpdateQueueService,
-                          UserQuestionRepository userQuestionRepository) {
+                          FaqUserQuestionRepository faqUserQuestionRepository) {
         this.faqRepository = faqRepository;
         this.faqUserRepository = faqUserRepository;
         this.faqItemServiceImpl = faqItemServiceImpl;
         this.authServiceImpl = authServiceImpl;
         this.alertUpdateTopicService = alertUpdateTopicService;
         this.alertUpdateQueueService = alertUpdateQueueService;
-        this.userQuestionRepository = userQuestionRepository;
+        this.faqUserQuestionRepository = faqUserQuestionRepository;
     }
 
     public ResponseEntity<FaqModel> editFaq(FaqModel model) {
@@ -164,7 +164,7 @@ public class FaqServiceImpl implements FaqService{
     public ResponseEntity<FaqModel> getFaqUser() {
         final User user = authServiceImpl.getCurrentUser();
 
-        final Optional<FaqUser> faqUserSearch = faqUserRepository.findByUserId(user.getId());
+        final Optional<FaqUser> faqUserSearch = faqUserRepository.findByUserIdWithFaq(user.getId());
 
         if(faqUserSearch.isPresent()) {
             final FaqUser faqUser = faqUserSearch.get();
@@ -208,14 +208,19 @@ public class FaqServiceImpl implements FaqService{
     }
 
     public ResponseEntity<FaqVersionModel> getFaqUserVersion() {
-        final FaqUser faqUser = authServiceImpl.getCurrentUser().getFaqUser();
+        final User user = authServiceImpl.getCurrentUser();
 
-        if (faqUser != null) {
-            final Faq faq = faqUser.getFaq();
+        if (user != null) {
+            final Optional<Faq> faqSearch = faqRepository.findByUserId(user.getId());
 
-            final FaqVersionModel response = new FaqVersionModel(faq.getId(), faq.getVersion());
+            if (faqSearch.isPresent()) {
+                final Faq faq = faqSearch.get();
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
+                final FaqVersionModel response = new FaqVersionModel(faq.getId(), faq.getVersion());
+
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+
         }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -226,8 +231,8 @@ public class FaqServiceImpl implements FaqService{
 
         if(faqSearch.isPresent()) {
             final User user = authServiceImpl.getCurrentUser();
-            final UserQuestion userQuestion = new UserQuestion(faqSearch.get(), user, model.getQuestion(), new Date());
-            userQuestionRepository.save(userQuestion);
+            final FaqUserQuestion faqUserQuestion = new FaqUserQuestion(faqSearch.get(), user, model.getQuestion(), new Date());
+            faqUserQuestionRepository.save(faqUserQuestion);
 
             return new ResponseEntity<>(HttpStatus.OK);
         }
