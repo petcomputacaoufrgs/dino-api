@@ -21,7 +21,7 @@ public interface AuthController {
     /**
      * Requisita uma nova permissão para o Google
      *
-     * @param googleGrantRequestModel - Objeto do tipo {@link googleGrantRequestModel}
+     * @param googleGrantRequestModel - Objeto do tipo {@link GoogleGrantRequestModel}
      * @return Objeto {@link GoogleAuthResponseModel} com o novo token do google ou mensagem de erro
      */
     ResponseEntity<?> googleGrantRequest(GoogleGrantRequestModel googleGrantRequestModel);

@@ -3,8 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.constants;
 public class GoogleAuthConstants {
     public final static String SCOPE_LIST_MAX_SIZE = "Min of 1 and max of 10 scopes per request.";
 
-    public final static String INVALID_SCOPES = "Invalid scopes were sent.";
-
     public final static String INVALID_GOOGLE_GRANT_USER = "Google grant's user is not the current user.";
 
     public final static String INTERNAL_AUTH_ERROR = "Internal auth error.";
@@ -15,7 +13,7 @@ public class GoogleAuthConstants {
 
     public final static String GOOGLE_AUTH_FAIL = "Google auth fail.";
 
-    public final static String REFRESH_TOKEN_ERROR = "Refresh token lost. Please, request it again.";
+    public final static String REFRESH_TOKEN_NECESSARY = "Refresh token lost. Please, request it again.";
 
     public final static int GOOGLE_ID_MAX = 100;
 

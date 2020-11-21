@@ -6,7 +6,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.*;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
@@ -22,10 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GoogleAuthServiceImpl implements GoogleAuthService {
@@ -51,23 +48,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
     @Override
     public ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestModel) {
-        return this.googleAuthRequest(googleAuthRequestModel, new ArrayList<>());
-    }
-
-    @Override
-    public ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestModel, List<String> scopes) {
         try {
+            final List<String> scopeList = new ArrayList<>();
+
             final String code = googleAuthRequestModel.getCode();
 
-            final List<String> newScopes = googleAuthRequestModel.getScopeList();
-
-            final GoogleAuth googleAuth = this.getUserGoogleAuth();
-
-            if (this.isValidScopes(scopes)) {
-                return new ResponseEntity<>(GoogleAuthConstants.INVALID_SCOPES, HttpStatus.BAD_REQUEST);
-            }
-
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, scopes);
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, scopeList);
 
             if (tokenResponse != null) {
                 final GoogleIdToken idToken = tokenResponse.parseIdToken();
@@ -78,9 +64,20 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final String refreshToken = tokenResponse.getRefreshToken();
 
+                final GoogleAuth googleAuth = this.getGoogleAuthByGoogleId(googleId);
+
+                final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
+
                 User user;
 
                 if (googleAuth != null) {
+                    googleScopeRepository.deleteAllByGoogleAuthId(googleAuth.getId());
+
+                    final List<GoogleScope> newScopes = currentScopes.stream().map(scope -> new GoogleScope(googleAuth, scope))
+                            .collect(Collectors.toList());
+
+                    googleScopeRepository.saveAll(newScopes);
+
                     if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
                         googleAuthRepository.save(googleAuth);
@@ -102,9 +99,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     user = userService.create(name, email, pictureUrl);
 
-                    googleAuth = new GoogleAuth(googleId, refreshToken, user);
+                    final GoogleAuth newGoogleAuth = googleAuthRepository.save(new GoogleAuth(googleId, refreshToken, user));
 
-                    googleAuthRepository.save(googleAuth);
+                    final List<GoogleScope> newScopes = currentScopes.stream().map(scope -> new GoogleScope(newGoogleAuth, scope))
+                            .collect(Collectors.toList());
+
+                    googleScopeRepository.saveAll(newScopes);
                 }
 
                 final Auth auth = authService.generateAuth(user);
@@ -143,43 +143,31 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     @Override
     public ResponseEntity<?> googleGrantRequest(GoogleGrantRequestModel googleGrantRequestModel) {
         try {
-            final String code = googleGrantRequestModel.getCode();
-
-            final List<String> newScopes = googleGrantRequestModel.getScopeList();
-
             final GoogleAuth googleAuth = this.getUserGoogleAuth();
 
             if (googleAuth == null) {
-                return this.googleAuthRequest(googleGrantRequestModel, googleGrantRequestModel.getScopeList());
+                return this.googleAuthRequest(googleGrantRequestModel);
             }
 
-            if (this.isValidScopes(newScopes)) {
-                return new ResponseEntity<>(GoogleAuthConstants.INVALID_SCOPES, HttpStatus.BAD_REQUEST);
-            }
+            final List<String> scopeList = googleGrantRequestModel.getScopeList();
 
-            final List<String> requestScopes = googleScopeRepository.findAllNamesByGoogleAuthId(googleAuth.getId());
-            final List<GoogleScope> unsavedScopes = new ArrayList<>();
+            final String code = googleGrantRequestModel.getCode();
 
-            newScopes.forEach(newScope -> {
-                final boolean notSaved = !requestScopes.stream().anyMatch(scope -> scope.equals(newScope));
-
-                if (notSaved) {
-                    requestScopes.add(newScope);
-
-                    final GoogleScope googleScope = new GoogleScope(googleAuth, newScope);
-                    unsavedScopes.add(googleScope);
-                }
-            });
-
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, requestScopes);
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, scopeList);
 
             if (tokenResponse != null) {
                 final GoogleIdToken idToken = tokenResponse.parseIdToken();
 
                 final GoogleIdToken.Payload payload = idToken.getPayload();
-
                 if (this.grantUserIsCurrentUser(payload)) {
-                    googleScopeRepository.saveAll(unsavedScopes);
+                    final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
+
+                    googleScopeRepository.deleteAllByGoogleAuthId(googleAuth.getId());
+
+                    final List<GoogleScope> newScopes = currentScopes.stream().map(scope -> new GoogleScope(googleAuth, scope))
+                            .collect(Collectors.toList());
+
+                    googleScopeRepository.saveAll(newScopes);
 
                     final GoogleGrantResponseModel response = new GoogleGrantResponseModel();
 
@@ -228,10 +216,6 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return null;
     }
 
-    private boolean isValidScopes(List<String> scopes) {
-        return scopes.stream().anyMatch(scope -> GoogleScopeEnum.findByScope(scope) == null);
-    }
-
     private boolean grantUserIsCurrentUser(GoogleIdToken.Payload payload) {
         final String email = payload.getEmail();
 
@@ -261,7 +245,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     private ResponseEntity<?> getRefreshTokenError() {
-        return new ResponseEntity<>(GoogleAuthConstants.REFRESH_TOKEN_ERROR, HttpStatus.CONTINUE);
+        return new ResponseEntity<>(GoogleAuthConstants.REFRESH_TOKEN_NECESSARY, HttpStatus.ACCEPTED);
     }
 
     private Date getTokenExpiresDate(Long expiresInSeconds) {
