@@ -25,10 +25,20 @@ public class GenericQueueMessageServiceImpl implements GenericQueueMessageServic
 
     @Override
     public void sendObjectMessage(Object object, WebSocketDestinationsEnum pathEnum) throws JsonProcessingException {
-        final String message = JsonUtils.convertObjectToJSON(object);
+        final String message = this.getMessage(object);
+
         final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptCurrentByUser();
         webSocketTokens.forEach(webSocketToken -> {
             this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, pathEnum.getValue(), message);
         });
+    }
+
+    private String getMessage(Object object) throws JsonProcessingException {
+        String message = "";
+        if (object != null) {
+            message = JsonUtils.convertObjectToJSON(object);
+        }
+
+        return message;
     }
 }

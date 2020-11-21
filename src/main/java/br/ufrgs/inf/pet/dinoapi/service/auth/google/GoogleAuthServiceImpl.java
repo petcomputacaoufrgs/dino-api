@@ -13,6 +13,8 @@ import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleScopeRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.generic.GenericQueueMessageServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,13 +39,16 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
     private final GoogleAPICommunicationImpl googleAPICommunicationImpl;
 
+    private final GenericQueueMessageServiceImpl genericQueueMessageService;
+
     @Autowired
-    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthRepository googleAuthRepository, GoogleScopeRepository googleScopeRepository) {
+    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthRepository googleAuthRepository, GoogleScopeRepository googleScopeRepository, GoogleAPICommunicationImpl googleAPICommunicationImpl, GenericQueueMessageServiceImpl genericQueueMessageService) {
         this.userService = userService;
         this.authService = authService;
         this.googleAuthRepository = googleAuthRepository;
         this.googleScopeRepository = googleScopeRepository;
-        this.googleAPICommunicationImpl = new GoogleAPICommunicationImpl();
+        this.googleAPICommunicationImpl = googleAPICommunicationImpl;
+        this.genericQueueMessageService = genericQueueMessageService;
     }
 
     @Override
@@ -129,6 +134,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setUser(userResponseModel);
 
+                response.setScopeList(currentScopes);
+
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
@@ -169,7 +176,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     googleScopeRepository.saveAll(newScopes);
 
-                    final GoogleGrantResponseModel response = new GoogleGrantResponseModel();
+                    final GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
 
                     final String accessToken = tokenResponse.getAccessToken();
 
@@ -177,6 +184,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     response.setGoogleAccessToken(accessToken);
                     response.setGoogleExpiresDate(expiresInSeconds);
+                    response.setScopeList(currentScopes);
+
+                    genericQueueMessageService.sendObjectMessage(null, WebSocketDestinationsEnum.ALERT_AUTH_SCOPE_UPDATE);
 
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
@@ -263,15 +273,17 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     private GoogleRefreshAuthResponseModel refreshGoogleAuth(GoogleAuth googleAuth) {
         if (googleAuth != null) {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
+            final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
             if (tokenResponse != null) {
                 GoogleAuthResponseModel authModel = this.generateGoogleAuthResponse(tokenResponse);
 
-                GoogleRefreshAuthResponseModel refreshModel = new GoogleRefreshAuthResponseModel();
-                refreshModel.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
-                refreshModel.setGoogleAccessToken(authModel.getGoogleAccessToken());
+                GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
+                response.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
+                response.setGoogleAccessToken(authModel.getGoogleAccessToken());
+                response.setScopeList(currentScopes);
 
-                return refreshModel;
+                return response;
             }
         }
         return null;

@@ -37,6 +37,12 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
+    @GetMapping("/auth/google/")
+    public ResponseEntity<?> googleRefreshAuth() {
+        return googleAuthService.googleRefreshAuth();
+    }
+
+    @Override
     @GetMapping("/auth/web_socket/")
     public ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest() {
         return authService.webSocketAuthRequest();
@@ -46,12 +52,6 @@ public class AuthControllerImpl implements AuthController {
     @PutMapping("/public/auth/refresh/")
     public ResponseEntity<?> refreshAuth(@Valid @RequestBody AuthRefreshRequestModel authRefreshRequestModel) {
         return authService.refreshAuth(authRefreshRequestModel);
-    }
-
-    @Override
-    @GetMapping("/auth/google/")
-    public ResponseEntity<?> googleRefreshAuth() {
-        return googleAuthService.googleRefreshAuth();
     }
 
     @Override
