@@ -1,15 +1,17 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleAPICommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.auth.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleRefreshAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.*;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
-import br.ufrgs.inf.pet.dinoapi.repository.auth.GoogleAuthRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleScopeRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
@@ -20,7 +22,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -32,23 +36,40 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
     private final GoogleAuthRepository googleAuthRepository;
 
+    private final GoogleScopeRepository googleScopeRepository;
+
     private final GoogleAPICommunicationImpl googleAPICommunicationImpl;
 
     @Autowired
-    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthRepository googleAuthRepository) {
+    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthRepository googleAuthRepository, GoogleScopeRepository googleScopeRepository) {
         this.userService = userService;
         this.authService = authService;
         this.googleAuthRepository = googleAuthRepository;
+        this.googleScopeRepository = googleScopeRepository;
         this.googleAPICommunicationImpl = new GoogleAPICommunicationImpl();
     }
 
     @Override
-    public ResponseEntity<?> googleSignIn(GoogleAuthRequestModel authModel) {
+    public ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestModel) {
+        return this.googleAuthRequest(googleAuthRequestModel, new ArrayList<>());
+    }
+
+    @Override
+    public ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestModel, List<String> scopes) {
         try {
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(authModel.getToken());
+            final String code = googleAuthRequestModel.getCode();
+
+            final List<String> newScopes = googleAuthRequestModel.getScopeList();
+
+            final GoogleAuth googleAuth = this.getUserGoogleAuth();
+
+            if (this.isValidScopes(scopes)) {
+                return new ResponseEntity<>(GoogleAuthConstants.INVALID_SCOPES, HttpStatus.BAD_REQUEST);
+            }
+
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, scopes);
 
             if (tokenResponse != null) {
-
                 final GoogleIdToken idToken = tokenResponse.parseIdToken();
 
                 final GoogleIdToken.Payload payload = idToken.getPayload();
@@ -57,12 +78,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final String refreshToken = tokenResponse.getRefreshToken();
 
-                GoogleAuth googleAuth = this.getGoogleAuthByGoogleId(googleId);
-
                 User user;
 
                 if (googleAuth != null) {
-
                     if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
                         googleAuthRepository.save(googleAuth);
@@ -114,12 +132,76 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
-            return new ResponseEntity<>("Internal auth error.", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(GoogleAuthConstants.INTERNAL_AUTH_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
-            return new ResponseEntity<>("Google auth data error.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA, HttpStatus.BAD_REQUEST);
         }
 
-        return new ResponseEntity<>("Google auth error.", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(GoogleAuthConstants.GOOGLE_AUTH_ERROR, HttpStatus.BAD_REQUEST);
+    }
+
+    @Override
+    public ResponseEntity<?> googleGrantRequest(GoogleGrantRequestModel googleGrantRequestModel) {
+        try {
+            final String code = googleGrantRequestModel.getCode();
+
+            final List<String> newScopes = googleGrantRequestModel.getScopeList();
+
+            final GoogleAuth googleAuth = this.getUserGoogleAuth();
+
+            if (googleAuth == null) {
+                return this.googleAuthRequest(googleGrantRequestModel, googleGrantRequestModel.getScopeList());
+            }
+
+            if (this.isValidScopes(newScopes)) {
+                return new ResponseEntity<>(GoogleAuthConstants.INVALID_SCOPES, HttpStatus.BAD_REQUEST);
+            }
+
+            final List<String> requestScopes = googleScopeRepository.findAllNamesByGoogleAuthId(googleAuth.getId());
+            final List<GoogleScope> unsavedScopes = new ArrayList<>();
+
+            newScopes.forEach(newScope -> {
+                final boolean notSaved = !requestScopes.stream().anyMatch(scope -> scope.equals(newScope));
+
+                if (notSaved) {
+                    requestScopes.add(newScope);
+
+                    final GoogleScope googleScope = new GoogleScope(googleAuth, newScope);
+                    unsavedScopes.add(googleScope);
+                }
+            });
+
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, requestScopes);
+
+            if (tokenResponse != null) {
+                final GoogleIdToken idToken = tokenResponse.parseIdToken();
+
+                final GoogleIdToken.Payload payload = idToken.getPayload();
+
+                if (this.grantUserIsCurrentUser(payload)) {
+                    googleScopeRepository.saveAll(unsavedScopes);
+
+                    final GoogleGrantResponseModel response = new GoogleGrantResponseModel();
+
+                    final String accessToken = tokenResponse.getAccessToken();
+
+                    final Long expiresInSeconds = tokenResponse.getExpiresInSeconds();
+
+                    response.setGoogleAccessToken(accessToken);
+                    response.setGoogleExpiresDate(expiresInSeconds);
+
+                    return new ResponseEntity<>(response, HttpStatus.OK);
+                }
+
+                return new ResponseEntity<>(GoogleAuthConstants.INVALID_GOOGLE_GRANT_USER, HttpStatus.NON_AUTHORITATIVE_INFORMATION);
+            }
+        } catch (GoogleClientSecretIOException e) {
+            return new ResponseEntity<>(GoogleAuthConstants.INTERNAL_AUTH_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (IOException e) {
+            return new ResponseEntity<>(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA, HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(GoogleAuthConstants.GOOGLE_AUTH_ERROR, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -132,7 +214,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("Google auth fail.", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(GoogleAuthConstants.GOOGLE_AUTH_FAIL, HttpStatus.BAD_REQUEST);
     }
 
     @Override
@@ -144,6 +226,20 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         }
 
         return null;
+    }
+
+    private boolean isValidScopes(List<String> scopes) {
+        return scopes.stream().anyMatch(scope -> GoogleScopeEnum.findByScope(scope) == null);
+    }
+
+    private boolean grantUserIsCurrentUser(GoogleIdToken.Payload payload) {
+        final String email = payload.getEmail();
+
+        final Auth currentAuth = authService.getCurrentAuth();
+
+        final User user = currentAuth.getUser();
+
+        return user.getEmail().equalsIgnoreCase(email);
     }
 
     private GoogleAuth getGoogleAuthByGoogleId(String googleId) {
@@ -165,7 +261,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     private ResponseEntity<?> getRefreshTokenError() {
-        return new ResponseEntity<>("Refresh token perdido. Por favor, requira um novo.", HttpStatus.NON_AUTHORITATIVE_INFORMATION);
+        return new ResponseEntity<>(GoogleAuthConstants.REFRESH_TOKEN_ERROR, HttpStatus.CONTINUE);
     }
 
     private Date getTokenExpiresDate(Long expiresInSeconds) {

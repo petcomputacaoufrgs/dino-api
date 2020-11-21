@@ -56,7 +56,6 @@ public class FaqServiceImpl implements FaqService{
     }
 
     public ResponseEntity<FaqModel> editFaq(FaqModel model) {
-
         if (model != null && model.getId() != null) {
             Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 

@@ -1,17 +1,12 @@
-package br.ufrgs.inf.pet.dinoapi.repository.auth;
+package br.ufrgs.inf.pet.dinoapi.repository.auth.google;
 
 
-import br.ufrgs.inf.pet.dinoapi.entity.auth.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-/**
- * Repositório da entidade: {@link GoogleAuth}
- *
- * @author joao.silva
- */
 @Repository
 public interface GoogleAuthRepository extends CrudRepository<GoogleAuth, Long>  {
 

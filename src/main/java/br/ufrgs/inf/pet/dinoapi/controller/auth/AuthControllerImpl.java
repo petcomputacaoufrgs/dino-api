@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleGrantRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
@@ -25,8 +26,14 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/public/auth/google/")
-    public ResponseEntity<?> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel authRequestMode) {
-        return googleAuthService.googleSignIn(authRequestMode);
+    public ResponseEntity<?> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel googleAuthRequestModel) {
+        return googleAuthService.googleAuthRequest(googleAuthRequestModel);
+    }
+
+    @Override
+    @PostMapping("/auth/google/grant/")
+    public ResponseEntity<?> googleGrantRequest(@Valid @RequestBody GoogleGrantRequestModel googleGrantRequestModel) {
+        return googleAuthService.googleGrantRequest(googleGrantRequestModel);
     }
 
     @Override

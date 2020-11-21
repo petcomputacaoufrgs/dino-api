@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google;
 
 import br.ufrgs.inf.pet.dinoapi.config.AppOriginConfig;
-import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopesEnum;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
@@ -13,19 +13,16 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.List;
 
 public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
 
-    public GoogleTokenResponse getGoogleToken(String token) throws GoogleClientSecretIOException {
+    @Override
+    public GoogleTokenResponse getGoogleToken(String token, List<String> scopes) throws GoogleClientSecretIOException {
         try {
             final GoogleClientSecrets clientSecrets = this.getClientSecrets();
 
             final String redirect_uri = new AppOriginConfig().getOrigin();
-
-            final ArrayList<String> scopes = new ArrayList<>();
-
-            scopes.add(GoogleScopesEnum.CALENDAR.getScope());
-            scopes.add(GoogleScopesEnum.PROFILE.getScope());
 
             GoogleTokenResponse tokenResponse =
                     new GoogleAuthorizationCodeTokenRequest(
@@ -35,9 +32,7 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
                             clientSecrets.getDetails().getClientId(),
                             clientSecrets.getDetails().getClientSecret(),
                             token,
-                            redirect_uri)   // Specify the same redirect URI that you use with your web
-                                            // app. If you don't have a web version of your app, you can
-                                            // specify an empty string.
+                            redirect_uri)
                             .setScopes(scopes)
                             .execute();
 
@@ -48,13 +43,11 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
         }
     }
 
+    @Override
     public GoogleTokenResponse refreshAccessToken(String refreshToken) {
         final ArrayList<String> scopes = new ArrayList<>();
 
-        scopes.add(GoogleScopesEnum.CALENDAR.getScope());
-        scopes.add(GoogleScopesEnum.PROFILE.getScope());
-
-        GoogleTokenResponse tokenResponse = null;
+        GoogleTokenResponse tokenResponse;
         try {
             final GoogleClientSecrets secrets = this.getClientSecrets();
 
