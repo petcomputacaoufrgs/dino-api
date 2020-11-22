@@ -32,7 +32,7 @@ public class GoogleAuth {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "googleAuth")
+    @OneToMany(mappedBy = "googleAuth", fetch = FetchType.LAZY)
     private List<GoogleScope> googleScopes;
 
     public GoogleAuth() {
