@@ -166,7 +166,15 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 final GoogleIdToken idToken = tokenResponse.parseIdToken();
 
                 final GoogleIdToken.Payload payload = idToken.getPayload();
+
                 if (this.grantUserIsCurrentUser(payload)) {
+                    final String refreshToken = tokenResponse.getRefreshToken();
+
+                    if (this.isWithRefreshTokenPresent(refreshToken)) {
+                        googleAuth.setRefreshToken(refreshToken);
+                        googleAuthRepository.save(googleAuth);
+                    }
+
                     final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
                     googleScopeRepository.deleteAllByGoogleAuthId(googleAuth.getId());
