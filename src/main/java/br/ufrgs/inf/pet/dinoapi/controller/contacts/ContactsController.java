@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.controller.contacts;
 
 
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
 import org.springframework.http.ResponseEntity;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 
@@ -23,6 +24,4 @@ public interface ContactsController {
     ResponseEntity<?> deleteContact(ContactDeleteModel model);
 
     ResponseEntity<?> editContact(ContactModel model);
-
-
 }

@@ -64,5 +64,4 @@ public class ContactsControllerImpl implements ContactsController {
     public ResponseEntity<?> deleteContacts(@Valid @RequestBody List<ContactDeleteModel> models) {
         return contactServiceImpl.deleteContacts(models);
     }
-
 }

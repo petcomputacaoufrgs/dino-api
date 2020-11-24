@@ -1,9 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,77 +26,84 @@ public class ContactServiceImpl implements ContactService {
     private final ContactVersionServiceImpl contactVersionServiceImpl;
     private final AuthServiceImpl authServiceImpl;
     private final PhoneServiceImpl phoneServiceImpl;
+    private final GoogleContactRepository googleContactRepository;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl) {
+    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl, GoogleContactRepository googleContactRepository) {
         this.contactRepository = contactRepository;
         this.contactVersionServiceImpl = contactVersionServiceImpl;
         this.phoneServiceImpl = phoneServiceImpl;
         this.authServiceImpl = authServiceImpl;
+        this.googleContactRepository = googleContactRepository;
     }
 
 
     public ResponseEntity<List<ContactModel>> getUserContacts() {
             User user = authServiceImpl.getCurrentUser();
 
-            List<Contact> contacts = contactRepository.findByUserId(user.getId());
+            List<Contact> contacts = contactRepository.findByUserIdWithGoogleContacts(user.getId());
 
             List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+    }
 
-
-        public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
-
-            //fazer segurança
-
+    public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
             User user = authServiceImpl.getCurrentUser();
 
             Contact contact = contactRepository.save(new Contact(model, user));
 
-            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
+            ContactModel responseModel = saveContactRelatedData(user, model, contact);
 
             contactVersionServiceImpl.updateVersion(user);
-
-            ContactModel responseModel = new ContactModel(contact);
 
             SaveResponseModel response = new SaveResponseModel(user.getContactVersion().getVersion(), responseModel);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
+
+        User user = authServiceImpl.getCurrentUser();
+
+        contactVersionServiceImpl.updateVersion(user);
+
+        List<ContactModel> responseModels = new ArrayList<>();
+
+        models.forEach(modelContact -> {
+            Contact contact = new Contact(modelContact, user);
+
+            contact = contactRepository.save(contact);
+
+            final ContactModel contactModel = saveContactRelatedData(user, modelContact, contact);
+
+            responseModels.add(contactModel);
+        });
+
+        SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private ContactModel saveContactRelatedData(User user, ContactSaveModel modelContact, Contact contact) {
+        contact.setPhones(phoneServiceImpl.savePhones(modelContact.getPhones(), contact));
+
+        ContactModel responseModel = new ContactModel(contact);
+
+        final String googleResourceName = modelContact.getResourceName();
+
+        final Boolean hasGResourceName = googleResourceName != null && !googleResourceName.isEmpty();
+
+        if (hasGResourceName) {
+            final GoogleContact googleContact = new GoogleContact(contact, modelContact.getResourceName(), user);
+            googleContactRepository.save(googleContact);
+            responseModel.setResourceName(modelContact.getResourceName());
         }
 
-        public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
-
-            User user = authServiceImpl.getCurrentUser();
-
-            contactVersionServiceImpl.updateVersion(user);
-
-            List<Contact> contacts = models.stream()
-                    .map(modelContact -> {
-
-                        Contact contact = new Contact(modelContact, user);
-
-                        contact = contactRepository.save(contact);
-
-                        contact.setPhones(phoneServiceImpl.savePhones(modelContact.getPhones(), contact));
-
-                        return contact;
-                    })
-                    .collect(Collectors.toList());
-
-            //ATUALIZAR OS ID
-            List<ContactModel> responseModels = contacts.stream()
-                    .map(ContactModel::new)
-                    .collect(Collectors.toList());
-
-            SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        return responseModel;
+    }
 
     public ResponseEntity<?> deleteContact(ContactDeleteModel model) {
-
         if (model == null || model.getId() == null) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -140,16 +150,14 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public ResponseEntity<?> editContact(ContactModel model) {
-
         User user = authServiceImpl.getCurrentUser();
 
         Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
         if (contactSearch.isPresent()) {
-
             Contact contact = contactSearch.get();
 
-            checkEdits(contact, model);
+            checkEdits(contact, model, user);
         }
         else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
@@ -157,20 +165,18 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
-
         User user = authServiceImpl.getCurrentUser();
 
         List<ContactModel> responseFailed = new ArrayList<>();
 
         models.forEach(model -> {
-
             Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
             if (contactSearch.isPresent()) {
 
                 Contact contact = contactSearch.get();
 
-                checkEdits(contact, model);
+                checkEdits(contact, model, user);
             }
             else responseFailed.add(model);
         });
@@ -184,25 +190,48 @@ public class ContactServiceImpl implements ContactService {
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
-    private void checkEdits(Contact contact, ContactModel model) {
-
+    private void checkEdits(Contact contact, ContactModel model, User user) {
         boolean changed = ! model.getName().equals(contact.getName());
         if (changed) {
             contact.setName(model.getName());
         }
-        if(! model.getDescription().equals(contact.getDescription())){
+        if(!model.getDescription().equals(contact.getDescription())){
             changed = true;
             contact.setDescription(model.getDescription());
         }
-        if(! model.getColor().equals(contact.getColor())){
-            changed = true;
-            contact.setColor(model.getColor());
+
+        if (model.getColor() != null) {
+            final Byte color = model.getColor();
+
+            if(color == null || !color.equals(contact.getColor())){
+                changed = true;
+                contact.setColor(model.getColor());
+            }
         }
+
+        this.checkGResourceNameEdit(contact, model, user);
+
         if(changed) {
             contactRepository.save(contact);
         }
         phoneServiceImpl.editPhones(model.getPhones(), contact);
     }
 
+    private void checkGResourceNameEdit(Contact contact, ContactModel model, User user) {
+        final String gResourceName = model.getResourceName();
 
+        final Boolean hasGResourceName = !gResourceName.isEmpty();
+
+        if (hasGResourceName) {
+            final Optional<GoogleContact> googleContactSearch = googleContactRepository.findByContactIdAndUserId(contact.getId(), user.getId());
+
+            if (googleContactSearch.isPresent()) {
+                final GoogleContact googleContact = googleContactSearch.get();
+                if (!gResourceName.equals(googleContact.getResourceName())) {
+                    googleContact.setResourceName(gResourceName);
+                    googleContactRepository.save(googleContact);
+                }
+            }
+        }
+    }
 }

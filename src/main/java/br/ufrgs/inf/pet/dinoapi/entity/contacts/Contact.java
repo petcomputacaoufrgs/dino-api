@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
 
@@ -42,6 +43,9 @@ public class Contact implements Serializable {
         @ManyToOne
         @JoinColumn(name = "user_id", nullable = false)
         private User user;
+
+        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        private List<GoogleContact> googleContacts;
 
         public Contact() {
                 this.phones = new ArrayList<>();
@@ -92,4 +96,11 @@ public class Contact implements Serializable {
             this.user = user;
         }
 
+        public List<GoogleContact> getGoogleContacts() {
+                return googleContacts;
+        }
+
+        public void setGoogleContacts(List<GoogleContact> googleContacts) {
+                this.googleContacts = googleContacts;
+        }
 }

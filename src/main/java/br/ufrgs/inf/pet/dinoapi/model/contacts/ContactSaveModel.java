@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
+import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -22,6 +24,9 @@ public class ContactSaveModel {
     private String description;
 
     private Byte color;
+
+    @Size(max = GoogleContactConstants.RESOURCE_NAME_MAX, message = GoogleContactConstants.RESOURCE_NAME_MAX_MESSAGE)
+    private String resourceName;
 
     public ContactSaveModel(Long frontId,
                             @NotNull(message = NAME_NULL_MESSAGE)
@@ -74,6 +79,14 @@ public class ContactSaveModel {
 
     public Byte getColor() {
         return color;
+    }
+
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
     }
 }
 
