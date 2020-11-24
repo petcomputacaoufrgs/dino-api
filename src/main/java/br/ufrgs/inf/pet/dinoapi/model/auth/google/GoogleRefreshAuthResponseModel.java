@@ -9,6 +9,8 @@ public class GoogleRefreshAuthResponseModel {
 
     private List<String> scopeList;
 
+    private boolean declinedContatsGrant;
+
     public GoogleRefreshAuthResponseModel() {}
 
     public String getGoogleAccessToken() {
@@ -33,5 +35,13 @@ public class GoogleRefreshAuthResponseModel {
 
     public void setScopeList(List<String> scopeList) {
         this.scopeList = scopeList;
+    }
+
+    public boolean isDeclinedContatsGrant() {
+        return declinedContatsGrant;
+    }
+
+    public void setDeclinedContatsGrant(boolean declinedContatsGrant) {
+        this.declinedContatsGrant = declinedContatsGrant;
     }
 }

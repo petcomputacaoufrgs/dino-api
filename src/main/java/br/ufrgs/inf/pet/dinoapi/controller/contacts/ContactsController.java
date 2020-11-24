@@ -24,4 +24,6 @@ public interface ContactsController {
     ResponseEntity<?> deleteContact(ContactDeleteModel model);
 
     ResponseEntity<?> editContact(ContactModel model);
+
+    ResponseEntity<?> declineGoogleContacts();
 }

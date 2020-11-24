@@ -6,6 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.*;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
@@ -136,6 +137,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setScopeList(currentScopes);
 
+                if (googleAuth != null) {
+                    response.setDeclinedContactsGrant(googleAuth.isDeclinedContatsGrant());
+                } else {
+                    response.setDeclinedContactsGrant(false);
+                }
+
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
@@ -183,6 +190,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                             .collect(Collectors.toList());
 
                     googleScopeRepository.saveAll(newScopes);
+
+                    this.saveGrantConfig(scopeList, googleAuth);
 
                     final GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
 
@@ -232,6 +241,27 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         }
 
         return null;
+    }
+
+    @Override
+    public GoogleAuth save(GoogleAuth googleAuth) {
+        return googleAuthRepository.save(googleAuth);
+    }
+
+    private void saveGrantConfig(List<String> scopes, GoogleAuth googleAuth) {
+        final boolean hasContactGrant = scopes.stream().anyMatch(scope -> scope == GoogleScopeEnum.CONTACTS.getValue());
+        boolean changed = false;
+
+        if (hasContactGrant) {
+            if (googleAuth.isDeclinedContatsGrant()) {
+                changed = true;
+                googleAuth.setDeclinedContatsGrant(false);
+            }
+        }
+
+        if (changed) {
+            this.save(googleAuth);
+        }
     }
 
     private boolean grantUserIsCurrentUser(GoogleIdToken.Payload payload) {
@@ -290,6 +320,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 response.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
                 response.setGoogleAccessToken(authModel.getGoogleAccessToken());
                 response.setScopeList(currentScopes);
+                response.setDeclinedContatsGrant(googleAuth.isDeclinedContatsGrant());
 
                 return response;
             }

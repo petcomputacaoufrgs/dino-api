@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
+import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
@@ -8,6 +9,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,14 +29,16 @@ public class ContactServiceImpl implements ContactService {
     private final AuthServiceImpl authServiceImpl;
     private final PhoneServiceImpl phoneServiceImpl;
     private final GoogleContactRepository googleContactRepository;
+    private final GoogleAuthServiceImpl googleAuthService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl, GoogleContactRepository googleContactRepository) {
+    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl, GoogleContactRepository googleContactRepository, GoogleAuthServiceImpl googleAuthService) {
         this.contactRepository = contactRepository;
         this.contactVersionServiceImpl = contactVersionServiceImpl;
         this.phoneServiceImpl = phoneServiceImpl;
         this.authServiceImpl = authServiceImpl;
         this.googleContactRepository = googleContactRepository;
+        this.googleAuthService = googleAuthService;
     }
 
 
@@ -188,6 +192,19 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(responseFailed, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> declineGoogleContacts() {
+        GoogleAuth googleAuth = googleAuthService.getUserGoogleAuth();
+
+        if (googleAuth == null) {
+            googleAuth.setDeclinedContatsGrant(true);
+            googleAuthService.save(googleAuth);
+
+            return new ResponseEntity<>(ContactsConstants.SUCCESS_DECLINE_REQUEST, HttpStatus.OK);
+        }
+
+        return new ResponseEntity<>(ContactsConstants.INVALID_DECLINE_REQUEST, HttpStatus.BAD_REQUEST);
     }
 
     private void checkEdits(Contact contact, ContactModel model, User user) {

@@ -27,6 +27,10 @@ public final class ContactsConstants {
     public final static String TYPE_NULL_MESSAGE = "O tipo de número do contato não pode ser nulo.";
     public final static String TYPE_MESSAGE = "type should be between 1 and MAX";
 
+    public final static String INVALID_DECLINE_REQUEST = "User does not have Google Authentication";
+    public final static String SUCCESS_DECLINE_REQUEST = "Success";
+
+
     public final static List<ContactSaveModel> DEFAULT_CONTACTS = new ArrayList<ContactSaveModel>(Arrays.asList(
             new ContactSaveModel(1L, "SAMU",
                     new ArrayList<PhoneSaveModel>(Collections.singletonList(new PhoneSaveModel("192", (byte) 1))),
@@ -35,5 +39,6 @@ public final class ContactsConstants {
                     new ArrayList<PhoneSaveModel>(Collections.singletonList(new PhoneSaveModel("(51) 3359-8000", (byte) 1))),
                     "O Hospital de Clínicas de Porto Alegre, popularmente conhecido por Clínicas, é uma instituição pública e universitária, ligada ao Ministério da Educação e à Universidade Federal do Rio Grande do Sul. Foi fundada em 1970, fruto do esforços empenhados na Faculdade de Medicina da UFRGS para sua construção.", (byte) 1))
     );
+
 
 }
