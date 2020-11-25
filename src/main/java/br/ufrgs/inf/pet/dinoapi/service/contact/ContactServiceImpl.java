@@ -195,16 +195,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public ResponseEntity<?> declineGoogleContacts() {
-        GoogleAuth googleAuth = googleAuthService.getUserGoogleAuth();
-
-        if (googleAuth == null) {
-            googleAuth.setDeclinedContatsGrant(true);
-            googleAuthService.save(googleAuth);
-
-            return new ResponseEntity<>(ContactsConstants.SUCCESS_DECLINE_REQUEST, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>(ContactsConstants.INVALID_DECLINE_REQUEST, HttpStatus.BAD_REQUEST);
+        return googleAuthService.declineGoogleContacts();
     }
 
     private void checkEdits(Contact contact, ContactModel model, User user) {
