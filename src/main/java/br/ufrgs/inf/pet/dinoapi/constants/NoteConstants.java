@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
 public final class NoteConstants {
-
         public final static String ID_NULL_MESSAGE = "id cannot be null.";
 
         public final static String QUESTION_NULL_MESSAGE = "question cannot be null.";
@@ -46,5 +45,4 @@ public final class NoteConstants {
         public final static String DELETED_NOTES_NULL_MESSAGE = "deletedNotes cannot be null.";
 
         public final static String NOTE_ORDER_NULL_MESSAGE = "notesOrder cannot be null.";
-
 }

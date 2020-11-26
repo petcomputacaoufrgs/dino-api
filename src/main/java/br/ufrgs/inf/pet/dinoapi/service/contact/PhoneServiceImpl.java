@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,34 +24,29 @@ public class PhoneServiceImpl implements PhoneService {
     }
 
     public List<Phone> savePhones(List<PhoneSaveModel> phoneModels, Contact contact) {
-
-        List<Phone> phones = phoneModels.stream()
+        final List<Phone> phones = phoneModels.stream()
             .map(phoneModel -> new Phone(phoneModel, contact))
             .collect(Collectors.toList());
 
-        phoneRepository.saveAll(phones);
+        final Iterable<Phone> savedPhones = phoneRepository.saveAll(phones);
 
-        return phones;
+        return Lists.newArrayList(savedPhones);
     }
 
     public void editPhones(List<PhoneModel> phoneModels, Contact contact) {
-
-        List<Phone> phonesToSave = new ArrayList<>();
-        List<Phone> phonesToDelete = contact.getPhones();
+        final List<Phone> phonesToSave = new ArrayList<>();
+        final List<Phone> phonesToDelete = phoneRepository.getPhonesByContactId(contact.getId());
 
         phoneModels.forEach(phoneModel -> {
-
             if (phoneModel.getId() == null) {
                 phonesToSave.add(new Phone(phoneModel, contact));
-            }
-            else {
-
-                Optional<Phone> phoneSearch = phonesToDelete.stream()
+            } else {
+                final Optional<Phone> phoneSearch = phonesToDelete.stream()
                         .filter(phone -> phone.getId().equals(phoneModel.getId()))
                         .findFirst();
 
                 if (phoneSearch.isPresent()) {
-                    Phone phoneDB = phoneSearch.get();
+                    final Phone phoneDB = phoneSearch.get();
 
                     boolean changed = !phoneModel.getNumber().equals(phoneDB.getNumber());
                     if (changed) {

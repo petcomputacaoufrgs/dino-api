@@ -20,7 +20,7 @@ public class NoteTag {
     @Column(name = "name", length = 50, nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "tags")
+    @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     private List<Note> notes;
 
     public NoteTag() {

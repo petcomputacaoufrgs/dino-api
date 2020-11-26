@@ -54,11 +54,10 @@ public class GoogleAPICommunicationImpl implements GoogleAPICommunication {
         scopes.add(GoogleScopesEnum.CALENDAR.getScope());
         scopes.add(GoogleScopesEnum.PROFILE.getScope());
 
-        GoogleTokenResponse tokenResponse = null;
         try {
             final GoogleClientSecrets secrets = this.getClientSecrets();
 
-            tokenResponse = new GoogleRefreshTokenRequest(
+            final GoogleTokenResponse tokenResponse = new GoogleRefreshTokenRequest(
                     new NetHttpTransport(),
                     JacksonFactory.getDefaultInstance(),
                     refreshToken,

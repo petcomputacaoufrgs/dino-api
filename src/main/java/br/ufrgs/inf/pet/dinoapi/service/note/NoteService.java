@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.model.note.delete.NoteDeleteRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.note.get.NoteResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.note.order.NoteOrderRequestModel;
@@ -22,5 +23,4 @@ public interface NoteService {
     ResponseEntity<NoteSyncResponseModel> sync(NoteSyncRequestModel model);
 
     ResponseEntity<?> updateNotesOrder(List<NoteOrderRequestModel> models);
-
 }

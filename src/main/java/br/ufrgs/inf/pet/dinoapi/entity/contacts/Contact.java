@@ -30,7 +30,7 @@ public class Contact implements Serializable {
         private String name;
 
         @Valid
-        @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL)
+        @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         private List<Phone> phones;
 
         @Column(name = "description", length = DESCRIPTION_MAX)
