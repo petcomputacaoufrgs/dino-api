@@ -63,7 +63,7 @@ public interface ContactsController {
      * @return Número da versão nova dos contatos
      */
     ResponseEntity<?> editContact(ContactModel model);
-+  
+
      /**
      * Salva o declinio em acesso aos contatos do Google
      */

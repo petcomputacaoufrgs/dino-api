@@ -168,7 +168,6 @@ public class ContactServiceImpl implements ContactService {
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
         final User user = authServiceImpl.getCurrentUser();
-        User user = authServiceImpl.getCurrentUser();
 
         models.forEach(model -> {
             final Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
@@ -176,18 +175,14 @@ public class ContactServiceImpl implements ContactService {
             if (contactSearch.isPresent()) {
                 final Contact contact = contactSearch.get();
 
-                final Contact contact = contactSearch.get();
-
-                checkEdits(contact, model);
+                checkEdits(contact, model, user);
             }
         });
 
-        if(models.size() > responseFailed.size()) {
+        if(models.size() > 0) {
             contactVersionServiceImpl.updateVersion(user);
         }
-        if(responseFailed.size() > 0) {
-            return new ResponseEntity<>(responseFailed, HttpStatus.NOT_FOUND);
-        }
+
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
