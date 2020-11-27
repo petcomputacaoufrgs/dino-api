@@ -49,7 +49,7 @@ public class NoteServiceImpl implements NoteService {
     public ResponseEntity<List<NoteResponseModel>> getUserNotes() {
         final User user = authService.getCurrentUser();
 
-        final List<Note> notes = noteRepository.findAllByUserId(user.getId());
+        final List<Note> notes = noteRepository.findAllByUserIdWithTags(user.getId());
 
         final List<NoteResponseModel> model = notes.stream().map(NoteResponseModel::new).collect(Collectors.toList());
 
@@ -68,19 +68,17 @@ public class NoteServiceImpl implements NoteService {
             if (noteSearch.isPresent()) {
                 note = noteSearch.get();
             } else {
-                NoteColumn noteColumn = noteColumnService.findOneOrCreateByUserAndTitle(model.getColumnTitle(), user);
-
-                if (noteColumn.getNotes().size() >= NoteConstants.MAX_NOTES_PER_COLUMN) {
+                final NoteColumn noteColumn = noteColumnService.findOneOrCreateByUserAndTitle(model.getColumnTitle(), user);
+                final Long notesCount = noteRepository.countNotesByColumnId(noteColumn.getId());
+                if (notesCount >= NoteConstants.MAX_NOTES_PER_COLUMN) {
                     return new ResponseEntity<>(NoteConstants.MAX_NOTES_PER_COLUMN_MESSAGE, HttpStatus.BAD_REQUEST);
                 }
 
-                int order = 0;
+                int order = 1;
 
                 if (noteColumn.getId() != null) {
-                    final Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserIdAndColumnId(user.getId(), noteColumn.getId());
-                    if (maxOrderSearch.isPresent()) {
-                        order = maxOrderSearch.get() + 1;
-                    }
+                    final Integer maxOrderSearch = this.getMaxOrderByColumn(user, noteColumn);;
+                    order = maxOrderSearch + 1;
                 }
 
                 note = new Note(noteColumn, order, new Date(model.getLastOrderUpdate()));
@@ -179,6 +177,7 @@ public class NoteServiceImpl implements NoteService {
 
         final boolean hasChangedOrder = this.syncNotesOrder(model.getNotesOrder(), user);
 
+        List<Note> notes = null;
         Long version;
 
         if (hasDeletedNotes || hasChangedNotes || hasNewNotes) {
@@ -186,12 +185,14 @@ public class NoteServiceImpl implements NoteService {
         } else {
             version = noteVersionService.getVersion().getNoteVersion();
             if (hasChangedOrder) {
-                final List<Note> notes = noteRepository.findAllByUserId(user.getId());
+                notes = noteRepository.findAllByUserIdWithTags(user.getId());
                 noteVersionService.updateNoteOrder(notes);
             }
         }
 
-        final List<Note> notes = noteRepository.findAllByUserId(user.getId());
+        if (notes == null) {
+            notes = noteRepository.findAllByUserIdWithTags(user.getId());
+        }
 
         final List<NoteResponseModel> notesModel = notes.stream().map(NoteResponseModel::new).collect(Collectors.toList());
 
@@ -275,6 +276,12 @@ public class NoteServiceImpl implements NoteService {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    private Integer getMaxOrderByColumn(User user, NoteColumn noteColumn) {
+        Optional<Integer> maxOrderSearch = noteRepository.findMaxOrderByUserIdAndColumnId(user.getId(), noteColumn.getId());
+
+        return maxOrderSearch.orElse(0);
+    }
+
     private boolean updateSavedNotes(List<NoteSyncChangedRequestModel> changedNotes, User user) {
         final List<Note> updatedNotes = new ArrayList<>();
 
@@ -284,11 +291,11 @@ public class NoteServiceImpl implements NoteService {
 
         final Date now = new Date();
 
+        final List<String> usedQuestions = noteRepository.findAllQuestionsByUserId(user.getId());
+
         Date changedLastUpdateDate;
         Date changedLastUpdateOrderDate;
         boolean changed;
-
-        final List<String> usedQuestions = noteRepository.findAllQuestionsByUserId(user.getId());
 
         for (NoteSyncChangedRequestModel changedNote : changedNotes)  {
             changedLastUpdateDate = new Date(changedNote.getLastUpdate());
@@ -335,8 +342,10 @@ public class NoteServiceImpl implements NoteService {
                 if (columnSearch.isPresent()) {
                     final NoteColumn column = columnSearch.get();
                     final List<NoteTag> tags = this.createNotSavedTags(changedNote);
+                    final Integer maxOrder = this.getMaxOrderByColumn(user, column);
 
-                    final Note newNote = this.createNewNote(usedQuestions, changedNote, column, now, tags);
+                    final Note newNote = this.createNewNote(usedQuestions, changedNote, column, now, tags, maxOrder);
+
                     updatedNotes.add(newNote);
                 }
             }
@@ -355,13 +364,30 @@ public class NoteServiceImpl implements NoteService {
         final Date now = new Date();
         final List<String> usedQuestions = noteRepository.findAllQuestionsByUserId(user.getId());
 
+        final Map<Long,Integer> maxOrderMap = new HashMap<>();
+
         for(NoteSyncSaveRequestModel model : models) {
             final Optional<NoteColumn> noteColumnSearch = noteColumnService.getNoteColumnByIdAndUser(model.getColumnId(), user);
 
             if (noteColumnSearch.isPresent()) {
-                List<NoteTag> tags = createNotSavedTags(model);
+                final List<NoteTag> tags = this.createNotSavedTags(model);
 
-                Note note = this.createNewNote(usedQuestions, model, noteColumnSearch.get(), now, tags);
+                final NoteColumn noteColumn = noteColumnSearch.get();
+
+                Integer maxOrder = null;
+
+                if (maxOrderMap.containsKey(noteColumn.getId())) {
+                    maxOrder = maxOrderMap.get(noteColumn.getId());
+                } else {
+                    maxOrder = this.getMaxOrderByColumn(user, noteColumn);
+                    maxOrderMap.put(noteColumn.getId(), maxOrder);
+                }
+
+                final Note note = this.createNewNote(usedQuestions, model, noteColumn, now, tags, maxOrder);
+
+                if (note != null) {
+                    maxOrderMap.put(noteColumn.getId(), maxOrder + 1);
+                }
 
                 newNotes.add(note);
             }
@@ -376,12 +402,10 @@ public class NoteServiceImpl implements NoteService {
         return false;
     }
 
-    private Note createNewNote(List<String> usedQuestions, NoteSyncSaveRequestModel newNote, NoteColumn noteColumn, Date now, List<NoteTag> tags) {
-        boolean success = this.removeQuestionConflict(usedQuestions, newNote);
+    private Note createNewNote(List<String> usedQuestions, NoteSyncSaveRequestModel newNote, NoteColumn noteColumn, Date now, List<NoteTag> tags, int maxOrder) {
+        final boolean success = this.removeQuestionConflict(usedQuestions, newNote);
         if (success) {
             usedQuestions.add(newNote.getQuestion());
-
-            Integer maxOrder = noteColumn.getNotes().stream().map(Note::getOrder).max(Integer::compare).orElse(-1);
 
             Note note = new Note();
             note.setLastUpdate(new Date(newNote.getLastUpdate()));

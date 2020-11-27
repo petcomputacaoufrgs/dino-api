@@ -6,7 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.UserQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
 import javax.persistence.*;
@@ -50,13 +50,13 @@ public class User {
     @OneToOne(mappedBy = "user")
     private NoteVersion noteVersion;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Auth> auths;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<NoteColumn> noteColumns;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Contact> contacts;
 
     @OneToMany(mappedBy = "user")
@@ -69,7 +69,7 @@ public class User {
     private FaqUser faqUser;
 
     @OneToMany(mappedBy = "user")
-    private List<UserQuestion> faqUserQuestions;
+    private List<FaqUserQuestion> faqFaqUserQuestions;
     
     public User() {
         this.auths = new ArrayList<>();

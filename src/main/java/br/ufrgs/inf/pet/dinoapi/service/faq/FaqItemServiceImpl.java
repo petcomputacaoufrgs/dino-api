@@ -23,23 +23,27 @@ public class FaqItemServiceImpl implements  FaqItemService {
         this.faqItemRepository = faqItemRepository;
     }
 
-    public List<FaqItem> saveItems(List<FaqSaveRequestItemModel> models, Faq faq) {
+    public List<FaqItem> getItemsByFaq(Faq faq) {
+        return faqItemRepository.findByFaqId(faq.getId());
+    }
 
+    public List<FaqItem> saveItems(List<FaqSaveRequestItemModel> models, Faq faq) {
+        final List<FaqItem> itemsResponse = new ArrayList<>();
         Optional<FaqItem> faqItemSearch;
-        List<FaqItem> itemsResponse = new ArrayList<>();
 
         if (models != null) {
             for (FaqSaveRequestItemModel newItem : models) {
                 if (newItem.isValid()) {
-
                     faqItemSearch = faqItemRepository.findByQuestionAndFaqId(newItem.getQuestion(), faq.getId());
 
-                    FaqItem faqItem = faqItemSearch.orElseGet(() -> new FaqItem(newItem, faq));
+                    final FaqItem faqItem = faqItemSearch.orElseGet(() -> new FaqItem(newItem, faq));
 
                     if(faqItemSearch.isPresent()) {
                         if(!faqItem.getAnswer().equals(newItem.getAnswer())) {
                             faqItem.setAnswer(newItem.getAnswer());
-                        } else continue;
+                        } else {
+                            continue;
+                        }
                     }
 
                     itemsResponse.add(faqItem);
@@ -52,23 +56,19 @@ public class FaqItemServiceImpl implements  FaqItemService {
     }
 
     public boolean editItems(List<FaqItemModel> itemModels, Faq faq) {
-
-        List<FaqItem> itemsToSave = new ArrayList<>();
-        List<FaqItem> itemsToDelete = faq.getItems();
+        final List<FaqItem> itemsToSave = new ArrayList<>();
+        final List<FaqItem> itemsToDelete = faqItemRepository.findByFaqId(faq.getId());
 
         itemModels.forEach(itemModel -> {
-
             if (itemModel.getId() == null) {
                 itemsToSave.add(new FaqItem(itemModel, faq));
-            }
-            else {
-
-                Optional<FaqItem> itemSearch = itemsToDelete.stream()
+            } else {
+                final Optional<FaqItem> itemSearch = itemsToDelete.stream()
                         .filter(item -> item.getId().equals(itemModel.getId()))
                         .findFirst();
 
                 if (itemSearch.isPresent()) {
-                    FaqItem itemDB = itemSearch.get();
+                    final FaqItem itemDB = itemSearch.get();
 
                     boolean changed = !itemModel.getQuestion().equals(itemDB.getQuestion());
                     if (changed) {
@@ -85,6 +85,7 @@ public class FaqItemServiceImpl implements  FaqItemService {
                 }
             }
         });
+
         faqItemRepository.saveAll(itemsToSave);
         faqItemRepository.deleteAllById(itemsToDelete.stream().map(FaqItem::getId).collect(Collectors.toList()));
 

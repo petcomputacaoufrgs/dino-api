@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
 public final class FaqConstants {
-
     public final static String ID_NULL_MESSAGE = "id cannot be null.";
 
     public final static int TITLE_MAX = 30;
@@ -16,5 +15,4 @@ public final class FaqConstants {
     public final static int ANSWER_MAX = 1000;
     public final static String ANSWER_MESSAGE = "answer should be between 1 and MAX.";
     public final static String ANSWER_NULL_MESSAGE = "answer should not be null.";
-
 }

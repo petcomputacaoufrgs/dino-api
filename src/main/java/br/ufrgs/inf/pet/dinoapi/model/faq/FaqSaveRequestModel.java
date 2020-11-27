@@ -9,7 +9,6 @@ import java.util.List;
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.*;
 
 public class FaqSaveRequestModel {
-
     @NotNull(message = TITLE_NULL_MESSAGE)
     @Size(min = 1, max = TITLE_MAX, message = TITLE_MAX_MESSAGE)
     private String title;

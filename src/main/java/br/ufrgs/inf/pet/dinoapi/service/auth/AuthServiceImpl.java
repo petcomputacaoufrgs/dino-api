@@ -186,14 +186,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public List<String> getAllUserWebSocketTokenExceptCurrentByUser() {
-        Auth auth = this.getCurrentAuth();
+        final Auth auth = this.getCurrentAuth();
 
         return authRepository.findAllWebSocketTokensExceptOneByUser(auth.getUser(), auth.getWebSocketToken());
     }
 
     @Override
     public void setWebSocketConnected() {
-        Auth auth = this.getCurrentAuth();
+        final Auth auth = this.getCurrentAuth();
         if (auth != null) {
             auth.setWebSocketConnected(true);
             authRepository.save(auth);
@@ -201,8 +201,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public Boolean isValidToken(Auth auth) {
-        Claims claims = decodeAccessToken(auth.getAccessToken());
-        Long currentDate = new Date().getTime();
+        final Claims claims = decodeAccessToken(auth.getAccessToken());
+        final Long currentDate = new Date().getTime();
 
         return claims.getExpiration().getTime() >= currentDate;
     }
@@ -226,7 +226,7 @@ public class AuthServiceImpl implements AuthService {
         final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
         claims.put("roles", roles);
         final Date now = new Date();
-        Date expiresDate = new Date(now.getTime() + this.TOKEN_LIFE_TIME_IN_MS);
+        final Date expiresDate = new Date(now.getTime() + this.TOKEN_LIFE_TIME_IN_MS);
 
         final String accessToken = Jwts.builder()
                 .setClaims(claims)

@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,6 +11,7 @@ public class FaqModel {
     private Long version;
     private String title;
     private List<FaqItemModel> items;
+
     public FaqModel(){}
 
     public FaqModel(Faq faq){
@@ -17,6 +19,13 @@ public class FaqModel {
         this.setVersion(faq.getVersion());
         this.setTitle(faq.getTitle());
         this.setItems(faq.getItems().stream().map(FaqItemModel::new).collect(Collectors.toList()));
+    }
+
+    public FaqModel(Faq faq, List<FaqItem> faqItems){
+        this.setId(faq.getId());
+        this.setVersion(faq.getVersion());
+        this.setTitle(faq.getTitle());
+        this.setItems(faqItems.stream().map(FaqItemModel::new).collect(Collectors.toList()));
     }
 
     public String getTitle() {

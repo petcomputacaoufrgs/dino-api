@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 
 public final class ContactsConstants {
-
     public final static String ID_NULL_MESSAGE = "id cannot be null.";
 
     public final static int NAME_MAX = 100;
@@ -40,6 +39,5 @@ public final class ContactsConstants {
                     new ArrayList<PhoneSaveModel>(Collections.singletonList(new PhoneSaveModel("(51) 3359-8000", (byte) 1))),
                     "O Hospital de Clínicas de Porto Alegre, popularmente conhecido por Clínicas, é uma instituição pública e universitária, ligada ao Ministério da Educação e à Universidade Federal do Rio Grande do Sul. Foi fundada em 1970, fruto do esforços empenhados na Faculdade de Medicina da UFRGS para sua construção.", (byte) 1))
     );
-
 
 }

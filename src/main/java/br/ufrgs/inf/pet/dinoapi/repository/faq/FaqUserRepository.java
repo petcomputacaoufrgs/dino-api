@@ -12,4 +12,7 @@ public interface FaqUserRepository extends CrudRepository<FaqUser, Long> {
 
     @Query("SELECT fu FROM FaqUser fu WHERE fu.user.id = :userId")
     Optional<FaqUser> findByUserId(@Param("userId") Long userID);
+
+    @Query("SELECT fu FROM FaqUser fu LEFT JOIN FETCH fu.faq WHERE fu.user.id = :userId")
+    Optional<FaqUser> findByUserIdWithFaq(@Param("userId") Long userID);
 }

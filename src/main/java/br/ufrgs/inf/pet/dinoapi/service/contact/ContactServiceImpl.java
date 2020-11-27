@@ -43,36 +43,36 @@ public class ContactServiceImpl implements ContactService {
 
 
     public ResponseEntity<List<ContactModel>> getUserContacts() {
-            User user = authServiceImpl.getCurrentUser();
+            final User user = authServiceImpl.getCurrentUser();
 
-            List<Contact> contacts = contactRepository.findByUserIdWithGoogleContacts(user.getId());
+            final List<Contact> contacts = contactRepository.findByUserIdWithGoogleContacts(user.getId());
 
-            List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
+            final List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
 
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
-            User user = authServiceImpl.getCurrentUser();
+            final User user = authServiceImpl.getCurrentUser();
 
-            Contact contact = contactRepository.save(new Contact(model, user));
+            final Contact contact = contactRepository.save(new Contact(model, user));
 
-            ContactModel responseModel = saveContactRelatedData(user, model, contact);
+            final ContactModel responseModel = saveContactRelatedData(user, model, contact);
 
             contactVersionServiceImpl.updateVersion(user);
 
-            SaveResponseModel response = new SaveResponseModel(user.getContactVersion().getVersion(), responseModel);
+            final SaveResponseModel response = new SaveResponseModel(user.getContactVersion().getVersion(), responseModel);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
 
-        User user = authServiceImpl.getCurrentUser();
+        final User user = authServiceImpl.getCurrentUser();
 
         contactVersionServiceImpl.updateVersion(user);
 
-        List<ContactModel> responseModels = new ArrayList<>();
+        final List<ContactModel> responseModels = new ArrayList<>();
 
         models.forEach(modelContact -> {
             Contact contact = new Contact(modelContact, user);
@@ -84,7 +84,7 @@ public class ContactServiceImpl implements ContactService {
             responseModels.add(contactModel);
         });
 
-        SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
+        final SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -112,12 +112,12 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(HttpStatus.OK);
         }
 
-        User user = authServiceImpl.getCurrentUser();
+        final User user = authServiceImpl.getCurrentUser();
 
-        Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+        final Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
         if(contactToDeleteSearch.isPresent()) {
-            Contact contactToDelete = contactToDeleteSearch.get();
+            final Contact contactToDelete = contactToDeleteSearch.get();
 
             contactRepository.delete(contactToDelete);
 
@@ -128,21 +128,18 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public ResponseEntity<Long> deleteContacts(List<ContactDeleteModel> models) {
+        final User user = authServiceImpl.getCurrentUser();
 
-        User user = authServiceImpl.getCurrentUser();
-
-        List<Long> validIds = models.stream()
+        final List<Long> validIds = models.stream()
                 .filter(Objects::nonNull)
                 .map(ContactDeleteModel::getId)
                 .collect(Collectors.toList());
 
         if (validIds.size() > 0) {
-
-            Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
+            final Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
 
             if (contactsToDeleteSearch.isPresent()) {
-
-                List<Contact> contactsToDelete = contactsToDeleteSearch.get();
+                final List<Contact> contactsToDelete = contactsToDeleteSearch.get();
 
                 contactRepository.deleteAll(contactsToDelete);
 
@@ -154,35 +151,35 @@ public class ContactServiceImpl implements ContactService {
     }
 
     public ResponseEntity<?> editContact(ContactModel model) {
-        User user = authServiceImpl.getCurrentUser();
+        final User user = authServiceImpl.getCurrentUser();
 
-        Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+        final Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
         if (contactSearch.isPresent()) {
-            Contact contact = contactSearch.get();
+            final Contact contact = contactSearch.get();
 
             checkEdits(contact, model, user);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        else return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
     public ResponseEntity<?> editContacts(List<ContactModel> models) {
+        final User user = authServiceImpl.getCurrentUser();
         User user = authServiceImpl.getCurrentUser();
 
-        List<ContactModel> responseFailed = new ArrayList<>();
-
         models.forEach(model -> {
-            Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+            final Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
 
             if (contactSearch.isPresent()) {
+                final Contact contact = contactSearch.get();
 
-                Contact contact = contactSearch.get();
+                final Contact contact = contactSearch.get();
 
-                checkEdits(contact, model, user);
+                checkEdits(contact, model);
             }
-            else responseFailed.add(model);
         });
 
         if(models.size() > responseFailed.size()) {

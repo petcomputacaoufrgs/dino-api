@@ -57,7 +57,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         NoteColumn noteColumn;
         Long newNoteColumnVersion;
 
-        Integer count = noteColumnRepository.countNoteColumnByUserId(user.getId());
+        final Integer count = noteColumnRepository.countNoteColumnByUserId(user.getId());
 
         if (count > NoteColumnConstants.MAX_COLUMNS) {
             return new ResponseEntity<>(NoteColumnConstants.MAX_COLUMNS_MESSAGE, HttpStatus.NOT_FOUND);
@@ -108,7 +108,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         final List<Long> ids = models.stream()
                 .map(NoteColumnDeleteRequestModel::getId).collect(Collectors.toList());
 
-        List<NoteColumn> noteColumns = noteColumnRepository.findAllByIdAndUserId(ids, user.getId());
+        final List<NoteColumn> noteColumns = noteColumnRepository.findAllByIdAndUserId(ids, user.getId());
 
         if (noteColumns.size() > 0) {
             final Integer deletedNotesCount = noteRepository.countNotesByNoteColumnsIds(ids);
@@ -141,11 +141,11 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         if (noteSearch.isPresent()) {
             final Integer deletedNotesCount = noteRepository.countNotesByNoteColumnId(model.getId());
 
-            NoteColumn noteColumn = noteSearch.get();
+            final NoteColumn noteColumn = noteSearch.get();
 
             noteColumnRepository.delete(noteColumn);
 
-            Long newNoteVersion = noteVersionService.updateColumnVersionDelete(noteColumn.getId());
+            final Long newNoteVersion = noteVersionService.updateColumnVersionDelete(noteColumn.getId());
 
             if (deletedNotesCount > 0) {
                 noteVersionService.updateNoteVersion();
@@ -275,12 +275,12 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public NoteColumn findOneOrCreateByUserAndTitle(String title, User user) {
-        Optional<NoteColumn> search = noteColumnRepository.findByTitleAndUserId(title, user.getId());
+        final Optional<NoteColumn> search = noteColumnRepository.findByTitleAndUserId(title, user.getId());
 
         if (search.isPresent()) {
             return search.get();
         } else {
-            Integer maxOrder = this.getMaxOrder(user.getId());
+            final Integer maxOrder = this.getMaxOrder(user.getId());
 
             return new NoteColumn(user, maxOrder, new Date());
         }
@@ -288,7 +288,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     @Override
     public Integer getMaxOrder(Long userId) {
-        Optional<Integer> maxOrderSearch = noteColumnRepository.findMaxOrderByUserId(userId);
+        final Optional<Integer> maxOrderSearch = noteColumnRepository.findMaxOrderByUserId(userId);
 
         return maxOrderSearch.orElse(0);
     }
@@ -320,7 +320,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
         boolean changed;
 
         final List<String> usedTitles = noteColumnRepository.findAllTitlesByUserId(user.getId());
-        Integer maxOrder = noteColumnRepository.findMaxOrderByUserId(user.getId()).orElse(-1);
+        final Integer maxOrder = noteColumnRepository.findMaxOrderByUserId(user.getId()).orElse(-1);
 
         for (NoteColumnSyncChangedRequestModel changedColumn : changedColumns)  {
             changedLastUpdateDate = new Date(changedColumn.getLastUpdate());
@@ -376,10 +376,10 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
         final List<String> usedTitles = noteColumnRepository.findAllTitlesByUserId(user.getId());
 
-        Integer maxOrder = noteColumnRepository.findMaxOrderByUserId(user.getId()).orElse(-1);
+        final Integer maxOrder = noteColumnRepository.findMaxOrderByUserId(user.getId()).orElse(-1);
 
         for (NoteColumnSaveRequestModel newColumn : newColumns) {
-            NoteColumn noteColumn = this.createNewNoteColumn(usedTitles, newColumn, maxOrder, user, changedTitleColumnModels);
+            final NoteColumn noteColumn = this.createNewNoteColumn(usedTitles, newColumn, maxOrder, user, changedTitleColumnModels);
             if (noteColumn != null) {
                 newNoteColumns.add(noteColumn);
             }
@@ -394,7 +394,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
     }
 
     private NoteColumn createNewNoteColumn(List<String> usedTitles, NoteColumnSaveRequestModel newColumn, Integer maxOrder, User user, List<ChangedTitleColumnModel> changedTitleColumnModels) {
-        boolean success = this.removeTitleConflict(usedTitles, newColumn, changedTitleColumnModels);
+        final boolean success = this.removeTitleConflict(usedTitles, newColumn, changedTitleColumnModels);
         if (success) {
             usedTitles.add(newColumn.getTitle());
 
@@ -415,7 +415,7 @@ public class NoteColumnServiceImpl implements NoteColumnService {
 
     private boolean deleteColumns(List<NoteColumnSyncDeleteRequestModel> deletedColumns, User user) {
         final List<Long> deletedIds = deletedColumns.stream().map(NoteColumnDeleteRequestModel::getId).collect(Collectors.toList());
-        final List<NoteColumn> savedColumns = noteColumnRepository.findAllByIdAndUserId(deletedIds, user.getId());
+        final List<NoteColumn> savedColumns = noteColumnRepository.findAllByIdAndUserIdWithNotes(deletedIds, user.getId());
         final List<NoteColumn> columnsToDelete = new ArrayList<>();
 
         savedColumns.forEach(savedColumn -> {
