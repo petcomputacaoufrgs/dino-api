@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.repository.synchronizable;
 
-import br.ufrgs.inf.pet.dinoapi.entity.sync.SynchronizableEntity;
-import org.springframework.data.jpa.repository.Query;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 

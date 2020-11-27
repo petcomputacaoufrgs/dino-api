@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
-import br.ufrgs.inf.pet.dinoapi.entity.sync.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
 import java.util.Date;
 
