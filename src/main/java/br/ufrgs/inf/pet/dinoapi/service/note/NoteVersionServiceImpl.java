@@ -70,7 +70,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     @Override
     public void updateNoteOrder(List<Note> noteList) {
-        NoteOrderUpdateModel model = new NoteOrderUpdateModel();
+        final NoteOrderUpdateModel model = new NoteOrderUpdateModel();
         model.setItems(noteList.stream().map(NoteOrderItemUpdateModel::new).collect(Collectors.toList()));
 
         try {
@@ -82,7 +82,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     @Override
     public Long updateNoteVersionDelete(Long id) {
-        List<Long> idList = new ArrayList<>();
+        final List<Long> idList = new ArrayList<>();
         idList.add(id);
         return this.updateNoteVersionDelete(idList);
     }
@@ -95,7 +95,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         noteVersion.setLastNoteUpdate(new Date());
         noteVersion = noteVersionRepository.save(noteVersion);
 
-        NoteDeleteModel model = new NoteDeleteModel();
+        final NoteDeleteModel model = new NoteDeleteModel();
         model.setNewVersion(noteVersion.getNoteVersion());
         model.setIdList(idList);
 
@@ -123,7 +123,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     @Override
     public void updateColumnOrder(List<NoteColumn> columnList) {
-        ColumnOrderUpdateModel model = new ColumnOrderUpdateModel();
+        final ColumnOrderUpdateModel model = new ColumnOrderUpdateModel();
         model.setItems(columnList.stream().map(ColumnOrderItemUpdateModel::new).collect(Collectors.toList()));
 
         try {
@@ -135,7 +135,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
 
     @Override
     public Long updateColumnVersionDelete(Long id) {
-        List<Long> idList = new ArrayList<>();
+        final List<Long> idList = new ArrayList<>();
         idList.add(id);
         return this.updateColumnVersionDelete(idList);
     }
@@ -148,7 +148,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         noteVersion.setLastColumnUpdate(new Date());
         noteVersion = noteVersionRepository.save(noteVersion);
 
-        ColumnDeleteModel model = new ColumnDeleteModel();
+        final ColumnDeleteModel model = new ColumnDeleteModel();
         model.setNewVersion(noteVersion.getColumnVersion());
         model.setIdList(idList);
 
@@ -165,9 +165,9 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     public NoteVersion getVersion() {
         final User user = authService.getCurrentUser();
 
-        Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
+        final Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
 
-        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> noteVersionRepository.save(this.createNoteVersion(user)));
+        final NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> noteVersionRepository.save(this.createNoteVersion(user)));
 
         return noteVersion;
     }
@@ -175,15 +175,15 @@ public class NoteVersionServiceImpl implements NoteVersionService {
     private NoteVersion getOrCreateWithoutSaveNoteVersion() {
         final User user = authService.getCurrentUser();
 
-        Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
+        final Optional<NoteVersion> noteVersionSearch = noteVersionRepository.findByUserId(user.getId());
 
-        NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> this.createNoteVersion(user));
+        final NoteVersion noteVersion = noteVersionSearch.orElseGet(() -> this.createNoteVersion(user));
 
         return noteVersion;
     }
 
     private NoteVersion createNoteVersion(User user) {
-        NoteVersion noteVersion = new NoteVersion();
+        final NoteVersion noteVersion = new NoteVersion();
 
         noteVersion.setUser(user);
         noteVersion.setLastColumnUpdate(new Date());

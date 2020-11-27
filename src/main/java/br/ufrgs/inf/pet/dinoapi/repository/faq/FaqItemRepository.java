@@ -13,6 +13,8 @@ import java.util.Optional;
 
 @Repository
 public interface FaqItemRepository extends CrudRepository<FaqItem, Long> {
+    @Query("SELECT fi FROM FaqItem fi WHERE fi.faq.id = :faqId")
+    List<FaqItem> findByFaqId(@Param("faqId") Long faqId);
 
     @Query("SELECT fi FROM FaqItem fi WHERE fi.question = :question AND fi.faq.id = :faqId")
     Optional<FaqItem> findByQuestionAndFaqId(@Param("question") String question, @Param("faqId") Long faqId);

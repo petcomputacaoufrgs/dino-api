@@ -22,18 +22,18 @@ public class UserAppSettingsControllerImpl implements  UserAppSettingsController
     @Override
     @GetMapping
     public ResponseEntity<?> getUserAppSettings() {
-        return userAppSettingsService.getUserAppSettings();
+        return this.userAppSettingsService.getUserAppSettings();
     }
 
     @Override
     @PostMapping
     public ResponseEntity<?> saveUserAppSettings(@Valid @RequestBody UserAppSettingsResponseAndRequestModel userAppSettingsModel) {
-        return userAppSettingsService.saveUserAppSettings(userAppSettingsModel);
+        return this.userAppSettingsService.saveUserAppSettings(userAppSettingsModel);
     }
 
     @Override
     @GetMapping("version/")
     public ResponseEntity<?> getUserAppSettingsVersion() {
-        return userAppSettingsService.getUserAppSettingsVersion();
+        return this.userAppSettingsService.getUserAppSettingsVersion();
     }
 }

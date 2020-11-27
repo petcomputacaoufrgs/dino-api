@@ -36,7 +36,7 @@ public class NoteColumn {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @OneToMany(mappedBy = "noteColumn", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "noteColumn", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Note> notes;
 
     public NoteColumn() {}
