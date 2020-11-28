@@ -9,6 +9,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +60,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Contact> contacts;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    private List<TesteEntity> testeEntities;
 
     @OneToMany(mappedBy = "user")
     private List<GoogleContact> googleContacts;

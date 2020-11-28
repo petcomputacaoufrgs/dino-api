@@ -1,48 +1,44 @@
 package br.ufrgs.inf.pet.dinoapi.entity.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
 import java.time.LocalDateTime;
 
-import static javax.persistence.GenerationType.AUTO;
-
-@Entity
-public abstract class SynchronizableEntity<T extends SynchronizableEntity> {
-    @Id
-    @GeneratedValue(strategy = AUTO)
-    @Column(name = "id", nullable = false)
-    protected Long id;
-
-    @Column(name = "last_update", nullable = false)
-    protected LocalDateTime lastUpdate;
-
+public abstract class SynchronizableEntity {
     public SynchronizableEntity() {
-        this.lastUpdate = LocalDateTime.now();
+        this.setLastUpdate(LocalDateTime.now());
     }
 
-    public LocalDateTime getLastUpdate() {
-        return this.lastUpdate;
-    }
+    public abstract LocalDateTime getLastUpdate();
 
-    public Long getId() {
-        return this.id;
-    }
+    public abstract void setLastUpdate(LocalDateTime lastUpdate);
 
-    public boolean isMoreUpdated(SynchronizableModel<T> model) {
+    public abstract Long getId();
+
+    public boolean isNewerThan(SynchronizableModel model) {
         final LocalDateTime thisLastUpdate = this.getLastUpdate();
         if (thisLastUpdate != null) {
             final LocalDateTime otherLastUpdate = model.getLastUpdate();
             if (otherLastUpdate != null) {
-                return this.lastUpdate.compareTo(model.getLastUpdate()) > 0;
+                return this.getLastUpdate().isAfter(model.getLastUpdate());
             }
 
             return true;
         }
 
         return false;
+    }
+
+    public boolean isOlderThan(SynchronizableModel model) {
+        final LocalDateTime thisLastUpdate = this.getLastUpdate();
+        if (thisLastUpdate != null) {
+            final LocalDateTime otherLastUpdate = model.getLastUpdate();
+            if (otherLastUpdate != null) {
+                return this.getLastUpdate().isBefore(model.getLastUpdate());
+            }
+
+            return false;
+        }
+
+        return true;
     }
 }

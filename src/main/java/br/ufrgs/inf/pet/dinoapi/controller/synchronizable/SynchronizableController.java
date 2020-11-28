@@ -1,20 +1,17 @@
 package br.ufrgs.inf.pet.dinoapi.controller.synchronizable;
 
-import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
-import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableService;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableResponseModel;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
 
-public abstract class SynchronizableController<T extends SynchronizableEntity, I extends SynchronizableModel<T>> {
-    protected final SynchronizableService<T> service;
+import javax.validation.Valid;
 
-    protected SynchronizableController(SynchronizableService<T> service) {
-        this.service = service;
-    }
+public interface SynchronizableController<DATA_MODEL extends SynchronizableDataModel> {
+    ResponseEntity<SynchronizableResponseModel> get(SynchronizableDeleteModel model);
 
-    @PutMapping("sync/")
-    public ResponseEntity<?> updateOrder(I model) {
-        return this.service.synchronize(model);
-    }
+    ResponseEntity<SynchronizableResponseModel> save(SynchronizableRequestModel<DATA_MODEL> model);
+
+    ResponseEntity<SynchronizableResponseModel> delete(SynchronizableDeleteModel model);
 }
