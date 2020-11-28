@@ -1,13 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
-
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public abstract class SynchronizableModel<T extends SynchronizableEntity> {
     protected Long id;
 
-    protected Date lastUpdate;
+    protected LocalDateTime lastUpdate;
 
     public abstract T updateEntity(T entity);
 
@@ -19,11 +18,11 @@ public abstract class SynchronizableModel<T extends SynchronizableEntity> {
         this.id = id;
     }
 
-    public Date getLastUpdate() {
+    public LocalDateTime getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(Date lastUpdate) {
+    public void setLastUpdate(LocalDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 }

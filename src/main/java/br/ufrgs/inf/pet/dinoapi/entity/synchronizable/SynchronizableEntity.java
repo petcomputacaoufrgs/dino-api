@@ -6,7 +6,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -18,13 +18,13 @@ public abstract class SynchronizableEntity<T extends SynchronizableEntity> {
     protected Long id;
 
     @Column(name = "last_update", nullable = false)
-    protected Date lastUpdate;
+    protected LocalDateTime lastUpdate;
 
     public SynchronizableEntity() {
-        this.lastUpdate = new Date();
+        this.lastUpdate = LocalDateTime.now();
     }
 
-    public Date getLastUpdate() {
+    public LocalDateTime getLastUpdate() {
         return this.lastUpdate;
     }
 
@@ -33,9 +33,9 @@ public abstract class SynchronizableEntity<T extends SynchronizableEntity> {
     }
 
     public boolean isMoreUpdated(SynchronizableModel<T> model) {
-        final Date thisLastUpdate = this.getLastUpdate();
+        final LocalDateTime thisLastUpdate = this.getLastUpdate();
         if (thisLastUpdate != null) {
-            final Date otherLastUpdate = model.getLastUpdate();
+            final LocalDateTime otherLastUpdate = model.getLastUpdate();
             if (otherLastUpdate != null) {
                 return this.lastUpdate.compareTo(model.getLastUpdate()) > 0;
             }

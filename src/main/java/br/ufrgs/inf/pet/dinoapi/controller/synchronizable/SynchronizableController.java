@@ -6,7 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PutMapping;
 
-public abstract class SynchronizableController<T extends SynchronizableEntity> {
+public abstract class SynchronizableController<T extends SynchronizableEntity, I extends SynchronizableModel<T>> {
     protected final SynchronizableService<T> service;
 
     protected SynchronizableController(SynchronizableService<T> service) {
@@ -14,7 +14,7 @@ public abstract class SynchronizableController<T extends SynchronizableEntity> {
     }
 
     @PutMapping("sync/")
-    public ResponseEntity<?> updateOrder(SynchronizableModel<T> model) {
+    public ResponseEntity<?> updateOrder(I model) {
         return this.service.synchronize(model);
     }
 }
