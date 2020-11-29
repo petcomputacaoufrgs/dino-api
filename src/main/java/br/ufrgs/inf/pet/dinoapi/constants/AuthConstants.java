@@ -2,9 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.constants;
 
 public final class AuthConstants {
     public final static int GOOGLE_ID_MAX = 100;
-    public final static int REFRESH_TOKEN_MAX = 200;
     public final static int ACCESS_TOKEN_MAX = 560;
-
+    
     public final static int WS_TOKEN_MAX = 560;
 
     public final static String PICTURE_URL_NULL_MESSAGE = "pictureURL cannot be null.";

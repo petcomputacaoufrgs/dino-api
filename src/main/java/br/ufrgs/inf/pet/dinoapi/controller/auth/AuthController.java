@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleGrantRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleRefreshAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,18 @@ public interface AuthController {
     /**
      * Requisita um token de acesso Google pelo token de autenticação
      *
-     * @param token - Token de autenticação do Google
+     * @param googleAuthRequestModel - Objeto do tipo {@link GoogleAuthRequestModel}
      * @return Objeto {@link GoogleAuthResponseModel} com o novo token do google ou mensagem de erro
      */
-    ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel token);
+    ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestModel);
+
+    /**
+     * Requisita uma nova permissão para o Google
+     *
+     * @param googleGrantRequestModel - Objeto do tipo {@link GoogleGrantRequestModel}
+     * @return Objeto {@link GoogleAuthResponseModel} com o novo token do google ou mensagem de erro
+     */
+    ResponseEntity<?> googleGrantRequest(GoogleGrantRequestModel googleGrantRequestModel);
 
     /**
      * Requisita um token de acesso para conexão com o WebSocket

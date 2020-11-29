@@ -26,11 +26,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final AuthFilter authFilter;
 
+    private final AppConfig appConfig;
+
     @Autowired
-    public SecurityConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService) {
+    public SecurityConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService, AppConfig appConfig) {
         super();
         this.authFilter = authFilter;
         this.dinoUserDetailsService = dinoUserDetailsService;
+        this.appConfig = appConfig;
     }
 
     @Override
@@ -58,9 +61,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                new AppOriginConfig().getOrigin()
-        ));
+        configuration.setAllowedOrigins(Arrays.asList(appConfig.getOrigin()));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setExposedHeaders(Arrays.asList(
