@@ -43,6 +43,9 @@ public class Contact implements Serializable {
         @JoinColumn(name = "user_id", nullable = false)
         private User user;
 
+        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        private List<GoogleContact> googleContacts;
+
         public Contact() {
                 this.phones = new ArrayList<>();
         }
@@ -92,4 +95,11 @@ public class Contact implements Serializable {
             this.user = user;
         }
 
+        public List<GoogleContact> getGoogleContacts() {
+                return googleContacts;
+        }
+
+        public void setGoogleContacts(List<GoogleContact> googleContacts) {
+                this.googleContacts = googleContacts;
+        }
 }

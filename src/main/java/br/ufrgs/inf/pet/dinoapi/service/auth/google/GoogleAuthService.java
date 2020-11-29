@@ -13,4 +13,8 @@ public interface GoogleAuthService {
     ResponseEntity<?> googleRefreshAuth();
 
     GoogleAuth getUserGoogleAuth();
+
+    GoogleAuth save(GoogleAuth googleAuth);
+
+    ResponseEntity<?> declineGoogleContacts();
 }

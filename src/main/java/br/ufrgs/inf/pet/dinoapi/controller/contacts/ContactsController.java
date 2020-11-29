@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqModel;
+
 import org.springframework.http.ResponseEntity;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
 
@@ -64,5 +64,8 @@ public interface ContactsController {
      */
     ResponseEntity<?> editContact(ContactModel model);
 
-
+     /**
+     * Salva o declinio em acesso aos contatos do Google
+     */
+    ResponseEntity<?> declineGoogleContacts();
 }

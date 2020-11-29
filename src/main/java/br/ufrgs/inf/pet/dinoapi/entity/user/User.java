@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
@@ -57,6 +58,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Contact> contacts;
+
+    @OneToMany(mappedBy = "user")
+    private List<GoogleContact> googleContacts;
 
     @OneToOne(mappedBy = "user")
     private ContactVersion contactVersion;
@@ -185,4 +189,11 @@ public class User {
         this.faqUser = faqUser;
     }
 
+    public List<GoogleContact> getGoogleContacts() {
+        return googleContacts;
+    }
+
+    public void setGoogleContacts(List<GoogleContact> googleContacts) {
+        this.googleContacts = googleContacts;
+    }
 }
