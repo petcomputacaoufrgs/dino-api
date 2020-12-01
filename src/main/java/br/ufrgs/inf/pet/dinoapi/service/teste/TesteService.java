@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.teste;
 
 import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.teste.TesteDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.teste.TesteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -27,9 +28,11 @@ public class TesteService extends SynchronizableService<TesteEntity, Long, Teste
 
     @Override
     protected TesteEntity createEntity(TesteDataModel model) {
+        final User user = authService.getCurrentUser();
         final TesteEntity entity = new TesteEntity();
+        entity.setUser(user);
         entity.setName(model.getName());
-        return null;
+        return entity;
     }
 
     @Override

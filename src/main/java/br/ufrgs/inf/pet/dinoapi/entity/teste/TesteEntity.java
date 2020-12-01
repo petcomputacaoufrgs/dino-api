@@ -11,17 +11,17 @@ import static javax.persistence.GenerationType.AUTO;
 
 @Entity
 @Table(name = "teste")
-public class TesteEntity extends SynchronizableEntity {
+public class TesteEntity extends SynchronizableEntity<Long> {
     @Id
     @GeneratedValue(strategy = AUTO)
     @Column(name = "id", nullable = false)
-    protected Long id;
+    private Long id;
 
     @Column(name = "name", nullable = false)
-    protected String name;
+    private String name;
 
     @Column(name = "last_update", nullable = false)
-    protected LocalDateTime lastUpdate;
+    private LocalDateTime lastUpdate;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -29,6 +29,10 @@ public class TesteEntity extends SynchronizableEntity {
 
     public User getUser() {
         return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getName() {

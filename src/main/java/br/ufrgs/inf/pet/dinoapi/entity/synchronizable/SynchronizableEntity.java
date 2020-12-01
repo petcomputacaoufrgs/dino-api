@@ -3,7 +3,11 @@ package br.ufrgs.inf.pet.dinoapi.entity.synchronizable;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
 import java.time.LocalDateTime;
 
-public abstract class SynchronizableEntity {
+/**
+ * Base for Synchronizable Entity
+ * @param <ID> Type of synchronizable entity id
+ */
+public abstract class SynchronizableEntity<ID> {
     public SynchronizableEntity() {
         this.setLastUpdate(LocalDateTime.now());
     }
@@ -12,23 +16,24 @@ public abstract class SynchronizableEntity {
 
     public abstract void setLastUpdate(LocalDateTime lastUpdate);
 
-    public abstract Long getId();
+    public abstract ID getId();
 
-    public boolean isNewerThan(SynchronizableModel model) {
+    public boolean isOlderOrEqualThan(SynchronizableModel<ID> model) {
         final LocalDateTime thisLastUpdate = this.getLastUpdate();
         if (thisLastUpdate != null) {
             final LocalDateTime otherLastUpdate = model.getLastUpdate();
             if (otherLastUpdate != null) {
-                return this.getLastUpdate().isAfter(model.getLastUpdate());
+                return this.getLastUpdate().isBefore(model.getLastUpdate())
+                        || this.getLastUpdate().isEqual(model.getLastUpdate());
             }
 
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
-    public boolean isOlderThan(SynchronizableModel model) {
+    public boolean isOlderThan(SynchronizableModel<ID> model) {
         final LocalDateTime thisLastUpdate = this.getLastUpdate();
         if (thisLastUpdate != null) {
             final LocalDateTime otherLastUpdate = model.getLastUpdate();

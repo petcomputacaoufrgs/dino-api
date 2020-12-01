@@ -1,20 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
+/**
+ * Response model for synchronizable entity
+ */
 public final class SynchronizableResponseModel {
     private boolean success;
     private String error;
     private SynchronizableDataModel data;
 
-    public boolean isSuccess() {
-        return success;
-    }
-
     public void setSuccess(boolean success) {
         this.success = success;
-    }
-
-    public String getError() {
-        return error;
     }
 
     public void setError(String error) {
@@ -27,5 +22,13 @@ public final class SynchronizableResponseModel {
 
     public void setData(SynchronizableDataModel data) {
         this.data = data;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public boolean isSuccess() {
+        return success;
     }
 }

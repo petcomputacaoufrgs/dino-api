@@ -1,17 +1,26 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
+import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
+
+import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
-public final class SynchronizableDeleteModel implements SynchronizableModel {
-    protected Long id;
+/**
+ * Model for delete an synchronizable entity
+ * @param <ID> Id type of synchronizable entity
+ */
+public final class SynchronizableDeleteModel<ID> implements SynchronizableModel<ID> {
+    @NotNull(message= SynchronizableConstants.ID_CANNOT_BE_NULL)
+    protected ID id;
 
+    @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
     protected LocalDateTime lastUpdate;
 
-    public Long getId() {
+    public ID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(ID id) {
         this.id = id;
     }
 
