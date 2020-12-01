@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
  * @param <ID> Type of entity ID
  * @param <ENTITY> Synchronizable entity
  */
-public abstract class SynchronizableDataModel<ID, ENTITY extends SynchronizableEntity<ID>> implements SynchronizableModel<ID> {
+public abstract class SynchronizableDataModel<ENTITY extends SynchronizableEntity<ID>, ID> implements SynchronizableModel<ID> {
     private ID id;
 
     @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)

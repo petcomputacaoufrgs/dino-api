@@ -5,21 +5,22 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.teste.TesteDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.teste.TesteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableService;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TesteService extends SynchronizableService<TesteEntity, Long, TesteDataModel, TesteRepository> {
+public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Long, TesteDataModel, TesteRepository> {
     @Autowired
-    public TesteService(TesteRepository repository, AuthServiceImpl authService) {
+    public TesteServiceImpl(TesteRepository repository, AuthServiceImpl authService) {
         super(repository, authService);
     }
 
     @Override
-    protected TesteDataModel createDataModel(TesteEntity entity) {
+    public TesteDataModel createDataModel(TesteEntity entity) {
         final TesteDataModel model = new TesteDataModel(entity);
         model.setName(entity.getName());
 
@@ -27,7 +28,7 @@ public class TesteService extends SynchronizableService<TesteEntity, Long, Teste
     }
 
     @Override
-    protected TesteEntity createEntity(TesteDataModel model) {
+    public TesteEntity createEntity(TesteDataModel model) {
         final User user = authService.getCurrentUser();
         final TesteEntity entity = new TesteEntity();
         entity.setUser(user);
@@ -36,12 +37,17 @@ public class TesteService extends SynchronizableService<TesteEntity, Long, Teste
     }
 
     @Override
-    protected void updateEntity(TesteEntity entity, TesteDataModel model) {
+    public void updateEntity(TesteEntity entity, TesteDataModel model) {
         entity.setName(model.getName());
     }
 
     @Override
-    protected Optional<TesteEntity> getEntityByIdAndUserId(Long id, Long userId) {
+    public Optional<TesteEntity> getEntityByIdAndUserId(Long id, Long userId) {
         return repository.findByIdAndUserId(id, userId);
+    }
+
+    @Override
+    public List<TesteEntity> getEntitiesByUserId(Long userId) {
+        return repository.findByUserId(userId);
     }
 }

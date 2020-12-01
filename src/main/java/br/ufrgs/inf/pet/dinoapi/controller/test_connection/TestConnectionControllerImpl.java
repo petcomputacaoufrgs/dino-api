@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class TestConnectionControllerImpl implements TestConnectionController{
+public class TestConnectionControllerImpl implements TestConnectionController {
 
     private final TestConnectionServiceImpl testConnectionService;
 

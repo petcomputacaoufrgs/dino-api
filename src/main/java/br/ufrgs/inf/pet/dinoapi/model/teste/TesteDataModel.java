@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.model.teste;
 import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 
-public class TesteDataModel extends SynchronizableDataModel<Long, TesteEntity> {
+public class TesteDataModel extends SynchronizableDataModel<TesteEntity, Long> {
     private String name;
 
     public TesteDataModel() {

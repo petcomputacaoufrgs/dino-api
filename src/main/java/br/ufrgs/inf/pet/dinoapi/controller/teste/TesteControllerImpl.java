@@ -4,16 +4,16 @@ import br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableControll
 import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
 import br.ufrgs.inf.pet.dinoapi.model.teste.TesteDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.teste.TesteRepository;
-import br.ufrgs.inf.pet.dinoapi.service.teste.TesteService;
+import br.ufrgs.inf.pet.dinoapi.service.teste.TesteServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/teste/")
-public class TesteControllerImpl extends SynchronizableControllerImpl<TesteEntity, Long, TesteDataModel, TesteRepository, TesteService> {
+public class TesteControllerImpl extends SynchronizableControllerImpl<TesteEntity, Long, TesteDataModel, TesteRepository, TesteServiceImpl> {
     @Autowired
-    protected TesteControllerImpl(TesteService service) {
+    protected TesteControllerImpl(TesteServiceImpl service) {
         super(service);
     }
 }
