@@ -12,4 +12,6 @@ public class SynchronizableConstants {
     public final static String ID_CANNOT_BE_NULL = "id cant be null";
 
     public final static String LAST_UPDATE_CANNOT_BE_NULL = "last update cannot be null";
+
+    public final static String DATA_CANNOT_BE_NULL = "data cannot be null";
 }

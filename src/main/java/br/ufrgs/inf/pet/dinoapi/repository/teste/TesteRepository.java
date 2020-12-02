@@ -16,4 +16,7 @@ public interface TesteRepository extends CrudRepository<TesteEntity, Long> {
 
     @Query("SELECT t FROM TesteEntity t WHERE t.user.id = :userId")
     List<TesteEntity> findByUserId(@Param("userId") Long userID);
+
+    @Query("SELECT t FROM TesteEntity t WHERE t.id IN :ids AND t.user.id = :userId")
+    List<TesteEntity> findByIdsAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 }

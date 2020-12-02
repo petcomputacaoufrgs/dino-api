@@ -50,4 +50,9 @@ public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Lon
     public List<TesteEntity> getEntitiesByUserId(Long userId) {
         return repository.findByUserId(userId);
     }
+
+    @Override
+    public List<TesteEntity> getEntitiesByIdsAndUserId(List<Long> ids, Long userId) {
+        return repository.findByIdsAndUserId(ids, userId);
+    }
 }

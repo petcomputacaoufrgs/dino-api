@@ -2,6 +2,13 @@ package br.ufrgs.inf.pet.dinoapi.service.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteAllModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableGetModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableSaveAllModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDeleteAllResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableResponseModel;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -15,7 +22,7 @@ import java.util.Optional;
  * @param <DATA_MODEL> Data model of synchronizable entity
  */
 public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
-        ID, DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>> {
+        ID extends Comparable<ID>, DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>> {
 
     /**
      * Create a complete data model ({@link DATA_MODEL}) based in an entity ({@link ENTITY})
@@ -56,6 +63,14 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
     List<ENTITY> getEntitiesByUserId(Long userId);
 
     /**
+     * Get entities from database using a list of ids and a userId for security validation (only takes data that the user has access)
+     * @param ids: list of entity ids
+     * @param userId: user's id
+     * @return list of database entities (can be an empty list)
+     */
+    List<ENTITY> getEntitiesByIdsAndUserId(List<ID> ids, Long userId);
+
+    /**
      * Implements get method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
     ResponseEntity<SynchronizableResponseModel<ENTITY, ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model);
@@ -74,4 +89,16 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * Implements getAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
     ResponseEntity<SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL>> getAll();
+
+    /**
+     * Implements saveAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
+     */
+    ResponseEntity<SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL>>
+    saveAll(SynchronizableSaveAllModel<ENTITY, ID, DATA_MODEL> model);
+
+    /**
+     * Implements deleteAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
+     */
+    ResponseEntity<SynchronizableDeleteAllResponseModel<ID>> deleteAll(SynchronizableDeleteAllModel<ID> model);
+
 }

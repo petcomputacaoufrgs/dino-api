@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
  * Base for Synchronizable Entity
  * @param <ID> Type of synchronizable entity id
  */
-public abstract class SynchronizableEntity<ID> {
+public abstract class SynchronizableEntity<ID extends Comparable<ID>> {
     public SynchronizableEntity() {
         this.setLastUpdate(LocalDateTime.now());
     }

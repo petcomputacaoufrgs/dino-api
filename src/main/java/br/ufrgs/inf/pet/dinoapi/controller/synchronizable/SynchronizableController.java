@@ -2,6 +2,13 @@ package br.ufrgs.inf.pet.dinoapi.controller.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteAllModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableGetModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableSaveAllModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDeleteAllResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableResponseModel;
 import org.springframework.http.ResponseEntity;
 
 /**
@@ -10,7 +17,7 @@ import org.springframework.http.ResponseEntity;
  * @param <ID> Type of synchronizable entity ID
  * @param <DATA_MODEL> Data model of synchronizable entity
  */
-public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID>, ID, DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>> {
+public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID>, ID extends Comparable<ID>, DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>> {
     /**
      * Search for a item using id and lastUpdate date
      * @param model: object with search data
@@ -44,7 +51,7 @@ public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID
     ResponseEntity<SynchronizableResponseModel<ENTITY, ID, DATA_MODEL>> delete(SynchronizableDeleteModel<ID> model);
 
     /**
-     * Get all elements related to current user
+     * Save a object on server, if exists update based in lastUpdate
      * @return if server version exists:
      *              - if server version is more updated return server version
      *              - otherwise delete server version and return success
@@ -52,4 +59,27 @@ public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID
      *              - return error
      */
     ResponseEntity<SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL>> getAll();
+
+    /**
+     * Save a list of elements if exists
+     * @return for each element:
+     *              if server version exists:
+     *                  - if server version is more updated do nothing
+     *                  - otherwise update server version
+     *              otherwise:
+     *                  -  create new server data and return it
+     */
+    ResponseEntity<SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL>> saveAll(SynchronizableSaveAllModel<ENTITY, ID, DATA_MODEL> model);
+
+    /**
+     * Delete a list of elements if exists
+     * @param model: model with ids and delete infos
+     * @return for each element:
+     *              if server version exists:
+     *                  - if server version is more updated do nothing
+     *                  - otherwise delete server version
+     *              otherwise:
+     *                  - do nothing
+     */
+    ResponseEntity<SynchronizableDeleteAllResponseModel<ID>> deleteAll(SynchronizableDeleteAllModel<ID> model);
 }
