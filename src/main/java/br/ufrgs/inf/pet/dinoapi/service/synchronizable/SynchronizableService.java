@@ -9,6 +9,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableSaveA
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDeleteAllResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableResponseModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -69,6 +70,18 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * @return list of database entities (can be an empty list)
      */
     List<ENTITY> getEntitiesByIdsAndUserId(List<ID> ids, Long userId);
+
+    /**
+     * Get WebSocket destination for update entity
+     * @return WebSocketDestinationEnum wuth update
+     */
+    WebSocketDestinationsEnum getUpdateWebsocketDestination();
+
+    /**
+     * Get WebSocket destination for delete entity
+     * @return WebSocketDestinationEnum wuth update
+     */
+    WebSocketDestinationsEnum getDeleteWebsocketDestination();
 
     /**
      * Implements get method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}

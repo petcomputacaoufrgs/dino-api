@@ -12,7 +12,6 @@ import java.util.List;
 
 @Service
 public class GenericQueueMessageServiceImpl implements GenericQueueMessageService {
-
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     private final AuthServiceImpl authService;

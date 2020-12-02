@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AlertUpdateTopicServiceImpl implements AlertUpdateTopicService {
-
         protected final SimpMessagingTemplate simpMessagingTemplate;
 
         @Autowired
@@ -28,5 +27,4 @@ public class AlertUpdateTopicServiceImpl implements AlertUpdateTopicService {
             model.setNewId(id);
             this.simpMessagingTemplate.convertAndSend(pathEnum.getValue(), model);
         }
-
 }

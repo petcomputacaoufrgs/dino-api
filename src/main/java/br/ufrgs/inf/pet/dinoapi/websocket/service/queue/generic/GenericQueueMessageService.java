@@ -5,5 +5,4 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 public interface GenericQueueMessageService {
     void sendObjectMessage(Object object, WebSocketDestinationsEnum pathEnum) throws JsonProcessingException;
-
 }

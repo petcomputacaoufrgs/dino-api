@@ -6,6 +6,8 @@ import br.ufrgs.inf.pet.dinoapi.model.teste.TesteDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.teste.TesteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.generic.GenericQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,8 +17,9 @@ import java.util.Optional;
 @Service
 public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Long, TesteDataModel, TesteRepository> {
     @Autowired
-    public TesteServiceImpl(TesteRepository repository, AuthServiceImpl authService) {
-        super(repository, authService);
+    public TesteServiceImpl(TesteRepository repository, AuthServiceImpl authService,
+                            GenericQueueMessageServiceImpl genericQueueMessageService) {
+        super(repository, authService, genericQueueMessageService);
     }
 
     @Override
@@ -54,5 +57,15 @@ public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Lon
     @Override
     public List<TesteEntity> getEntitiesByIdsAndUserId(List<Long> ids, Long userId) {
         return repository.findByIdsAndUserId(ids, userId);
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
+        return WebSocketDestinationsEnum.ALERT_APP_SETTINGS_UPDATE;
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
+        return WebSocketDestinationsEnum.ALERT_CONTACT_UPDATE;
     }
 }

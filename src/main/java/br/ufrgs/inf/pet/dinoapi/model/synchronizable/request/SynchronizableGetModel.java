@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 public class SynchronizableGetModel<ID extends Comparable<ID>> implements SynchronizableIdModel<ID> {
     @NotNull(message= SynchronizableConstants.ID_CANNOT_BE_NULL)
-    private ID id;
+    protected ID id;
 
     public ID getId() {
         return id;
