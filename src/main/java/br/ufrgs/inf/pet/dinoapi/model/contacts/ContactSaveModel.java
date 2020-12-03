@@ -1,11 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
 
@@ -39,6 +41,13 @@ public class ContactSaveModel {
         this.phones = phones;
         this.description = description;
         this.color = color;
+    }
+
+    public ContactSaveModel(Contact contact) {
+        this.setName(contact.getName());
+        this.setPhones(contact.getPhones().stream().map(PhoneSaveModel::new).collect(Collectors.toList()));
+        this.setDescription(contact.getDescription());
+        this.setColor(contact.getColor());
     }
 
     public void setFrontId(Long frontId) {

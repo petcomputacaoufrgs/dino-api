@@ -1,7 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
-import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
@@ -11,6 +9,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,8 @@ public class ContactServiceImpl implements ContactService {
     private final GoogleAuthServiceImpl googleAuthService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl, GoogleContactRepository googleContactRepository, GoogleAuthServiceImpl googleAuthService) {
+    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl,
+                              GoogleContactRepository googleContactRepository, @Lazy GoogleAuthServiceImpl googleAuthService) {
         this.contactRepository = contactRepository;
         this.contactVersionServiceImpl = contactVersionServiceImpl;
         this.phoneServiceImpl = phoneServiceImpl;
@@ -52,12 +52,17 @@ public class ContactServiceImpl implements ContactService {
             return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    public ContactModel saveContactOnRepository(ContactSaveModel model, User user) {
+
+        final Contact contact = contactRepository.save(new Contact(model, user));
+
+        return saveContactRelatedData(user, model, contact);
+    }
+
     public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
             final User user = authServiceImpl.getCurrentUser();
 
-            final Contact contact = contactRepository.save(new Contact(model, user));
-
-            final ContactModel responseModel = saveContactRelatedData(user, model, contact);
+            ContactModel responseModel = saveContactOnRepository(model, user);
 
             contactVersionServiceImpl.updateVersion(user);
 
@@ -70,18 +75,15 @@ public class ContactServiceImpl implements ContactService {
 
         final User user = authServiceImpl.getCurrentUser();
 
-        contactVersionServiceImpl.updateVersion(user);
-
         final List<ContactModel> responseModels = new ArrayList<>();
 
-        models.forEach(modelContact -> {
-            Contact contact = new Contact(modelContact, user);
+        contactVersionServiceImpl.updateVersion(user);
 
-            contact = contactRepository.save(contact);
+        models.forEach(model -> {
 
-            final ContactModel contactModel = saveContactRelatedData(user, modelContact, contact);
+            final ContactModel responseModel = saveContactOnRepository(model, user);
 
-            responseModels.add(contactModel);
+            responseModels.add(responseModel);
         });
 
         final SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
@@ -90,6 +92,7 @@ public class ContactServiceImpl implements ContactService {
     }
 
     private ContactModel saveContactRelatedData(User user, ContactSaveModel modelContact, Contact contact) {
+
         contact.setPhones(phoneServiceImpl.savePhones(modelContact.getPhones(), contact));
 
         ContactModel responseModel = new ContactModel(contact);
