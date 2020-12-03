@@ -47,6 +47,12 @@ public class Phone implements Serializable {
         this.setContact(contact);
     }
 
+    public Phone(Phone phone, Contact contact){
+        this.setType(phone.getType());
+        this.setNumber(phone.getNumber());
+        this.setContact(contact);
+    }
+
     public Long getId() {
         return id;
     }

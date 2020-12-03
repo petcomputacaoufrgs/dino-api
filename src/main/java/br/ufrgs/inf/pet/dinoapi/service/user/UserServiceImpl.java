@@ -1,11 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
-import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
@@ -16,7 +19,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,19 +32,26 @@ public class UserServiceImpl implements UserService {
 
     private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
+    private final EssentialContactRepository essentialContactRepository;
+
     private final ContactRepository contactRepository;
+
+    private final PhoneRepository phoneRepository;
 
     private final PhoneServiceImpl phoneServiceImpl;
 
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl,
-                           ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl) {
+                           EssentialContactRepository essentialContactRepository, PhoneServiceImpl phoneServiceImpl,
+                           ContactRepository contactRepository, PhoneRepository phoneRepository) {
         this.userRepository = userRepository;
         this.authService = authService;
         this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
-        this.contactRepository = contactRepository;
+        this.essentialContactRepository = essentialContactRepository;
         this.phoneServiceImpl = phoneServiceImpl;
+        this.contactRepository = contactRepository;
+        this.phoneRepository = phoneRepository;
     }
 
     @Override
@@ -150,11 +162,14 @@ public class UserServiceImpl implements UserService {
 
     private void createDefaultUserData(User user) {
 
-        ContactsConstants.DEFAULT_CONTACTS.forEach(model -> {
+        List<EssentialContact> defaultContacts = essentialContactRepository.findByFaqIdIsNull();
 
-            Contact contact = contactRepository.save(new Contact(model, user));
+        defaultContacts.forEach(defaultContact -> {
+            Contact contact = contactRepository.save(new Contact(defaultContact, user));
 
-            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
+            phoneRepository.saveAll(contact.getPhones()
+                    .stream().map(phone -> new Phone(phone, contact))
+                    .collect(Collectors.toList()));
         });
     }
 }
