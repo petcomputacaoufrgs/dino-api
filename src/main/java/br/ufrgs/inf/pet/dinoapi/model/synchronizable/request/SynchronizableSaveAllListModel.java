@@ -9,9 +9,9 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
  * @param <ID>: synchronizable entity id
  * @param <DATA_MODEL>: data model for synchronizable entity
  */
-public class SynchronizableSaveAllModel<
+public class SynchronizableSaveAllListModel<
         ENTITY extends SynchronizableEntity<ID>,
         ID extends Comparable<ID>,
         DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>>
-        extends SynchronizableGenericListModel<ID, DATA_MODEL>{
+        extends SynchronizableGenericListModel<ID, DATA_MODEL> {
 }

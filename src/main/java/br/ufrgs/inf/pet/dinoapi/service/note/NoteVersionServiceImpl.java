@@ -73,11 +73,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         final NoteOrderUpdateModel model = new NoteOrderUpdateModel();
         model.setItems(noteList.stream().map(NoteOrderItemUpdateModel::new).collect(Collectors.toList()));
 
-        try {
-            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_ORDER_UPDATE);
-        } catch (JsonProcessingException e) {
-            this.updateNoteVersion();
-        }
+        genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_ORDER_UPDATE);
     }
 
     @Override
@@ -99,11 +95,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         model.setNewVersion(noteVersion.getNoteVersion());
         model.setIdList(idList);
 
-        try {
-            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_DELETE);
-        } catch (JsonProcessingException e) {
-            this.updateNoteVersion();
-        }
+        genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_DELETE);
 
         return noteVersion.getNoteVersion();
     }
@@ -126,11 +118,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         final ColumnOrderUpdateModel model = new ColumnOrderUpdateModel();
         model.setItems(columnList.stream().map(ColumnOrderItemUpdateModel::new).collect(Collectors.toList()));
 
-        try {
-            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_ORDER_UPDATE);
-        } catch (JsonProcessingException e) {
-            this.updateColumnVersion();
-        }
+        genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_ORDER_UPDATE);
     }
 
     @Override
@@ -152,11 +140,7 @@ public class NoteVersionServiceImpl implements NoteVersionService {
         model.setNewVersion(noteVersion.getColumnVersion());
         model.setIdList(idList);
 
-        try {
-            genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_DELETE);
-        } catch (JsonProcessingException e) {
-            this.updateNoteVersion();
-        }
+        genericQueueMessageService.sendObjectMessage(model, WebSocketDestinationsEnum.ALERT_NOTE_COLUMN_DELETE);
 
         return noteVersion.getColumnVersion();
     }

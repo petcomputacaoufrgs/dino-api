@@ -5,18 +5,18 @@ import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDeleteAllResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGenericResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListDataResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDataResponseModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.ListUtils;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.generic.GenericQueueMessageServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.common.collect.Lists;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -45,8 +45,8 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableResponseModel<ENTITY, ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
-        final SynchronizableResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableResponseModel<>();
+    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
+        final SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
         final ENTITY entity = this.getEntity(model.getId());
 
         if (entity != null) {
@@ -62,8 +62,8 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableResponseModel<ENTITY, ID, DATA_MODEL>> save(DATA_MODEL model) {
-        final SynchronizableResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableResponseModel<>();
+    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> save(DATA_MODEL model) {
+        final SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
 
         if (model != null) {
             response.setSuccess(true);
@@ -85,9 +85,9 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableResponseModel<ENTITY, ID, DATA_MODEL>>
+    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>>
     delete(SynchronizableDeleteModel<ID> model) {
-        final SynchronizableResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableResponseModel<>();
+        final SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
         final ENTITY entity = this.getEntity(model.getId());
         if (entity != null) {
             final boolean wasDeleted = this.delete(entity, model);
@@ -109,11 +109,11 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL>> getAll() {
+    public ResponseEntity<SynchronizableListDataResponseModel<ENTITY, ID, DATA_MODEL>> getAll() {
         final List<ENTITY> entities = this.getAllEntities();
         final List<DATA_MODEL> data = entities.stream().map(this::createDataModel).collect(Collectors.toList());
 
-        final SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableListResponseModel<>();
+        final SynchronizableListDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableListDataResponseModel<>();
 
         response.setSuccess(true);
         response.setData(data);
@@ -122,12 +122,12 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL>>
-    saveAll(SynchronizableSaveAllModel<ENTITY, ID, DATA_MODEL> model) {
+    public ResponseEntity<SynchronizableGenericResponseModel>
+    saveAll(SynchronizableSaveAllListModel<ENTITY, ID, DATA_MODEL> model) {
         final List<DATA_MODEL> newData = new ArrayList<>();
         final List<DATA_MODEL> updateData = new ArrayList<>();
         final List<ENTITY> newEntities = new ArrayList<>();
-        final SynchronizableListResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableListResponseModel<>();
+        final SynchronizableGenericResponseModel response = new SynchronizableGenericResponseModel();
 
         model.getData().forEach(item -> {
             if (item.getId() != null) {
@@ -146,15 +146,14 @@ public abstract class SynchronizableServiceImpl<
                 .collect(Collectors.toList());
 
         response.setSuccess(true);
-        response.setData(savedModels);
         this.sendUpdateMessage(savedModels);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<SynchronizableDeleteAllResponseModel<ID>>
-    deleteAll(SynchronizableDeleteAllModel<ID> model) {
+    public ResponseEntity<SynchronizableGenericResponseModel>
+    deleteAll(SynchronizableDeleteAllListModel<ID> model) {
         final List<SynchronizableDeleteModel<ID>> orderedData = model.getData().stream()
                 .filter(ListUtils.distinctByKey(SynchronizableDeleteModel::getId))
                 .sorted(Comparator.comparing(SynchronizableDeleteModel::getId)).collect(Collectors.toList());
@@ -192,10 +191,9 @@ public abstract class SynchronizableServiceImpl<
 
         repository.deleteAll(entitiesToDelete);
 
-        final SynchronizableDeleteAllResponseModel<ID> response = new SynchronizableDeleteAllResponseModel<>();
+        final SynchronizableGenericResponseModel response = new SynchronizableGenericResponseModel();
 
         response.setSuccess(true);
-        response.setData(deletedIds);
         this.sendDeleteMessage(deletedIds);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -300,39 +298,31 @@ public abstract class SynchronizableServiceImpl<
         }).collect(Collectors.toList());
     }
 
-    protected void sendUpdateMessage(Object object) {
-        try {
-            List<Object> data = new ArrayList<>();
-            data.add(object);
-            genericQueueMessageService.sendObjectMessage(data, this.getUpdateWebsocketDestination());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace(); //TODO Log error
-        }
+    protected void sendUpdateMessage(DATA_MODEL model) {
+        List<DATA_MODEL> data = new ArrayList<>();
+        data.add(model);
+        this.sendUpdateMessage(data);
     }
 
-    protected void sendUpdateMessage(List<Object> object) {
-        try {
-            genericQueueMessageService.sendObjectMessage(object, this.getUpdateWebsocketDestination());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace(); //TODO Log error
+    protected void sendUpdateMessage(List<DATA_MODEL> data) {
+        if (!data.isEmpty()) {
+            final SynchronizableWSUpdateModel<ENTITY, ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
+            model.setData(data);
+            genericQueueMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination());
         }
     }
 
     protected void sendDeleteMessage(ID id) {
-        try {
-            final List<Object> data = new ArrayList<>();
-            data.add(id);
-            genericQueueMessageService.sendObjectMessage(data, this.getDeleteWebsocketDestination());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace(); //TODO Log error
-        }
+        final List<ID> data = new ArrayList<>();
+        data.add(id);
+        this.sendDeleteMessage(data);
     }
 
-    protected void sendDeleteMessage(List<ID> ids) {
-        try {
-            genericQueueMessageService.sendObjectMessage(ids, this.getDeleteWebsocketDestination());
-        } catch (JsonProcessingException e) {
-            e.printStackTrace(); //TODO Log error
+    protected void sendDeleteMessage(List<ID> data) {
+        if(!data.isEmpty()) {
+            final SynchronizableWSDeleteModel<ID> model = new SynchronizableWSDeleteModel<>();
+            model.setData(data);
+            genericQueueMessageService.sendObjectMessage(model, this.getDeleteWebsocketDestination());
         }
     }
 }

@@ -258,11 +258,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             if (!googleAuth.isDeclinedContatsGrant()) {
                 googleAuth.setDeclinedContatsGrant(true);
                 this.save(googleAuth);
-                try {
-                    genericQueueMessageService.sendObjectMessage(null, WebSocketDestinationsEnum.ALERT_AUTH_SCOPE_UPDATE);
-                } catch (JsonProcessingException e) {
-                    return new ResponseEntity<>(ContactsConstants.SUCCESS_DECLINE_REQUEST_WITHOUT_ALERT, HttpStatus.OK);
-                }
+                genericQueueMessageService.sendObjectMessage(null, WebSocketDestinationsEnum.ALERT_AUTH_SCOPE_UPDATE);
             }
 
             return new ResponseEntity<>(ContactsConstants.SUCCESS_DECLINE_REQUEST, HttpStatus.OK);

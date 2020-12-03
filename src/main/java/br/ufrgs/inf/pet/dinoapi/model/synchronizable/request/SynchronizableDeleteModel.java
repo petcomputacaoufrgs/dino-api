@@ -9,7 +9,8 @@ import java.time.LocalDateTime;
  * Model for delete an synchronizable entity
  * @param <ID> Id type of synchronizable entity
  */
-public class SynchronizableDeleteModel<ID extends Comparable<ID>> extends SynchronizableGetModel<ID> implements SynchronizableModel<ID> {
+public class SynchronizableDeleteModel<ID extends Comparable<ID>>
+        extends SynchronizableGetModel<ID> implements SynchronizableModel<ID> {
     @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
     protected LocalDateTime lastUpdate;
 
