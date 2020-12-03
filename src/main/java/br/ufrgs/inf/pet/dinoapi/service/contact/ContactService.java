@@ -15,5 +15,7 @@ public interface ContactService {
 
     ResponseEntity<List<ContactModel>> getUserContacts();
 
+    ResponseEntity<?> declineGoogleContacts();
+
 }
 

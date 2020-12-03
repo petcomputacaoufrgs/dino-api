@@ -32,7 +32,7 @@ public class Contact implements Serializable {
         private String name;
 
         @Valid
-        @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL)
+        @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         private List<Phone> phones;
 
         @Column(name = "description", length = DESCRIPTION_MAX)
@@ -47,6 +47,9 @@ public class Contact implements Serializable {
 
         @OneToMany(mappedBy = "contact")
         private List<EssentialContact> essentialContacts;
+
+        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        private List<GoogleContact> googleContacts;
 
         public Contact() {
                 this.phones = new ArrayList<>();
@@ -111,4 +114,11 @@ public class Contact implements Serializable {
             this.user = user;
         }
 
+        public List<GoogleContact> getGoogleContacts() {
+                return googleContacts;
+        }
+
+        public void setGoogleContacts(List<GoogleContact> googleContacts) {
+                this.googleContacts = googleContacts;
+        }
 }

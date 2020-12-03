@@ -1,10 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth.google;
 
-public class GoogleRefreshAuthResponseModel {
+import java.util.List;
 
+public class GoogleRefreshAuthResponseModel {
     private String googleAccessToken;
 
     private Long googleExpiresDate;
+
+    private List<String> scopeList;
+
+    private boolean declinedContatsGrant;
 
     public GoogleRefreshAuthResponseModel() {}
 
@@ -24,4 +29,19 @@ public class GoogleRefreshAuthResponseModel {
         this.googleExpiresDate = googleExpiresDate;
     }
 
+    public List<String> getScopeList() {
+        return scopeList;
+    }
+
+    public void setScopeList(List<String> scopeList) {
+        this.scopeList = scopeList;
+    }
+
+    public boolean isDeclinedContatsGrant() {
+        return declinedContatsGrant;
+    }
+
+    public void setDeclinedContatsGrant(boolean declinedContatsGrant) {
+        this.declinedContatsGrant = declinedContatsGrant;
+    }
 }

@@ -65,4 +65,8 @@ public class ContactsControllerImpl implements ContactsController {
         return contactServiceImpl.deleteContacts(models);
     }
 
+    @PutMapping("google/decline_contacts/")
+    public ResponseEntity<?> declineGoogleContacts() {
+        return contactServiceImpl.declineGoogleContacts();
+    }
 }

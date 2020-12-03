@@ -1,11 +1,13 @@
-package br.ufrgs.inf.pet.dinoapi.entity.auth;
+package br.ufrgs.inf.pet.dinoapi.entity.auth.google;
 
+import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.GOOGLE_ID_MAX;
-import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.REFRESH_TOKEN_MAX;
+import java.util.ArrayList;
+import java.util.List;
+
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -19,22 +21,32 @@ public class GoogleAuth {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "google_id", length = GOOGLE_ID_MAX, unique = true, nullable = false)
+    @Column(name = "google_id", length = GoogleAuthConstants.GOOGLE_ID_MAX, unique = true, nullable = false)
     private String googleId;
 
-    @Column(name = "refresh_token", length = REFRESH_TOKEN_MAX, unique = true, nullable = false)
+    @Column(name = "refresh_token", length = GoogleAuthConstants.REFRESH_TOKEN_MAX, unique = true, nullable = false)
     private String refreshToken;
+
+    @Column(name = "contacts_declined", nullable = false)
+    private boolean declinedContatsGrant;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public GoogleAuth() {}
+    @OneToMany(mappedBy = "googleAuth", fetch = FetchType.LAZY)
+    private List<GoogleScope> googleScopes;
+
+    public GoogleAuth() {
+        this.googleScopes = new ArrayList<>();
+    }
 
     public GoogleAuth(String googleId, String refreshToken, User user) {
         this.googleId = googleId;
         this.refreshToken = refreshToken;
         this.user = user;
+        this.googleScopes = new ArrayList<>();
+        this.declinedContatsGrant = false;
     }
 
     public Long getId() {
@@ -61,5 +73,21 @@ public class GoogleAuth {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public List<GoogleScope> getGoogleScopes() {
+        return googleScopes;
+    }
+
+    public void setGoogleScopes(List<GoogleScope> googleScopes) {
+        this.googleScopes = googleScopes;
+    }
+
+    public boolean isDeclinedContatsGrant() {
+        return declinedContatsGrant;
+    }
+
+    public void setDeclinedContatsGrant(boolean contactsDeclined) {
+        this.declinedContatsGrant = contactsDeclined;
     }
 }

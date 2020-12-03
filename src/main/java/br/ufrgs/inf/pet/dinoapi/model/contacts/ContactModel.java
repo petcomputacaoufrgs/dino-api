@@ -10,6 +10,7 @@ public class ContactModel {
     private List<PhoneModel> phones;
     private String description;
     private Byte color;
+    private String resourceName;
 
     public ContactModel(){}
 
@@ -19,6 +20,11 @@ public class ContactModel {
         this.setPhones(contact.getPhones().stream().map(PhoneModel::new).collect(Collectors.toList()));
         this.setDescription(contact.getDescription());
         this.setColor(contact.getColor());
+
+        if (contact.getGoogleContacts() != null && contact.getGoogleContacts().size() > 0) {
+            final GoogleContact googleContact = contact.getGoogleContacts().get(0);
+            this.setResourceName(googleContact.getResourceName());
+        }
     }
 
     public void setId(Long id) {
@@ -54,6 +60,13 @@ public class ContactModel {
 
     public Byte getColor() { return color; }
 
+    public String getResourceName() {
+        return resourceName;
+    }
+
+    public void setResourceName(String resourceName) {
+        this.resourceName = resourceName;
+    }
 }
 
 

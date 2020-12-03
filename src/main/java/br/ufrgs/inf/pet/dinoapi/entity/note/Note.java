@@ -36,7 +36,7 @@ public class Note {
     @JoinColumn(name = "note_column_id", nullable = false)
     private NoteColumn noteColumn;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "note__note_tag",
             joinColumns = @JoinColumn(name = "note_id", nullable = false),
             inverseJoinColumns = @JoinColumn(name = "note_tag_id", nullable = false))

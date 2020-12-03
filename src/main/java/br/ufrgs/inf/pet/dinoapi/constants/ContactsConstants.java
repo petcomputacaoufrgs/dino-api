@@ -9,7 +9,6 @@ import java.util.Collections;
 import java.util.List;
 
 public final class ContactsConstants {
-
     public final static String ID_NULL_MESSAGE = "id cannot be null.";
 
     public final static int NAME_MAX = 100;
@@ -26,6 +25,11 @@ public final class ContactsConstants {
     public final static int TYPE_MAX = 9;
     public final static String TYPE_NULL_MESSAGE = "O tipo de número do contato não pode ser nulo.";
     public final static String TYPE_MESSAGE = "type should be between 1 and MAX";
+
+    public final static String INVALID_DECLINE_REQUEST = "User does not have Google Authentication";
+    public final static String SUCCESS_DECLINE_REQUEST = "Success";
+    public final static String SUCCESS_DECLINE_REQUEST_WITHOUT_ALERT= "Success, but server fail to alert another devices.";
+
 
     public final static List<ContactSaveModel> DEFAULT_CONTACTS = new ArrayList<ContactSaveModel>(Arrays.asList(
             new ContactSaveModel(1L, "SAMU",
