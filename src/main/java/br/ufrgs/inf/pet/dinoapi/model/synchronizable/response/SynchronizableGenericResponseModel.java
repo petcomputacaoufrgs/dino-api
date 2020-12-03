@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable.response;
 
 /**
- * Generic Response model for synchronizable request
+ * Generic response model for synchronizable request
  */
 public class SynchronizableGenericResponseModel {
     protected boolean success;

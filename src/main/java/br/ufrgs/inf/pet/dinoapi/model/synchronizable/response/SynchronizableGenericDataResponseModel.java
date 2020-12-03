@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable.response;
 
 /**
- * Generic Response model for synchronizable request with generic data
+ * Generic response model for synchronizable request with generic data
  *
  * @param <DATA_TYPE> Type of response data
  */
