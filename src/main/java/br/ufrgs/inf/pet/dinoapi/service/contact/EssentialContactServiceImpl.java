@@ -7,6 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
@@ -105,17 +106,28 @@ public class EssentialContactServiceImpl {
         );
     }
 
-    public void setUsersTreatmentContacts(User user) {
+    public ResponseEntity<?> setUserTreatmentContacts(FaqIdModel model) {
 
-        Long faqId = user.getUserTreatment().getId();
+        final User user = authServiceImpl.getCurrentUser();
 
-        Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository
-                .findByEssentialContactsByFaqId(faqId);
+        Optional<Faq> faqSearch = faqRepository.findById(model.getId());
 
-        eContactsSearch.ifPresent(essentialContacts ->
-                essentialContacts.forEach(dContact ->
+        if(faqSearch.isPresent()) {
+
+            Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository
+                    .findByEssentialContactsByFaqId(faqSearch.get().getId());
+
+            if (eContactsSearch.isPresent()) {
+                eContactsSearch.get().forEach(dContact -> {
                     contactServiceImpl.saveContactOnRepository(
-                        new ContactSaveModel(dContact.getContact()), user)
-        ));
+                            new ContactSaveModel(dContact.getContact()), user);
+                });
+                contactVersionServiceImpl.updateVersion(user);
+
+                return new ResponseEntity<>(HttpStatus.OK);
+            }
+        }
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

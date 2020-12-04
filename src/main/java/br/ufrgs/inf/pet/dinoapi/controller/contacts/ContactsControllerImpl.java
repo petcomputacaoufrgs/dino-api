@@ -56,12 +56,12 @@ public class ContactsControllerImpl implements ContactsController {
     }
 
     @DeleteMapping
-    public ResponseEntity<?> deleteContact(@Valid @RequestBody ContactDeleteModel model) {
+    public ResponseEntity<?> deleteContact(@Valid @RequestBody ContactIdModel model) {
         return contactServiceImpl.deleteContact(model);
     }
 
     @DeleteMapping("all/")
-    public ResponseEntity<?> deleteContacts(@Valid @RequestBody List<ContactDeleteModel> models) {
+    public ResponseEntity<?> deleteContacts(@Valid @RequestBody List<ContactIdModel> models) {
         return contactServiceImpl.deleteContacts(models);
     }
 

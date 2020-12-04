@@ -111,7 +111,7 @@ public class ContactServiceImpl implements ContactService {
         return responseModel;
     }
 
-    public ResponseEntity<?> deleteContact(ContactDeleteModel model) {
+    public ResponseEntity<?> deleteContact(ContactIdModel model) {
         if (model == null || model.getId() == null) {
             return new ResponseEntity<>(HttpStatus.OK);
         }
@@ -131,12 +131,12 @@ public class ContactServiceImpl implements ContactService {
         return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<Long> deleteContacts(List<ContactDeleteModel> models) {
+    public ResponseEntity<Long> deleteContacts(List<ContactIdModel> models) {
         final User user = authServiceImpl.getCurrentUser();
 
         final List<Long> validIds = models.stream()
                 .filter(Objects::nonNull)
-                .map(ContactDeleteModel::getId)
+                .map(ContactIdModel::getId)
                 .collect(Collectors.toList());
 
         if (validIds.size() > 0) {

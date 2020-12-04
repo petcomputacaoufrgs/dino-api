@@ -1,19 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.controller.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.contact.EssentialContactServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/public/contacts/essencial/")
 public class EssentialContactsControllerImpl implements EssentialContactsController {
 
     private final EssentialContactServiceImpl essentialContactServiceImpl;
@@ -23,8 +22,13 @@ public class EssentialContactsControllerImpl implements EssentialContactsControl
         this.essentialContactServiceImpl = essentialContactServiceImpl;
     }
 
-    @PostMapping("all/")
+    @PostMapping("/public/contacts/essential/all/")
     public ResponseEntity<?> saveEssentialContactAll(@Valid @RequestBody List<EssentialContactSaveModel> models) {
         return essentialContactServiceImpl.saveEssentialContactAll(models);
+    }
+
+    @PostMapping("/contacts/essential/faq/")
+    public ResponseEntity<?> setUserTreatmentContacts(@Valid @RequestBody FaqIdModel model) {
+        return essentialContactServiceImpl.setUserTreatmentContacts(model);
     }
 }
