@@ -12,7 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.ListUtils;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.generic.GenericQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.GenericMessageService;
 import com.google.common.collect.Lists;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
@@ -36,12 +36,12 @@ public abstract class SynchronizableServiceImpl<
 
     protected final REPOSITORY repository;
     protected final AuthServiceImpl authService;
-    protected final GenericQueueMessageServiceImpl genericQueueMessageService;
+    protected final GenericMessageService genericMessageService;
 
-    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService, GenericQueueMessageServiceImpl genericQueueMessageService) {
+    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService, GenericMessageService genericMessageService) {
         this.repository = repository;
         this.authService = authService;
-        this.genericQueueMessageService = genericQueueMessageService;
+        this.genericMessageService = genericMessageService;
     }
 
     @Override
@@ -308,7 +308,7 @@ public abstract class SynchronizableServiceImpl<
         if (!data.isEmpty()) {
             final SynchronizableWSUpdateModel<ENTITY, ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
             model.setData(data);
-            genericQueueMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination());
+            genericMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination());
         }
     }
 
@@ -322,7 +322,7 @@ public abstract class SynchronizableServiceImpl<
         if(!data.isEmpty()) {
             final SynchronizableWSDeleteModel<ID> model = new SynchronizableWSDeleteModel<>();
             model.setData(data);
-            genericQueueMessageService.sendObjectMessage(model, this.getDeleteWebsocketDestination());
+            genericMessageService.sendObjectMessage(model, this.getDeleteWebsocketDestination());
         }
     }
 }

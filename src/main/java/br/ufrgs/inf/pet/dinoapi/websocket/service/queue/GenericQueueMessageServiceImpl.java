@@ -1,8 +1,9 @@
-package br.ufrgs.inf.pet.dinoapi.websocket.service.queue.generic;
+package br.ufrgs.inf.pet.dinoapi.websocket.service.queue;
 
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.GenericMessageService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class GenericQueueMessageServiceImpl implements GenericQueueMessageService {
+public class GenericQueueMessageServiceImpl extends GenericMessageService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     private final AuthServiceImpl authService;
