@@ -1,35 +1,35 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
-import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
  * Model with complete visible data of synchronizable entity
  *
  * @param <ID> Type of entity ID
- * @param <ENTITY> Synchronizable entity
  */
-public abstract class SynchronizableDataModel<ENTITY extends SynchronizableEntity<ID>, ID extends Comparable<ID>> implements SynchronizableModel<ID> {
+public abstract class SynchronizableDataModel<ID extends Comparable<ID> & Serializable> implements SynchronizableModel<ID> {
     private ID id;
 
     @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
     private LocalDateTime lastUpdate;
 
-    public SynchronizableDataModel() { }
-
-    public SynchronizableDataModel(ENTITY entity) {
-        this.id = entity.getId();
-        this.lastUpdate = entity.getLastUpdate();
-    }
-
     public ID getId() {
         return id;
     }
 
+    public void setId(ID id) {
+        this.id = id;
+    }
+
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
+    }
+
+    public void setLastUpdate(LocalDateTime lastUpdate) {
+        this.lastUpdate = lastUpdate;
     }
 }

@@ -17,6 +17,8 @@ import com.google.common.collect.Lists;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,8 +32,8 @@ import java.util.stream.Collectors;
  */
 public abstract class SynchronizableServiceImpl<
         ENTITY extends SynchronizableEntity<ID>,
-        ID extends Comparable<ID>,
-        DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>,
+        ID extends Comparable<ID> & Serializable,
+        DATA_MODEL extends SynchronizableDataModel<ID>,
         REPOSITORY extends CrudRepository<ENTITY, ID>> implements SynchronizableService<ENTITY, ID, DATA_MODEL> {
 
     protected final REPOSITORY repository;
@@ -45,12 +47,12 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
-        final SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
+    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
+        final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
         final ENTITY entity = this.getEntity(model.getId());
 
         if (entity != null) {
-            final DATA_MODEL data = this.createDataModel(entity);
+            final DATA_MODEL data = this.internalConvertEntityToModel(entity);
             response.setSuccess(true);
             response.setData(data);
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -62,8 +64,8 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> save(DATA_MODEL model) {
-        final SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
+    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(DATA_MODEL model) {
+        final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
 
         if (model != null) {
             response.setSuccess(true);
@@ -85,9 +87,9 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>>
+    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>>
     delete(SynchronizableDeleteModel<ID> model) {
-        final SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
+        final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
         final ENTITY entity = this.getEntity(model.getId());
         if (entity != null) {
             final boolean wasDeleted = this.delete(entity, model);
@@ -98,7 +100,7 @@ public abstract class SynchronizableServiceImpl<
             } else {
                 response.setSuccess(false);
                 response.setError(SynchronizableConstants.YOUR_VERSION_IS_OUTDATED);
-                response.setData(this.createDataModel(entity));
+                response.setData(this.internalConvertEntityToModel(entity));
             }
         } else {
             response.setSuccess(false);
@@ -109,11 +111,11 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableListDataResponseModel<ENTITY, ID, DATA_MODEL>> getAll() {
+    public ResponseEntity<SynchronizableListDataResponseModel<ID, DATA_MODEL>> getAll() {
         final List<ENTITY> entities = this.getAllEntities();
-        final List<DATA_MODEL> data = entities.stream().map(this::createDataModel).collect(Collectors.toList());
+        final List<DATA_MODEL> data = entities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
 
-        final SynchronizableListDataResponseModel<ENTITY, ID, DATA_MODEL> response = new SynchronizableListDataResponseModel<>();
+        final SynchronizableListDataResponseModel<ID, DATA_MODEL> response = new SynchronizableListDataResponseModel<>();
 
         response.setSuccess(true);
         response.setData(data);
@@ -123,7 +125,7 @@ public abstract class SynchronizableServiceImpl<
 
     @Override
     public ResponseEntity<SynchronizableGenericResponseModel>
-    saveAll(SynchronizableSaveAllListModel<ENTITY, ID, DATA_MODEL> model) {
+    saveAll(SynchronizableSaveAllListModel<ID, DATA_MODEL> model) {
         final List<DATA_MODEL> newData = new ArrayList<>();
         final List<DATA_MODEL> updateData = new ArrayList<>();
         final List<ENTITY> newEntities = new ArrayList<>();
@@ -142,7 +144,7 @@ public abstract class SynchronizableServiceImpl<
 
         final List<ENTITY> savedEntities = Lists.newArrayList(repository.saveAll(newEntities));
 
-        final List<DATA_MODEL> savedModels = savedEntities.stream().map(this::createDataModel)
+        final List<DATA_MODEL> savedModels = savedEntities.stream().map(this::internalConvertEntityToModel)
                 .collect(Collectors.toList());
 
         response.setSuccess(true);
@@ -199,6 +201,28 @@ public abstract class SynchronizableServiceImpl<
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    protected DATA_MODEL internalConvertEntityToModel(ENTITY entity) {
+        final DATA_MODEL model = this.convertEntityToModel(entity);
+        model.setId(entity.getId());
+        model.setLastUpdate(entity.getLastUpdate());
+
+        return model;
+    }
+
+    protected ENTITY internalConvertModelToEntity(DATA_MODEL model) {
+        final ENTITY entity = this.convertModelToEntity(model);
+        entity.setId(model.getId());
+        entity.setLastUpdate(model.getLastUpdate());
+
+        return entity;
+    }
+
+    protected void internalUpdateEntity(ENTITY entity, DATA_MODEL model) {
+        this.updateEntity(entity, model);
+        entity.setLastUpdate(model.getLastUpdate());
+        entity.setId(model.getId());
+    }
+
     protected boolean canChange(ENTITY entity, SynchronizableModel<ID> model) {
         return entity.isOlderOrEqualThan(model);
     }
@@ -207,7 +231,7 @@ public abstract class SynchronizableServiceImpl<
         final User user = authService.getCurrentUser();
 
         if (id != null) {
-            final Optional<ENTITY> entitySearch = this.getEntityByIdAndUserId(id, user.getId());
+            final Optional<ENTITY> entitySearch = this.getEntityByIdAndUserId(id, user);
 
             if (entitySearch.isPresent()) {
                 return entitySearch.get();
@@ -218,20 +242,20 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected DATA_MODEL create(DATA_MODEL model) {
-        ENTITY entity = this.createEntity(model);
+        ENTITY entity = this.internalConvertModelToEntity(model);
         entity.setLastUpdate(model.getLastUpdate());
         entity = repository.save(entity);
 
-        return this.createDataModel(entity);
+        return this.convertEntityToModel(entity);
     }
 
     protected DATA_MODEL update(ENTITY entity, DATA_MODEL model) {
         if (this.canChange(entity, model)) {
-            this.updateEntity(entity, model);
+            this.internalUpdateEntity(entity, model);
             entity.setLastUpdate(model.getLastUpdate());
             entity = repository.save(entity);
         }
-        return this.createDataModel(entity);
+        return this.convertEntityToModel(entity);
     }
 
     protected boolean delete(ENTITY entity, SynchronizableDeleteModel<ID> model) {
@@ -246,13 +270,13 @@ public abstract class SynchronizableServiceImpl<
     protected List<ENTITY> getAllEntities() {
         final User user = authService.getCurrentUser();
 
-        return this.getEntitiesByUserId(user.getId());
+        return this.getEntitiesByUserId(user);
     }
 
     protected List<ENTITY> getAllEntities(List<ID> ids) {
         final User user = authService.getCurrentUser();
 
-        return this.getEntitiesByIdsAndUserId(ids, user.getId());
+        return this.getEntitiesByIdsAndUserId(ids, user);
     }
 
     protected List<ENTITY> updateAllItems(List<DATA_MODEL> items) {
@@ -275,10 +299,10 @@ public abstract class SynchronizableServiceImpl<
             final ID entityId = entity.getId();
 
             if (model.getId() != entityId) {
-                entitiesToSave.add(this.createEntity(model));
+                entitiesToSave.add(this.internalConvertModelToEntity(model));
             } else {
                 if (this.canChange(entity, model)) {
-                    this.updateEntity(entity, model);
+                    this.internalUpdateEntity(entity, model);
                     entity.setLastUpdate(model.getLastUpdate());
                     entitiesToSave.add(entity);
                 }
@@ -292,7 +316,7 @@ public abstract class SynchronizableServiceImpl<
 
     protected List<ENTITY> createEntities(List<DATA_MODEL> items) {
         return items.stream().map(item -> {
-            ENTITY entity = this.createEntity(item);
+            ENTITY entity = this.internalConvertModelToEntity(item);
             entity.setLastUpdate(item.getLastUpdate());
             return entity;
         }).collect(Collectors.toList());
@@ -306,7 +330,7 @@ public abstract class SynchronizableServiceImpl<
 
     protected void sendUpdateMessage(List<DATA_MODEL> data) {
         if (!data.isEmpty()) {
-            final SynchronizableWSUpdateModel<ENTITY, ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
+            final SynchronizableWSUpdateModel<ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
             model.setData(data);
             genericMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination());
         }

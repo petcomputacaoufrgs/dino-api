@@ -1,145 +1,82 @@
 package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.glossary.GlossaryItem;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryUpdateRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemSaveRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossarySaveRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemUpdateRequestModel;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.glossary.GlossaryItemRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.GenericTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GlossaryServiceImpl implements GlossaryService {
-
-    private final GlossaryItemRepository glossaryItemRepository;
-
-    private final GlossaryVersionServiceImpl glossaryVersionService;
-
+public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository> {
     @Autowired
-    public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, GlossaryVersionServiceImpl glossaryVersionService) {
-        this.glossaryItemRepository = glossaryItemRepository;
-        this.glossaryVersionService = glossaryVersionService;
+    public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, AuthServiceImpl authService,
+                               GenericTopicMessageServiceImpl genericTopicMessageService) {
+        super(glossaryItemRepository, authService, genericTopicMessageService);
     }
 
     @Override
-    public ResponseEntity<GlossaryResponseModel> save(GlossarySaveRequestModel glossarySaveRequestModel) {
-        final GlossaryResponseModel response = new GlossaryResponseModel();
-        Long glossaryVersion;
+    public GlossaryItemDataModel convertEntityToModel(GlossaryItem entity) {
+        final GlossaryItemDataModel model =  new GlossaryItemDataModel();
+        model.setExists(entity.getExists());
+        model.setText(entity.getText());
+        model.setSubtitle(entity.getSubtitle());
+        model.setFullText(entity.getFullText());
+        model.setTitle(entity.getTitle());
 
-        if (glossarySaveRequestModel != null) {
-            final List<GlossaryItemSaveRequestModel> newItemsList = glossarySaveRequestModel.getItemList();
-            Optional<GlossaryItem> glossaryItemSearchResult;
-            GlossaryItem glossaryItem;
-            GlossaryItemResponseModel responseItem;
-
-            if (newItemsList != null) {
-                for (GlossaryItemSaveRequestModel newItem : newItemsList) {
-                    if (newItem.isValid()) {
-                        glossaryItemSearchResult = glossaryItemRepository.findByTitle(newItem.getTitle());
-
-                        if (glossaryItemSearchResult.isEmpty()) {
-                            glossaryItem = new GlossaryItem();
-                            glossaryItem.GlossaryItem(newItem);
-
-                            glossaryItem = glossaryItemRepository.save(glossaryItem);
-
-                            responseItem = new GlossaryItemResponseModel();
-
-                            responseItem.setByGlossaryItem(glossaryItem);
-
-                            response.addItem(responseItem);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (response.getSize() > 0) {
-            glossaryVersion = glossaryVersionService.updateGlossaryVersion();
-        } else {
-            glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
-        }
-
-        response.setVersion(glossaryVersion);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return model;
     }
 
     @Override
-    public ResponseEntity<?> update(GlossaryUpdateRequestModel glossaryUpdateRequestModel) {
-        final GlossaryResponseModel response = new GlossaryResponseModel();
-        Long glossaryVersion = glossaryVersionService.getGlossaryVersionNumber();
+    public GlossaryItem convertModelToEntity(GlossaryItemDataModel model) {
+        final GlossaryItem glossaryItem = new GlossaryItem();
+        glossaryItem.setTitle(model.getTitle());
+        glossaryItem.setText(model.getText());
+        glossaryItem.setSubtitle(model.getSubtitle());
+        glossaryItem.setFullText(model.getFullText());
+        glossaryItem.setExists(model.getExists());
 
-        if (glossaryUpdateRequestModel.getVersion() != glossaryVersion) {
-            return new ResponseEntity<>("Versão do glossário inválida.", HttpStatus.BAD_REQUEST);
-        }
-
-        if (glossaryUpdateRequestModel != null) {
-            final List<GlossaryItemUpdateRequestModel> updatedItemsList = glossaryUpdateRequestModel.getItemList();
-
-            if (updatedItemsList != null) {
-                Optional<GlossaryItem> glossaryItemSearchResult;
-                GlossaryItem dbGlossaryItem;
-                Boolean updated;
-                GlossaryItemResponseModel responseItem;
-
-                for (GlossaryItemUpdateRequestModel updatedItem : updatedItemsList) {
-                    if (updatedItem.isValid()) {
-                        glossaryItemSearchResult = glossaryItemRepository.findById(updatedItem.getId());
-
-                        if (glossaryItemSearchResult.isPresent()) {
-                            dbGlossaryItem = glossaryItemSearchResult.get();
-
-                            updated = dbGlossaryItem.update(updatedItem);
-
-                            if (updated) {
-
-                                dbGlossaryItem = glossaryItemRepository.save(dbGlossaryItem);
-
-                                responseItem = new GlossaryItemResponseModel();
-
-                                responseItem.setByGlossaryItem(dbGlossaryItem);
-
-                                response.addItem(responseItem);
-                            }
-                        }
-                    }
-                }
-
-
-        if (response.getSize() > 0) {
-            glossaryVersion = glossaryVersionService.updateGlossaryVersion();
-        }
-
-        response.setVersion(glossaryVersion);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-            }
-        }
-
-        return new ResponseEntity<>("Erro: GLossário vazio", HttpStatus.BAD_REQUEST);
+        return glossaryItem;
     }
 
     @Override
-    public ResponseEntity<List<GlossaryItem>> get() {
-        GlossaryItemResponseModel responseItem;
+    public void updateEntity(GlossaryItem entity, GlossaryItemDataModel model) {
+        entity.setExists(model.getExists());
+        entity.setFullText(model.getFullText());
+        entity.setSubtitle(model.getSubtitle());
+        entity.setText(model.getText());
+        entity.setTitle(model.getTitle());
+    }
 
-        final List<GlossaryItem> response = glossaryItemRepository.findAllByExistsTrue();
+    @Override
+    public Optional<GlossaryItem> getEntityByIdAndUserId(Long id, User user) {
+        return this.repository.findById(id);
+    }
 
-        for (GlossaryItem item : response) {
-            responseItem = new GlossaryItemResponseModel();
+    @Override
+    public List<GlossaryItem> getEntitiesByUserId(User user) {
+        return this.repository.findAll();
+    }
 
-            responseItem.setByGlossaryItem(item);
-        }
+    @Override
+    public List<GlossaryItem> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+        return this.repository.findByIds(ids);
+    }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    @Override
+    public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
+        return WebSocketDestinationsEnum.ALERT_GLOSSARY_UPDATE;
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
+        return WebSocketDestinationsEnum.ALERT_GLOSSARY_DELETE;
     }
 }

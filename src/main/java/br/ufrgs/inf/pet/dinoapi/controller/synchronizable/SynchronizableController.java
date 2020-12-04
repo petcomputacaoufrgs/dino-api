@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.controller.synchronizable;
 
-import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteAllListModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
@@ -13,13 +12,15 @@ import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSD
 import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
 import org.springframework.http.ResponseEntity;
 
+import java.io.Serializable;
+
 /**
  * Base Controller with get, getAll, save/update and delete for synchronizable entity
  *
  * @param <ID> Type of synchronizable entity ID
  * @param <DATA_MODEL> Data model of synchronizable entity
  */
-public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID>, ID extends Comparable<ID>, DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>> {
+public interface SynchronizableController<ID extends Comparable<ID> & Serializable, DATA_MODEL extends SynchronizableDataModel<ID>> {
     /**
      * Search for a item using id and lastUpdate date
      * @param model: object with search data
@@ -28,7 +29,7 @@ public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID
      *         otherwise:
      *              - return error
      */
-    ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model);
+    ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model);
 
     /**
      * Save a object on server, if exists update based in lastUpdate
@@ -41,7 +42,7 @@ public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID
      *
      * Obs.: If save/update entity then send the server version by websocket to related users using {@link SynchronizableWSUpdateModel}
      */
-    ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> save(DATA_MODEL model);
+    ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(DATA_MODEL model);
 
     /**
      * Delete an element if exists
@@ -54,13 +55,13 @@ public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID
      *
      * Obs.: If save/update entity then send the server version by websocket to related users using {@link SynchronizableWSDeleteModel}
      */
-    ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> delete(SynchronizableDeleteModel<ID> model);
+    ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> delete(SynchronizableDeleteModel<ID> model);
 
     /**
      * Get all entities related to user
      * @return model with list of entities
      */
-    ResponseEntity<SynchronizableListDataResponseModel<ENTITY, ID, DATA_MODEL>> getAll();
+    ResponseEntity<SynchronizableListDataResponseModel<ID, DATA_MODEL>> getAll();
 
     /**
      * Save a list of elements if exists
@@ -76,7 +77,7 @@ public interface SynchronizableController<ENTITY extends SynchronizableEntity<ID
      *
      * Obs.: If save/update entities then send the updated entities by websocket to related users using {@link SynchronizableWSUpdateModel}
      */
-    ResponseEntity<SynchronizableGenericResponseModel> saveAll(SynchronizableSaveAllListModel<ENTITY, ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableGenericResponseModel> saveAll(SynchronizableSaveAllListModel<ID, DATA_MODEL> model);
 
     /**
      * Delete a list of elements if exists

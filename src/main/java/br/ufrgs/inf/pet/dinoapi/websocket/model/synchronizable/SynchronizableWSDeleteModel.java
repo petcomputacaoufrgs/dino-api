@@ -1,3 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable;
 
-public class SynchronizableWSDeleteModel<ID extends Comparable<ID>> extends SynchronizableWSGenericModel<ID> { }
+import java.io.Serializable;
+
+public class SynchronizableWSDeleteModel<ID extends Comparable<ID> & Serializable> extends SynchronizableWSGenericModel<ID> { }

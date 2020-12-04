@@ -4,7 +4,9 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.GenericMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
 
+@Service
 public class GenericTopicMessageServiceImpl extends GenericMessageService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 

@@ -14,6 +14,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
+import java.io.Serializable;
 
 /**
  * Base Controller with get, getAll, save/update and delete for synchronizable entity
@@ -26,11 +27,11 @@ import javax.validation.Valid;
  */
 public abstract class SynchronizableControllerImpl<
         ENTITY extends SynchronizableEntity<ID>,
-        ID extends Comparable<ID>,
-        DATA_MODEL extends SynchronizableDataModel<ENTITY, ID>,
+        ID extends Comparable<ID> & Serializable,
+        DATA_MODEL extends SynchronizableDataModel<ID>,
         REPOSITORY extends CrudRepository<ENTITY, ID>,
         SERVICE extends SynchronizableServiceImpl<ENTITY, ID, DATA_MODEL, REPOSITORY>>
-        implements SynchronizableController<ENTITY, ID, DATA_MODEL> {
+        implements SynchronizableController<ID, DATA_MODEL> {
 
     protected final SERVICE service;
 
@@ -40,40 +41,40 @@ public abstract class SynchronizableControllerImpl<
 
     @Override
     @GetMapping("get/")
-    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> get(
+    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(
             @Valid @RequestBody SynchronizableGetModel<ID> model) {
         return service.get(model);
     }
 
     @Override
     @PostMapping("save/")
-    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> save(
+    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(
             @Valid @RequestBody DATA_MODEL model) {
         return service.save(model);
     }
 
     @Override
     @DeleteMapping("delete/")
-    public ResponseEntity<SynchronizableDataResponseModel<ENTITY, ID, DATA_MODEL>> delete(
+    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> delete(
             @Valid @RequestBody SynchronizableDeleteModel<ID> model) {
         return service.delete(model);
     }
 
     @Override
     @GetMapping("get/all/")
-    public ResponseEntity<SynchronizableListDataResponseModel<ENTITY, ID, DATA_MODEL>> getAll() {
+    public ResponseEntity<SynchronizableListDataResponseModel<ID, DATA_MODEL>> getAll() {
         return service.getAll();
     }
 
     @Override
     @PostMapping("save/all/")
     public ResponseEntity<SynchronizableGenericResponseModel>
-    saveAll(@Valid @RequestBody SynchronizableSaveAllListModel<ENTITY, ID, DATA_MODEL> model) {
+    saveAll(@Valid @RequestBody SynchronizableSaveAllListModel<ID, DATA_MODEL> model) {
         return service.saveAll(model);
     }
 
     @Override
-    @GetMapping("delete/all/")
+    @DeleteMapping("delete/all/")
     public ResponseEntity<SynchronizableGenericResponseModel>
     deleteAll(@Valid @RequestBody SynchronizableDeleteAllListModel<ID> model) {
         return service.deleteAll(model);

@@ -23,15 +23,15 @@ public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Lon
     }
 
     @Override
-    public TesteDataModel createDataModel(TesteEntity entity) {
-        final TesteDataModel model = new TesteDataModel(entity);
+    public TesteDataModel convertEntityToModel(TesteEntity entity) {
+        final TesteDataModel model = new TesteDataModel();
         model.setName(entity.getName());
 
         return model;
     }
 
     @Override
-    public TesteEntity createEntity(TesteDataModel model) {
+    public TesteEntity convertModelToEntity(TesteDataModel model) {
         final User user = authService.getCurrentUser();
         final TesteEntity entity = new TesteEntity();
         entity.setUser(user);
@@ -45,18 +45,18 @@ public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Lon
     }
 
     @Override
-    public Optional<TesteEntity> getEntityByIdAndUserId(Long id, Long userId) {
-        return repository.findByIdAndUserId(id, userId);
+    public Optional<TesteEntity> getEntityByIdAndUserId(Long id, User user) {
+        return repository.findByIdAndUserId(id, user.getId());
     }
 
     @Override
-    public List<TesteEntity> getEntitiesByUserId(Long userId) {
-        return repository.findByUserId(userId);
+    public List<TesteEntity> getEntitiesByUserId(User user) {
+        return repository.findByUserId(user.getId());
     }
 
     @Override
-    public List<TesteEntity> getEntitiesByIdsAndUserId(List<Long> ids, Long userId) {
-        return repository.findByIdsAndUserId(ids, userId);
+    public List<TesteEntity> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+        return repository.findByIdsAndUserId(ids, user.getId());
     }
 
     @Override

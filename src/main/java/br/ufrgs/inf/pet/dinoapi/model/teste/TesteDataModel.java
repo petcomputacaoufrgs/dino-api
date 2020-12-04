@@ -1,18 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.model.teste;
 
-import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 
-public class TesteDataModel extends SynchronizableDataModel<TesteEntity, Long> {
+public class TesteDataModel extends SynchronizableDataModel<Long> {
     private String name;
-
-    public TesteDataModel() {
-        super();
-    }
-
-    public TesteDataModel(TesteEntity entity) {
-        super(entity);
-    }
 
     public String getName() {
         return name;

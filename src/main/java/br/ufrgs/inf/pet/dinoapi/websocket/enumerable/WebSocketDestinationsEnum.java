@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.websocket.enumerable;
 
 public enum WebSocketDestinationsEnum {
     ALERT_GLOSSARY_UPDATE("/topic/glossary/update"),
+    ALERT_GLOSSARY_DELETE("/topic/glossary/delete"),
     ALERT_APP_SETTINGS_UPDATE("/queue/user_app_settings/update"),
     ALERT_NOTE_UPDATE("/queue/note/update"),
     ALERT_NOTE_ORDER_UPDATE("/queue/note/order/update"),

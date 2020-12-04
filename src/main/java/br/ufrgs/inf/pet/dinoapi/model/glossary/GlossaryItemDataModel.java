@@ -1,27 +1,16 @@
-package br.ufrgs.inf.pet.dinoapi.entity.glossary;
+package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
-import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 
-import javax.persistence.*;
-
-import static br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants.*;
-
-@Entity
-@Table(name = "glossary_item")
-public class GlossaryItem extends SynchronizableEntity<Long>  {
-    @Column(name = "title", length = TITLE_MAX, nullable = false, unique = true)
+public class GlossaryItemDataModel extends SynchronizableDataModel<Long> {
     private String title;
 
-    @Column(name = "text", length = TEXT_MAX, nullable = false)
     private String text;
 
-    @Column(name = "subtitle", length = SUBTITLE_MAX)
     private String subtitle;
 
-    @Column(name = "full_text", length = FULLTEXT_MAX)
     private String fullText;
 
-    @Column(name = "exists", nullable = false)
     private Boolean exists;
 
     public String getTitle() {
@@ -64,5 +53,3 @@ public class GlossaryItem extends SynchronizableEntity<Long>  {
         this.exists = exists;
     }
 }
-
-
