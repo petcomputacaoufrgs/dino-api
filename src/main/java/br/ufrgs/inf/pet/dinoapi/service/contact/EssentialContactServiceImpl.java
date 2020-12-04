@@ -3,6 +3,8 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
@@ -44,49 +46,76 @@ public class EssentialContactServiceImpl {
         this.faqRepository = faqRepository;
     }
 
-    public ResponseEntity<?> saveEssentialContacts(List<EssentialContactSaveModel> models) {
+    public ResponseEntity<?> saveEssentialContactAll(List<EssentialContactSaveModel> models) {
 
         List<EssentialContact> itemsResponse = new ArrayList<>();
 
         models.forEach(model -> {
 
-                Contact contact = new Contact(model);
+            Contact contact = contactRepository.save(new Contact(model));
 
-                contact = contactRepository.save(contact);
+            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
 
-                contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
+            List<Long> faqIds = model.getFaqIds();
 
-                List<Long> faqIds = model.getFaqIds();
+            if (faqIds != null) {
 
-                if (faqIds != null) {
+                faqIds.forEach(faqId -> {
 
-                    Contact finalContact = contact;
+                    Optional<Faq> faqSearch = faqRepository.findById(faqId);
 
-                    faqIds.forEach(faqId -> {
+                    if (faqSearch.isPresent()) {
 
-                        Optional<Faq> faqSearch = faqRepository.findById(faqId);
+                        Faq faqDB = faqSearch.get();
 
-                        if (faqSearch.isPresent()) {
+                        Optional<EssentialContact> eContactSearch = essentialContactRepository
+                                .findByEssentialContactNameAndFaqId(model.getName(), faqDB.getId());
 
-                            Faq faqDB = faqSearch.get();
-
-                            itemsResponse.add(essentialContactRepository
-                                    .save(new EssentialContact(faqDB, finalContact)));
+                        if(eContactSearch.isEmpty()) {
+                            itemsResponse.add(essentialContactRepository.save(new EssentialContact(faqDB, contact)));
                         }
-                    });
-                } else {
-                    itemsResponse.add(essentialContactRepository
-                            .save(new EssentialContact(contact)));
+                    }
+                });
+            } else {
+
+                Optional<EssentialContact> eContactSearch = essentialContactRepository.findByEssentialContactName(model.getName());
+
+                if(eContactSearch.isEmpty()) {
+                    itemsResponse.add(essentialContactRepository.save(new EssentialContact(contact)));
                 }
+            }
         });
 
         List<EssentialContactModel> response = itemsResponse.stream()
-                .map(EssentialContactModel::new)
-                .collect(Collectors.toList());
+                .map(EssentialContactModel::new).collect(Collectors.toList());
 
-        return response.size() > 0
-                ? new ResponseEntity<>(response, HttpStatus.OK)
-                : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        if(response.size() > 0) {
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 
+    public void setUsersDefaultContacts(User user) {
+
+        List<EssentialContact> eContactsSearch = essentialContactRepository.findByFaqIdIsNull();
+
+        eContactsSearch.forEach(dContact ->
+                contactServiceImpl.saveContactOnRepository(
+                        new ContactSaveModel(dContact.getContact()), user)
+        );
+    }
+
+    public void setUsersTreatmentContacts(User user) {
+
+        Long faqId = user.getUserTreatment().getId();
+
+        Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository
+                .findByEssentialContactsByFaqId(faqId);
+
+        eContactsSearch.ifPresent(essentialContacts ->
+                essentialContacts.forEach(dContact ->
+                    contactServiceImpl.saveContactOnRepository(
+                        new ContactSaveModel(dContact.getContact()), user)
+        ));
+    }
 }

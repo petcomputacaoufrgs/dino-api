@@ -8,13 +8,13 @@ public class EssentialContactModel {
     private Long faqId;
     private ContactModel contact;
 
-    public EssentialContactModel(EssentialContact essContact) {
-        this.setId(essContact.getId());
-        Faq essContactFaq = essContact.getFaq();
-        if(essContactFaq != null) {
-            this.setFaqId(essContactFaq.getId());
+    public EssentialContactModel(EssentialContact eContact) {
+        this.setId(eContact.getId());
+        Faq eContactFaq = eContact.getFaq();
+        if(eContactFaq != null) {
+            this.setFaqId(eContactFaq.getId());
         }
-        this.setContact(new ContactModel(essContact.getContact()));
+        this.setContact(new ContactModel(eContact.getContact()));
     }
 
     public Long getId() {

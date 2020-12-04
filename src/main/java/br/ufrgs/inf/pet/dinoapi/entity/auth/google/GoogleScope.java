@@ -17,7 +17,7 @@ public class GoogleScope {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @Column(name = "name", length = GoogleAuthConstants.GOOGLE_SCOPE_MAX, unique = true, nullable = false)
+    @Column(name = "name", length = GoogleAuthConstants.GOOGLE_SCOPE_MAX, nullable = false)
     private String name;
 
     @ManyToOne

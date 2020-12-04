@@ -24,7 +24,7 @@ public class EssentialContactsControllerImpl implements EssentialContactsControl
     }
 
     @PostMapping("all/")
-    public ResponseEntity<?> saveEssentialContacts(@Valid @RequestBody List<EssentialContactSaveModel> models) {
-        return essentialContactServiceImpl.saveEssentialContacts(models);
+    public ResponseEntity<?> saveEssentialContactAll(@Valid @RequestBody List<EssentialContactSaveModel> models) {
+        return essentialContactServiceImpl.saveEssentialContactAll(models);
     }
 }

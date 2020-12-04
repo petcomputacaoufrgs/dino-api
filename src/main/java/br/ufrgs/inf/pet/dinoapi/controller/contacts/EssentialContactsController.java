@@ -7,6 +7,6 @@ import java.util.List;
 
 public interface EssentialContactsController {
 
-        ResponseEntity<?> saveEssentialContacts(List<EssentialContactSaveModel> models);
+        ResponseEntity<?> saveEssentialContactAll(List<EssentialContactSaveModel> models);
 
 }
