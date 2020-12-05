@@ -119,7 +119,7 @@ public class EssentialContactServiceImpl {
 
             if(oldEssentialContactsSearch.isPresent()) {
                 List<EssentialContactMapping> essentialContactMaps = oldEssentialContactsSearch.get();
-                essentialContactMappingRepository.deleteAll(essentialContactMaps);
+                //essentialContactMappingRepository.deleteAll(essentialContactMaps);
                 contactRepository.deleteAll(essentialContactMaps
                         .stream().map(EssentialContactMapping::getContact)
                         .collect(Collectors.toList()));
