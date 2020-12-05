@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.user;
 
+import br.ufrgs.inf.pet.dinoapi.constants.AppSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
 
 import javax.persistence.*;
@@ -30,6 +31,9 @@ public class UserAppSettings {
     @Column(name = "color_theme", nullable = false)
     private Integer colorTheme;
 
+    @Column(name = "load_essential_contacts", nullable = false)
+    private boolean loadEssentialContactsGrant;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -38,8 +42,10 @@ public class UserAppSettings {
 
     public UserAppSettings(User user) {
         this.user = user;
-        this.version = this.DEFAULT_VERSION;
+        this.version = DEFAULT_VERSION;
         this.colorTheme = ColorTheme.DEVICE.getValue();
+        this.language = AppSettingsConstants.DEFAULT_LANGUAGE;
+        this.loadEssentialContactsGrant = AppSettingsConstants.DEFAULT_E_CONTACTS_GRANT;;
     }
 
     public Long getId() {
@@ -80,5 +86,13 @@ public class UserAppSettings {
 
     public void setColorTheme(Integer colorTheme) {
         this.colorTheme = colorTheme;
+    }
+
+    public boolean getLoadEssentialContactsGrant() {
+        return loadEssentialContactsGrant;
+    }
+
+    public void setLoadEssentialContactsGrant(boolean loadEssentialContactsGrant) {
+        this.loadEssentialContactsGrant = loadEssentialContactsGrant;
     }
 }

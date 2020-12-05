@@ -44,6 +44,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         final UserAppSettingsResponseAndRequestModel model = new UserAppSettingsResponseAndRequestModel();
         model.setColorTheme(userAppSettings.getColorTheme());
         model.setLanguage(userAppSettings.getLanguage());
+        model.setLoadEssentialContactsGrant(userAppSettings.getLoadEssentialContactsGrant());
 
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
@@ -70,7 +71,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         UserAppSettings userAppSettings = user.getUserAppSettings();
 
-        Boolean changed = false;
+        boolean changed = false;
 
         if (userAppSettings == null) {
             userAppSettings = new UserAppSettings(user);
@@ -80,15 +81,23 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         final String newLanguage = userAppSettingsModel.getLanguage();
         final String currentLanguage = userAppSettings.getLanguage();
 
-        if (currentLanguage != newLanguage) {
+        if (currentLanguage.equals(newLanguage)) {
             userAppSettings.setLanguage(newLanguage);
             changed = true;
         }
 
         final Integer currentColorTheme = userAppSettings.getColorTheme();
 
-        if (newColorTheme != currentColorTheme) {
+        if (!newColorTheme.equals(currentColorTheme)) {
             userAppSettings.setColorTheme(newColorTheme);
+            changed = true;
+        }
+
+        final boolean currentLoadEssentialContactsGrant = userAppSettings.getLoadEssentialContactsGrant();
+        final boolean newLoadEssentialContactsGrant = userAppSettingsModel.getLoadEssentialContactsGrant();
+
+        if (newLoadEssentialContactsGrant != currentLoadEssentialContactsGrant) {
+            userAppSettings.setLoadEssentialContactsGrant(newLoadEssentialContactsGrant);
             changed = true;
         }
 

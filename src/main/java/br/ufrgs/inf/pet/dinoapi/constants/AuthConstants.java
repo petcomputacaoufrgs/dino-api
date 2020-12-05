@@ -16,6 +16,8 @@ public final class AuthConstants {
 
     public final static String COLOR_THEME__NULL_MESSAGE = "colorTheme cannot be null.";
 
+    public final static String E_CONTACTS_GRANT__NULL_MESSAGE = "loadEssentialContactsGrant cannot be null.";
+
     public final static int NAME_MAX = 100;
     public final static int EMAIL_MAX = 100;
 }

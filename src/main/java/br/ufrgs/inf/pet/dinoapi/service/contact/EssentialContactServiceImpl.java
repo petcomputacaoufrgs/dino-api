@@ -115,12 +115,13 @@ public class EssentialContactServiceImpl {
         if(faqSearch.isPresent()) {
 
             Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository
-                    .findByEssentialContactsByFaqId(faqSearch.get().getId());
+                    .findEssentialContactsByFaqId(faqSearch.get().getId());
 
             if (eContactsSearch.isPresent()) {
-                eContactsSearch.get().forEach(dContact -> {
+                eContactsSearch.get().forEach(eContact -> {
+                    Contact contact = eContact.getContact();
                     contactServiceImpl.saveContactOnRepository(
-                            new ContactSaveModel(dContact.getContact()), user);
+                            new ContactSaveModel(contact), user);
                 });
                 contactVersionServiceImpl.updateVersion(user);
 

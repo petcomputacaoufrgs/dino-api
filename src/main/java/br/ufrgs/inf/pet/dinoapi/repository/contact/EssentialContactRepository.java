@@ -20,6 +20,6 @@ public interface EssentialContactRepository extends CrudRepository<EssentialCont
     Optional<EssentialContact> findByEssentialContactNameAndFaqId(String name, Long id);
 
     @Query("SELECT e FROM EssentialContact e WHERE e.faq.id = ?1")
-    Optional<List<EssentialContact>> findByEssentialContactsByFaqId(Long id);
+    Optional<List<EssentialContact>> findEssentialContactsByFaqId(Long id);
 
 }
