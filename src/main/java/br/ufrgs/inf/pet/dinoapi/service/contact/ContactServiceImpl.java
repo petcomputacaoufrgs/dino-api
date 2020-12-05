@@ -59,6 +59,15 @@ public class ContactServiceImpl implements ContactService {
         return saveContactRelatedData(user, model, contact);
     }
 
+    public Contact saveContactOnRepositoryReturnContact(ContactSaveModel model, User user) {
+
+        final Contact contact = contactRepository.save(new Contact(model, user));
+
+        saveContactRelatedData(user, model, contact);
+
+        return contact;
+    }
+
 
     public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
             final User user = authServiceImpl.getCurrentUser();

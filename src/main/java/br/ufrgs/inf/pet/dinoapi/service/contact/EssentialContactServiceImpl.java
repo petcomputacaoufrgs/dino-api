@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContactMapping;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
@@ -9,6 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactMappingRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -32,12 +34,13 @@ public class EssentialContactServiceImpl {
     private final AuthServiceImpl authServiceImpl;
     private final ContactServiceImpl contactServiceImpl;
     private final PhoneServiceImpl phoneServiceImpl;
+    private final EssentialContactMappingRepository essentialContactMappingRepository;
 
     @Autowired
     public EssentialContactServiceImpl(EssentialContactRepository essentialContactRepository, ContactRepository contactRepository,
                                        ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl,
                                        PhoneServiceImpl phoneServiceImpl, ContactServiceImpl contactServiceImpl,
-                                       FaqRepository faqRepository) {
+                                       FaqRepository faqRepository, EssentialContactMappingRepository essentialContactMappingRepository) {
         this.essentialContactRepository = essentialContactRepository;
         this.contactRepository = contactRepository;
         this.contactVersionServiceImpl = contactVersionServiceImpl;
@@ -45,6 +48,7 @@ public class EssentialContactServiceImpl {
         this.authServiceImpl = authServiceImpl;
         this.contactServiceImpl = contactServiceImpl;
         this.faqRepository = faqRepository;
+        this.essentialContactMappingRepository = essentialContactMappingRepository;
     }
 
     public ResponseEntity<?> saveEssentialContactAll(List<EssentialContactSaveModel> models) {
@@ -110,24 +114,31 @@ public class EssentialContactServiceImpl {
 
         final User user = authServiceImpl.getCurrentUser();
 
-        Optional<Faq> faqSearch = faqRepository.findById(model.getId());
+            Optional<List<EssentialContactMapping>> oldEssentialContactsSearch = essentialContactMappingRepository
+                .findEssentialContactsByUserId(user.getId());
 
-        if(faqSearch.isPresent()) {
+            if(oldEssentialContactsSearch.isPresent()) {
+                List<EssentialContactMapping> essentialContactMaps = oldEssentialContactsSearch.get();
+                essentialContactMappingRepository.deleteAll(essentialContactMaps);
+                contactRepository.deleteAll(essentialContactMaps
+                        .stream().map(EssentialContactMapping::getContact)
+                        .collect(Collectors.toList()));
+            }
 
             Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository
-                    .findEssentialContactsByFaqId(faqSearch.get().getId());
+                    .findEssentialContactsByFaqId(model.getId());
 
             if (eContactsSearch.isPresent()) {
                 eContactsSearch.get().forEach(eContact -> {
-                    Contact contact = eContact.getContact();
-                    contactServiceImpl.saveContactOnRepository(
-                            new ContactSaveModel(contact), user);
+                    Contact newContact = contactServiceImpl
+                            .saveContactOnRepositoryReturnContact(
+                                    new ContactSaveModel(eContact.getContact()), user);
+                    essentialContactMappingRepository.save(new EssentialContactMapping(eContact, newContact));
                 });
                 contactVersionServiceImpl.updateVersion(user);
 
                 return new ResponseEntity<>(HttpStatus.OK);
             }
-        }
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

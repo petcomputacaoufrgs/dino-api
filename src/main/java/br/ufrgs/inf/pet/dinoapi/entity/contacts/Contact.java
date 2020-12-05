@@ -49,6 +49,9 @@ public class Contact implements Serializable {
         private List<EssentialContact> essentialContacts;
 
         @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        private List<EssentialContactMapping> essentialContactMappings;
+
+        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
         private List<GoogleContact> googleContacts;
 
         public Contact() {
