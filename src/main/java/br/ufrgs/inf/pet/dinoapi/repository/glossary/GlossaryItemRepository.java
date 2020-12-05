@@ -10,13 +10,12 @@ import java.util.Optional;
 
 @Repository
 public interface GlossaryItemRepository extends CrudRepository<GlossaryItem, Long> {
-
-    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.id = :id AND gi.exists = TRUE")
+    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.id = :id ")
     Optional<GlossaryItem> findById(Long id);
 
-    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.exists = TRUE")
+    @Query("SELECT gi FROM GlossaryItem gi")
     List<GlossaryItem> findAll();
 
-    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.id IN :ids AND gi.exists = TRUE")
+    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.id IN :ids")
     List<GlossaryItem> findByIds(List<Long> ids);
 }

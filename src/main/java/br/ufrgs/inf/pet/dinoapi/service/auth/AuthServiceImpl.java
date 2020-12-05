@@ -158,6 +158,10 @@ public class AuthServiceImpl implements AuthService {
             return null;
         }
 
+        if (auth.getPrincipal().equals("anonymousUser")) {
+            return null;
+        }
+
         return (DinoUser) auth.getPrincipal();
     }
 

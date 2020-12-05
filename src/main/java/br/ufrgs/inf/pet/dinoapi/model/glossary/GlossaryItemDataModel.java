@@ -1,17 +1,24 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
+import br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 public class GlossaryItemDataModel extends SynchronizableDataModel<Long> {
+    @NotNull(message = GlossaryConstants.TITLE_NULL_MESSAGE)
+    @Size(min = GlossaryConstants.TITLE_MIN, max = GlossaryConstants.TITLE_MAX, message = GlossaryConstants.TITLE_MESSAGE)
     private String title;
 
+    @Size(max = GlossaryConstants.TEXT_MAX, message = GlossaryConstants.TEXT_MESSAGE)
     private String text;
 
+    @Size(max = GlossaryConstants.SUBTITLE_MAX, message = GlossaryConstants.SUBTITLE_MESSAGE)
     private String subtitle;
 
+    @Size(max = GlossaryConstants.FULLTEXT_MAX, message = GlossaryConstants.FULLTEXT_MESSAGE)
     private String fullText;
-
-    private Boolean exists;
 
     public String getTitle() {
         return title;
@@ -45,11 +52,4 @@ public class GlossaryItemDataModel extends SynchronizableDataModel<Long> {
         this.fullText = fullText;
     }
 
-    public Boolean getExists() {
-        return exists;
-    }
-
-    public void setExists(Boolean exists) {
-        this.exists = exists;
-    }
 }

@@ -294,21 +294,28 @@ public abstract class SynchronizableServiceImpl<
 
         int count = 0;
 
+        final int orderedEntitiesSize = orderedEntities.size();
+
         for (DATA_MODEL model : orderedData) {
-            final ENTITY entity = orderedEntities.get(count);
-            final ID entityId = entity.getId();
+            if (count < orderedEntitiesSize) {
+                final ENTITY entity = orderedEntities.get(count);
+                final ID entityId = entity.getId();
 
-            if (model.getId() != entityId) {
-                entitiesToSave.add(this.internalConvertModelToEntity(model));
-            } else {
-                if (this.canChange(entity, model)) {
-                    this.internalUpdateEntity(entity, model);
-                    entity.setLastUpdate(model.getLastUpdate());
-                    entitiesToSave.add(entity);
+                if (model.getId() == entityId) {
+                    if (this.canChange(entity, model)) {
+                        this.internalUpdateEntity(entity, model);
+                        entity.setLastUpdate(model.getLastUpdate());
+                        entitiesToSave.add(entity);
+                    }
+
+                    count++;
+
+                    continue;
                 }
-
-                count++;
             }
+
+            model.setId(null);
+            entitiesToSave.add(this.internalConvertModelToEntity(model));
         }
 
         return entitiesToSave;

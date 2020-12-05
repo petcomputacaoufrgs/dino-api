@@ -21,9 +21,6 @@ public class GlossaryItem extends SynchronizableEntity<Long>  {
     @Column(name = "full_text", length = FULLTEXT_MAX)
     private String fullText;
 
-    @Column(name = "exists", nullable = false)
-    private Boolean exists;
-
     public String getTitle() {
         return title;
     }
@@ -54,14 +51,6 @@ public class GlossaryItem extends SynchronizableEntity<Long>  {
 
     public void setFullText(String fullText) {
         this.fullText = fullText;
-    }
-
-    public Boolean getExists() {
-        return exists;
-    }
-
-    public void setExists(Boolean exists) {
-        this.exists = exists;
     }
 }
 

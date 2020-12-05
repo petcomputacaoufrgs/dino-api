@@ -25,7 +25,6 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     @Override
     public GlossaryItemDataModel convertEntityToModel(GlossaryItem entity) {
         final GlossaryItemDataModel model =  new GlossaryItemDataModel();
-        model.setExists(entity.getExists());
         model.setText(entity.getText());
         model.setSubtitle(entity.getSubtitle());
         model.setFullText(entity.getFullText());
@@ -41,14 +40,12 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
         glossaryItem.setText(model.getText());
         glossaryItem.setSubtitle(model.getSubtitle());
         glossaryItem.setFullText(model.getFullText());
-        glossaryItem.setExists(model.getExists());
 
         return glossaryItem;
     }
 
     @Override
     public void updateEntity(GlossaryItem entity, GlossaryItemDataModel model) {
-        entity.setExists(model.getExists());
         entity.setFullText(model.getFullText());
         entity.setSubtitle(model.getSubtitle());
         entity.setText(model.getText());
@@ -72,11 +69,11 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
 
     @Override
     public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
-        return WebSocketDestinationsEnum.ALERT_GLOSSARY_UPDATE;
+        return WebSocketDestinationsEnum.GLOSSARY_UPDATE;
     }
 
     @Override
     public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
-        return WebSocketDestinationsEnum.ALERT_GLOSSARY_DELETE;
+        return WebSocketDestinationsEnum.GLOSSARY_DELETE;
     }
 }

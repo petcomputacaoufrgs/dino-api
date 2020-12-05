@@ -1,8 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.enumerable;
 
 public enum WebSocketDestinationsEnum {
-    ALERT_GLOSSARY_UPDATE("/topic/glossary/update"),
-    ALERT_GLOSSARY_DELETE("/topic/glossary/delete"),
+    GLOSSARY_UPDATE(generateTopicDest("glossary/update/")),
+    GLOSSARY_DELETE(generateTopicDest("glossary/delete/")),
     ALERT_APP_SETTINGS_UPDATE("/queue/user_app_settings/update"),
     ALERT_NOTE_UPDATE("/queue/note/update"),
     ALERT_NOTE_ORDER_UPDATE("/queue/note/order/update"),
@@ -24,5 +24,13 @@ public enum WebSocketDestinationsEnum {
 
     public String getValue() {
         return this.value;
+    }
+
+    public static String generateTopicDest(String dest) {
+        return "/topic/" + dest;
+    }
+
+    public static String generateQueueDest(String dest) {
+        return "/queue/" + dest;
     }
 }
