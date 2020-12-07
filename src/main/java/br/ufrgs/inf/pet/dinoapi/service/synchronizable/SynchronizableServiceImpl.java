@@ -246,7 +246,7 @@ public abstract class SynchronizableServiceImpl<
         entity.setLastUpdate(model.getLastUpdate());
         entity = repository.save(entity);
 
-        return this.convertEntityToModel(entity);
+        return this.internalConvertEntityToModel(entity);
     }
 
     protected DATA_MODEL update(ENTITY entity, DATA_MODEL model) {
@@ -255,7 +255,7 @@ public abstract class SynchronizableServiceImpl<
             entity.setLastUpdate(model.getLastUpdate());
             entity = repository.save(entity);
         }
-        return this.convertEntityToModel(entity);
+        return this.internalConvertEntityToModel(entity);
     }
 
     protected boolean delete(ENTITY entity, SynchronizableDeleteModel<ID> model) {
