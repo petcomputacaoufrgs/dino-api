@@ -13,8 +13,8 @@ public class UserAppSettingsResponseAndRequestModel {
     @NotNull(message = COLOR_THEME__NULL_MESSAGE)
     private Integer colorTheme;
 
-    @NotNull(message = E_CONTACTS_GRANT__NULL_MESSAGE)
-    private boolean loadEssentialContactsGrant;
+    @NotNull(message = ESSENTIAL_CONTACT_GRANT__NULL_MESSAGE)
+    private boolean essentialContactGrant;
 
     public String getLanguage() {
         return language;
@@ -32,11 +32,11 @@ public class UserAppSettingsResponseAndRequestModel {
         this.colorTheme = colorTheme;
     }
 
-    public boolean getLoadEssentialContactsGrant() {
-        return loadEssentialContactsGrant;
+    public boolean getEssentialContactGrant() {
+        return essentialContactGrant;
     }
 
-    public void setLoadEssentialContactsGrant(boolean loadEssentialContactsGrant) {
-        this.loadEssentialContactsGrant = loadEssentialContactsGrant;
+    public void setEssentialContactGrant(boolean essentialContactGrant) {
+        this.essentialContactGrant = essentialContactGrant;
     }
 }

@@ -114,15 +114,12 @@ public class EssentialContactServiceImpl {
 
         final User user = authServiceImpl.getCurrentUser();
 
-            Optional<List<EssentialContactMapping>> oldEssentialContactsSearch = essentialContactMappingRepository
-                .findEssentialContactsByUserId(user.getId());
+            Optional<List<Contact>> oldEssentialContactsSearch = contactRepository.
+                findUserEssentialContactsByUserId(user.getId());
 
             if(oldEssentialContactsSearch.isPresent()) {
-                List<EssentialContactMapping> essentialContactMaps = oldEssentialContactsSearch.get();
-                //essentialContactMappingRepository.deleteAll(essentialContactMaps);
-                contactRepository.deleteAll(essentialContactMaps
-                        .stream().map(EssentialContactMapping::getContact)
-                        .collect(Collectors.toList()));
+                List<Contact> oldEssentialContacts = oldEssentialContactsSearch.get();
+                contactRepository.deleteAll(oldEssentialContacts);
             }
 
             Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository

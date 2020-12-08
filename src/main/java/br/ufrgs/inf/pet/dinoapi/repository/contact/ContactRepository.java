@@ -20,4 +20,7 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
     @Query("SELECT n FROM Contact n LEFT JOIN FETCH n.googleContacts gc WHERE n.user.id = ?1 AND (gc.user.id = ?1 OR gc.user.id = NULL)")
     List<Contact> findByUserIdWithGoogleContacts(Long userId);
 
+    @Query("SELECT c FROM Contact c RIGHT JOIN EssentialContactMapping ecm ON ecm.contact.id = c.id WHERE c.user.id = ?1")
+    Optional<List<Contact>> findUserEssentialContactsByUserId(Long userId);
+
 }

@@ -14,7 +14,7 @@ public class UserAppSettings {
 
     private static final String SEQUENCE_NAME = "user_app_settings_seq";
 
-    public static final Long DEFAULT_VERSION = 0l;
+    public static final Long DEFAULT_VERSION = 0L;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -32,7 +32,7 @@ public class UserAppSettings {
     private Integer colorTheme;
 
     @Column(name = "load_essential_contacts", nullable = false)
-    private boolean loadEssentialContactsGrant;
+    private boolean essentialContactGrant;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -45,7 +45,7 @@ public class UserAppSettings {
         this.version = DEFAULT_VERSION;
         this.colorTheme = ColorTheme.DEVICE.getValue();
         this.language = AppSettingsConstants.DEFAULT_LANGUAGE;
-        this.loadEssentialContactsGrant = AppSettingsConstants.DEFAULT_E_CONTACTS_GRANT;;
+        this.essentialContactGrant = AppSettingsConstants.DEFAULT_E_CONTACTS_GRANT;;
     }
 
     public Long getId() {
@@ -88,11 +88,11 @@ public class UserAppSettings {
         this.colorTheme = colorTheme;
     }
 
-    public boolean getLoadEssentialContactsGrant() {
-        return loadEssentialContactsGrant;
+    public boolean getEssentialContactGrant() {
+        return essentialContactGrant;
     }
 
-    public void setLoadEssentialContactsGrant(boolean loadEssentialContactsGrant) {
-        this.loadEssentialContactsGrant = loadEssentialContactsGrant;
+    public void setEssentialContactGrant(boolean essentialContactGrant) {
+        this.essentialContactGrant = essentialContactGrant;
     }
 }

@@ -44,7 +44,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         final UserAppSettingsResponseAndRequestModel model = new UserAppSettingsResponseAndRequestModel();
         model.setColorTheme(userAppSettings.getColorTheme());
         model.setLanguage(userAppSettings.getLanguage());
-        model.setLoadEssentialContactsGrant(userAppSettings.getLoadEssentialContactsGrant());
+        model.setEssentialContactGrant(userAppSettings.getEssentialContactGrant());
 
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
@@ -93,11 +93,11 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             changed = true;
         }
 
-        final boolean currentLoadEssentialContactsGrant = userAppSettings.getLoadEssentialContactsGrant();
-        final boolean newLoadEssentialContactsGrant = userAppSettingsModel.getLoadEssentialContactsGrant();
+        final boolean currentLoadEssentialContactsGrant = userAppSettings.getEssentialContactGrant();
+        final boolean newLoadEssentialContactsGrant = userAppSettingsModel.getEssentialContactGrant();
 
         if (newLoadEssentialContactsGrant != currentLoadEssentialContactsGrant) {
-            userAppSettings.setLoadEssentialContactsGrant(newLoadEssentialContactsGrant);
+            userAppSettings.setEssentialContactGrant(newLoadEssentialContactsGrant);
             changed = true;
         }
 
