@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
-
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;

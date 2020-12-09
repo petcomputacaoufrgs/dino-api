@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteAllListModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
@@ -41,14 +42,14 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * @param model data model
      * @return entity
      */
-    ENTITY convertModelToEntity(DATA_MODEL model);
+    ENTITY convertModelToEntity(DATA_MODEL model, User user) throws ConvertModelToEntityException;
 
     /**
      * Update entity's ({@link ENTITY}) attributes based in a data model ({@link DATA_MODEL})
      * @param entity entity
      * @param model data model
      */
-    void updateEntity(ENTITY entity, DATA_MODEL model);
+    void updateEntity(ENTITY entity, DATA_MODEL model) throws ConvertModelToEntityException;
 
     /**
      * Get entity from database using userId for security validation (only takes data that the user has access)
@@ -56,7 +57,7 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * @param user current user
      * @return database entity if valid params or null
      */
-    Optional<ENTITY> getEntityByIdAndUserId(ID id, User user);
+    Optional<ENTITY> getEntityByIdAndUser(ID id, User user);
 
     /**
      * Get entities from database using userId for security validation (only takes data that the user has access)
@@ -84,6 +85,12 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * @return WebSocketDestinationEnum wuth update
      */
     WebSocketDestinationsEnum getDeleteWebsocketDestination();
+
+    /**
+     * Define if entity should be deleted
+     * @param entity base entity
+     */
+    boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model);
 
     /**
      * Implements get method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}

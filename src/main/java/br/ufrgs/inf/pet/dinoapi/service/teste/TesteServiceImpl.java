@@ -31,8 +31,7 @@ public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Lon
     }
 
     @Override
-    public TesteEntity convertModelToEntity(TesteDataModel model) {
-        final User user = authService.getCurrentUser();
+    public TesteEntity convertModelToEntity(TesteDataModel model, User user) {
         final TesteEntity entity = new TesteEntity();
         entity.setUser(user);
         entity.setName(model.getName());
@@ -45,7 +44,7 @@ public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Lon
     }
 
     @Override
-    public Optional<TesteEntity> getEntityByIdAndUserId(Long id, User user) {
+    public Optional<TesteEntity> getEntityByIdAndUser(Long id, User user) {
         return repository.findByIdAndUserId(id, user.getId());
     }
 

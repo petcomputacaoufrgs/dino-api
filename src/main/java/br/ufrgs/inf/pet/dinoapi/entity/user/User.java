@@ -8,7 +8,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
-import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
 
 import javax.persistence.*;
@@ -48,9 +47,6 @@ public class User {
 
     @OneToOne(mappedBy = "user")
     private UserAppSettings userAppSettings;
-
-    @OneToOne(mappedBy = "user")
-    private NoteVersion noteVersion;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Auth> auths;
@@ -164,10 +160,6 @@ public class User {
         this.noteColumns = noteColumns;
     }
 
-    public NoteVersion getNoteVersion() {
-        return noteVersion;
-    }
-
     public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
     }
@@ -180,10 +172,6 @@ public class User {
 
     public void setContactVersion(ContactVersion contactVersion) {
         this.contactVersion = contactVersion;
-    }
-
-    public void setNoteVersion(NoteVersion noteVersion) {
-        this.noteVersion = noteVersion;
     }
 
     public FaqUser getFaqUser() {

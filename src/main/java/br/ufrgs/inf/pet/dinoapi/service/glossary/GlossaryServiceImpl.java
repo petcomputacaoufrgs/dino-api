@@ -34,7 +34,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public GlossaryItem convertModelToEntity(GlossaryItemDataModel model) {
+    public GlossaryItem convertModelToEntity(GlossaryItemDataModel model, User user) {
         final GlossaryItem glossaryItem = new GlossaryItem();
         glossaryItem.setTitle(model.getTitle());
         glossaryItem.setText(model.getText());
@@ -53,7 +53,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public Optional<GlossaryItem> getEntityByIdAndUserId(Long id, User user) {
+    public Optional<GlossaryItem> getEntityByIdAndUser(Long id, User user) {
         return this.repository.findById(id);
     }
 

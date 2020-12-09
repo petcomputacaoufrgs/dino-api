@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.synchronizable;
 import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGenericResponseModel;
@@ -21,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Base service with get, getAll, save/update and delete for synchronizable entity
@@ -65,19 +67,25 @@ public abstract class SynchronizableServiceImpl<
 
     @Override
     public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(DATA_MODEL model) {
+        final User user = authService.getCurrentUser();
         final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
 
         if (model != null) {
-            response.setSuccess(true);
             final DATA_MODEL data;
             final ENTITY entity = this.getEntity(model.getId());
-            if (entity != null) {
-                data = this.update(entity, model);
-            } else {
-                data = this.create(model);
+            try {
+                if (entity != null) {
+                    data = this.update(entity, model);
+                } else {
+                    data = this.create(model, user);
+                }
+                response.setSuccess(true);
+                response.setData(data);
+                this.sendUpdateMessage(data);
+            } catch (ConvertModelToEntityException e) {
+                response.setSuccess(false);
+                response.setError(e.getMessage());
             }
-            response.setData(data);
-            this.sendUpdateMessage(data);
         } else {
             response.setSuccess(false);
             response.setError(SynchronizableConstants.REQUEST_WITH_OUT_DATA);
@@ -91,7 +99,7 @@ public abstract class SynchronizableServiceImpl<
     delete(SynchronizableDeleteModel<ID> model) {
         final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
         final ENTITY entity = this.getEntity(model.getId());
-        if (entity != null) {
+        if (entity != null && this.shouldDelete(entity, model)) {
             final boolean wasDeleted = this.delete(entity, model);
 
             if (wasDeleted) {
@@ -126,6 +134,7 @@ public abstract class SynchronizableServiceImpl<
     @Override
     public ResponseEntity<SynchronizableGenericResponseModel>
     saveAll(SynchronizableSaveAllListModel<ID, DATA_MODEL> model) {
+        final User user = authService.getCurrentUser();
         final List<DATA_MODEL> newData = new ArrayList<>();
         final List<DATA_MODEL> updateData = new ArrayList<>();
         final List<ENTITY> newEntities = new ArrayList<>();
@@ -139,13 +148,13 @@ public abstract class SynchronizableServiceImpl<
             }
         });
 
-        newEntities.addAll(this.updateAllItems(updateData));
-        newEntities.addAll(this.createEntities(newData));
+        newEntities.addAll(this.updateAllItems(updateData, user));
+        newEntities.addAll(this.createEntities(newData, user));
+
 
         final List<ENTITY> savedEntities = Lists.newArrayList(repository.saveAll(newEntities));
 
-        final List<DATA_MODEL> savedModels = savedEntities.stream().map(this::internalConvertEntityToModel)
-                .collect(Collectors.toList());
+        final List<DATA_MODEL> savedModels = savedEntities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
 
         response.setSuccess(true);
         this.sendUpdateMessage(savedModels);
@@ -183,7 +192,7 @@ public abstract class SynchronizableServiceImpl<
                 id = orderedIds.get(count);
             }
 
-            if (this.canChange(entity, orderedData.get(count))) {
+            if (this.canChange(entity, orderedData.get(count)) && this.shouldDelete(entity, orderedData.get(count))) {
                 deletedIds.add(entity.getId());
                 entitiesToDelete.add(entity);
             }
@@ -201,6 +210,11 @@ public abstract class SynchronizableServiceImpl<
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @Override
+    public boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model) {
+        return true;
+    }
+
     protected DATA_MODEL internalConvertEntityToModel(ENTITY entity) {
         final DATA_MODEL model = this.convertEntityToModel(entity);
         model.setId(entity.getId());
@@ -209,15 +223,15 @@ public abstract class SynchronizableServiceImpl<
         return model;
     }
 
-    protected ENTITY internalConvertModelToEntity(DATA_MODEL model) {
-        final ENTITY entity = this.convertModelToEntity(model);
+    protected ENTITY internalConvertModelToEntity(DATA_MODEL model, User user) throws ConvertModelToEntityException {
+        final ENTITY entity = this.convertModelToEntity(model, user);
         entity.setId(model.getId());
         entity.setLastUpdate(model.getLastUpdate());
 
         return entity;
     }
 
-    protected void internalUpdateEntity(ENTITY entity, DATA_MODEL model) {
+    protected void internalUpdateEntity(ENTITY entity, DATA_MODEL model) throws ConvertModelToEntityException {
         this.updateEntity(entity, model);
         entity.setLastUpdate(model.getLastUpdate());
         entity.setId(model.getId());
@@ -231,7 +245,7 @@ public abstract class SynchronizableServiceImpl<
         final User user = authService.getCurrentUser();
 
         if (id != null) {
-            final Optional<ENTITY> entitySearch = this.getEntityByIdAndUserId(id, user);
+            final Optional<ENTITY> entitySearch = this.getEntityByIdAndUser(id, user);
 
             if (entitySearch.isPresent()) {
                 return entitySearch.get();
@@ -241,15 +255,15 @@ public abstract class SynchronizableServiceImpl<
         return null;
     }
 
-    protected DATA_MODEL create(DATA_MODEL model) {
-        ENTITY entity = this.internalConvertModelToEntity(model);
+    protected DATA_MODEL create(DATA_MODEL model, User user) throws ConvertModelToEntityException {
+        ENTITY entity = this.internalConvertModelToEntity(model, user);
         entity.setLastUpdate(model.getLastUpdate());
         entity = repository.save(entity);
 
         return this.internalConvertEntityToModel(entity);
     }
 
-    protected DATA_MODEL update(ENTITY entity, DATA_MODEL model) {
+    protected DATA_MODEL update(ENTITY entity, DATA_MODEL model) throws ConvertModelToEntityException {
         if (this.canChange(entity, model)) {
             this.internalUpdateEntity(entity, model);
             entity.setLastUpdate(model.getLastUpdate());
@@ -279,7 +293,7 @@ public abstract class SynchronizableServiceImpl<
         return this.getEntitiesByIdsAndUserId(ids, user);
     }
 
-    protected List<ENTITY> updateAllItems(List<DATA_MODEL> items) {
+    protected List<ENTITY> updateAllItems(List<DATA_MODEL> items, User user) {
         final List<ENTITY> entitiesToSave = new ArrayList<>();
 
         final List<DATA_MODEL> orderedData = items.stream()
@@ -303,9 +317,13 @@ public abstract class SynchronizableServiceImpl<
 
                 if (model.getId() == entityId) {
                     if (this.canChange(entity, model)) {
-                        this.internalUpdateEntity(entity, model);
-                        entity.setLastUpdate(model.getLastUpdate());
-                        entitiesToSave.add(entity);
+                        try {
+                            this.internalUpdateEntity(entity, model);
+                            entity.setLastUpdate(model.getLastUpdate());
+                            entitiesToSave.add(entity);
+                        } catch (ConvertModelToEntityException e) {
+                            //TODO Log API Error
+                        }
                     }
 
                     count++;
@@ -315,17 +333,29 @@ public abstract class SynchronizableServiceImpl<
             }
 
             model.setId(null);
-            entitiesToSave.add(this.internalConvertModelToEntity(model));
+            try {
+                final ENTITY newEntity = this.internalConvertModelToEntity(model, user);
+                entitiesToSave.add(newEntity);
+            } catch (ConvertModelToEntityException e) {
+                //TODO Log API Error
+            }
+
         }
 
         return entitiesToSave;
     }
 
-    protected List<ENTITY> createEntities(List<DATA_MODEL> items) {
-        return items.stream().map(item -> {
-            ENTITY entity = this.internalConvertModelToEntity(item);
+    protected List<ENTITY> createEntities(List<DATA_MODEL> items, User user) {
+        return items.stream().flatMap(item -> {
+            ENTITY entity;
+            try {
+                entity = this.internalConvertModelToEntity(item, user);
+            } catch (ConvertModelToEntityException e) {
+                //TODO: Log API Error
+                return Stream.empty();
+            }
             entity.setLastUpdate(item.getLastUpdate());
-            return entity;
+            return Stream.of(entity);
         }).collect(Collectors.toList());
     }
 

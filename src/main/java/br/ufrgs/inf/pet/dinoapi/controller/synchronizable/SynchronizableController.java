@@ -37,6 +37,7 @@ public interface SynchronizableController<ID extends Comparable<ID> & Serializab
      * @return if server version exists:
      *              - if server version is more updated return server version
      *              - otherwise save new version and return new server version
+     *                  - can return error if conversion of model to entity fails
      *         otherwise:
      *              - create new server data and return it
      *
@@ -70,8 +71,10 @@ public interface SynchronizableController<ID extends Comparable<ID> & Serializab
      *      if server version exists:
      *          - if server version is more updated do nothing
      *          - otherwise update server version
+     *              - if conversion of model to entity fail item is ignored
      *      otherwise:
      *          - create new server data
+     *              - if conversion of model to entity fail item is ignored
      *
      * @return Always return success
      *
