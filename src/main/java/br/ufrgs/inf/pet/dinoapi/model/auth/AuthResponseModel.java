@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 
 public class AuthResponseModel {
 
@@ -8,7 +8,7 @@ public class AuthResponseModel {
 
     private Long expiresDate;
 
-    private UserResponseModel user;
+    private UserDataModel user;
 
     public String getAccessToken() {
         return accessToken;
@@ -26,11 +26,11 @@ public class AuthResponseModel {
         this.expiresDate = expiresDate;
     }
 
-    public UserResponseModel getUser() {
+    public UserDataModel getUser() {
         return user;
     }
 
-    public void setUser(UserResponseModel user) {
+    public void setUser(UserDataModel user) {
         this.user = user;
     }
 }

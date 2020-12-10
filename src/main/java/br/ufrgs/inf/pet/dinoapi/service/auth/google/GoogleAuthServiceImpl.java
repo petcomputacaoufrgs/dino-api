@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.*;
-import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleScopeRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -118,15 +119,17 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final Claims claims = authService.decodeAccessToken(auth.getAccessToken());
 
-                final UserResponseModel userResponseModel = new UserResponseModel();
+                final UserDataModel userData = new UserDataModel();
 
-                userResponseModel.setEmail(user.getEmail());
+                userData.setEmail(user.getEmail());
 
-                userResponseModel.setName(user.getName());
+                userData.setName(user.getName());
 
-                userResponseModel.setPictureURL(user.getPictureURL());
+                userData.setPictureURL(user.getPictureURL());
 
-                userResponseModel.setVersion(user.getVersion());
+                userData.setLastUpdate(LocalDateTime.now());
+
+                userData.setId(user.getId());
 
                 final GoogleAuthResponseModel response = this.generateGoogleAuthResponse(tokenResponse);
 
@@ -134,7 +137,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setExpiresDate(claims.getExpiration().getTime());
 
-                response.setUser(userResponseModel);
+                response.setUser(userData);
 
                 response.setScopeList(currentScopes);
 
@@ -267,7 +270,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     private void saveGrantConfig(List<String> scopes, GoogleAuth googleAuth) {
-        final boolean hasContactGrant = scopes.stream().anyMatch(scope -> scope == GoogleScopeEnum.CONTACTS.getValue());
+        final boolean hasContactGrant = scopes.stream().anyMatch(scope -> scope.equals(GoogleScopeEnum.CONTACTS.getValue()));
         boolean changed = false;
 
         if (hasContactGrant) {
@@ -295,11 +298,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     private GoogleAuth getGoogleAuthByGoogleId(String googleId) {
         final Optional<GoogleAuth> googleAuthSearchResult = googleAuthRepository.findByGoogleId(googleId);
 
-        if (googleAuthSearchResult.isPresent()) {
-            return googleAuthSearchResult.get();
-        }
-
-        return null;
+        return googleAuthSearchResult.orElse(null);
     }
 
     private Boolean isWithRefreshTokenEmpty(String refreshToken) {
@@ -323,7 +322,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         final String name = (String) payload.get("name");
         final String pictureUrl = (String) payload.get("picture");
 
-        return userService.update(name, email, pictureUrl);
+        return userService.update(name, email, pictureUrl, user);
     }
 
     private GoogleRefreshAuthResponseModel refreshGoogleAuth(GoogleAuth googleAuth) {
@@ -331,17 +330,15 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
             final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
-            if (tokenResponse != null) {
-                GoogleAuthResponseModel authModel = this.generateGoogleAuthResponse(tokenResponse);
+            GoogleAuthResponseModel authModel = this.generateGoogleAuthResponse(tokenResponse);
 
-                GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
-                response.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
-                response.setGoogleAccessToken(authModel.getGoogleAccessToken());
-                response.setScopeList(currentScopes);
-                response.setDeclinedContatsGrant(googleAuth.isDeclinedContatsGrant());
+            GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
+            response.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
+            response.setGoogleAccessToken(authModel.getGoogleAccessToken());
+            response.setScopeList(currentScopes);
+            response.setDeclinedContatsGrant(googleAuth.isDeclinedContatsGrant());
 
-                return response;
-            }
+            return response;
         }
         return null;
     }

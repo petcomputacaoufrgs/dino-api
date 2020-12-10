@@ -3,93 +3,87 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements UserService {
-
-    private final UserRepository userRepository;
-
-    private final AuthServiceImpl authService;
-
-    private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
+public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> {
 
     private final ContactRepository contactRepository;
 
     private final PhoneServiceImpl phoneServiceImpl;
 
-
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl,
-                           ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl) {
-        this.userRepository = userRepository;
-        this.authService = authService;
-        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
+                           ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl,
+                           GenericQueueMessageServiceImpl genericQueueMessageService) {
+        super(userRepository, authService, genericQueueMessageService);
         this.contactRepository = contactRepository;
         this.phoneServiceImpl = phoneServiceImpl;
     }
 
     @Override
-    public ResponseEntity<?> getVersion() {
-        final User currentUser = authService.getCurrentUser();
+    public UserDataModel convertEntityToModel(User entity) {
+        final UserDataModel userDataModel = new UserDataModel();
+        userDataModel.setEmail(entity.getEmail());
+        userDataModel.setName(entity.getName());
+        userDataModel.setPictureURL(entity.getPictureURL());
 
-        if (currentUser != null) {
-            return new ResponseEntity<>(currentUser.getVersion(), HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("Usuário não encontrado.", HttpStatus.INTERNAL_SERVER_ERROR);
+        return userDataModel;
     }
 
     @Override
-    public ResponseEntity<?> getUser() {
-        final User currentUser = authService.getCurrentUser();
-
-        if (currentUser != null) {
-            final UserResponseModel model = new UserResponseModel();
-            model.setEmail(currentUser.getEmail());
-            model.setName(currentUser.getName());
-            model.setPictureURL(currentUser.getPictureURL());
-
-            return new ResponseEntity<>(model, HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("Usuário não encontrado.", HttpStatus.INTERNAL_SERVER_ERROR);
+    public User convertModelToEntity(UserDataModel model, User user) {
+        user.setPictureURL(model.getPictureURL());
+        return user;
     }
 
     @Override
-    public ResponseEntity<?> setUserPhoto(UpdateUserPictureRequestModel model) {
-        User currentUser = authService.getCurrentUser();
-
-        if (model.getPictureURL().isBlank()) {
-            return new ResponseEntity<>("A URL de foto de perfil não pode ser vazia.", HttpStatus.BAD_REQUEST);
-        }
-
-        if (currentUser != null) {
-            currentUser.setPictureURL(model.getPictureURL());
-            currentUser.updateVersion();
-            currentUser = userRepository.save(currentUser);
-            alertUpdateQueueServiceImpl.sendUpdateMessage(currentUser.getVersion(), WebSocketDestinationsEnum.ALERT_USER_UPDATE);
-
-            return new ResponseEntity<>(currentUser.getVersion(), HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("Usuário não encontrado.", HttpStatus.BAD_REQUEST);
+    public void updateEntity(User user, UserDataModel model) {
+        user.setPictureURL(model.getPictureURL());
     }
 
     @Override
+    public Optional<User> getEntityByIdAndUser(Long id, User user) {
+        return Optional.of(user);
+    }
+
+    @Override
+    public List<User> getEntitiesByUserId(User user) {
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        return users;
+    }
+
+    @Override
+    public List<User> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        return users;
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
+        return WebSocketDestinationsEnum.USER_UPDATE;
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
+        return WebSocketDestinationsEnum.USER_DELETE;
+    }
+
     public User create(String name, String email, String pictureUrl) {
         User user = this.findUserByEmail(email);
 
@@ -101,9 +95,7 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    @Override
-    public User update(String name, String email, String pictureUrl) {
-        User user = this.findUserByEmail(email);
+    public User update(String name, String email, String pictureUrl, User user) {
         boolean updated = false;
 
         if (user != null) {
@@ -120,8 +112,13 @@ public class UserServiceImpl implements UserService {
                 updated = true;
             }
             if (updated) {
-                user.updateVersion();
-                alertUpdateQueueServiceImpl.sendUpdateMessage(user.getVersion(), WebSocketDestinationsEnum.ALERT_USER_UPDATE);
+                final UserDataModel model = new UserDataModel();
+                model.setPictureURL(user.getPictureURL());
+                model.setEmail(user.getEmail());
+                model.setName(user.getName());
+
+                this.sendUpdateMessage(model);
+
                 return this.save(user);
             }
 
@@ -131,10 +128,9 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    @Override
     public User findUserByEmail(String email) {
         if (email != null) {
-            final Optional<User> queryResult = userRepository.findByEmail(email);
+            final Optional<User> queryResult = this.repository.findByEmail(email);
             if (queryResult.isPresent()) {
                 return queryResult.get();
             }
@@ -144,8 +140,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User save(User user) {
-
-        return userRepository.save(user);
+        return this.repository.save(user);
     }
 
     private void createDefaultUserData(User user) {

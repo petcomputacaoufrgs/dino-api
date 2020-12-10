@@ -1,14 +1,20 @@
 package br.ufrgs.inf.pet.dinoapi.model.user;
 
-public class UserResponseModel {
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.UserConstants.*;
+
+public class UserDataModel extends SynchronizableDataModel<Long> {
     private String name;
 
     private String email;
 
+    @NotNull(message = PICTURE_URL_NULL_MESSAGE)
+    @Size(max = PICTURE_URL_MAX, message = PICTURE_URL_MAX_MESSAGE)
     private String pictureURL;
-
-    private Long version;
 
     public String getName() {
         return name;
@@ -32,13 +38,5 @@ public class UserResponseModel {
 
     public void setPictureURL(String pictureURL) {
         this.pictureURL = pictureURL;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 }

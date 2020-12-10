@@ -8,28 +8,19 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.*;
-import static javax.persistence.GenerationType.SEQUENCE;
+import static br.ufrgs.inf.pet.dinoapi.constants.UserConstants.*;
 
 @Entity
 @Table(name = "dino_user")
-public class User {
-    private static final String SEQUENCE_NAME = "dino_user_seq";
-
-    public static final Long DEFAULT_VERSION = 0L;
-
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+public class User extends SynchronizableEntity<Long> {
     @Column(name = "name", length = NAME_MAX, nullable = false)
     private String name;
 
@@ -38,9 +29,6 @@ public class User {
 
     @Column(name = "picture_url", length = PICTURE_URL_MAX, nullable = false)
     private String pictureURL;
-
-    @Column(name = "version", nullable = false)
-    private Long version;
 
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
@@ -82,7 +70,7 @@ public class User {
         this.name = name;
         this.email = email;
         this.pictureURL = pictureURL;
-        this.version = DEFAULT_VERSION;
+        this.lastUpdate = LocalDateTime.now();
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
         this.noteColumns = new ArrayList<>();
@@ -122,18 +110,6 @@ public class User {
 
     public void setPictureURL(String pictureURL) {
         this.pictureURL = pictureURL;
-    }
-
-    public Long getVersion() {
-        return version;
-    }
-
-    public void updateVersion() {
-        this.version = version + 1l;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
     }
 
     public GoogleAuth getGoogleAuth() {
