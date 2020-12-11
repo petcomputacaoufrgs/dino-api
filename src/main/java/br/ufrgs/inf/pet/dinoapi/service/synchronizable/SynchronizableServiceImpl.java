@@ -56,163 +56,208 @@ public abstract class SynchronizableServiceImpl<
     @Override
     public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
         final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
-        final ENTITY entity = this.getEntity(model.getId());
+        try {
+            final ENTITY entity = this.getEntity(model.getId());
 
-        if (entity != null) {
-            final DATA_MODEL data = this.internalConvertEntityToModel(entity);
-            response.setSuccess(true);
-            response.setData(data);
+            if (entity != null) {
+                final DATA_MODEL data = this.internalConvertEntityToModel(entity);
+                response.setSuccess(true);
+                response.setData(data);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.NOT_FOUND);
             return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            //TODO Log API Error
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.UNKNOWN_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        response.setSuccess(false);
-        response.setError(SynchronizableConstants.NOT_FOUND);
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
     public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(DATA_MODEL model) {
-        final User user = authService.getCurrentUser();
         final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
 
-        if (model != null) {
-            final DATA_MODEL data;
-            final ENTITY entity = this.getEntity(model.getId());
-            try {
-                if (entity != null) {
-                    data = this.update(entity, model);
-                } else {
-                    data = this.create(model, user);
-                }
-                response.setSuccess(true);
-                response.setData(data);
-                this.sendUpdateMessage(data);
-            } catch (ConvertModelToEntityException e) {
-                response.setSuccess(false);
-                response.setError(e.getMessage());
-            }
-        } else {
-            response.setSuccess(false);
-            response.setError(SynchronizableConstants.REQUEST_WITH_OUT_DATA);
-        }
+        try {
+            final User user = authService.getCurrentUser();
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            if (model != null) {
+                final DATA_MODEL data;
+                final ENTITY entity = this.getEntity(model.getId());
+                try {
+                    if (entity != null) {
+                        data = this.update(entity, model);
+                    } else {
+                        data = this.create(model, user);
+                    }
+                    response.setSuccess(true);
+                    response.setData(data);
+                    this.sendUpdateMessage(data);
+                } catch (ConvertModelToEntityException e) {
+                    response.setSuccess(false);
+                    response.setError(e.getMessage());
+                }
+            } else {
+                response.setSuccess(false);
+                response.setError(SynchronizableConstants.REQUEST_WITH_OUT_DATA);
+            }
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            //TODO Log API Error
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.UNKNOWN_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>>
     delete(SynchronizableDeleteModel<ID> model) {
         final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
-        final ENTITY entity = this.getEntity(model.getId());
-        if (entity != null && this.shouldDelete(entity, model)) {
-            final boolean wasDeleted = this.delete(entity, model);
+        try {
+            final ENTITY entity = this.getEntity(model.getId());
+            if (entity != null && this.shouldDelete(entity, model)) {
+                final boolean wasDeleted = this.delete(entity, model);
 
-            if (wasDeleted) {
-                response.setSuccess(true);
-                this.sendDeleteMessage(entity.getId());
+                if (wasDeleted) {
+                    response.setSuccess(true);
+                    this.sendDeleteMessage(entity.getId());
+                } else {
+                    response.setSuccess(false);
+                    response.setError(SynchronizableConstants.YOUR_VERSION_IS_OUTDATED);
+                    response.setData(this.internalConvertEntityToModel(entity));
+                }
             } else {
                 response.setSuccess(false);
-                response.setError(SynchronizableConstants.YOUR_VERSION_IS_OUTDATED);
-                response.setData(this.internalConvertEntityToModel(entity));
+                response.setError(SynchronizableConstants.NOT_FOUND);
             }
-        } else {
-            response.setSuccess(false);
-            response.setError(SynchronizableConstants.NOT_FOUND);
-        }
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            //TODO Log API Error
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.UNKNOWN_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public ResponseEntity<SynchronizableListDataResponseModel<ID, DATA_MODEL>> getAll() {
-        final List<ENTITY> entities = this.getAllEntities();
-        final List<DATA_MODEL> data = entities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
-
         final SynchronizableListDataResponseModel<ID, DATA_MODEL> response = new SynchronizableListDataResponseModel<>();
 
-        response.setSuccess(true);
-        response.setData(data);
+        try {
+            final List<ENTITY> entities = this.getAllEntities();
+            final List<DATA_MODEL> data = entities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+
+            response.setSuccess(true);
+            response.setData(data);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            //TODO Log API Error
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.UNKNOWN_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public ResponseEntity<SynchronizableGenericResponseModel>
     saveAll(SynchronizableSaveAllListModel<ID, DATA_MODEL> model) {
-        final User user = authService.getCurrentUser();
         final List<DATA_MODEL> newData = new ArrayList<>();
         final List<DATA_MODEL> updateData = new ArrayList<>();
         final List<ENTITY> newEntities = new ArrayList<>();
         final SynchronizableGenericResponseModel response = new SynchronizableGenericResponseModel();
 
-        model.getData().forEach(item -> {
-            if (item.getId() != null) {
-                updateData.add(item);
-            } else {
-                newData.add(item);
-            }
-        });
+        try {
+            final User user = authService.getCurrentUser();
 
-        newEntities.addAll(this.updateAllItems(updateData, user));
-        newEntities.addAll(this.createEntities(newData, user));
+            model.getData().forEach(item -> {
+                if (item.getId() != null) {
+                    updateData.add(item);
+                } else {
+                    newData.add(item);
+                }
+            });
+
+            newEntities.addAll(this.updateAllItems(updateData, user));
+            newEntities.addAll(this.createEntities(newData, user));
 
 
-        final List<ENTITY> savedEntities = Lists.newArrayList(repository.saveAll(newEntities));
+            final List<ENTITY> savedEntities = Lists.newArrayList(repository.saveAll(newEntities));
 
-        final List<DATA_MODEL> savedModels = savedEntities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
+            final List<DATA_MODEL> savedModels = savedEntities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
 
-        response.setSuccess(true);
-        this.sendUpdateMessage(savedModels);
+            response.setSuccess(true);
+            this.sendUpdateMessage(savedModels);
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            //TODO Log API Error
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.UNKNOWN_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @Override
     public ResponseEntity<SynchronizableGenericResponseModel>
     deleteAll(SynchronizableDeleteAllListModel<ID> model) {
-        final List<SynchronizableDeleteModel<ID>> orderedData = model.getData().stream()
-                .filter(ListUtils.distinctByKey(SynchronizableDeleteModel::getId))
-                .sorted(Comparator.comparing(SynchronizableDeleteModel::getId)).collect(Collectors.toList());
-
-        final List<ID> orderedIds = orderedData.stream()
-                .map(SynchronizableDeleteModel::getId).collect(Collectors.toList());
-
-        final List<ENTITY> orderedEntities = this.getAllEntities(orderedIds).stream()
-                .sorted(Comparator.comparing(SynchronizableEntity::getId)).collect(Collectors.toList());
-
-        final List<ID> deletedIds = new ArrayList<>();
-
-        final List<ENTITY> entitiesToDelete = new ArrayList<>();
-
-        int count = 0;
-
-        for (ENTITY entity : orderedEntities) {
-            final ID entityId = entity.getId();
-
-            ID id = orderedIds.get(count);
-
-            while(id != entityId) {
-                count++;
-
-                id = orderedIds.get(count);
-            }
-
-            if (this.canChange(entity, orderedData.get(count)) && this.shouldDelete(entity, orderedData.get(count))) {
-                deletedIds.add(entity.getId());
-                entitiesToDelete.add(entity);
-            }
-
-            count++;
-        }
-
-        repository.deleteAll(entitiesToDelete);
-
         final SynchronizableGenericResponseModel response = new SynchronizableGenericResponseModel();
 
-        response.setSuccess(true);
-        this.sendDeleteMessage(deletedIds);
+        try {
+            final List<SynchronizableDeleteModel<ID>> orderedData = model.getData().stream()
+                    .filter(ListUtils.distinctByKey(SynchronizableDeleteModel::getId))
+                    .sorted(Comparator.comparing(SynchronizableDeleteModel::getId)).collect(Collectors.toList());
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            final List<ID> orderedIds = orderedData.stream()
+                    .map(SynchronizableDeleteModel::getId).collect(Collectors.toList());
+
+            final List<ENTITY> orderedEntities = this.getAllEntities(orderedIds).stream()
+                    .sorted(Comparator.comparing(SynchronizableEntity::getId)).collect(Collectors.toList());
+
+            final List<ID> deletedIds = new ArrayList<>();
+
+            final List<ENTITY> entitiesToDelete = new ArrayList<>();
+
+            int count = 0;
+
+            for (ENTITY entity : orderedEntities) {
+                final ID entityId = entity.getId();
+
+                ID id = orderedIds.get(count);
+
+                while(id != entityId) {
+                    count++;
+
+                    id = orderedIds.get(count);
+                }
+
+                if (this.canChange(entity, orderedData.get(count)) && this.shouldDelete(entity, orderedData.get(count))) {
+                    deletedIds.add(entity.getId());
+                    entitiesToDelete.add(entity);
+                }
+
+                count++;
+            }
+
+            repository.deleteAll(entitiesToDelete);
+
+            response.setSuccess(true);
+            this.sendDeleteMessage(deletedIds);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            //TODO Log API Error
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.UNKNOWN_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     protected DATA_MODEL internalConvertEntityToModel(ENTITY entity) {
@@ -383,7 +428,7 @@ public abstract class SynchronizableServiceImpl<
         if (!data.isEmpty()) {
             final SynchronizableWSUpdateModel<ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
             model.setData(data);
-            genericMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination(), user);
+            genericMessageService.sendObjectMessage(model, this.getUpdateWebSocketDestination(), user);
         }
     }
 

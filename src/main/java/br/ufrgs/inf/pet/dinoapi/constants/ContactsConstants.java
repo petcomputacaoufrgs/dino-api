@@ -1,9 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 
 public final class ContactsConstants {
     public final static String ID_NULL_MESSAGE = "id cannot be null.";
