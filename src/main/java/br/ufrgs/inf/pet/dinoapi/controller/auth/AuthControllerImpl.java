@@ -53,10 +53,4 @@ public class AuthControllerImpl implements AuthController {
     public ResponseEntity<?> refreshAuth(@Valid @RequestBody AuthRefreshRequestModel authRefreshRequestModel) {
         return authService.refreshAuth(authRefreshRequestModel);
     }
-
-    @Override
-    @PutMapping("/auth/logout/")
-    public ResponseEntity<?> logout() {
-        return authService.logout();
-    }
 }

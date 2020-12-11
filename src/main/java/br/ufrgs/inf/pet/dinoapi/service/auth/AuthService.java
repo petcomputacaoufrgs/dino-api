@@ -33,13 +33,13 @@ public interface AuthService {
 
     DinoCredentials getCredentials();
 
-    ResponseEntity<?> logout();
-
     Boolean isValidToken(Auth auth);
 
     Claims decodeAccessToken(String accessToken);
 
     List<String> getAllUserWebSocketTokenExceptCurrentByUser();
+
+    List<String> getAllUserWebSocketTokenByUser(User user);
 
     void setWebSocketConnected();
 }

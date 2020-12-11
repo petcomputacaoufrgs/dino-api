@@ -29,6 +29,12 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
         ID extends Comparable<ID> & Serializable, DATA_MODEL extends SynchronizableDataModel<ID>> {
 
     /**
+     * Override it to define if entity should be deleted
+     * @param entity base entity
+     */
+    boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model);
+
+    /**
      * Create a complete data model ({@link DATA_MODEL}) based in an entity ({@link ENTITY})
      * @exception NullPointerException service will throws this exception if this method returns null
      * @param entity base entity
@@ -85,12 +91,6 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * @return WebSocketDestinationEnum wuth update
      */
     WebSocketDestinationsEnum getDeleteWebsocketDestination();
-
-    /**
-     * Define if entity should be deleted
-     * @param entity base entity
-     */
-    boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model);
 
     /**
      * Implements get method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}

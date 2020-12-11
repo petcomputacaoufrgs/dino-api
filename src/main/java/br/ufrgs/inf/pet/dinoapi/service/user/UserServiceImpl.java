@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
@@ -14,6 +15,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServi
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +54,9 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
 
     @Override
     public void updateEntity(User user, UserDataModel model) {
-        user.setPictureURL(model.getPictureURL());
+        if (!user.getPictureURL().equals(model.getPictureURL())) {
+            user.setPictureURL(model.getPictureURL());
+        }
     }
 
     @Override
@@ -84,6 +88,11 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return WebSocketDestinationsEnum.USER_DELETE;
     }
 
+    @Override
+    public boolean shouldDelete(User user, SynchronizableDeleteModel<Long> model) {
+        return false;
+    }
+
     public User create(String name, String email, String pictureUrl) {
         User user = this.findUserByEmail(email);
 
@@ -112,14 +121,18 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
                 updated = true;
             }
             if (updated) {
+                final User savedUser = this.save(user);
+
                 final UserDataModel model = new UserDataModel();
                 model.setPictureURL(user.getPictureURL());
                 model.setEmail(user.getEmail());
                 model.setName(user.getName());
+                model.setLastUpdate(LocalDateTime.now());
+                model.setId(savedUser.getId());
 
-                this.sendUpdateMessage(model);
+                this.sendUpdateMessage(model, savedUser);
 
-                return this.save(user);
+                return savedUser;
             }
 
             return user;

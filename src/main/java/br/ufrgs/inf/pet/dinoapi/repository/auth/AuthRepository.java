@@ -19,4 +19,7 @@ public interface AuthRepository extends CrudRepository<Auth, Long> {
 
     @Query("SELECT a.webSocketToken FROM Auth a WHERE a.user = :user AND a.webSocketToken IS NOT NULL AND a.webSocketToken NOT LIKE :webSocketToken")
     List<String> findAllWebSocketTokensExceptOneByUser(@Param("user") User user, @Param("webSocketToken") String webSocketToken);
+
+    @Query("SELECT a.webSocketToken FROM Auth a WHERE a.user = :user AND a.webSocketToken IS NOT NULL")
+    List<String> findAllWebSocketTokensByUser(@Param("user") User user);
 }

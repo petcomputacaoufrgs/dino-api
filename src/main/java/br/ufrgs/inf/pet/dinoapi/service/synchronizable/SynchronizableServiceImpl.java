@@ -49,6 +49,11 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
+    public boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model) {
+        return true;
+    }
+
+    @Override
     public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
         final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
         final ENTITY entity = this.getEntity(model.getId());
@@ -210,11 +215,6 @@ public abstract class SynchronizableServiceImpl<
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Override
-    public boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model) {
-        return true;
-    }
-
     protected DATA_MODEL internalConvertEntityToModel(ENTITY entity) {
         final DATA_MODEL model = this.convertEntityToModel(entity);
         model.setId(entity.getId());
@@ -365,11 +365,25 @@ public abstract class SynchronizableServiceImpl<
         this.sendUpdateMessage(data);
     }
 
+    protected void sendUpdateMessage(DATA_MODEL model, User user) {
+        List<DATA_MODEL> data = new ArrayList<>();
+        data.add(model);
+        this.sendUpdateMessage(data, user);
+    }
+
     protected void sendUpdateMessage(List<DATA_MODEL> data) {
         if (!data.isEmpty()) {
             final SynchronizableWSUpdateModel<ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
             model.setData(data);
             genericMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination());
+        }
+    }
+
+    protected void sendUpdateMessage(List<DATA_MODEL> data, User user) {
+        if (!data.isEmpty()) {
+            final SynchronizableWSUpdateModel<ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
+            model.setData(data);
+            genericMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination(), user);
         }
     }
 

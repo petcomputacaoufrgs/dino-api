@@ -46,11 +46,4 @@ public interface AuthController {
      * @return Objeto {@link GoogleRefreshAuthResponseModel} com o novo token de acesso ou erro
      */
     ResponseEntity<?> googleRefreshAuth();
-
-    /**
-     * Limpa as informações da autenticação corrente
-     *
-     * @return Mensagem de remoção
-     */
-    ResponseEntity<?> logout();
 }
