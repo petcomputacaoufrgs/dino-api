@@ -51,9 +51,6 @@ public class User extends SynchronizableEntity<Long> {
     private List<GoogleContact> googleContacts;
 
     @OneToOne(mappedBy = "user")
-    private ContactVersion contactVersion;
-
-    @OneToOne(mappedBy = "user")
     private FaqUser faqUser;
 
     @OneToMany(mappedBy = "user")
@@ -140,14 +137,6 @@ public class User extends SynchronizableEntity<Long> {
     }
 
     public List<Contact> getContacts() { return contacts; }
-
-    public ContactVersion getContactVersion() {
-        return contactVersion;
-    }
-
-    public void setContactVersion(ContactVersion contactVersion) {
-        this.contactVersion = contactVersion;
-    }
 
     public FaqUser getFaqUser() {
         return faqUser;

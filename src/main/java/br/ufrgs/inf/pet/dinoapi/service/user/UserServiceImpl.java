@@ -79,14 +79,15 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
+    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
         return WebSocketDestinationsEnum.USER_UPDATE;
     }
 
     @Override
-    public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
+    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
         return WebSocketDestinationsEnum.USER_DELETE;
     }
+
 
     @Override
     public boolean shouldDelete(User user, SynchronizableDeleteModel<Long> model) {
@@ -157,9 +158,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     }
 
     private void createDefaultUserData(User user) {
-
         ContactsConstants.DEFAULT_CONTACTS.forEach(model -> {
-
             Contact contact = contactRepository.save(new Contact(model, user));
 
             contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));

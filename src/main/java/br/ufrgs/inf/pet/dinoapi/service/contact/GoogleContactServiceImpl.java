@@ -8,15 +8,14 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.GenericMessageService;
-
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
 import java.util.List;
 import java.util.Optional;
 
-public class GoogleServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, GoogleContactModel, GoogleContactRepository> {
+public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, GoogleContactModel, GoogleContactRepository> {
 
-    public GoogleServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService, GenericMessageService genericMessageService) {
-        super(repository, authService, genericMessageService);
+    public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService, GenericQueueMessageServiceImpl genericQueueMessageService) {
+        super(repository, authService, genericQueueMessageService);
     }
 
     @Override
