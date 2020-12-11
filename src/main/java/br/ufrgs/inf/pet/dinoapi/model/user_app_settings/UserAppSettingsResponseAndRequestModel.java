@@ -13,8 +13,19 @@ public class UserAppSettingsResponseAndRequestModel {
     @NotNull(message = COLOR_THEME__NULL_MESSAGE)
     private Integer colorTheme;
 
+    @NotNull(message = FONT_SIZE__NULL_MESSAGE)
+    private Integer fontSize;
+
     @NotNull(message = ESSENTIAL_CONTACT_GRANT__NULL_MESSAGE)
     private boolean essentialContactGrant;
+
+    public Integer getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(Integer fontSize) {
+        this.fontSize = fontSize;
+    }
 
     public String getLanguage() {
         return language;

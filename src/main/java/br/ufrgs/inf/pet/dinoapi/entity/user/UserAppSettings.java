@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 
 import br.ufrgs.inf.pet.dinoapi.constants.AppSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
+import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
 
 import javax.persistence.*;
 
@@ -31,6 +32,9 @@ public class UserAppSettings {
     @Column(name = "color_theme", nullable = false)
     private Integer colorTheme;
 
+    @Column(name = "font_size", nullable = false)
+    private Integer fontSize;
+
     @Column(name = "load_essential_contacts", nullable = false)
     private boolean essentialContactGrant;
 
@@ -44,12 +48,21 @@ public class UserAppSettings {
         this.user = user;
         this.version = DEFAULT_VERSION;
         this.colorTheme = ColorTheme.DEVICE.getValue();
+        this.fontSize = FontSize.DEFAULT.getValue();
         this.language = AppSettingsConstants.DEFAULT_LANGUAGE;
         this.essentialContactGrant = AppSettingsConstants.DEFAULT_E_CONTACTS_GRANT;;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public Integer getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(Integer fontSize) {
+        this.fontSize = fontSize;
     }
 
     public String getLanguage() {
