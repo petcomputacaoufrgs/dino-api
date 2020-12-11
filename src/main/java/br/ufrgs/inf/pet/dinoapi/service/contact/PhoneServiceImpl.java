@@ -3,8 +3,8 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneModel;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -18,8 +18,11 @@ import java.util.Optional;
 @Service
 public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, PhoneModel, PhoneRepository> {
 
-    public PhoneServiceImpl(PhoneRepository repository, AuthServiceImpl authService, GenericQueueMessageServiceImpl genericQueueMessageService) {
+    ContactRepository contactRepository;
+
+    public PhoneServiceImpl(PhoneRepository repository, ContactRepository contactRepository, AuthServiceImpl authService, GenericQueueMessageServiceImpl genericQueueMessageService) {
         super(repository, authService, genericQueueMessageService);
+        this.contactRepository = contactRepository;
     }
 
     @Override
@@ -31,21 +34,17 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
     }
 
     @Override
-    public Phone convertModelToEntity(PhoneModel model, User user) throws ConvertModelToEntityException {
-        return null;
-    }
-
-    //@Override
-    public Phone convertModelToEntity(PhoneModel model, Contact contact) throws ConvertModelToEntityException {
+    public Phone convertModelToEntity(PhoneModel model, User user) {
         Phone phone = new Phone();
         phone.setNumber(model.getNumber());
         phone.setType(model.getType());
-        phone.setContact(contact);
+        Optional<Contact> contactSearch = contactRepository.findById(model.getContactId());
+        contactSearch.ifPresent(phone::setContact);
         return phone;
     }
 
     @Override
-    public void updateEntity(Phone entity, PhoneModel model) throws ConvertModelToEntityException {
+    public void updateEntity(Phone entity, PhoneModel model) {
         entity.setNumber(model.getNumber());
         entity.setType(model.getType());
     }
