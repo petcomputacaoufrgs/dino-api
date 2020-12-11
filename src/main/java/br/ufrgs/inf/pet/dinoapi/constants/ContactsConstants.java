@@ -1,8 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneSaveModel;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;

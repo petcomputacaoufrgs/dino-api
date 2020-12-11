@@ -78,13 +78,13 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * Get WebSocket destination for update entity
      * @return WebSocketDestinationEnum wuth update
      */
-    WebSocketDestinationsEnum getUpdateWebsocketDestination();
+    WebSocketDestinationsEnum getUpdateWebSocketDestination();
 
     /**
      * Get WebSocket destination for delete entity
      * @return WebSocketDestinationEnum wuth update
      */
-    WebSocketDestinationsEnum getDeleteWebsocketDestination();
+    WebSocketDestinationsEnum getDeleteWebSocketDestination();
 
     /**
      * Define if entity should be deleted

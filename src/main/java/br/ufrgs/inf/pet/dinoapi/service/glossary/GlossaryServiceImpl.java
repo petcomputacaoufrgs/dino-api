@@ -68,12 +68,12 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
+    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
         return WebSocketDestinationsEnum.GLOSSARY_UPDATE;
     }
 
     @Override
-    public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
+    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
         return WebSocketDestinationsEnum.GLOSSARY_DELETE;
     }
 }

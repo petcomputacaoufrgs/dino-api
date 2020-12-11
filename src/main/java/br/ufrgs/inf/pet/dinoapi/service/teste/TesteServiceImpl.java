@@ -59,12 +59,12 @@ public class TesteServiceImpl extends SynchronizableServiceImpl<TesteEntity, Lon
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
+    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
         return WebSocketDestinationsEnum.ALERT_APP_SETTINGS_UPDATE;
     }
 
     @Override
-    public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
+    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
         return WebSocketDestinationsEnum.ALERT_CONTACT_UPDATE;
     }
 }

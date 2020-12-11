@@ -1,35 +1,22 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
-import static javax.persistence.GenerationType.SEQUENCE;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
 @Entity
 @Table(name = "contact")
-public class Contact implements Serializable {
-
-        private static final long serialVersionUID = 1L;
-
-        private static final String SEQUENCE_NAME = "contact_seq";
-
-        @Id
-        @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-        @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-        @Column(name = "id", nullable = false)
-        private Long id;
+public class Contact extends SynchronizableEntity<Long> {
 
         @Column(name = "name", length = NAME_MAX, nullable = false)
         private String name;
 
-        @Valid
         @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
         private List<Phone> phones;
 
@@ -48,13 +35,6 @@ public class Contact implements Serializable {
 
         public Contact() {
                 this.phones = new ArrayList<>();
-        }
-
-        public Contact(ContactSaveModel model, User user){
-                this.setName(model.getName());
-                this.setDescription(model.getDescription());
-                this.setColor(model.getColor());
-                this.setUser(user);
         }
 
         public Long getId() {
