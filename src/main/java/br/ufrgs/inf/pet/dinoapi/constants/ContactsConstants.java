@@ -1,8 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 public final class ContactsConstants {
     public final static String ID_NULL_MESSAGE = "id cannot be null.";
 
@@ -26,6 +23,7 @@ public final class ContactsConstants {
     public final static String SUCCESS_DECLINE_REQUEST_WITHOUT_ALERT= "Success, but server fail to alert another devices.";
 
 
+    /*
     public final static List<ContactSaveModel> DEFAULT_CONTACTS = new ArrayList<ContactSaveModel>(Arrays.asList(
             new ContactSaveModel(1L, "SAMU",
                     new ArrayList<PhoneSaveModel>(Collections.singletonList(new PhoneSaveModel("192", (byte) 1))),
@@ -34,5 +32,6 @@ public final class ContactsConstants {
                     new ArrayList<PhoneSaveModel>(Collections.singletonList(new PhoneSaveModel("(51) 3359-8000", (byte) 1))),
                     "O Hospital de Clínicas de Porto Alegre, popularmente conhecido por Clínicas, é uma instituição pública e universitária, ligada ao Ministério da Educação e à Universidade Federal do Rio Grande do Sul. Foi fundada em 1970, fruto do esforços empenhados na Faculdade de Medicina da UFRGS para sua construção.", (byte) 1))
     );
+    */
 
 }

@@ -99,7 +99,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
 
         if (user == null) {
             user = this.save(new User(name, email, pictureUrl));
-            this.createDefaultUserData(user);
+            //this.createDefaultUserData(user);
             return user;
         }
         return null;
@@ -157,11 +157,14 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return this.repository.save(user);
     }
 
+    /*
     private void createDefaultUserData(User user) {
+
         ContactsConstants.DEFAULT_CONTACTS.forEach(model -> {
             Contact contact = contactRepository.save(new Contact(model, user));
 
             contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
         });
     }
+     */
 }
