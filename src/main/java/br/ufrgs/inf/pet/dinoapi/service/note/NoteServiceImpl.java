@@ -92,12 +92,12 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, NoteD
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebsocketDestination() {
+    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
         return WebSocketDestinationsEnum.NOTE_UPDATE;
     }
 
     @Override
-    public WebSocketDestinationsEnum getDeleteWebsocketDestination() {
+    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
         return WebSocketDestinationsEnum.NOTE_DELETE;
     }
 }

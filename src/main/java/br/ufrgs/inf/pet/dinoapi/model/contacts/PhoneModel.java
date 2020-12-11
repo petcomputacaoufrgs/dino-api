@@ -1,24 +1,22 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 
-public class PhoneModel {
+public class PhoneModel extends SynchronizableDataModel<Long> {
 
-    private Long id;
-    private String number;
     private short type;
 
-    public PhoneModel(){}
+    private String number;
 
-    public PhoneModel(Phone phone) {
-        this.id = phone.getId();
-        this.number = phone.getNumber();
-        this.type = phone.getType();
+    private Long contactId;
+
+    public short getType() {
+        return type;
     }
 
-    public Long getId() { return id; }
-
-    public void setId(Long id) {this.id = id;}
+    public void setType(short type) {
+        this.type = type;
+    }
 
     public String getNumber() {
         return number;
@@ -28,11 +26,11 @@ public class PhoneModel {
         this.number = number;
     }
 
-    public short getType() {
-        return type;
+    public Long getContactId() {
+        return contactId;
     }
 
-    public void setType(short type) {
-        this.type = type;
+    public void setContactId(Long contactId) {
+        this.contactId = contactId;
     }
 }

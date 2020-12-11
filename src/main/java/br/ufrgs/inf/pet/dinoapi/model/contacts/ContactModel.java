@@ -1,72 +1,36 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.*;
-import java.util.List;
-import java.util.stream.Collectors;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 
-public class ContactModel {
-    private Long id;
+public class ContactModel extends SynchronizableDataModel<Long> {
+
     private String name;
-    private List<PhoneModel> phones;
+
     private String description;
+
     private Byte color;
-    private String resourceName;
 
-    public ContactModel(){}
-
-    public ContactModel(Contact contact) {
-        this.setId(contact.getId());
-        this.setName(contact.getName());
-        this.setPhones(contact.getPhones().stream().map(PhoneModel::new).collect(Collectors.toList()));
-        this.setDescription(contact.getDescription());
-        this.setColor(contact.getColor());
-
-        if (contact.getGoogleContacts() != null && contact.getGoogleContacts().size() > 0) {
-            final GoogleContact googleContact = contact.getGoogleContacts().get(0);
-            this.setResourceName(googleContact.getResourceName());
-        }
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setPhones(List<PhoneModel> phones) {
-        this.phones = phones;
+    public String getName() {
+        return name;
     }
 
     public void setName(String name) {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Byte getColor() {
+        return color;
     }
 
     public void setColor(Byte color) {
         this.color = color;
     }
-
-    public Long getId() { return id; }
-
-
-    public String getDescription() {
-        return description;
-    }
-
-    public List<PhoneModel> getPhones() { return phones; }
-
-    public String getName() { return name; }
-
-    public Byte getColor() { return color; }
-
-    public String getResourceName() {
-        return resourceName;
-    }
-
-    public void setResourceName(String resourceName) {
-        this.resourceName = resourceName;
-    }
 }
-
-

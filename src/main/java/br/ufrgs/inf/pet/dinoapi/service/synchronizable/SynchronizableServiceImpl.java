@@ -375,7 +375,7 @@ public abstract class SynchronizableServiceImpl<
         if (!data.isEmpty()) {
             final SynchronizableWSUpdateModel<ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
             model.setData(data);
-            genericMessageService.sendObjectMessage(model, this.getUpdateWebsocketDestination());
+            genericMessageService.sendObjectMessage(model, this.getUpdateWebSocketDestination());
         }
     }
 
@@ -397,7 +397,7 @@ public abstract class SynchronizableServiceImpl<
         if(!data.isEmpty()) {
             final SynchronizableWSDeleteModel<ID> model = new SynchronizableWSDeleteModel<>();
             model.setData(data);
-            genericMessageService.sendObjectMessage(model, this.getDeleteWebsocketDestination());
+            genericMessageService.sendObjectMessage(model, this.getDeleteWebSocketDestination());
         }
     }
 }

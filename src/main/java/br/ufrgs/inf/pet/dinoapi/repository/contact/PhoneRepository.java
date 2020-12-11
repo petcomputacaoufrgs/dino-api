@@ -9,10 +9,11 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+import java.util.Optional;
 
 @Repository
 public interface PhoneRepository extends CrudRepository<Phone, Long> {
+
     @Transactional
     @Modifying
     @Query("DELETE FROM Phone p WHERE p.id IN :ids")
@@ -20,4 +21,10 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
 
     @Query("SELECT p FROM Phone p WHERE p.contact.id = :contactId")
     List<Phone> getPhonesByContactId(@Param("contactId") Long contactId);
+
+    List<Phone> findAllByIdAndUserId(List<Long> ids, Long id);
+
+    List<Phone> findAllByUserId(Long id);
+
+    Optional<Phone> findByIdAndUserId(Long id, Long id1);
 }

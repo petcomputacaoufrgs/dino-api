@@ -84,13 +84,13 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
      * Get WebSocket destination for update entity
      * @return WebSocketDestinationEnum wuth update
      */
-    WebSocketDestinationsEnum getUpdateWebsocketDestination();
+    WebSocketDestinationsEnum getUpdateWebSocketDestination();
 
     /**
      * Get WebSocket destination for delete entity
      * @return WebSocketDestinationEnum wuth update
      */
-    WebSocketDestinationsEnum getDeleteWebsocketDestination();
+    WebSocketDestinationsEnum getDeleteWebSocketDestination();
 
     /**
      * Implements get method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
