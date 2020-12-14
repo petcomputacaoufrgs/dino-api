@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;

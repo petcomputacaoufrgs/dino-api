@@ -10,12 +10,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/contacts/")
-public class ContactsControllerImpl extends SynchronizableControllerImpl<
+@RequestMapping("/contact/")
+public class ContactControllerImpl extends SynchronizableControllerImpl<
         Contact, Long, ContactModel, ContactRepository, ContactServiceImpl> {
 
     @Autowired
-    public ContactsControllerImpl(ContactServiceImpl service) {
+    public ContactControllerImpl(ContactServiceImpl service) {
         super(service);
     }
 }

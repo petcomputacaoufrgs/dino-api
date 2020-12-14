@@ -73,4 +73,8 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
         return WebSocketDestinationsEnum.CONTACT_DELETE;
     }
+
+    public Optional<Contact> findContactByIdAndUser(Long id, User user) {
+        return this.repository.findByIdAndUserId(id, user.getId());
+    }
 }

@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
@@ -9,13 +11,22 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
+@Service
 public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, GoogleContactModel, GoogleContactRepository> {
 
-    public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService, GenericQueueMessageServiceImpl genericQueueMessageService) {
+    private final ContactServiceImpl contactService;
+
+    @Autowired
+    public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService,
+                                    GenericQueueMessageServiceImpl genericQueueMessageService, ContactServiceImpl contactService) {
         super(repository, authService, genericQueueMessageService);
+        this.contactService = contactService;
     }
 
     @Override
@@ -27,10 +38,17 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     @Override
     public GoogleContact convertModelToEntity(GoogleContactModel model, User user) throws ConvertModelToEntityException {
-        GoogleContact contact = new GoogleContact();
-        contact.setResourceName(model.getResourceName());
-        contact.setUser(user);
-        return contact;    }
+        Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
+
+        if (contactSearch.isPresent()) {
+            GoogleContact contact = new GoogleContact();
+            contact.setResourceName(model.getResourceName());
+            contact.setContact(contactSearch.get());
+            return contact;
+        }
+
+        throw new ConvertModelToEntityException(GoogleContactConstants.INVALID_CONTACT_ERROR);
+    }
 
     @Override
     public void updateEntity(GoogleContact entity, GoogleContactModel model) throws ConvertModelToEntityException {

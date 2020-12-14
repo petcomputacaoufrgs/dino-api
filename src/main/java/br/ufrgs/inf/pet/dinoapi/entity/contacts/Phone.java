@@ -16,7 +16,7 @@ public class Phone extends SynchronizableEntity<Long> {
     @Column(name = "number", length = NUMBER_MAX, nullable = false)
     private String number;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "contact_id", nullable = false)
     private Contact contact;
 

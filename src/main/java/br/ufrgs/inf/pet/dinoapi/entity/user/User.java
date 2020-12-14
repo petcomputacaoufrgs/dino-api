@@ -47,9 +47,6 @@ public class User extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<TesteEntity> testeEntities;
 
-    @OneToMany(mappedBy = "user")
-    private List<GoogleContact> googleContacts;
-
     @OneToOne(mappedBy = "user")
     private FaqUser faqUser;
 
@@ -144,13 +141,5 @@ public class User extends SynchronizableEntity<Long> {
 
     public void setFaqUser(FaqUser faqUser) {
         this.faqUser = faqUser;
-    }
-
-    public List<GoogleContact> getGoogleContacts() {
-        return googleContacts;
-    }
-
-    public void setGoogleContacts(List<GoogleContact> googleContacts) {
-        this.googleContacts = googleContacts;
     }
 }

@@ -16,8 +16,6 @@ public enum WebSocketDestinationsEnum {
     USER_UPDATE(generateQueueDest("user/update/")),
     USER_DELETE(generateQueueDest("user/delete/")),
     ALERT_APP_SETTINGS_UPDATE("/queue/user_app_settings/update"),
-    ALERT_CONTACT_UPDATE("/queue/contact/update"),
-    ALERT_USER_UPDATE("/queue/user/update"),
     ALERT_FAQ_UPDATE("/topic/faq/update"),
     ALERT_FAQ_USER_UPDATE("/queue/faq/update/user"),
     ALERT_AUTH_SCOPE_UPDATE("/queue/auth/scope/update");
