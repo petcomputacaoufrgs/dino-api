@@ -38,13 +38,14 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     @Override
     public GoogleContact convertModelToEntity(GoogleContactModel model, User user) throws ConvertModelToEntityException {
-        Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
+        Optional<Contact> googleContactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
 
-        if (contactSearch.isPresent()) {
-            GoogleContact contact = new GoogleContact();
-            contact.setResourceName(model.getResourceName());
-            contact.setContact(contactSearch.get());
-            return contact;
+        if (googleContactSearch.isPresent()) {
+            GoogleContact googleContact = new GoogleContact();
+            googleContact.setResourceName(model.getResourceName());
+            googleContact.setContact(googleContactSearch.get());
+            googleContact.setUser(user);
+            return googleContact;
         }
 
         throw new ConvertModelToEntityException(GoogleContactConstants.INVALID_CONTACT_ERROR);

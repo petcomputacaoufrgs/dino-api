@@ -2,6 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+
 import javax.persistence.*;
 
 @Entity
@@ -14,6 +16,10 @@ public class GoogleContact extends SynchronizableEntity<Long> {
     @ManyToOne
     @JoinColumn(name = "contact_id", nullable = false)
     private Contact contact;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public GoogleContact() {}
 
@@ -41,4 +47,11 @@ public class GoogleContact extends SynchronizableEntity<Long> {
         this.contact = contact;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }
