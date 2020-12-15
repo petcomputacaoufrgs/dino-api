@@ -84,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("Invalid refresh token.", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("Invalid refresh token.", HttpStatus.NON_AUTHORITATIVE_INFORMATION);
     }
 
     @Override

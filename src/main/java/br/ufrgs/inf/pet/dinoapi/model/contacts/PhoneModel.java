@@ -9,7 +9,6 @@ import javax.validation.constraints.Size;
 public class PhoneModel extends SynchronizableDataModel<Long> {
 
     @NotNull(message = ContactsConstants.TYPE_NULL_MESSAGE)
-    @Size(max = ContactsConstants.TYPE_MAX, message = ContactsConstants.TYPE_MAX_MESSAGE)
     private short type;
 
     @NotNull(message = ContactsConstants.NUMBER_NULL_MESSAGE)

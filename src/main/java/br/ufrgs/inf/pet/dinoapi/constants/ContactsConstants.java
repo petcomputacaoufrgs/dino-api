@@ -12,9 +12,7 @@ public final class ContactsConstants {
     public final static String NUMBER_NULL_MESSAGE = "phone number cannot be null";
     public final static String NUMBER_MAX_MESSAGE = "number should be between 1 and " + NUMBER_MAX;
 
-    public final static int TYPE_MAX = 9;
     public final static String TYPE_NULL_MESSAGE = "phone type cannot be null.";
-    public final static String TYPE_MAX_MESSAGE = "type should be between 1 and " + TYPE_MAX;
 
     public final static String CONTACT_ID_NULL_MESSAGE = "contact id cannot be null";
 
