@@ -1,12 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.model.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
-
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class GlossaryItemDataModel extends SynchronizableDataModel<Long> {
+public class GlossaryItemDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
     @NotNull(message = GlossaryConstants.TITLE_NULL_MESSAGE)
     @Size(min = GlossaryConstants.TITLE_MIN, max = GlossaryConstants.TITLE_MAX, message = GlossaryConstants.TITLE_MESSAGE)
     private String title;

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/note_column/")
 public class NoteColumnControllerImpl extends SynchronizableControllerImpl<
-        NoteColumn, Long, NoteColumnDataModel, NoteColumnRepository, NoteColumnServiceImpl>  {
+        NoteColumn, Long, Integer, NoteColumnDataModel, NoteColumnRepository, NoteColumnServiceImpl>  {
 
     @Autowired
     public NoteColumnControllerImpl(NoteColumnServiceImpl noteColumnService) {

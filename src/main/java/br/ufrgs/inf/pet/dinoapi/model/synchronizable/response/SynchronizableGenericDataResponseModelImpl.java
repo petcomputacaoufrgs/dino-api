@@ -5,7 +5,7 @@ package br.ufrgs.inf.pet.dinoapi.model.synchronizable.response;
  *
  * @param <DATA_TYPE> Type of response data
  */
-public class SynchronizableGenericDataResponseModel<DATA_TYPE> extends SynchronizableGenericResponseModel {
+public class SynchronizableGenericDataResponseModelImpl<DATA_TYPE> extends SynchronizableGenericResponseModelImpl {
     private DATA_TYPE data;
 
     public DATA_TYPE getData() {

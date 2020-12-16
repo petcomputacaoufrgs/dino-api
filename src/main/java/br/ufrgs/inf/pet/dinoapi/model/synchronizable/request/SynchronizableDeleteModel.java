@@ -10,10 +10,12 @@ import java.time.LocalDateTime;
  * Model for delete an synchronizable entity
  * @param <ID> Id type of synchronizable entity
  */
-public class SynchronizableDeleteModel<ID extends Comparable<ID> & Serializable>
-        extends SynchronizableGetModel<ID> implements SynchronizableModel<ID> {
+public class SynchronizableDeleteModel<ID extends Comparable<ID> & Serializable, LOCAL_ID>
+        extends SynchronizableGetModel<ID> implements SynchronizableModel<ID, LOCAL_ID> {
     @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
     protected LocalDateTime lastUpdate;
+
+    protected LOCAL_ID localId;
 
     public LocalDateTime getLastUpdate() {
         return lastUpdate;
@@ -21,5 +23,13 @@ public class SynchronizableDeleteModel<ID extends Comparable<ID> & Serializable>
 
     public void setLastUpdate(LocalDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
+    }
+
+    public LOCAL_ID getLocalId() {
+        return localId;
+    }
+
+    public void setLocalId(LOCAL_ID localId) {
+        this.localId = localId;
     }
 }

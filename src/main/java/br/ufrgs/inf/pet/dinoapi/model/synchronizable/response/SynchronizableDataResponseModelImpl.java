@@ -9,7 +9,8 @@ import java.io.Serializable;
  * @param <ID>: synchronizable entity id's type
  * @param <DATA_MODEL>: data model of synchronizable entity
  */
-public class SynchronizableDataResponseModel<
+public class SynchronizableDataResponseModelImpl<
         ID extends Comparable<ID> & Serializable,
-        DATA_MODEL extends SynchronizableDataModel<ID>> extends SynchronizableGenericDataResponseModel<DATA_MODEL> {
+        LOCAL_ID,
+        DATA_MODEL extends SynchronizableDataModel<ID, LOCAL_ID>> extends SynchronizableGenericDataResponseModelImpl<DATA_MODEL> {
 }

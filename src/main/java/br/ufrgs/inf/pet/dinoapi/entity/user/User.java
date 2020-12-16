@@ -3,13 +3,10 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
-import br.ufrgs.inf.pet.dinoapi.entity.teste.TesteEntity;
-
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -43,9 +40,6 @@ public class User extends SynchronizableEntity<Long> {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Contact> contacts;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<TesteEntity> testeEntities;
 
     @OneToOne(mappedBy = "user")
     private FaqUser faqUser;

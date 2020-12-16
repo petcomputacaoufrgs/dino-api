@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.model.synchronizable.request;
 
 import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableIdModel;
-
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 

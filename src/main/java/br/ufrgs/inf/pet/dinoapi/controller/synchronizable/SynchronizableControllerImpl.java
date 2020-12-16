@@ -2,19 +2,15 @@ package br.ufrgs.inf.pet.dinoapi.controller.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteAllListModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableGetModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableSaveAllListModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGenericResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListDataResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDataResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * Base Controller with get, getAll, save/update and delete for synchronizable entity
@@ -28,10 +24,11 @@ import java.io.Serializable;
 public abstract class SynchronizableControllerImpl<
         ENTITY extends SynchronizableEntity<ID>,
         ID extends Comparable<ID> & Serializable,
-        DATA_MODEL extends SynchronizableDataModel<ID>,
+        LOCAL_ID,
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>,
         REPOSITORY extends CrudRepository<ENTITY, ID>,
-        SERVICE extends SynchronizableServiceImpl<ENTITY, ID, DATA_MODEL, REPOSITORY>>
-        implements SynchronizableController<ID, DATA_MODEL> {
+        SERVICE extends SynchronizableServiceImpl<ENTITY, ID, LOCAL_ID, DATA_MODEL, REPOSITORY>>
+        implements SynchronizableController<ID, LOCAL_ID, DATA_MODEL> {
 
     protected final SERVICE service;
 
@@ -41,42 +38,48 @@ public abstract class SynchronizableControllerImpl<
 
     @Override
     @GetMapping("get/")
-    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(
+    public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> get(
             @Valid @RequestBody SynchronizableGetModel<ID> model) {
         return service.get(model);
     }
 
     @Override
     @PostMapping("save/")
-    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(
+    public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> save(
             @Valid @RequestBody DATA_MODEL model) {
         return service.save(model);
     }
 
     @Override
     @DeleteMapping("delete/")
-    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> delete(
+    public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> delete(
             @Valid @RequestBody SynchronizableDeleteModel<ID> model) {
         return service.delete(model);
     }
 
     @Override
     @GetMapping("get/all/")
-    public ResponseEntity<SynchronizableListDataResponseModel<ID, DATA_MODEL>> getAll() {
+    public ResponseEntity<SynchronizableListDataResponseModelImpl<ID, DATA_MODEL>> getAll() {
         return service.getAll();
     }
 
     @Override
     @PostMapping("save/all/")
-    public ResponseEntity<SynchronizableGenericResponseModel>
-    saveAll(@Valid @RequestBody SynchronizableSaveAllListModel<ID, DATA_MODEL> model) {
+    public ResponseEntity<SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL>>
+    saveAll(@Valid @RequestBody SynchronizableSaveAllModel<ID, LOCAL_ID, DATA_MODEL> model) {
         return service.saveAll(model);
     }
 
     @Override
     @DeleteMapping("delete/all/")
-    public ResponseEntity<SynchronizableGenericResponseModel>
+    public  ResponseEntity<SynchronizableGenericDataResponseModelImpl<List<ID>>>
     deleteAll(@Valid @RequestBody SynchronizableDeleteAllListModel<ID> model) {
         return service.deleteAll(model);
+    }
+
+    @Override
+    @PutMapping("sync/")
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model){
+        return service.sync(model);
     }
 }

@@ -4,16 +4,10 @@ import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteAllListModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableGetModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableSaveAllListModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGenericResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListDataResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDataResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import org.springframework.http.ResponseEntity;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -25,8 +19,11 @@ import java.util.Optional;
  * @param <ID> Id type of synchronizable entity
  * @param <DATA_MODEL> Data model of synchronizable entity
  */
-public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
-        ID extends Comparable<ID> & Serializable, DATA_MODEL extends SynchronizableDataModel<ID>> {
+public interface SynchronizableService<
+        ENTITY extends SynchronizableEntity<ID>,
+        ID extends Comparable<ID> & Serializable,
+        LOCAL_ID,
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>> {
 
     /**
      * Override it to define if entity should be deleted
@@ -95,33 +92,38 @@ public interface SynchronizableService<ENTITY extends SynchronizableEntity<ID>,
     /**
      * Implements get method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model);
+    ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model);
 
     /**
      * Implements save method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(DATA_MODEL model);
+    ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> save(DATA_MODEL model);
 
     /**
      * Implements delete method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> delete(SynchronizableDeleteModel<ID> model);
+    ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> delete(SynchronizableDeleteModel<ID> model);
 
     /**
      * Implements getAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableListDataResponseModel<ID, DATA_MODEL>> getAll();
+    ResponseEntity<SynchronizableListDataResponseModelImpl<ID, DATA_MODEL>> getAll();
 
     /**
      * Implements saveAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableGenericResponseModel>
-    saveAll(SynchronizableSaveAllListModel<ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL>>
+    saveAll(SynchronizableSaveAllModel<ID, LOCAL_ID, DATA_MODEL> model);
 
     /**
      * Implements deleteAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableGenericResponseModel>
+    ResponseEntity<SynchronizableGenericDataResponseModelImpl<List<ID>>>
     deleteAll(SynchronizableDeleteAllListModel<ID> model);
 
+
+    /**
+     * Implements sync method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
+     */
+    ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model);
 }

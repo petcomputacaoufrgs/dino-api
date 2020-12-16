@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/google_contact/")
 public class GoogleContactControllerImpl extends SynchronizableControllerImpl<
-        GoogleContact, Long, GoogleContactModel, GoogleContactRepository, GoogleContactServiceImpl> {
+        GoogleContact, Long, Integer, GoogleContactModel, GoogleContactRepository, GoogleContactServiceImpl> {
 
     @Autowired
     public GoogleContactControllerImpl(GoogleContactServiceImpl service) {

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn, Long, NoteColumnDataModel, NoteColumnRepository> {
+public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn, Long, Integer, NoteColumnDataModel, NoteColumnRepository> {
 
     private final NoteRepository noteRepository;
 

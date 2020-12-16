@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 import java.io.Serializable;
 import java.util.List;
 
-public class SynchronizableGenericListModel<ID extends Comparable<ID> & Serializable, DATA_TYPE extends SynchronizableModel<ID>> {
+public class SynchronizableGenericListModel<ID extends Comparable<ID> & Serializable, LOCAL_ID, DATA_TYPE extends SynchronizableModel<ID, LOCAL_ID>> {
     @Valid
     @NotNull(message = SynchronizableConstants.DATA_CANNOT_BE_NULL)
     @Size(min = 1, message = SynchronizableConstants.LIST_DATA_CANNOT_BE_EMPTY)

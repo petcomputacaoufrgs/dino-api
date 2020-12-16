@@ -10,7 +10,8 @@ import java.util.List;
  * @param <ID>: synchronizable entity id's type
  * @param <DATA_MODEL>: data model of synchronizable entity
  */
-public class SynchronizableListDataResponseModel<
+public class SynchronizableListDataResponseModelImpl<
         ID extends Comparable<ID> & Serializable,
-        DATA_MODEL extends SynchronizableDataModel<ID>> extends SynchronizableGenericDataResponseModel<List<DATA_MODEL>> {
+        LOCAL_ID,
+        DATA_MODEL extends SynchronizableDataModel<ID, LOCAL_ID>> extends SynchronizableGenericDataResponseModelImpl<List<DATA_MODEL>> {
 }

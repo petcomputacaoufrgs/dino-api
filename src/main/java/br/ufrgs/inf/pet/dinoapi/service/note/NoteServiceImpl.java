@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, NoteDataModel, NoteRepository> {
+public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integer, NoteDataModel, NoteRepository> {
 
     private final NoteColumnServiceImpl noteColumnService;
 

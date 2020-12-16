@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> {
+public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integer, UserDataModel, UserRepository> {
 
     private final ContactRepository contactRepository;
 

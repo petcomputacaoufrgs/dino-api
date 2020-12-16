@@ -1,25 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable.response;
 
-/**
- * Generic response model for synchronizable request
- */
-public class SynchronizableGenericResponseModel {
-    protected boolean success;
-    protected String error;
+public interface SynchronizableGenericResponseModel {
+    void setSuccess(boolean success);
 
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
+    void setError(String error);
 
-    public void setError(String error) {
-        this.error = error;
-    }
+    String getError();
 
-    public String getError() {
-        return error;
-    }
-
-    public boolean isSuccess() {
-        return success;
-    }
+    boolean isSuccess();
 }

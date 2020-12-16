@@ -11,12 +11,11 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, ContactModel, ContactRepository> {
+public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, Integer, ContactModel, ContactRepository> {
 
     @Autowired
     public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService, GenericQueueMessageServiceImpl genericQueueMessageService) {

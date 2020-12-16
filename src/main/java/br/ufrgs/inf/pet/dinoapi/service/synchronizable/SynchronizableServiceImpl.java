@@ -6,23 +6,18 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGenericResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableListDataResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDataResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.ListUtils;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.GenericMessageService;
-import com.google.common.collect.Lists;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Base service with get, getAll, save/update and delete for synchronizable entity
@@ -35,8 +30,9 @@ import java.util.stream.Stream;
 public abstract class SynchronizableServiceImpl<
         ENTITY extends SynchronizableEntity<ID>,
         ID extends Comparable<ID> & Serializable,
-        DATA_MODEL extends SynchronizableDataModel<ID>,
-        REPOSITORY extends CrudRepository<ENTITY, ID>> implements SynchronizableService<ENTITY, ID, DATA_MODEL> {
+        LOCAL_ID,
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>,
+        REPOSITORY extends CrudRepository<ENTITY, ID>> implements SynchronizableService<ENTITY, ID, LOCAL_ID, DATA_MODEL> {
 
     protected final REPOSITORY repository;
     protected final AuthServiceImpl authService;
@@ -54,8 +50,8 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
-        final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
+    public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
+        final SynchronizableDataResponseModelImpl<ID, DATA_MODEL> response = new SynchronizableDataResponseModelImpl<>();
         try {
             final ENTITY entity = this.getEntity(model.getId());
 
@@ -78,8 +74,8 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>> save(DATA_MODEL model) {
-        final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
+    public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> save(DATA_MODEL model) {
+        final SynchronizableDataResponseModelImpl<ID, DATA_MODEL> response = new SynchronizableDataResponseModelImpl<>();
 
         try {
             final User user = authService.getCurrentUser();
@@ -115,9 +111,9 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableDataResponseModel<ID, DATA_MODEL>>
+    public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>>
     delete(SynchronizableDeleteModel<ID> model) {
-        final SynchronizableDataResponseModel<ID, DATA_MODEL> response = new SynchronizableDataResponseModel<>();
+        final SynchronizableDataResponseModelImpl<ID, DATA_MODEL> response = new SynchronizableDataResponseModelImpl<>();
         try {
             final ENTITY entity = this.getEntity(model.getId());
             if (entity != null && this.shouldDelete(entity, model)) {
@@ -146,8 +142,8 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableListDataResponseModel<ID, DATA_MODEL>> getAll() {
-        final SynchronizableListDataResponseModel<ID, DATA_MODEL> response = new SynchronizableListDataResponseModel<>();
+    public ResponseEntity<SynchronizableListDataResponseModelImpl<ID, DATA_MODEL>> getAll() {
+        final SynchronizableListDataResponseModelImpl<ID, DATA_MODEL> response = new SynchronizableListDataResponseModelImpl<>();
 
         try {
             final List<ENTITY> entities = this.getAllEntities();
@@ -167,33 +163,15 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableGenericResponseModel>
-    saveAll(SynchronizableSaveAllListModel<ID, DATA_MODEL> model) {
-        final List<DATA_MODEL> newData = new ArrayList<>();
-        final List<DATA_MODEL> updateData = new ArrayList<>();
-        final List<ENTITY> newEntities = new ArrayList<>();
-        final SynchronizableGenericResponseModel response = new SynchronizableGenericResponseModel();
+    public ResponseEntity<SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL>>
+    saveAll(SynchronizableSaveAllModel<ID, LOCAL_ID, DATA_MODEL> model) {
+        final SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL> response = new SynchronizableSaveAllResponseModel<>();
 
         try {
-            final User user = authService.getCurrentUser();
-
-            model.getData().forEach(item -> {
-                if (item.getId() != null) {
-                    updateData.add(item);
-                } else {
-                    newData.add(item);
-                }
-            });
-
-            newEntities.addAll(this.updateAllItems(updateData, user));
-            newEntities.addAll(this.createEntities(newData, user));
-
-
-            final List<ENTITY> savedEntities = Lists.newArrayList(repository.saveAll(newEntities));
-
-            final List<DATA_MODEL> savedModels = savedEntities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
+            final List<DATA_MODEL> savedModels = this.internalSaveAll(model.getData());
 
             response.setSuccess(true);
+            response.setData(savedModels);
             this.sendUpdateMessage(savedModels);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -206,49 +184,15 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableGenericResponseModel>
+    public ResponseEntity<SynchronizableGenericDataResponseModelImpl<List<ID>>>
     deleteAll(SynchronizableDeleteAllListModel<ID> model) {
-        final SynchronizableGenericResponseModel response = new SynchronizableGenericResponseModel();
+        final SynchronizableGenericDataResponseModelImpl<List<ID>> response = new SynchronizableGenericDataResponseModelImpl<>();
 
         try {
-            final List<SynchronizableDeleteModel<ID>> orderedData = model.getData().stream()
-                    .filter(ListUtils.distinctByKey(SynchronizableDeleteModel::getId))
-                    .sorted(Comparator.comparing(SynchronizableDeleteModel::getId)).collect(Collectors.toList());
-
-            final List<ID> orderedIds = orderedData.stream()
-                    .map(SynchronizableDeleteModel::getId).collect(Collectors.toList());
-
-            final List<ENTITY> orderedEntities = this.getAllEntities(orderedIds).stream()
-                    .sorted(Comparator.comparing(SynchronizableEntity::getId)).collect(Collectors.toList());
-
-            final List<ID> deletedIds = new ArrayList<>();
-
-            final List<ENTITY> entitiesToDelete = new ArrayList<>();
-
-            int count = 0;
-
-            for (ENTITY entity : orderedEntities) {
-                final ID entityId = entity.getId();
-
-                ID id = orderedIds.get(count);
-
-                while(id != entityId) {
-                    count++;
-
-                    id = orderedIds.get(count);
-                }
-
-                if (this.canChange(entity, orderedData.get(count)) && this.shouldDelete(entity, orderedData.get(count))) {
-                    deletedIds.add(entity.getId());
-                    entitiesToDelete.add(entity);
-                }
-
-                count++;
-            }
-
-            repository.deleteAll(entitiesToDelete);
+            final List<ID> deletedIds = this.internalDeleteAll(model.getData());
 
             response.setSuccess(true);
+            response.setData(deletedIds);
             this.sendDeleteMessage(deletedIds);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -258,6 +202,93 @@ public abstract class SynchronizableServiceImpl<
             response.setError(SynchronizableConstants.UNKNOWN_ERROR);
             return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model) {
+        final SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL> response = new SynchronizableSyncResponseModel<>();
+
+        try {
+            final List<DATA_MODEL> itemsToSave = model.getSave();
+
+            final List<SynchronizableDeleteModel<ID>> itemsToDelete = model.getDelete();
+
+            final List<DATA_MODEL> savedModels = this.internalSaveAll(itemsToSave);
+
+            final List<ID> deletedIds = this.internalDeleteAll(itemsToDelete);
+
+            response.setSave(savedModels);
+            response.setDelete(deletedIds);
+            response.setSuccess(true);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            //TODO Log API Error
+            response.setSuccess(false);
+            response.setError(SynchronizableConstants.UNKNOWN_ERROR);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    protected List<DATA_MODEL> internalSaveAll(List<DATA_MODEL> models) {
+        final List<DATA_MODEL> newData = new ArrayList<>();
+        final List<DATA_MODEL> updateData = new ArrayList<>();
+        final List<DATA_MODEL> updatedData = new ArrayList<>();
+
+        final User user = authService.getCurrentUser();
+
+        models.forEach(model -> {
+            if (model.getId() != null) {
+                updateData.add(model);
+            } else {
+                newData.add(model);
+            }
+        });
+
+        updatedData.addAll(this.updateAllItems(updateData, user));
+        updatedData.addAll(this.createEntities(newData, user));
+
+        return updatedData;
+    }
+
+    protected List<ID> internalDeleteAll(List<SynchronizableDeleteModel<ID>> models) {
+        final List<SynchronizableDeleteModel<ID>> orderedData = models.stream()
+                .filter(ListUtils.distinctByKey(SynchronizableDeleteModel::getId))
+                .sorted(Comparator.comparing(SynchronizableDeleteModel::getId)).collect(Collectors.toList());
+
+        final List<ID> orderedIds = orderedData.stream()
+                .map(SynchronizableDeleteModel::getId).collect(Collectors.toList());
+
+        final List<ENTITY> orderedEntities = this.getAllEntities(orderedIds).stream()
+                .sorted(Comparator.comparing(SynchronizableEntity::getId)).collect(Collectors.toList());
+
+        final List<ID> deletedIds = new ArrayList<>();
+
+        final List<ENTITY> entitiesToDelete = new ArrayList<>();
+
+        int count = 0;
+
+        for (ENTITY entity : orderedEntities) {
+            final ID entityId = entity.getId();
+
+            ID id = orderedIds.get(count);
+
+            while(id != entityId) {
+                count++;
+
+                id = orderedIds.get(count);
+            }
+
+            if (this.canChange(entity, orderedData.get(count)) && this.shouldDelete(entity, orderedData.get(count))) {
+                deletedIds.add(entity.getId());
+                entitiesToDelete.add(entity);
+            }
+
+            count++;
+        }
+
+        repository.saveAll(entitiesToDelete);
+
+        return deletedIds;
     }
 
     protected DATA_MODEL internalConvertEntityToModel(ENTITY entity) {
@@ -338,7 +369,7 @@ public abstract class SynchronizableServiceImpl<
         return this.getEntitiesByIdsAndUserId(ids, user);
     }
 
-    protected List<ENTITY> updateAllItems(List<DATA_MODEL> items, User user) {
+    protected List<DATA_MODEL> updateAllItems(List<DATA_MODEL> items, User user) {
         final List<ENTITY> entitiesToSave = new ArrayList<>();
 
         final List<DATA_MODEL> orderedData = items.stream()
@@ -355,6 +386,8 @@ public abstract class SynchronizableServiceImpl<
 
         final int orderedEntitiesSize = orderedEntities.size();
 
+        final List<DATA_MODEL> modelsInSaveList = new ArrayList<>();
+
         for (DATA_MODEL model : orderedData) {
             if (count < orderedEntitiesSize) {
                 final ENTITY entity = orderedEntities.get(count);
@@ -366,13 +399,13 @@ public abstract class SynchronizableServiceImpl<
                             this.internalUpdateEntity(entity, model);
                             entity.setLastUpdate(model.getLastUpdate());
                             entitiesToSave.add(entity);
+                            modelsInSaveList.add(model);
                         } catch (ConvertModelToEntityException e) {
                             //TODO Log API Error
                         }
                     }
 
                     count++;
-
                     continue;
                 }
             }
@@ -381,27 +414,47 @@ public abstract class SynchronizableServiceImpl<
             try {
                 final ENTITY newEntity = this.internalConvertModelToEntity(model, user);
                 entitiesToSave.add(newEntity);
+                modelsInSaveList.add(model);
             } catch (ConvertModelToEntityException e) {
                 //TODO Log API Error
             }
-
         }
 
-        return entitiesToSave;
+        return saveEntitiesAndUpdateModels(entitiesToSave, modelsInSaveList);
     }
 
-    protected List<ENTITY> createEntities(List<DATA_MODEL> items, User user) {
-        return items.stream().flatMap(item -> {
-            ENTITY entity;
+    protected List<DATA_MODEL> createEntities(List<DATA_MODEL> items, User user) {
+        final List<ENTITY> entitiesToSave = new ArrayList<>();
+        final List<DATA_MODEL> modelsInSaveList = new ArrayList<>();
+        for (DATA_MODEL item : items) {
             try {
-                entity = this.internalConvertModelToEntity(item, user);
+                final ENTITY entity = this.internalConvertModelToEntity(item, user);
+                entity.setLastUpdate(item.getLastUpdate());
+                entitiesToSave.add(entity);
+                modelsInSaveList.add(item);
             } catch (ConvertModelToEntityException e) {
                 //TODO: Log API Error
-                return Stream.empty();
             }
-            entity.setLastUpdate(item.getLastUpdate());
-            return Stream.of(entity);
-        }).collect(Collectors.toList());
+        }
+
+        return saveEntitiesAndUpdateModels(entitiesToSave, modelsInSaveList);
+    }
+
+    protected List<DATA_MODEL> saveEntitiesAndUpdateModels(List<ENTITY> entitiesToSave, List<DATA_MODEL> modelsInSaveList) {
+        final List<DATA_MODEL> updatedModels = new ArrayList<>();
+
+        int count = 0;
+
+        for (ENTITY entity: repository.saveAll(entitiesToSave)) {
+            final DATA_MODEL originalModel = modelsInSaveList.get(count);
+            final DATA_MODEL model = this.internalConvertEntityToModel(entity);
+            model.setLocalId(originalModel.getLocalId());
+
+            updatedModels.add(model);
+            count++;
+        }
+
+        return updatedModels;
     }
 
     protected void sendUpdateMessage(DATA_MODEL model) {

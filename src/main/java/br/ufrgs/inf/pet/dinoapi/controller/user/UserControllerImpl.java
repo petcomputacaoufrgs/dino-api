@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/user/")
-public class UserControllerImpl extends SynchronizableControllerImpl<User, Long, UserDataModel, UserRepository, UserServiceImpl> {
+public class UserControllerImpl extends SynchronizableControllerImpl<User, Long, Integer, UserDataModel, UserRepository, UserServiceImpl> {
     @Autowired
     public UserControllerImpl(UserServiceImpl userService) {
         super(userService);

@@ -1,13 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.model.user;
 
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
-
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.UserConstants.*;
 
-public class UserDataModel extends SynchronizableDataModel<Long> {
+public class UserDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
     private String name;
 
     private String email;

@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, PhoneModel, PhoneRepository> {
+public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Integer, PhoneModel, PhoneRepository> {
 
     private final ContactServiceImpl contactService;
 

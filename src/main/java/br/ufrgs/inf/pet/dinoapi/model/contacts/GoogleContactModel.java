@@ -1,12 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
-
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class GoogleContactModel extends SynchronizableDataModel<Long> {
+public class GoogleContactModel extends SynchronizableDataLocalIdModel<Long, Integer> {
 
     @NotNull(message = GoogleContactConstants.RESOURCE_NAME_NULL_MESSAGE)
     @Size(max = GoogleContactConstants.RESOURCE_NAME_MAX, message = GoogleContactConstants.RESOURCE_NAME_MAX_MESSAGE)
