@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @param <LOCAL_ID>: local id for app control
  * @param <DATA_MODEL>: data model for synchronizable entity
  */
-public class SynchronizableSaveAllListModel<
+public class SynchronizableSaveAllModel<
         ID extends Comparable<ID> & Serializable,
         LOCAL_ID,
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>>

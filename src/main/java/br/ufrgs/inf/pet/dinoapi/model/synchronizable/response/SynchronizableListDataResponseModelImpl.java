@@ -12,6 +12,5 @@ import java.util.List;
  */
 public class SynchronizableListDataResponseModelImpl<
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataModel<ID, LOCAL_ID>> extends SynchronizableGenericDataResponseModelImpl<List<DATA_MODEL>> {
+        DATA_MODEL extends SynchronizableDataModel<ID>> extends SynchronizableGenericDataResponseModelImpl<List<DATA_MODEL>> {
 }

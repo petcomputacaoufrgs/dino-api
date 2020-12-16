@@ -11,6 +11,5 @@ import java.io.Serializable;
  */
 public class SynchronizableDataResponseModelImpl<
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataModel<ID, LOCAL_ID>> extends SynchronizableGenericDataResponseModelImpl<DATA_MODEL> {
+        DATA_MODEL extends SynchronizableDataModel<ID>> extends SynchronizableGenericDataResponseModelImpl<DATA_MODEL> {
 }
