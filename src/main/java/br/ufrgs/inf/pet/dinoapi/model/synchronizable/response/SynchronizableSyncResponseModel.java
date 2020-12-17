@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable.response;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 
@@ -11,15 +10,11 @@ public class SynchronizableSyncResponseModel<
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>>
         implements SynchronizableGenericResponseModel {
 
-    @Valid
-    private List<DATA_MODEL> save;
+    private List<DATA_MODEL> data;
 
-    @Valid
-    private List<ID> delete;
+    private boolean success;
 
-    protected boolean success;
-
-    protected String error;
+    private String error;
 
     @Override
     public void setSuccess(boolean success) {
@@ -41,19 +36,11 @@ public class SynchronizableSyncResponseModel<
         return success;
     }
 
-    public List<DATA_MODEL> getSave() {
-        return save;
+    public List<DATA_MODEL> getData() {
+        return data;
     }
 
-    public void setSave(List<DATA_MODEL> save) {
-        this.save = save;
-    }
-
-    public List<ID> getDelete() {
-        return delete;
-    }
-
-    public void setDelete(List<ID> delete) {
-        this.delete = delete;
+    public void setData(List<DATA_MODEL> data) {
+        this.data = data;
     }
 }

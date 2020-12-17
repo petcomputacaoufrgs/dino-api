@@ -7,7 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.glossary.GlossaryItemRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.GenericTopicMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -17,8 +17,8 @@ import java.util.Optional;
 public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, Integer, GlossaryItemDataModel, GlossaryItemRepository> {
     @Autowired
     public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, AuthServiceImpl authService,
-                               GenericTopicMessageServiceImpl genericTopicMessageService) {
-        super(glossaryItemRepository, authService, genericTopicMessageService);
+                               SynchronizableQueueMessageServiceImpl<Long, Integer, GlossaryItemDataModel> synchronizableQueueMessageService) {
+        super(glossaryItemRepository, authService, synchronizableQueueMessageService);
     }
 
     @Override
@@ -64,6 +64,11 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     @Override
     public List<GlossaryItem> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
         return this.repository.findByIds(ids);
+    }
+
+    @Override
+    public List<GlossaryItem> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+        return this.repository.findAllExceptIds(ids);
     }
 
     @Override

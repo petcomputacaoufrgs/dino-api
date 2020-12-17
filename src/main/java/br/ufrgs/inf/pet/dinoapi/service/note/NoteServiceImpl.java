@@ -5,12 +5,14 @@ import br.ufrgs.inf.pet.dinoapi.entity.note.Note;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.note.NoteColumnDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.note.NoteDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,10 +25,9 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     private final NoteColumnServiceImpl noteColumnService;
 
     @Autowired
-    public NoteServiceImpl(NoteRepository noteRepository, AuthServiceImpl authService,
-                           GenericQueueMessageServiceImpl genericQueueMessageService,
-                           NoteColumnServiceImpl noteColumnService) {
-        super(noteRepository, authService, genericQueueMessageService);
+    public NoteServiceImpl(NoteRepository noteRepository, AuthServiceImpl authService, NoteColumnServiceImpl noteColumnService,
+                           SynchronizableQueueMessageServiceImpl<Long, Integer, NoteDataModel> synchronizableQueueMessageService) {
+        super(noteRepository, authService, synchronizableQueueMessageService);
         this.noteColumnService = noteColumnService;
     }
 
@@ -89,6 +90,11 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     @Override
     public List<Note> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
         return this.repository.findAllByIdAndUserId(ids, user.getId());
+    }
+
+    @Override
+    public List<Note> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+        return this.repository.findAllByUserIdExceptIds(user.getId(), ids);
     }
 
     @Override

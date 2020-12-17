@@ -78,6 +78,14 @@ public interface SynchronizableService<
     List<ENTITY> getEntitiesByIdsAndUserId(List<ID> ids, User user);
 
     /**
+     * Get entities from database by userId except when entity id is in param list "ids"
+     * @param user current user
+     * @param ids ids of entities to exclude em search
+     * @return list of database entities (can be an empty list)
+     */
+    List<ENTITY> getEntitiesByUserIdExceptIds(User user, List<ID> ids);
+
+    /**
      * Get WebSocket destination for update entity
      * @return WebSocketDestinationEnum wuth update
      */

@@ -11,7 +11,7 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.ListUtils;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.GenericMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +36,13 @@ public abstract class SynchronizableServiceImpl<
 
     protected final REPOSITORY repository;
     protected final AuthServiceImpl authService;
-    protected final GenericMessageService genericMessageService;
+    protected final SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService;
 
-    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService, GenericMessageService genericMessageService) {
+    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService,
+                                     SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService) {
         this.repository = repository;
         this.authService = authService;
-        this.genericMessageService = genericMessageService;
+        this.synchronizableMessageService = synchronizableMessageService;
     }
 
     @Override
@@ -168,7 +169,9 @@ public abstract class SynchronizableServiceImpl<
         final SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL> response = new SynchronizableSaveAllResponseModel<>();
 
         try {
-            final List<DATA_MODEL> savedModels = this.internalSaveAll(model.getData());
+            final User user = authService.getCurrentUser();
+
+            final List<DATA_MODEL> savedModels = this.internalSaveAll(model.getData(), user);
 
             response.setSuccess(true);
             response.setData(savedModels);
@@ -208,16 +211,23 @@ public abstract class SynchronizableServiceImpl<
         final SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL> response = new SynchronizableSyncResponseModel<>();
 
         try {
+            final User user = authService.getCurrentUser();
+
             final List<DATA_MODEL> itemsToSave = model.getSave();
 
             final List<SynchronizableDeleteModel<ID>> itemsToDelete = model.getDelete();
 
-            final List<DATA_MODEL> savedModels = this.internalSaveAll(itemsToSave);
+            final List<DATA_MODEL> savedModels = this.internalSaveAll(itemsToSave, user);
 
-            final List<ID> deletedIds = this.internalDeleteAll(itemsToDelete);
+            final List<ID> savedIds = savedModels.stream().map(SynchronizableDataModel::getId).collect(Collectors.toList());
 
-            response.setSave(savedModels);
-            response.setDelete(deletedIds);
+            this.internalDeleteAll(itemsToDelete);
+
+            final List<ENTITY> entities = this.internalGetEntitiesByUserIdExceptIds(user, savedIds);
+
+            final List<DATA_MODEL> updatedModels = this.internalConvertEntitiesToModels(entities);
+
+            response.setData(updatedModels);
             response.setSuccess(true);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -229,12 +239,14 @@ public abstract class SynchronizableServiceImpl<
         }
     }
 
-    protected List<DATA_MODEL> internalSaveAll(List<DATA_MODEL> models) {
+    protected List<DATA_MODEL> internalSaveAll(List<DATA_MODEL> models, User user) {
+        if (models.size() == 0) {
+            return new ArrayList<>();
+        }
+
         final List<DATA_MODEL> newData = new ArrayList<>();
         final List<DATA_MODEL> updateData = new ArrayList<>();
         final List<DATA_MODEL> updatedData = new ArrayList<>();
-
-        final User user = authService.getCurrentUser();
 
         models.forEach(model -> {
             if (model.getId() != null) {
@@ -251,6 +263,10 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected List<ID> internalDeleteAll(List<SynchronizableDeleteModel<ID>> models) {
+        if (models.size() == 0) {
+            return new ArrayList<>();
+        }
+
         final List<SynchronizableDeleteModel<ID>> orderedData = models.stream()
                 .filter(ListUtils.distinctByKey(SynchronizableDeleteModel::getId))
                 .sorted(Comparator.comparing(SynchronizableDeleteModel::getId)).collect(Collectors.toList());
@@ -286,7 +302,7 @@ public abstract class SynchronizableServiceImpl<
             count++;
         }
 
-        repository.saveAll(entitiesToDelete);
+        repository.deleteAll(entitiesToDelete);
 
         return deletedIds;
     }
@@ -297,6 +313,10 @@ public abstract class SynchronizableServiceImpl<
         model.setLastUpdate(entity.getLastUpdate());
 
         return model;
+    }
+
+    protected List<DATA_MODEL> internalConvertEntitiesToModels(List<ENTITY> entities) {
+        return entities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
     }
 
     protected ENTITY internalConvertModelToEntity(DATA_MODEL model, User user) throws ConvertModelToEntityException {
@@ -311,6 +331,14 @@ public abstract class SynchronizableServiceImpl<
         this.updateEntity(entity, model);
         entity.setLastUpdate(model.getLastUpdate());
         entity.setId(model.getId());
+    }
+
+    protected List<ENTITY> internalGetEntitiesByUserIdExceptIds(User user, List<ID> ids) {
+        if (ids.size() > 0) {
+            return this.getEntitiesByUserIdExceptIds(user, ids);
+        }
+
+        return this.getEntitiesByUserId(user);
     }
 
     protected boolean canChange(ENTITY entity, SynchronizableModel<ID> model) {
@@ -470,19 +498,11 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected void sendUpdateMessage(List<DATA_MODEL> data) {
-        if (!data.isEmpty()) {
-            final SynchronizableWSUpdateModel<ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
-            model.setData(data);
-            genericMessageService.sendObjectMessage(model, this.getUpdateWebSocketDestination());
-        }
+        synchronizableMessageService.sendUpdateMessage(data, this.getUpdateWebSocketDestination());
     }
 
     protected void sendUpdateMessage(List<DATA_MODEL> data, User user) {
-        if (!data.isEmpty()) {
-            final SynchronizableWSUpdateModel<ID, DATA_MODEL> model = new SynchronizableWSUpdateModel<>();
-            model.setData(data);
-            genericMessageService.sendObjectMessage(model, this.getUpdateWebSocketDestination(), user);
-        }
+        synchronizableMessageService.sendUpdateMessage(data, this.getUpdateWebSocketDestination(), user);
     }
 
     protected void sendDeleteMessage(ID id) {
@@ -492,11 +512,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected void sendDeleteMessage(List<ID> data) {
-        if(!data.isEmpty()) {
-            final SynchronizableWSDeleteModel<ID> model = new SynchronizableWSDeleteModel<>();
-            model.setData(data);
-            genericMessageService.sendObjectMessage(model, this.getDeleteWebSocketDestination());
-        }
+        synchronizableMessageService.sendDeleteMessage(data, this.getDeleteWebSocketDestination());
     }
 }
 

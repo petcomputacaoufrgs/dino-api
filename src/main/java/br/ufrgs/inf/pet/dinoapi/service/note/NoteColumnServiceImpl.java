@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.note.NoteColumnDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
@@ -11,6 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -21,9 +23,9 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     private final NoteRepository noteRepository;
 
     @Autowired
-    public NoteColumnServiceImpl(NoteColumnRepository noteColumnRepository, AuthServiceImpl authService,
-                                 NoteRepository noteRepository, GenericQueueMessageServiceImpl genericQueueMessageService) {
-        super(noteColumnRepository, authService, genericQueueMessageService);
+    public NoteColumnServiceImpl(NoteColumnRepository noteColumnRepository, AuthServiceImpl authService, NoteRepository noteRepository,
+                                 SynchronizableQueueMessageServiceImpl<Long, Integer, NoteColumnDataModel> synchronizableQueueMessageService) {
+        super(noteColumnRepository, authService, synchronizableQueueMessageService);
         this.noteRepository = noteRepository;
     }
 
@@ -66,6 +68,11 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     @Override
     public List<NoteColumn> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
         return this.repository.findAllByIdAndUserId(ids, user.getId());
+    }
+
+    @Override
+    public List<NoteColumn> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+        return this.repository.findAllByUserIdExceptIds(user.getId(), ids);
     }
 
     @Override

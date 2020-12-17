@@ -79,7 +79,8 @@ public abstract class SynchronizableControllerImpl<
 
     @Override
     @PutMapping("sync/")
-    public ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model){
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>>
+    sync(@Valid @RequestBody SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model){
         return service.sync(model);
     }
 }

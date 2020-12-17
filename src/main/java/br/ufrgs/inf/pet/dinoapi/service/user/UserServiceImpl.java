@@ -1,7 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
-import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
@@ -12,9 +10,9 @@ import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,8 +28,8 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     @Autowired
     public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
                            ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl,
-                           GenericQueueMessageServiceImpl genericQueueMessageService) {
-        super(userRepository, authService, genericQueueMessageService);
+                           SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {
+        super(userRepository, authService, synchronizableQueueMessageService);
         this.contactRepository = contactRepository;
         this.phoneServiceImpl = phoneServiceImpl;
     }
@@ -73,6 +71,13 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
 
     @Override
     public List<User> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        return users;
+    }
+
+    @Override
+    public List<User> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
         List<User> users = new ArrayList<>();
         users.add(user);
         return users;

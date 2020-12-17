@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -22,8 +22,9 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     private final ContactServiceImpl contactService;
 
     @Autowired
-    public PhoneServiceImpl(PhoneRepository repository, ContactServiceImpl contactService, AuthServiceImpl authService, GenericQueueMessageServiceImpl genericQueueMessageService) {
-        super(repository, authService, genericQueueMessageService);
+    public PhoneServiceImpl(PhoneRepository repository, ContactServiceImpl contactService, AuthServiceImpl authService,
+                            SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneModel> synchronizableQueueMessageService) {
+        super(repository, authService, synchronizableQueueMessageService);
         this.contactService = contactService;
     }
 
@@ -71,6 +72,11 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     @Override
     public List<Phone> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
         return this.repository.findAllByIdAndContactUserId(ids, user.getId());
+    }
+
+    @Override
+    public List<Phone> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+        return this.repository.findAllByContactUserIdExceptIds(user.getId(), ids);
     }
 
     @Override

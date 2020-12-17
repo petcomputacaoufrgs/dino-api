@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -22,9 +22,9 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     private final ContactServiceImpl contactService;
 
     @Autowired
-    public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService,
-                                    GenericQueueMessageServiceImpl genericQueueMessageService, ContactServiceImpl contactService) {
-        super(repository, authService, genericQueueMessageService);
+    public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService, ContactServiceImpl contactService,
+                                    SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleContactModel> synchronizableQueueMessageService) {
+        super(repository, authService, synchronizableQueueMessageService);
         this.contactService = contactService;
     }
 
@@ -68,6 +68,11 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     @Override
     public List<GoogleContact> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
         return this.repository.findAllByIdAndUserId(ids, user.getId());
+    }
+
+    @Override
+    public List<GoogleContact> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+        return this.repository.findAllByUserIdExceptIds(user.getId(), ids);
     }
 
     @Override
