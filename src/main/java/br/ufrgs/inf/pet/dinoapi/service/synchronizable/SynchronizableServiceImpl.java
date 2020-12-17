@@ -175,7 +175,6 @@ public abstract class SynchronizableServiceImpl<
 
             response.setSuccess(true);
             response.setData(savedModels);
-            this.sendUpdateMessage(savedModels);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -196,7 +195,6 @@ public abstract class SynchronizableServiceImpl<
 
             response.setSuccess(true);
             response.setData(deletedIds);
-            this.sendDeleteMessage(deletedIds);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
@@ -227,6 +225,7 @@ public abstract class SynchronizableServiceImpl<
 
             final List<DATA_MODEL> updatedModels = this.internalConvertEntitiesToModels(entities);
 
+            updatedModels.addAll(savedModels);
             response.setData(updatedModels);
             response.setSuccess(true);
 
@@ -258,6 +257,8 @@ public abstract class SynchronizableServiceImpl<
 
         updatedData.addAll(this.updateAllItems(updateData, user));
         updatedData.addAll(this.createEntities(newData, user));
+
+        this.sendUpdateMessage(updatedData);
 
         return updatedData;
     }
@@ -303,6 +304,8 @@ public abstract class SynchronizableServiceImpl<
         }
 
         repository.deleteAll(entitiesToDelete);
+
+        this.sendDeleteMessage(deletedIds);
 
         return deletedIds;
     }
