@@ -78,6 +78,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 User user;
 
+                boolean firstConfigDone = false;
+
                 if (googleAuth != null) {
                     googleScopeRepository.deleteAllByGoogleAuthId(googleAuth.getId());
 
@@ -113,6 +115,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                             .collect(Collectors.toList());
 
                     googleScopeRepository.saveAll(newScopes);
+
+                    firstConfigDone = true;
                 }
 
                 final Auth auth = authService.generateAuth(user);
@@ -144,6 +148,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 } else {
                     response.setDeclinedContactsGrant(false);
                 }
+
+                response.setFirstConfigDone(firstConfigDone);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
@@ -343,7 +349,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 response.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
                 response.setGoogleAccessToken(authModel.getGoogleAccessToken());
                 response.setScopeList(currentScopes);
-                response.setDeclinedContatsGrant(googleAuth.isDeclinedContatsGrant());
+                response.setDeclinedContactsGrant(googleAuth.isDeclinedContatsGrant());
 
                 return response;
             }

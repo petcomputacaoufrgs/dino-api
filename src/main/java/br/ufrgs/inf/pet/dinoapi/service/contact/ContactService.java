@@ -11,7 +11,7 @@ public interface ContactService {
 
     ResponseEntity<?> editContacts(List<ContactModel> models);
 
-    ResponseEntity<Long> deleteContacts(List<ContactDeleteModel> models);
+    ResponseEntity<Long> deleteContacts(List<ContactIdModel> models);
 
     ResponseEntity<List<ContactModel>> getUserContacts();
 

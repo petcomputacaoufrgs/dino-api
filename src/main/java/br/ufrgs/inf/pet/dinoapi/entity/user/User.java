@@ -5,10 +5,12 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -181,8 +183,10 @@ public class User {
         this.noteVersion = noteVersion;
     }
 
-    public FaqUser getFaqUser() {
-        return faqUser;
+    public FaqUser getFaqUser() { return faqUser; }
+
+    public Faq getUserTreatment() {
+        return faqUser.getFaq();
     }
 
     public void setFaqUser(FaqUser faqUser) {

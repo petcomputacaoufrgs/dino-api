@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
 
 import javax.persistence.*;
 import javax.validation.Valid;
@@ -9,7 +10,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
@@ -40,8 +42,14 @@ public class Contact implements Serializable {
         private Byte color;
 
         @ManyToOne
-        @JoinColumn(name = "user_id", nullable = false)
+        @JoinColumn(name = "user_id")
         private User user;
+
+        @OneToMany(mappedBy = "contact")
+        private List<EssentialContact> essentialContacts;
+
+        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        private List<EssentialContactMapping> essentialContactMappings;
 
         @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
         private List<GoogleContact> googleContacts;
@@ -55,6 +63,12 @@ public class Contact implements Serializable {
                 this.setDescription(model.getDescription());
                 this.setColor(model.getColor());
                 this.setUser(user);
+        }
+
+        public Contact(EssentialContactSaveModel model) {
+                this.setName(model.getName());
+                this.setDescription(model.getDescription());
+                this.setColor(model.getColor());
         }
 
         public Long getId() {

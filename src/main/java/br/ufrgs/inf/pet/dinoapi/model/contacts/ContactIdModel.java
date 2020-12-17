@@ -4,7 +4,7 @@ import javax.validation.constraints.NotNull;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.ID_NULL_MESSAGE;
 
-public class ContactDeleteModel {
+public class ContactIdModel {
 
     @NotNull(message = ID_NULL_MESSAGE)
     Long id;

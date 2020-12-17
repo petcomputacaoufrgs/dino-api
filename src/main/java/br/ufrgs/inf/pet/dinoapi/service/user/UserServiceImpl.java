@@ -1,14 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
-import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.EssentialContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,19 +24,15 @@ public class UserServiceImpl implements UserService {
 
     private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
 
-    private final ContactRepository contactRepository;
-
-    private final PhoneServiceImpl phoneServiceImpl;
-
+    private final EssentialContactServiceImpl essentialContactServiceImpl;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl,
-                           ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl) {
+                           EssentialContactServiceImpl essentialContactServiceImpl) {
         this.userRepository = userRepository;
         this.authService = authService;
         this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
-        this.contactRepository = contactRepository;
-        this.phoneServiceImpl = phoneServiceImpl;
+        this.essentialContactServiceImpl = essentialContactServiceImpl;
     }
 
     @Override
@@ -95,7 +88,7 @@ public class UserServiceImpl implements UserService {
 
         if (user == null) {
             user = this.save(new User(name, email, pictureUrl));
-            this.createDefaultUserData(user);
+            essentialContactServiceImpl.setUsersDefaultContacts(user);
             return user;
         }
         return null;
@@ -144,17 +137,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private User save(User user) {
-
         return userRepository.save(user);
     }
 
-    private void createDefaultUserData(User user) {
-
-        ContactsConstants.DEFAULT_CONTACTS.forEach(model -> {
-
-            Contact contact = contactRepository.save(new Contact(model, user));
-
-            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
-        });
-    }
 }

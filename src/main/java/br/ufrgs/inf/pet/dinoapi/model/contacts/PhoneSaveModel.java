@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
@@ -13,9 +14,7 @@ public class PhoneSaveModel {
     @Size(min = 1, max = NUMBER_MAX, message = NUMBER_MESSAGE)
     private String number;
 
-    @NotNull(message = TYPE_NULL_MESSAGE)
-    @Range(min = 1, max = TYPE_MAX, message = TYPE_MESSAGE)
-    private Byte type;
+    private short type;
 
     public PhoneSaveModel() {}
 
@@ -25,7 +24,12 @@ public class PhoneSaveModel {
         this.type = type;
     }
 
-    public Byte getType() {
+    public PhoneSaveModel(Phone phone) {
+        this.number = phone.getNumber();
+        this.type = phone.getType();
+    }
+
+    public short getType() {
         return type;
     }
 

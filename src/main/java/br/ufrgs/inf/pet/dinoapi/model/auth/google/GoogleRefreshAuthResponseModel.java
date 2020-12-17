@@ -9,7 +9,7 @@ public class GoogleRefreshAuthResponseModel {
 
     private List<String> scopeList;
 
-    private boolean declinedContatsGrant;
+    private boolean declinedContactsGrant;
 
     public GoogleRefreshAuthResponseModel() {}
 
@@ -37,11 +37,11 @@ public class GoogleRefreshAuthResponseModel {
         this.scopeList = scopeList;
     }
 
-    public boolean isDeclinedContatsGrant() {
-        return declinedContatsGrant;
+    public boolean isDeclinedContactsGrant() {
+        return declinedContactsGrant;
     }
 
-    public void setDeclinedContatsGrant(boolean declinedContatsGrant) {
-        this.declinedContatsGrant = declinedContatsGrant;
+    public void setDeclinedContactsGrant(boolean declinedContactsGrant) {
+        this.declinedContactsGrant = declinedContactsGrant;
     }
 }

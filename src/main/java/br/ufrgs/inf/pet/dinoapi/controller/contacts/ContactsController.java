@@ -23,11 +23,11 @@ public interface ContactsController {
     ResponseEntity<?> editContacts(List<ContactModel> models);
 
     /**
-     * Deleta uma lista de contatos recebendo uma lista de models {@link ContactDeleteModel}
+     * Deleta uma lista de contatos recebendo uma lista de models {@link ContactIdModel}
      *
      * @return Número da versão nova dos contatos
      */
-    ResponseEntity<?> deleteContacts(List<ContactDeleteModel> models);
+    ResponseEntity<?> deleteContacts(List<ContactIdModel> models);
 
     /**
      * Retorna os contatos do usuário
@@ -51,11 +51,11 @@ public interface ContactsController {
     ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model);
 
     /**
-     * Remove um contato através da model {@link ContactDeleteModel}
+     * Remove um contato através da model {@link ContactIdModel}
      *
      * @return Número da versão nova dos contatos
      */
-    ResponseEntity<?> deleteContact(ContactDeleteModel model);
+    ResponseEntity<?> deleteContact(ContactIdModel model);
 
     /**
      * Edita um contato através da model {@link ContactModel}

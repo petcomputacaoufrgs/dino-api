@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.AppSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserAppSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
+import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
 import br.ufrgs.inf.pet.dinoapi.model.user_app_settings.UserAppSettingsResponseAndRequestModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserAppSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -43,7 +44,9 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         final UserAppSettingsResponseAndRequestModel model = new UserAppSettingsResponseAndRequestModel();
         model.setColorTheme(userAppSettings.getColorTheme());
+        model.setFontSize(userAppSettings.getFontSize());
         model.setLanguage(userAppSettings.getLanguage());
+        model.setEssentialContactGrant(userAppSettings.getEssentialContactGrant());
 
         return new ResponseEntity<>(model, HttpStatus.OK);
     }
@@ -62,6 +65,14 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
             return new ResponseEntity<>(AppSettingsConstants.INVALID_COLOR_THEME, HttpStatus.BAD_REQUEST);
         }
 
+        final Integer newFontSize = userAppSettingsModel.getFontSize();
+
+        final boolean isInvalidFontSize = !this.isValidFontSize(newFontSize);
+
+        if (isInvalidFontSize) {
+            return new ResponseEntity<>(AppSettingsConstants.INVALID_FONT_SIZE, HttpStatus.BAD_REQUEST);
+        }
+
         final User user = authService.getCurrentUser();
 
         if (user == null) {
@@ -70,7 +81,7 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         UserAppSettings userAppSettings = user.getUserAppSettings();
 
-        Boolean changed = false;
+        boolean changed = false;
 
         if (userAppSettings == null) {
             userAppSettings = new UserAppSettings(user);
@@ -80,15 +91,30 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
         final String newLanguage = userAppSettingsModel.getLanguage();
         final String currentLanguage = userAppSettings.getLanguage();
 
-        if (currentLanguage != newLanguage) {
+        if (currentLanguage.equals(newLanguage)) {
             userAppSettings.setLanguage(newLanguage);
             changed = true;
         }
 
         final Integer currentColorTheme = userAppSettings.getColorTheme();
 
-        if (newColorTheme != currentColorTheme) {
+        if (!newColorTheme.equals(currentColorTheme)) {
             userAppSettings.setColorTheme(newColorTheme);
+            changed = true;
+        }
+
+        final Integer currentFontSize = userAppSettings.getFontSize();
+
+        if (!newFontSize.equals(currentFontSize)) {
+            userAppSettings.setFontSize(newFontSize);
+            changed = true;
+        }
+
+        final boolean currentLoadEssentialContactsGrant = userAppSettings.getEssentialContactGrant();
+        final boolean newLoadEssentialContactsGrant = userAppSettingsModel.getEssentialContactGrant();
+
+        if (newLoadEssentialContactsGrant != currentLoadEssentialContactsGrant) {
+            userAppSettings.setEssentialContactGrant(newLoadEssentialContactsGrant);
             changed = true;
         }
 
@@ -125,6 +151,15 @@ public class UserAppSettingsServiceImpl implements UserAppSettingsService {
 
         for (ColorTheme theme : colorThemes)
             if (theme.getValue() == colorTheme)
+                return true;
+        return false;
+    }
+
+    private boolean isValidFontSize(Integer fontSize) {
+        FontSize[] fontSizes = FontSize.values();
+
+        for (FontSize size : fontSizes)
+            if (size.getValue() == fontSize)
                 return true;
         return false;
     }
