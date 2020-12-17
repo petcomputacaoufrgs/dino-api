@@ -11,4 +11,11 @@ public final class AuthConstants {
     public final static String LANGUAGE_MESSAGE = "language should be between 1 and MAX.";
 
     public final static String COLOR_THEME__NULL_MESSAGE = "colorTheme cannot be null.";
+
+    public final static String FONT_SIZE__NULL_MESSAGE = "fontSize cannot be null.";
+
+    public final static String ESSENTIAL_CONTACT_GRANT__NULL_MESSAGE = "loadEssentialContactsGrant cannot be null.";
+
+    public final static int NAME_MAX = 100;
+    public final static int EMAIL_MAX = 100;
 }

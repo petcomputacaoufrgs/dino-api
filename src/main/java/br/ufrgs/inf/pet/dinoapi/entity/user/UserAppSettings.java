@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.entity.user;
 
+import br.ufrgs.inf.pet.dinoapi.constants.AppSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
+import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
 
 import javax.persistence.*;
 
@@ -13,7 +15,7 @@ public class UserAppSettings {
 
     private static final String SEQUENCE_NAME = "user_app_settings_seq";
 
-    public static final Long DEFAULT_VERSION = 0l;
+    public static final Long DEFAULT_VERSION = 0L;
 
     @Id
     @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
@@ -30,6 +32,12 @@ public class UserAppSettings {
     @Column(name = "color_theme", nullable = false)
     private Integer colorTheme;
 
+    @Column(name = "font_size", nullable = false)
+    private Integer fontSize;
+
+    @Column(name = "load_essential_contacts", nullable = false)
+    private boolean essentialContactGrant;
+
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -40,10 +48,21 @@ public class UserAppSettings {
         this.user = user;
         this.version = DEFAULT_VERSION;
         this.colorTheme = ColorTheme.DEVICE.getValue();
+        this.fontSize = FontSize.DEFAULT.getValue();
+        this.language = AppSettingsConstants.DEFAULT_LANGUAGE;
+        this.essentialContactGrant = AppSettingsConstants.DEFAULT_E_CONTACTS_GRANT;;
     }
 
     public Long getId() {
         return id;
+    }
+
+    public Integer getFontSize() {
+        return fontSize;
+    }
+
+    public void setFontSize(Integer fontSize) {
+        this.fontSize = fontSize;
     }
 
     public String getLanguage() {
@@ -80,5 +99,13 @@ public class UserAppSettings {
 
     public void setColorTheme(Integer colorTheme) {
         this.colorTheme = colorTheme;
+    }
+
+    public boolean getEssentialContactGrant() {
+        return essentialContactGrant;
+    }
+
+    public void setEssentialContactGrant(boolean essentialContactGrant) {
+        this.essentialContactGrant = essentialContactGrant;
     }
 }

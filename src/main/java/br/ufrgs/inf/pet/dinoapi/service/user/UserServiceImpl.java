@@ -26,6 +26,13 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     private final PhoneServiceImpl phoneServiceImpl;
 
     @Autowired
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl,
+                           ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl) {
+        this.userRepository = userRepository;
+        this.authService = authService;
+        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
+        this.contactRepository = contactRepository;
+        this.phoneServiceImpl = phoneServiceImpl;
     public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
                            ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl,
                            SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {

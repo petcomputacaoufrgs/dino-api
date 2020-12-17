@@ -13,6 +13,8 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
 
     private boolean declinedContactsGrant;
 
+    private boolean firstConfigDone;
+
     public GoogleAuthResponseModel() {}
 
     public String getGoogleAccessToken() {
@@ -45,5 +47,13 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
 
     public void setDeclinedContactsGrant(boolean declinedContactsGrant) {
         this.declinedContactsGrant = declinedContactsGrant;
+    }
+
+    public boolean isFirstConfigDone() {
+        return firstConfigDone;
+    }
+
+    public void setFirstConfigDone(boolean firstConfigDone) {
+        this.firstConfigDone = firstConfigDone;
     }
 }
