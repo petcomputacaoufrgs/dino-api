@@ -44,7 +44,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public void updateEntity(GlossaryItem entity, GlossaryItemDataModel model) {
+    public void updateEntity(GlossaryItem entity, GlossaryItemDataModel model, User user) {
         entity.setFullText(model.getFullText());
         entity.setSubtitle(model.getSubtitle());
         entity.setText(model.getText());

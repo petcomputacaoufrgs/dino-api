@@ -9,7 +9,7 @@ import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX_MESSAGE;
 
 public class EssentialContactSaveModel {
-
+/*
     private List<Long> faqIds;
 
     @NotNull(message = NAME_NULL_MESSAGE)
@@ -71,4 +71,6 @@ public class EssentialContactSaveModel {
     public void setColor(Byte color) {
         this.color = color;
     }
+
+ */
 }

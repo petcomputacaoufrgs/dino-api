@@ -4,8 +4,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
-import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
+import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoCredentials;
+import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoUser;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.ResponseEntity;
 

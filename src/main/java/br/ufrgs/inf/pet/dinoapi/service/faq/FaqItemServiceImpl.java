@@ -1,94 +1,103 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
+import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqItemModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqSaveRequestItemModel;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.synchronizable.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-public class FaqItemServiceImpl implements  FaqItemService {
+public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long, Integer, FaqItemDataModel, FaqItemRepository> {
 
-    private final FaqItemRepository faqItemRepository;
+    private final FaqServiceImpl faqService;
 
     @Autowired
-    public FaqItemServiceImpl(FaqItemRepository faqItemRepository) {
-        this.faqItemRepository = faqItemRepository;
+    public FaqItemServiceImpl(FaqItemRepository repository, AuthServiceImpl authService,  FaqServiceImpl faqService,
+                              SynchronizableTopicMessageServiceImpl<Long, Integer, FaqItemDataModel> synchronizableTopicMessageService) {
+        super(repository, authService, synchronizableTopicMessageService);
+        this.faqService = faqService;
     }
 
-    public List<FaqItem> getItemsByFaq(Faq faq) {
-        return faqItemRepository.findByFaqId(faq.getId());
+
+    @Override
+    public FaqItemDataModel convertEntityToModel(FaqItem entity) {
+        final FaqItemDataModel model = new FaqItemDataModel();
+        model.setAnswer(entity.getAnswer());
+        model.setQuestion(entity.getQuestion());
+        model.setFaqId(entity.getFaq().getId());
+
+        return model;
     }
 
-    public List<FaqItem> saveItems(List<FaqSaveRequestItemModel> models, Faq faq) {
-        final List<FaqItem> itemsResponse = new ArrayList<>();
-        Optional<FaqItem> faqItemSearch;
+    @Override
+    public FaqItem convertModelToEntity(FaqItemDataModel model, User user) throws ConvertModelToEntityException {
+        final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), user);
 
-        if (models != null) {
-            for (FaqSaveRequestItemModel newItem : models) {
-                if (newItem.isValid()) {
-                    faqItemSearch = faqItemRepository.findByQuestionAndFaqId(newItem.getQuestion(), faq.getId());
+        if (faq.isPresent()) {
+            final FaqItem entity = new FaqItem();
+            entity.setQuestion(model.getQuestion());
+            entity.setAnswer(model.getAnswer());
+            entity.setFaq(faq.get());
 
-                    final FaqItem faqItem = faqItemSearch.orElseGet(() -> new FaqItem(newItem, faq));
+            return entity;
+        } else {
+            throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+        }
+    }
 
-                    if(faqItemSearch.isPresent()) {
-                        if(!faqItem.getAnswer().equals(newItem.getAnswer())) {
-                            faqItem.setAnswer(newItem.getAnswer());
-                        } else {
-                            continue;
-                        }
-                    }
+    @Override
+    public void updateEntity(FaqItem entity, FaqItemDataModel model, User user) throws ConvertModelToEntityException {
+        if (!entity.getFaq().getId().equals(model.getFaqId())) {
+            final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), user);
 
-                    itemsResponse.add(faqItem);
-                    faqItemRepository.save(faqItem);
-                }
+            if (faq.isPresent()) {
+                entity.setFaq(faq.get());
+            } else {
+                throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
             }
         }
 
-        return itemsResponse;
+        entity.setAnswer(model.getAnswer());
+        entity.setQuestion(model.getQuestion());
     }
 
-    public boolean editItems(List<FaqItemModel> itemModels, Faq faq) {
-        final List<FaqItem> itemsToSave = new ArrayList<>();
-        final List<FaqItem> itemsToDelete = faqItemRepository.findByFaqId(faq.getId());
+    @Override
+    public Optional<FaqItem> getEntityByIdAndUser(Long id, User user) {
+        return this.repository.findById(id);
+    }
 
-        itemModels.forEach(itemModel -> {
-            if (itemModel.getId() == null) {
-                itemsToSave.add(new FaqItem(itemModel, faq));
-            } else {
-                final Optional<FaqItem> itemSearch = itemsToDelete.stream()
-                        .filter(item -> item.getId().equals(itemModel.getId()))
-                        .findFirst();
+    @Override
+    public List<FaqItem> getEntitiesByUserId(User user) {
+        return this.repository.findAll();
+    }
 
-                if (itemSearch.isPresent()) {
-                    final FaqItem itemDB = itemSearch.get();
+    @Override
+    public List<FaqItem> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+        return this.repository.findAllByIds(ids);
+    }
 
-                    boolean changed = !itemModel.getQuestion().equals(itemDB.getQuestion());
-                    if (changed) {
-                        itemDB.setQuestion(itemModel.getQuestion());
-                    }
-                    if (!itemModel.getAnswer().equals(itemDB.getAnswer())) {
-                        itemDB.setAnswer(itemModel.getAnswer());
-                        changed = true;
-                    }
-                    if (changed) {
-                        itemsToSave.add(itemDB);
-                    }
-                    itemsToDelete.remove(itemDB);
-                }
-            }
-        });
+    @Override
+    public List<FaqItem> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+        return this.repository.findAllExceptIds(ids);
+    }
 
-        faqItemRepository.saveAll(itemsToSave);
-        faqItemRepository.deleteAllById(itemsToDelete.stream().map(FaqItem::getId).collect(Collectors.toList()));
+    @Override
+    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
+        return WebSocketDestinationsEnum.FAQ_ITEM_UPDATE;
+    }
 
-        return itemsToSave.size() > 0 || itemsToDelete.size() > 0;
+    @Override
+    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
+        return WebSocketDestinationsEnum.FAQ_ITEM_DELETE;
     }
 }

@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 
 public class EssentialContactModel {
+    /*
     private Long id;
     private Long faqId;
     private ContactModel contact;
@@ -39,5 +40,5 @@ public class EssentialContactModel {
 
     public void setContact(ContactModel contact) {
         this.contact = contact;
-    }
+    }*/
 }

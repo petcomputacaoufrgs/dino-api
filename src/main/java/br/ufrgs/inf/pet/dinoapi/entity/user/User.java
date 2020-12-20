@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
@@ -30,7 +29,7 @@ public class User extends SynchronizableEntity<Long> {
     private GoogleAuth googleAuth;
 
     @OneToOne(mappedBy = "user")
-    private UserAppSettings userAppSettings;
+    private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Auth> auths;
@@ -40,9 +39,6 @@ public class User extends SynchronizableEntity<Long> {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Contact> contacts;
-
-    @OneToOne(mappedBy = "user")
-    private FaqUser faqUser;
 
     @OneToMany(mappedBy = "user")
     private List<FaqUserQuestion> faqFaqUserQuestions;
@@ -61,14 +57,6 @@ public class User extends SynchronizableEntity<Long> {
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
         this.noteColumns = new ArrayList<>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public boolean hasGoogleAuth() {
@@ -107,12 +95,12 @@ public class User extends SynchronizableEntity<Long> {
         this.googleAuth = googleAuth;
     }
 
-    public UserAppSettings getUserAppSettings() {
-        return userAppSettings;
+    public UserSettings getUserAppSettings() {
+        return userSettings;
     }
 
-    public void setUserAppSettings(UserAppSettings userAppSettings) {
-        this.userAppSettings = userAppSettings;
+    public void setUserAppSettings(UserSettings userSettings) {
+        this.userSettings = userSettings;
     }
 
     public List<NoteColumn> getNoteColumns() {
@@ -128,12 +116,4 @@ public class User extends SynchronizableEntity<Long> {
     }
 
     public List<Contact> getContacts() { return contacts; }
-
-    public FaqUser getFaqUser() {
-        return faqUser;
-    }
-
-    public void setFaqUser(FaqUser faqUser) {
-        this.faqUser = faqUser;
-    }
 }

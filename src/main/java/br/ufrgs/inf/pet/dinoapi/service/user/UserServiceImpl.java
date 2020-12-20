@@ -9,7 +9,6 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,13 +25,6 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     private final PhoneServiceImpl phoneServiceImpl;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl,
-                           ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl) {
-        this.userRepository = userRepository;
-        this.authService = authService;
-        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
-        this.contactRepository = contactRepository;
-        this.phoneServiceImpl = phoneServiceImpl;
     public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
                            ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl,
                            SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {
@@ -58,7 +50,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public void updateEntity(User user, UserDataModel model) {
+    public void updateEntity(User user, UserDataModel model, User loginUser) {
         if (!user.getPictureURL().equals(model.getPictureURL())) {
             user.setPictureURL(model.getPictureURL());
         }

@@ -27,9 +27,6 @@ public class GoogleAuth {
     @Column(name = "refresh_token", length = GoogleAuthConstants.REFRESH_TOKEN_MAX, unique = true, nullable = false)
     private String refreshToken;
 
-    @Column(name = "contacts_declined", nullable = false)
-    private boolean declinedContatsGrant;
-
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -46,7 +43,6 @@ public class GoogleAuth {
         this.refreshToken = refreshToken;
         this.user = user;
         this.googleScopes = new ArrayList<>();
-        this.declinedContatsGrant = false;
     }
 
     public Long getId() {
@@ -81,13 +77,5 @@ public class GoogleAuth {
 
     public void setGoogleScopes(List<GoogleScope> googleScopes) {
         this.googleScopes = googleScopes;
-    }
-
-    public boolean isDeclinedContatsGrant() {
-        return declinedContatsGrant;
-    }
-
-    public void setDeclinedContatsGrant(boolean contactsDeclined) {
-        this.declinedContatsGrant = contactsDeclined;
     }
 }

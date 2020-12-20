@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import javax.persistence.*;
 import java.io.Serializable;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity

@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.service.note;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.note.NoteColumnDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
@@ -11,7 +10,6 @@ import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -50,7 +48,7 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public void updateEntity(NoteColumn entity, NoteColumnDataModel model) throws ConvertModelToEntityException {
+    public void updateEntity(NoteColumn entity, NoteColumnDataModel model, User user) throws ConvertModelToEntityException {
         entity.setTitle(model.getTitle());
         entity.setOrder(model.getOrder());
     }

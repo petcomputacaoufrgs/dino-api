@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.exclude_strategy.SynchronizableWSExcludeStrategy;
+import br.ufrgs.inf.pet.dinoapi.configuration.gson.gson_exclude_strategy.SynchronizableWSExcludeStrategy;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;

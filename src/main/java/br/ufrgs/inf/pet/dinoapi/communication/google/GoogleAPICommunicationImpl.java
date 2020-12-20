@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google;
 
-import br.ufrgs.inf.pet.dinoapi.config.AppConfig;
-import br.ufrgs.inf.pet.dinoapi.config.GoogleOAuth2Config;
+import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.GoogleOAuth2Config;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;

@@ -43,7 +43,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     }
 
     @Override
-    public void updateEntity(Contact entity, ContactModel model) throws ConvertModelToEntityException {
+    public void updateEntity(Contact entity, ContactModel model, User user) throws ConvertModelToEntityException {
         entity.setName(model.getName());
         entity.setDescription(model.getDescription());
         entity.setColor(model.getColor());
@@ -61,7 +61,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
 
     @Override
     public List<Contact> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
-        return this.repository.findAllByIdAndUserId(ids, user.getId());
+        return this.repository.findAllByIdsAndUserId(ids, user.getId());
     }
 
     @Override

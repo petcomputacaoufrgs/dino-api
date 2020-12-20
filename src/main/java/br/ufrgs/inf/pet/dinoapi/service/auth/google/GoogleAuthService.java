@@ -15,6 +15,4 @@ public interface GoogleAuthService {
     GoogleAuth getUserGoogleAuth();
 
     GoogleAuth save(GoogleAuth googleAuth);
-
-    ResponseEntity<?> declineGoogleContacts();
 }

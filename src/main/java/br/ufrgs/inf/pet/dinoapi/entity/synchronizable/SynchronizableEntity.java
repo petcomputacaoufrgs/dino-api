@@ -16,7 +16,7 @@ import static javax.persistence.GenerationType.AUTO;
  * @param <ID> Type of synchronizable entity id
  */
 @MappedSuperclass
-public abstract class SynchronizableEntity<ID extends Comparable<ID> & Serializable> {
+public abstract class SynchronizableEntity<ID extends Comparable<ID> & Serializable> implements Serializable {
     @Id
     @GeneratedValue(strategy = AUTO)
     @Column(name = "id", nullable = false)

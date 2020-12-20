@@ -5,10 +5,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContactMapping;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactMappingRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
@@ -26,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class EssentialContactServiceImpl {
-
+/*
     private final EssentialContactRepository essentialContactRepository;
     private final ContactRepository contactRepository;
     private final FaqRepository faqRepository;
@@ -139,4 +137,6 @@ public class EssentialContactServiceImpl {
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+ */
 }

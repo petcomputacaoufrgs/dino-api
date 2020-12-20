@@ -51,8 +51,9 @@ public interface SynchronizableService<
      * Update entity's ({@link ENTITY}) attributes based in a data model ({@link DATA_MODEL})
      * @param entity entity
      * @param model data model
+     * @param  user current user
      */
-    void updateEntity(ENTITY entity, DATA_MODEL model) throws ConvertModelToEntityException;
+    void updateEntity(ENTITY entity, DATA_MODEL model, User user) throws ConvertModelToEntityException;
 
     /**
      * Get entity from database using userId for security validation (only takes data that the user has access)

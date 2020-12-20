@@ -9,8 +9,6 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.ListUtils;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSDeleteModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
@@ -86,7 +84,7 @@ public abstract class SynchronizableServiceImpl<
                 final ENTITY entity = this.getEntity(model.getId());
                 try {
                     if (entity != null) {
-                        data = this.update(entity, model);
+                        data = this.update(entity, model, user);
                     } else {
                         data = this.create(model, user);
                     }
@@ -330,8 +328,8 @@ public abstract class SynchronizableServiceImpl<
         return entity;
     }
 
-    protected void internalUpdateEntity(ENTITY entity, DATA_MODEL model) throws ConvertModelToEntityException {
-        this.updateEntity(entity, model);
+    protected void internalUpdateEntity(ENTITY entity, DATA_MODEL model, User user) throws ConvertModelToEntityException {
+        this.updateEntity(entity, model, user);
         entity.setLastUpdate(model.getLastUpdate());
         entity.setId(model.getId());
     }
@@ -370,9 +368,9 @@ public abstract class SynchronizableServiceImpl<
         return this.internalConvertEntityToModel(entity);
     }
 
-    protected DATA_MODEL update(ENTITY entity, DATA_MODEL model) throws ConvertModelToEntityException {
+    protected DATA_MODEL update(ENTITY entity, DATA_MODEL model, User user) throws ConvertModelToEntityException {
         if (this.canChange(entity, model)) {
-            this.internalUpdateEntity(entity, model);
+            this.internalUpdateEntity(entity, model, user);
             entity.setLastUpdate(model.getLastUpdate());
             entity = repository.save(entity);
         }
@@ -427,7 +425,7 @@ public abstract class SynchronizableServiceImpl<
                 if (model.getId() == entityId) {
                     if (this.canChange(entity, model)) {
                         try {
-                            this.internalUpdateEntity(entity, model);
+                            this.internalUpdateEntity(entity, model, user);
                             entity.setLastUpdate(model.getLastUpdate());
                             entitiesToSave.add(entity);
                             modelsInSaveList.add(model);

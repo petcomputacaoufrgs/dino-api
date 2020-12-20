@@ -5,19 +5,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface FaqRepository extends CrudRepository<Faq, Long> {
+    @Query("SELECT f FROM Faq f")
+    List<Faq> findAll();
 
-    @Query("SELECT f FROM Faq f LEFT JOIN FETCH f.items")
-    List<Faq> findAllWithFaqItems();
+    @Query("SELECT f FROM Faq f WHERE f.id IN :ids")
+    List<Faq> findAllByIds(@Param("ids") List<Long> ids);
 
-    @Query("SELECT f FROM Faq f WHERE lower(f.title) = lower(:title)")
-    Optional<Faq> findByTitle(@Param("title") String title);
-
-    @Query("SELECT fu.faq FROM FaqUser fu WHERE fu.user.id = :userId")
-    Optional<Faq> findByUserId(@Param("userId") Long userId);
+    @Query("SELECT f FROM Faq f WHERE f.id NOT IN :ids")
+    List<Faq> findAllExceptIds(@Param("ids") List<Long> ids);
 }

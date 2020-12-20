@@ -15,9 +15,16 @@ public enum WebSocketDestinationsEnum {
     NOTE_COLUMN_DELETE(generateQueueDest("note_column/delete/")),
     USER_UPDATE(generateQueueDest("user/update/")),
     USER_DELETE(generateQueueDest("user/delete/")),
-    ALERT_APP_SETTINGS_UPDATE("/queue/user_app_settings/update"),
-    ALERT_FAQ_UPDATE("/topic/faq/update"),
-    ALERT_FAQ_USER_UPDATE("/queue/faq/update/user"),
+    USER_SETTINGS_UPDATE(generateQueueDest("user_settings/update/")),
+    USER_SETTINGS_DELETE(generateQueueDest("user_settings/delete/")),
+    TREATMENT_UPDATE(generateTopicDest("treatment/update/")),
+    TREATMENT_DELETE(generateTopicDest("treatment/delete/")),
+    FAQ_ITEM_UPDATE(generateTopicDest("faq_item/update/")),
+    FAQ_ITEM_DELETE(generateTopicDest("faq_item/delete/")),
+    FAQ_UPDATE(generateTopicDest("faq/update/")),
+    FAQ_DELETE(generateTopicDest("faq/delete/")),
+    FAQ_USER_QUESTION_UPDATE(generateTopicDest("faq_user_question/update/")),
+    FAQ_USER_QUESTION_DELETE(generateTopicDest("faq_user_question/delete/")),
     ALERT_AUTH_SCOPE_UPDATE("/queue/auth/scope/update");
 
     private String value;

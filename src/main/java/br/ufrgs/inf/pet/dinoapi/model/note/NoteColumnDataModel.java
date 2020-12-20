@@ -2,8 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.model.note;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 

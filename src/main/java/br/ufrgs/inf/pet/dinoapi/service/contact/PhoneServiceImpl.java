@@ -54,7 +54,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public void updateEntity(Phone entity, PhoneModel model) {
+    public void updateEntity(Phone entity, PhoneModel model, User user) {
         entity.setNumber(model.getNumber());
         entity.setType(model.getType());
     }

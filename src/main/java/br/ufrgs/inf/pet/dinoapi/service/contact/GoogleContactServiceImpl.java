@@ -51,7 +51,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public void updateEntity(GoogleContact entity, GoogleContactModel model) throws ConvertModelToEntityException {
+    public void updateEntity(GoogleContact entity, GoogleContactModel model, User user) throws ConvertModelToEntityException {
         entity.setResourceName(model.getResourceName());
     }
 

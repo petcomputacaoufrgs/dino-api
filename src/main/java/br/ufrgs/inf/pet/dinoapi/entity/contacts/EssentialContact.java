@@ -1,26 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
-
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import javax.persistence.*;
-import java.io.Serializable;
-
-import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "essential_contact")
-public class EssentialContact implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private static final String SEQUENCE_NAME = "ess_contact_seq";
-
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+public class EssentialContact extends SynchronizableEntity<Long> {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "faq_id")
     private Faq faq;
