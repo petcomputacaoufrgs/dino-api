@@ -1,11 +1,10 @@
-package br.ufrgs.inf.pet.dinoapi.security;
+package br.ufrgs.inf.pet.dinoapi.configuration.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;

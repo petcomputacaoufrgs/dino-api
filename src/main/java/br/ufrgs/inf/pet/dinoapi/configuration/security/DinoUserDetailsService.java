@@ -1,17 +1,13 @@
-package br.ufrgs.inf.pet.dinoapi.service.user_details;
+package br.ufrgs.inf.pet.dinoapi.configuration.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoAuthenticationToken;
-import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoUser;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 
 @Service

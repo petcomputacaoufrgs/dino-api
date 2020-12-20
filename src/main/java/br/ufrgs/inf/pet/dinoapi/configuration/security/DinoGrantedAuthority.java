@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.security;
+package br.ufrgs.inf.pet.dinoapi.configuration.security;
 
 import org.springframework.security.core.GrantedAuthority;
 

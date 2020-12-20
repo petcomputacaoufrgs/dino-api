@@ -1,9 +1,8 @@
-package br.ufrgs.inf.pet.dinoapi.configuration;
+package br.ufrgs.inf.pet.dinoapi.configuration.gson;
 
 import com.google.gson.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import java.lang.reflect.Type;
 import java.time.LocalDate;
 import java.time.LocalDateTime;

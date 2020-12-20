@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.context;
+package br.ufrgs.inf.pet.dinoapi.configuration.context;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
