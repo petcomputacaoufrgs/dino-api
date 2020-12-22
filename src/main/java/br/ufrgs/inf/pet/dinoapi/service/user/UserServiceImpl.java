@@ -44,13 +44,14 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public User convertModelToEntity(UserDataModel model, User user) {
+    public User convertModelToEntity(UserDataModel model) {
+        final User user = this.getUser();
         user.setPictureURL(model.getPictureURL());
         return user;
     }
 
     @Override
-    public void updateEntity(User user, UserDataModel model, User loginUser) {
+    public void updateEntity(User user, UserDataModel model) {
         if (!user.getPictureURL().equals(model.getPictureURL())) {
             user.setPictureURL(model.getPictureURL());
         }
@@ -135,7 +136,8 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
                 model.setLastUpdate(LocalDateTime.now());
                 model.setId(savedUser.getId());
 
-                this.sendUpdateMessage(model, savedUser);
+                this.setUser(user);
+                this.sendUpdateMessage(model);
 
                 return savedUser;
             }

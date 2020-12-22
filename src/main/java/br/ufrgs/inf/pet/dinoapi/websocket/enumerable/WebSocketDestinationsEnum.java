@@ -25,7 +25,8 @@ public enum WebSocketDestinationsEnum {
     FAQ_DELETE(generateTopicDest("faq/delete/")),
     FAQ_USER_QUESTION_UPDATE(generateTopicDest("faq_user_question/update/")),
     FAQ_USER_QUESTION_DELETE(generateTopicDest("faq_user_question/delete/")),
-    ALERT_AUTH_SCOPE_UPDATE("/queue/auth/scope/update");
+    AUTH_SCOPE_UPDATE("/auth/google/scope/update/"),
+    AUTH_SCOPE_DELETE("/auth/google/scope/delete/");
 
     private String value;
 

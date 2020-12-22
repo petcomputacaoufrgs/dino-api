@@ -38,7 +38,8 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public FaqUserQuestion convertModelToEntity(FaqUserQuestionDataModel model, User user) throws ConvertModelToEntityException {
+    public FaqUserQuestion convertModelToEntity(FaqUserQuestionDataModel model) throws ConvertModelToEntityException {
+        final User user = this.getUser();
         final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), user);
 
         if (!faq.isPresent()) {
@@ -55,7 +56,8 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public void updateEntity(FaqUserQuestion entity, FaqUserQuestionDataModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(FaqUserQuestion entity, FaqUserQuestionDataModel model) throws ConvertModelToEntityException {
+        final User user = this.getUser();
         if (!entity.getFaq().getId().equals(model.getFaqId())) {
             final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), user);
 

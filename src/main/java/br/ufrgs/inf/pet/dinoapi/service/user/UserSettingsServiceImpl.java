@@ -51,9 +51,9 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public UserSettings convertModelToEntity(UserSettingsDataModel model, User user) throws ConvertModelToEntityException {
+    public UserSettings convertModelToEntity(UserSettingsDataModel model) throws ConvertModelToEntityException {
         final UserSettings userSettings = new UserSettings();
-
+        final User user = this.getUser();
         this.validSettings(model);
 
         if (model.getTreatmentId() != null) {
@@ -78,7 +78,8 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public void updateEntity(UserSettings entity, UserSettingsDataModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(UserSettings entity, UserSettingsDataModel model) throws ConvertModelToEntityException {
+        final User user = this.getUser();
         this.validSettings(model);
 
         if (model.getTreatmentId() != null) {

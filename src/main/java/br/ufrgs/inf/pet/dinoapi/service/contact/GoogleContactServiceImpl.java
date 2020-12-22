@@ -30,14 +30,15 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     @Override
     public GoogleContactModel convertEntityToModel(GoogleContact entity) {
-        GoogleContactModel model = new GoogleContactModel();
+        final GoogleContactModel model = new GoogleContactModel();
         model.setResourceName(entity.getResourceName());
         return model;
     }
 
     @Override
-    public GoogleContact convertModelToEntity(GoogleContactModel model, User user) throws ConvertModelToEntityException {
-        Optional<Contact> googleContactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
+    public GoogleContact convertModelToEntity(GoogleContactModel model) throws ConvertModelToEntityException {
+        final User user = this.getUser();
+        final Optional<Contact> googleContactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
 
         if (googleContactSearch.isPresent()) {
             GoogleContact googleContact = new GoogleContact();
@@ -51,7 +52,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public void updateEntity(GoogleContact entity, GoogleContactModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(GoogleContact entity, GoogleContactModel model) throws ConvertModelToEntityException {
         entity.setResourceName(model.getResourceName());
     }
 

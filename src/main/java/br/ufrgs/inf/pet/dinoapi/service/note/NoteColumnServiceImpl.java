@@ -38,17 +38,17 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public NoteColumn convertModelToEntity(NoteColumnDataModel model, User user) throws ConvertModelToEntityException {
+    public NoteColumn convertModelToEntity(NoteColumnDataModel model) throws ConvertModelToEntityException {
         final NoteColumn noteColumn = new NoteColumn();
         noteColumn.setOrder(model.getOrder());
         noteColumn.setTitle(model.getTitle());
-        noteColumn.setUser(user);
+        noteColumn.setUser(this.getUser());
 
         return noteColumn;
     }
 
     @Override
-    public void updateEntity(NoteColumn entity, NoteColumnDataModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(NoteColumn entity, NoteColumnDataModel model) throws ConvertModelToEntityException {
         entity.setTitle(model.getTitle());
         entity.setOrder(model.getOrder());
     }

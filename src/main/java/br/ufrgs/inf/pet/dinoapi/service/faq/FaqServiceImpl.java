@@ -39,8 +39,8 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     }
 
     @Override
-    public Faq convertModelToEntity(FaqDataModel model, User user) throws ConvertModelToEntityException {
-        final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUser(model.getTreatmentId(), user);
+    public Faq convertModelToEntity(FaqDataModel model) throws ConvertModelToEntityException {
+        final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUser(model.getTreatmentId(), this.getUser());
 
         if (treatment.isPresent()) {
             final Faq entity = new Faq();
@@ -55,9 +55,9 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     }
 
     @Override
-    public void updateEntity(Faq entity, FaqDataModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(Faq entity, FaqDataModel model) throws ConvertModelToEntityException {
         if (!entity.getTreatment().getId().equals(model.getTreatmentId())) {
-            final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUser(model.getTreatmentId(), user);
+            final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUser(model.getTreatmentId(), this.getUser());
 
             if (treatment.isPresent()) {
                 entity.setTreatment(treatment.get());

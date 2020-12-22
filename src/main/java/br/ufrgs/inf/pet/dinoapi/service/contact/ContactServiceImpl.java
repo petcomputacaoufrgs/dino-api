@@ -33,17 +33,17 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     }
 
     @Override
-    public Contact convertModelToEntity(ContactModel model, User user) throws ConvertModelToEntityException {
+    public Contact convertModelToEntity(ContactModel model) throws ConvertModelToEntityException {
         Contact contact = new Contact();
         contact.setName(model.getName());
         contact.setDescription(model.getDescription());
         contact.setColor(model.getColor());
-        contact.setUser(user);
+        contact.setUser(this.getUser());
         return contact;
     }
 
     @Override
-    public void updateEntity(Contact entity, ContactModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(Contact entity, ContactModel model) throws ConvertModelToEntityException {
         entity.setName(model.getName());
         entity.setDescription(model.getDescription());
         entity.setColor(model.getColor());

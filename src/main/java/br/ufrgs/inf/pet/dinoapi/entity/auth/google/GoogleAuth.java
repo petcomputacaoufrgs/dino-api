@@ -2,12 +2,9 @@ package br.ufrgs.inf.pet.dinoapi.entity.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-
 import javax.persistence.*;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity

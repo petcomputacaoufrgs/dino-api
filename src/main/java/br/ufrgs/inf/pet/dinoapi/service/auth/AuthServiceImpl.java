@@ -14,6 +14,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -168,6 +169,10 @@ public class AuthServiceImpl implements AuthService {
         final Authentication auth = context.getAuthentication();
 
         if (auth == null) {
+            return null;
+        }
+
+        if (auth instanceof AnonymousAuthenticationToken) {
             return null;
         }
 

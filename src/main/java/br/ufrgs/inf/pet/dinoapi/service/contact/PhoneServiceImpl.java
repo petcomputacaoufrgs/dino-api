@@ -38,8 +38,9 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public Phone convertModelToEntity(PhoneModel model, User user) throws ConvertModelToEntityException  {
-        Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
+    public Phone convertModelToEntity(PhoneModel model) throws ConvertModelToEntityException  {
+        final User user = this.getUser();
+        final Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
 
         if (contactSearch.isPresent()) {
             Phone phone = new Phone();
@@ -54,7 +55,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public void updateEntity(Phone entity, PhoneModel model, User user) {
+    public void updateEntity(Phone entity, PhoneModel model) {
         entity.setNumber(model.getNumber());
         entity.setType(model.getType());
     }

@@ -40,8 +40,8 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public FaqItem convertModelToEntity(FaqItemDataModel model, User user) throws ConvertModelToEntityException {
-        final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), user);
+    public FaqItem convertModelToEntity(FaqItemDataModel model) throws ConvertModelToEntityException {
+        final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), this.getUser());
 
         if (faq.isPresent()) {
             final FaqItem entity = new FaqItem();
@@ -56,9 +56,9 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public void updateEntity(FaqItem entity, FaqItemDataModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(FaqItem entity, FaqItemDataModel model) throws ConvertModelToEntityException {
         if (!entity.getFaq().getId().equals(model.getFaqId())) {
-            final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), user);
+            final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), this.getUser());
 
             if (faq.isPresent()) {
                 entity.setFaq(faq.get());

@@ -43,8 +43,9 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public Note convertModelToEntity(NoteDataModel model, User user) throws ConvertModelToEntityException {
-        final Optional<NoteColumn> noteColumn = noteColumnService.getEntityByIdAndUser(model.getColumnId(), user);
+    public Note convertModelToEntity(NoteDataModel model) throws ConvertModelToEntityException {
+        final Optional<NoteColumn> noteColumn =
+                noteColumnService.getEntityByIdAndUser(model.getColumnId(), this.getUser());
         if (noteColumn.isPresent()) {
             final Note note = new Note();
             note.setNoteColumn(noteColumn.get());
@@ -60,9 +61,10 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public void updateEntity(Note entity, NoteDataModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(Note entity, NoteDataModel model) throws ConvertModelToEntityException {
         if (!entity.getNoteColumn().getId().equals(model.getColumnId())) {
-            final Optional<NoteColumn> noteColumn = noteColumnService.getEntityByIdAndUser(model.getColumnId(), user);
+            final Optional<NoteColumn> noteColumn =
+                    noteColumnService.getEntityByIdAndUser(model.getColumnId(), this.getUser());
 
             if (noteColumn.isPresent()) {
                 entity.setNoteColumn(noteColumn.get());

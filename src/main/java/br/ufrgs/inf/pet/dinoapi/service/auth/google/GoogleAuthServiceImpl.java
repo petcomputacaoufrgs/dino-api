@@ -10,18 +10,14 @@ import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.*;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleScopeRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -36,20 +32,19 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
     private final GoogleAuthRepository googleAuthRepository;
 
-    private final GoogleScopeRepository googleScopeRepository;
+    private final GoogleScopeServiceImpl googleScopeService;
 
     private final GoogleAPICommunicationImpl googleAPICommunicationImpl;
 
-    private final GenericQueueMessageServiceImpl genericQueueMessageService;
-
     @Autowired
-    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthRepository googleAuthRepository, GoogleScopeRepository googleScopeRepository, GoogleAPICommunicationImpl googleAPICommunicationImpl, GenericQueueMessageServiceImpl genericQueueMessageService) {
+    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService,
+                                 GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
+                                 GoogleAPICommunicationImpl googleAPICommunicationImpl) {
         this.userService = userService;
         this.authService = authService;
         this.googleAuthRepository = googleAuthRepository;
-        this.googleScopeRepository = googleScopeRepository;
+        this.googleScopeService = googleScopeService;
         this.googleAPICommunicationImpl = googleAPICommunicationImpl;
-        this.genericQueueMessageService = genericQueueMessageService;
     }
 
     @Override
@@ -60,6 +55,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             final String code = googleAuthRequestModel.getCode();
 
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, scopeList);
+
+            List<String> savedScopes;
 
             if (tokenResponse != null) {
                 final GoogleIdToken idToken = tokenResponse.parseIdToken();
@@ -76,16 +73,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 User user;
 
-                boolean firstConfigDone = false;
-
                 if (googleAuth != null) {
-                    googleScopeRepository.deleteAllByGoogleAuthId(googleAuth.getId());
-
-                    final List<GoogleScope> newScopes = currentScopes.stream().map(scope -> new GoogleScope(googleAuth, scope))
-                            .collect(Collectors.toList());
-
-                    googleScopeRepository.saveAll(newScopes);
-
                     if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
                         googleAuthRepository.save(googleAuth);
@@ -94,6 +82,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                     }
 
                     user = googleAuth.getUser();
+
+                    savedScopes = this.saveAllNewScopes(currentScopes, user);
 
                     user = this.updateUserData(payload, user);
                 } else {
@@ -107,14 +97,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     user = userService.create(name, email, pictureUrl);
 
-                    final GoogleAuth newGoogleAuth = googleAuthRepository.save(new GoogleAuth(googleId, refreshToken, user));
+                    googleAuthRepository.save(new GoogleAuth(googleId, refreshToken, user));
 
-                    final List<GoogleScope> newScopes = currentScopes.stream().map(scope -> new GoogleScope(newGoogleAuth, scope))
-                            .collect(Collectors.toList());
-
-                    googleScopeRepository.saveAll(newScopes);
-
-                    firstConfigDone = true;
+                    savedScopes = this.saveAllScopes(currentScopes, user);
                 }
 
                 final Auth auth = authService.generateAuth(user);
@@ -141,7 +126,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 response.setUser(userData);
 
-                response.setScopeList(currentScopes);
+                response.setScopeList(savedScopes);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
@@ -184,12 +169,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
-                    googleScopeRepository.deleteAllByGoogleAuthId(googleAuth.getId());
-
-                    final List<GoogleScope> newScopes = currentScopes.stream().map(scope -> new GoogleScope(googleAuth, scope))
-                            .collect(Collectors.toList());
-
-                    googleScopeRepository.saveAll(newScopes);
+                    final List<String> savedScopes = this.saveAllNewScopes(currentScopes, googleAuth.getUser());
 
                     final GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
 
@@ -199,9 +179,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     response.setGoogleAccessToken(accessToken);
                     response.setGoogleExpiresDate(expiresInSeconds);
-                    response.setScopeList(currentScopes);
-
-                    genericQueueMessageService.sendObjectMessage(null, WebSocketDestinationsEnum.ALERT_AUTH_SCOPE_UPDATE);
+                    response.setScopeList(savedScopes);
 
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
@@ -244,6 +222,28 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     @Override
     public GoogleAuth save(GoogleAuth googleAuth) {
         return googleAuthRepository.save(googleAuth);
+    }
+
+    private List<String> saveAllNewScopes(List<String> currentScopes, User user) {
+        final List<GoogleScope> databaseScopes = googleScopeService.getEntitiesByName(user, currentScopes);
+
+        if (databaseScopes.size() > 0) {
+            currentScopes.removeIf(scope ->
+                    databaseScopes.stream().anyMatch(
+                            savedScope -> savedScope.getName().equals(scope)));
+        }
+
+        return this.saveAllScopes(currentScopes, user);
+    }
+
+    private List<String> saveAllScopes(List<String> newScopes, User user) {
+        googleScopeService.setUser(user);
+        if (newScopes.size() > 0) {
+            final List<GoogleScopeDataModel> savedData = googleScopeService.saveAllScopes(newScopes);
+            return savedData.stream().map(GoogleScopeDataModel::getName).collect(Collectors.toList());
+        }
+
+        return null;
     }
 
     private boolean grantUserIsCurrentUser(GoogleIdToken.Payload payload) {

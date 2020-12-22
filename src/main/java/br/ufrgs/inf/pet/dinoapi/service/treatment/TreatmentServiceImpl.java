@@ -31,7 +31,7 @@ public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, 
     }
 
     @Override
-    public Treatment convertModelToEntity(TreatmentDataModel model, User user) throws ConvertModelToEntityException {
+    public Treatment convertModelToEntity(TreatmentDataModel model) throws ConvertModelToEntityException {
         final Treatment entity = new Treatment();
         entity.setName(model.getName());
 
@@ -39,7 +39,7 @@ public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, 
     }
 
     @Override
-    public void updateEntity(Treatment entity, TreatmentDataModel model, User user) throws ConvertModelToEntityException {
+    public void updateEntity(Treatment entity, TreatmentDataModel model) throws ConvertModelToEntityException {
         entity.setName(model.getName());
     }
 
