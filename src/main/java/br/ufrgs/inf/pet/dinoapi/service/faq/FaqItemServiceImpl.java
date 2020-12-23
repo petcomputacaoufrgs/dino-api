@@ -1,16 +1,17 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
 import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.synchronizable.SynchronizableTopicMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -40,54 +41,62 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public FaqItem convertModelToEntity(FaqItemDataModel model) throws ConvertModelToEntityException {
-        final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), this.getUser());
-
-        if (faq.isPresent()) {
-            final FaqItem entity = new FaqItem();
-            entity.setQuestion(model.getQuestion());
-            entity.setAnswer(model.getAnswer());
-            entity.setFaq(faq.get());
-
-            return entity;
-        } else {
-            throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
-        }
-    }
-
-    @Override
-    public void updateEntity(FaqItem entity, FaqItemDataModel model) throws ConvertModelToEntityException {
-        if (!entity.getFaq().getId().equals(model.getFaqId())) {
-            final Optional<Faq> faq = faqService.getEntityByIdAndUser(model.getFaqId(), this.getUser());
+    public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        if (auth != null) {
+            final Optional<Faq> faq = faqService.getEntityByIdAndUserAuth(model.getFaqId(), auth);
 
             if (faq.isPresent()) {
+                final FaqItem entity = new FaqItem();
+                entity.setQuestion(model.getQuestion());
+                entity.setAnswer(model.getAnswer());
                 entity.setFaq(faq.get());
+
+                return entity;
             } else {
                 throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
             }
         }
 
-        entity.setAnswer(model.getAnswer());
-        entity.setQuestion(model.getQuestion());
+        throw new AuthNullException();
     }
 
     @Override
-    public Optional<FaqItem> getEntityByIdAndUser(Long id, User user) {
+    public void updateEntity(FaqItem entity, FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        if (auth != null) {
+            if (!entity.getFaq().getId().equals(model.getFaqId())) {
+                final Optional<Faq> faq = faqService.getEntityByIdAndUserAuth(model.getFaqId(), auth);
+
+                if (faq.isPresent()) {
+                    entity.setFaq(faq.get());
+                } else {
+                    throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+                }
+            }
+
+            entity.setAnswer(model.getAnswer());
+            entity.setQuestion(model.getQuestion());
+        } else {
+            throw new AuthNullException();
+        }
+    }
+
+    @Override
+    public Optional<FaqItem> getEntityByIdAndUserAuth(Long id, Auth auth) {
         return this.repository.findById(id);
     }
 
     @Override
-    public List<FaqItem> getEntitiesByUserId(User user) {
+    public List<FaqItem> getEntitiesByUserAuth(Auth auth) {
         return this.repository.findAll();
     }
 
     @Override
-    public List<FaqItem> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+    public List<FaqItem> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) {
         return this.repository.findAllByIds(ids);
     }
 
     @Override
-    public List<FaqItem> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+    public List<FaqItem> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) {
         return this.repository.findAllExceptIds(ids);
     }
 

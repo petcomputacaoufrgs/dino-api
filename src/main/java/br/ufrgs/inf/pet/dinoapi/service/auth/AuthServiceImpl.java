@@ -123,7 +123,11 @@ public class AuthServiceImpl implements AuthService {
     public Auth getCurrentAuth() {
         final DinoCredentials dinoCredentials = this.getCredentials();
 
-        return dinoCredentials.getAuth();
+        if (dinoCredentials != null) {
+            return dinoCredentials.getAuth();
+        }
+
+        return null;
     }
 
     @Override
@@ -186,10 +190,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public List<String> getAllUserWebSocketTokenExceptCurrentByUser() {
-        final Auth auth = this.getCurrentAuth();
+    public List<String> getAllUserWebSocketTokenExceptByAuth(Auth auth) {
+        if (auth != null && auth.getWebSocketToken() != null) {
+            return authRepository.findAllWebSocketTokensExceptOneByUser(auth.getUser(), auth.getWebSocketToken());
+        }
 
-        return authRepository.findAllWebSocketTokensExceptOneByUser(auth.getUser(), auth.getWebSocketToken());
+        return new ArrayList<>();
     }
 
     @Override

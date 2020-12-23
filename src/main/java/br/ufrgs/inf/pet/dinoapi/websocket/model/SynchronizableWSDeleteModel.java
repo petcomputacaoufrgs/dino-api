@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable;
+package br.ufrgs.inf.pet.dinoapi.websocket.model;
 
 import java.io.Serializable;
 

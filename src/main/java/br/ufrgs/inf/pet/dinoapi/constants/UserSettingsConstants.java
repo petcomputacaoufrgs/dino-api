@@ -14,11 +14,7 @@ public class UserSettingsConstants {
 
     public final static String INVALID_FONT_SIZE = "invalid fontSize";
 
-    public final static String INVALID_TREATMENT = "invalid treatment";
-
     public final static String INCLUDE_ESSENTIAL_CONTACT_NULL_MESSAGE = "includeEssentialContact cannot be null";
-
-    public final static String SYNC_GOOGLE_CONTACTS_NULL_MESSAGE = "syncGoogleContacts cannot be null";
 
     public final static String DECLINE_GOOGLE_CONTACTS_NULL_MESSAGE = "declineGoogleContacts cannot be null";
 

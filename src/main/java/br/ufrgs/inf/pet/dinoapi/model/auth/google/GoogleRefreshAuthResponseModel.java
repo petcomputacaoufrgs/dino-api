@@ -7,7 +7,7 @@ public class GoogleRefreshAuthResponseModel {
 
     private Long googleExpiresDate;
 
-    private List<String> scopeList;
+    private List<GoogleScopeDataModel> scopes;
 
     private boolean declinedContactsGrant;
 
@@ -29,12 +29,12 @@ public class GoogleRefreshAuthResponseModel {
         this.googleExpiresDate = googleExpiresDate;
     }
 
-    public List<String> getScopeList() {
-        return scopeList;
+    public List<GoogleScopeDataModel> getScopes() {
+        return scopes;
     }
 
-    public void setScopeList(List<String> scopeList) {
-        this.scopeList = scopeList;
+    public void setScopes(List<GoogleScopeDataModel> scopes) {
+        this.scopes = scopes;
     }
 
     public boolean isDeclinedContactsGrant() {

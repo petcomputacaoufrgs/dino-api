@@ -37,7 +37,7 @@ public interface AuthService {
 
     Claims decodeAccessToken(String accessToken);
 
-    List<String> getAllUserWebSocketTokenExceptCurrentByUser();
+    List<String> getAllUserWebSocketTokenExceptByAuth(Auth auth);
 
     List<String> getAllUserWebSocketTokenByUser(User user);
 

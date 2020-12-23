@@ -1,13 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.glossary.GlossaryItem;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.glossary.GlossaryItemRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -17,8 +17,8 @@ import java.util.Optional;
 public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, Integer, GlossaryItemDataModel, GlossaryItemRepository> {
     @Autowired
     public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, AuthServiceImpl authService,
-                               SynchronizableQueueMessageServiceImpl<Long, Integer, GlossaryItemDataModel> synchronizableQueueMessageService) {
-        super(glossaryItemRepository, authService, synchronizableQueueMessageService);
+                               SynchronizableTopicMessageServiceImpl<Long, Integer, GlossaryItemDataModel> synchronizableTopicMessageService) {
+        super(glossaryItemRepository, authService, synchronizableTopicMessageService);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public GlossaryItem convertModelToEntity(GlossaryItemDataModel model) {
+    public GlossaryItem convertModelToEntity(GlossaryItemDataModel model, Auth auth) {
         final GlossaryItem glossaryItem = new GlossaryItem();
         glossaryItem.setTitle(model.getTitle());
         glossaryItem.setText(model.getText());
@@ -44,7 +44,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public void updateEntity(GlossaryItem entity, GlossaryItemDataModel model) {
+    public void updateEntity(GlossaryItem entity, GlossaryItemDataModel model, Auth auth) {
         entity.setFullText(model.getFullText());
         entity.setSubtitle(model.getSubtitle());
         entity.setText(model.getText());
@@ -52,22 +52,22 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public Optional<GlossaryItem> getEntityByIdAndUser(Long id, User user) {
+    public Optional<GlossaryItem> getEntityByIdAndUserAuth(Long id, Auth auth) {
         return this.repository.findById(id);
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesByUserId(User user) {
+    public List<GlossaryItem> getEntitiesByUserAuth(Auth auth) {
         return this.repository.findAll();
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+    public List<GlossaryItem> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) {
         return this.repository.findByIds(ids);
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+    public List<GlossaryItem> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) {
         return this.repository.findAllExceptIds(ids);
     }
 

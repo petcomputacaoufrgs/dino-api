@@ -1,8 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
-import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.note.NoteColumnDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
@@ -10,7 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.*;
@@ -38,39 +40,55 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public NoteColumn convertModelToEntity(NoteColumnDataModel model) throws ConvertModelToEntityException {
-        final NoteColumn noteColumn = new NoteColumn();
-        noteColumn.setOrder(model.getOrder());
-        noteColumn.setTitle(model.getTitle());
-        noteColumn.setUser(this.getUser());
+    public NoteColumn convertModelToEntity(NoteColumnDataModel model, Auth auth) throws AuthNullException {
+        if (auth != null) {
+            final NoteColumn noteColumn = new NoteColumn();
+            noteColumn.setOrder(model.getOrder());
+            noteColumn.setTitle(model.getTitle());
+            noteColumn.setUser(auth.getUser());
 
-        return noteColumn;
+            return noteColumn;
+        }
+
+        throw new AuthNullException();
     }
 
     @Override
-    public void updateEntity(NoteColumn entity, NoteColumnDataModel model) throws ConvertModelToEntityException {
+    public void updateEntity(NoteColumn entity, NoteColumnDataModel model, Auth auth) {
         entity.setTitle(model.getTitle());
         entity.setOrder(model.getOrder());
     }
 
     @Override
-    public Optional<NoteColumn> getEntityByIdAndUser(Long id, User user) {
-        return this.repository.findByIdAndUserId(id, user.getId());
+    public Optional<NoteColumn> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
     }
 
     @Override
-    public List<NoteColumn> getEntitiesByUserId(User user) {
-        return this.repository.findAllByUserId(user.getId());
+    public List<NoteColumn> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByUserId(auth.getUser().getId());
     }
 
     @Override
-    public List<NoteColumn> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
-        return this.repository.findAllByIdAndUserId(ids, user.getId());
+    public List<NoteColumn> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByIdAndUserId(ids, auth.getUser().getId());
     }
 
     @Override
-    public List<NoteColumn> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
-        return this.repository.findAllByUserIdExceptIds(user.getId(), ids);
+    public List<NoteColumn> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
     }
 
     @Override

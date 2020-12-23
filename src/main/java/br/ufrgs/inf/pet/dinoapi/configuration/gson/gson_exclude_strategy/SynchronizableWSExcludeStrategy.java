@@ -1,5 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.configuration.gson.gson_exclude_strategy;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSUpdateModel;
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
 

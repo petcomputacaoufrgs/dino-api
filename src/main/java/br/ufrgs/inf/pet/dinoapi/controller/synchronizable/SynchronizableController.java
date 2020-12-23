@@ -3,8 +3,8 @@ package br.ufrgs.inf.pet.dinoapi.controller.synchronizable;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSDeleteModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSUpdateModel;
 import org.springframework.http.ResponseEntity;
 
 import java.io.Serializable;

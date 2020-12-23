@@ -1,11 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.configuration.gson.gson_exclude_strategy.SynchronizableWSExcludeStrategy;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSDeleteModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.model.synchronizable.SynchronizableWSUpdateModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSUpdateModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -30,9 +31,9 @@ public abstract class SynchronizableMessageService<
         this.gsonBuilder = gsonBuilder;
     }
 
-    public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum) {
+    public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if (!data.isEmpty()) {
-            this.sendModel(this.generateUpdateModelJson(data), pathEnum);
+            this.sendModel(this.generateUpdateModelJson(data), pathEnum, auth);
         }
     }
 
@@ -42,9 +43,9 @@ public abstract class SynchronizableMessageService<
         }
     }
 
-    public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum) {
+    public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if(!data.isEmpty()) {
-            this.sendModel(this.generateDeleteModelJson(data), pathEnum);
+            this.sendModel(this.generateDeleteModelJson(data), pathEnum, auth);
         }
     }
 
@@ -74,7 +75,8 @@ public abstract class SynchronizableMessageService<
         return gson.toJson(deleteModel);
     }
 
-    protected abstract void sendModel(String json, WebSocketDestinationsEnum pathEnum);
+    protected abstract void sendModel(String json, WebSocketDestinationsEnum pathEnum, Auth auth);
 
     protected abstract void sendModel(String json, WebSocketDestinationsEnum pathEnum, User user);
+
 }

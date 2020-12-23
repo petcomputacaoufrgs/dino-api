@@ -9,7 +9,7 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
 
     private Long googleExpiresDate;
 
-    private List<String> scopeList;
+    private List<GoogleScopeDataModel> scopes;
 
     public GoogleAuthResponseModel() {}
 
@@ -29,11 +29,11 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
         this.googleExpiresDate = googleExpiresDate;
     }
 
-    public List<String> getScopeList() {
-        return scopeList;
+    public List<GoogleScopeDataModel> getScopes() {
+        return scopes;
     }
 
-    public void setScopeList(List<String> scopeList) {
-        this.scopeList = scopeList;
+    public void setScopes(List<GoogleScopeDataModel> scopes) {
+        this.scopes = scopes;
     }
 }

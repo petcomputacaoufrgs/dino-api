@@ -1,8 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.synchronizable;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
@@ -45,51 +46,45 @@ public interface SynchronizableService<
      * @param model data model
      * @return entity
      */
-    ENTITY convertModelToEntity(DATA_MODEL model) throws ConvertModelToEntityException;
+    ENTITY convertModelToEntity(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException;
 
     /**
      * Update entity's ({@link ENTITY}) attributes based in a data model ({@link DATA_MODEL})
      * @param entity entity
      * @param model data model
      */
-    void updateEntity(ENTITY entity, DATA_MODEL model) throws ConvertModelToEntityException;
+    void updateEntity(ENTITY entity, DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException;
 
     /**
-     * Used to set user manually
-     * @param _user_ user entity
-     */
-    void setUser(User _user_);
-
-    /**
-     * Get entity from database using userId for security validation (only takes data that the user has access)
+     * Get entity from database based on authenticated user for security validation (only takes data that the user has access)
      * @param id entity's id
-     * @param user current user
+     * @param auth current auth user
      * @return database entity if valid params or null
      */
-    Optional<ENTITY> getEntityByIdAndUser(ID id, User user);
+    Optional<ENTITY> getEntityByIdAndUserAuth(ID id, Auth auth) throws AuthNullException;
 
     /**
-     * Get entities from database using userId for security validation (only takes data that the user has access)
-     * @param user current user
+     * Get entities from database based on authenticated user for security validation (only takes data that the user has access)
+     * @param auth current auth user
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesByUserId(User user);
+    List<ENTITY> getEntitiesByUserAuth(Auth auth) throws AuthNullException;
 
     /**
-     * Get entities from database using a list of ids and a userId for security validation (only takes data that the user has access)
+     * Get entities from database using a list of ids based on authenticated user for security validation (only takes data that the user has access)
      * @param ids list of entity ids
-     * @param user current user
+     * @param auth current auth user
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesByIdsAndUserId(List<ID> ids, User user);
+    List<ENTITY> getEntitiesByIdsAndUserAuth(List<ID> ids, Auth auth) throws AuthNullException;
 
     /**
-     * Get entities from database by userId except when entity id is in param list "ids"
-     * @param user current user
+     * Get entities from database based on authenticated user except when entity id is in param list "ids"
+     * @param auth current auth user
      * @param ids ids of entities to exclude em search
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesByUserIdExceptIds(User user, List<ID> ids);
+    List<ENTITY> getEntitiesByUserAuthExceptIds(Auth auth, List<ID> ids) throws AuthNullException;
 
     /**
      * Get WebSocket destination for update entity

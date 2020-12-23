@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.enumerable;
 
 public enum WebSocketDestinationsEnum {
+    GOOGLE_SCOPE_UPDATE(generateQueueDest("auth/google/scope/update/")),
+    GOOGLE_SCOPE_DELETE(generateQueueDest("auth/google/scope/delete/")),
     PHONE_UPDATE(generateQueueDest("phone/update/")),
     PHONE_DELETE(generateQueueDest("phone/delete/")),
     GOOGLE_CONTACT_UPDATE(generateQueueDest("google_contact/update/")),
@@ -24,9 +26,7 @@ public enum WebSocketDestinationsEnum {
     FAQ_UPDATE(generateTopicDest("faq/update/")),
     FAQ_DELETE(generateTopicDest("faq/delete/")),
     FAQ_USER_QUESTION_UPDATE(generateTopicDest("faq_user_question/update/")),
-    FAQ_USER_QUESTION_DELETE(generateTopicDest("faq_user_question/delete/")),
-    AUTH_SCOPE_UPDATE("/auth/google/scope/update/"),
-    AUTH_SCOPE_DELETE("/auth/google/scope/delete/");
+    FAQ_USER_QUESTION_DELETE(generateTopicDest("faq_user_question/delete/"));
 
     private String value;
 

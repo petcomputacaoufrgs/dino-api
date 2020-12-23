@@ -1,18 +1,17 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,17 +19,10 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integer, UserDataModel, UserRepository> {
 
-    private final ContactRepository contactRepository;
-
-    private final PhoneServiceImpl phoneServiceImpl;
-
     @Autowired
     public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
-                           ContactRepository contactRepository, PhoneServiceImpl phoneServiceImpl,
                            SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {
         super(userRepository, authService, synchronizableQueueMessageService);
-        this.contactRepository = contactRepository;
-        this.phoneServiceImpl = phoneServiceImpl;
     }
 
     @Override
@@ -44,42 +36,57 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public User convertModelToEntity(UserDataModel model) {
-        final User user = this.getUser();
+    public User convertModelToEntity(UserDataModel model, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        final User user = auth.getUser();
         user.setPictureURL(model.getPictureURL());
         return user;
     }
 
     @Override
-    public void updateEntity(User user, UserDataModel model) {
+    public void updateEntity(User user, UserDataModel model, Auth auth) {
         if (!user.getPictureURL().equals(model.getPictureURL())) {
             user.setPictureURL(model.getPictureURL());
         }
     }
 
     @Override
-    public Optional<User> getEntityByIdAndUser(Long id, User user) {
-        return Optional.of(user);
+    public Optional<User> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return Optional.of(auth.getUser());
     }
 
     @Override
-    public List<User> getEntitiesByUserId(User user) {
+    public List<User> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         List<User> users = new ArrayList<>();
-        users.add(user);
+        users.add(auth.getUser());
         return users;
     }
 
     @Override
-    public List<User> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
+    public List<User> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         List<User> users = new ArrayList<>();
-        users.add(user);
+        users.add(auth.getUser());
         return users;
     }
 
     @Override
-    public List<User> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
+    public List<User> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         List<User> users = new ArrayList<>();
-        users.add(user);
+        users.add(auth.getUser());
         return users;
     }
 
@@ -99,53 +106,36 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
         return false;
     }
 
-    public User create(String name, String email, String pictureUrl) {
+    public User save(String name, String email, String pictureUrl, Auth auth) {
+        final User savedUser = this.saveUser(name, email, pictureUrl, auth.getUser());
+
+        this.sendUpdateMessage(savedUser, auth);
+
+        return savedUser;
+    }
+
+    public User saveNew(String name, String email, String pictureUrl) {
         User user = this.findUserByEmail(email);
 
         if (user == null) {
-            user = this.save(new User(name, email, pictureUrl));
-            //this.createDefaultUserData(user);
-            return user;
+            user = new User();
         }
-        return null;
+
+        return this.saveUser(name, email, pictureUrl, user);
     }
 
-    public User update(String name, String email, String pictureUrl, User user) {
-        boolean updated = false;
+    private User saveUser(String name, String email, String pictureUrl, User user) {
+        user.setPictureURL(pictureUrl);
+        user.setEmail(email);
+        user.setName(name);
 
-        if (user != null) {
-            if (!user.getEmail().equals(email)) {
-                user.setEmail(email);
-                updated = true;
-            }
-            if (!user.getName().equals(name)) {
-                user.setName(name);
-                updated = true;
-            }
-            if(!user.getPictureURL().equals(pictureUrl)) {
-                user.setPictureURL(pictureUrl);
-                updated = true;
-            }
-            if (updated) {
-                final User savedUser = this.save(user);
+        return this.repository.save(user);
+    }
 
-                final UserDataModel model = new UserDataModel();
-                model.setPictureURL(user.getPictureURL());
-                model.setEmail(user.getEmail());
-                model.setName(user.getName());
-                model.setLastUpdate(LocalDateTime.now());
-                model.setId(savedUser.getId());
+    private void sendUpdateMessage(User user, Auth auth) {
+        final UserDataModel model = this.internalConvertEntityToModel(user);
 
-                this.setUser(user);
-                this.sendUpdateMessage(model);
-
-                return savedUser;
-            }
-
-            return user;
-        }
-
-        return null;
+        this.sendUpdateMessage(model, auth);
     }
 
     public User findUserByEmail(String email) {
@@ -158,19 +148,4 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
 
         return null;
     }
-
-    private User save(User user) {
-        return this.repository.save(user);
-    }
-
-    /*
-    private void createDefaultUserData(User user) {
-
-        ContactsConstants.DEFAULT_CONTACTS.forEach(model -> {
-            Contact contact = contactRepository.save(new Contact(model, user));
-
-            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
-        });
-    }
-     */
 }

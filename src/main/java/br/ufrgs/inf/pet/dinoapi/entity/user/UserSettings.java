@@ -22,9 +22,6 @@ public class UserSettings extends SynchronizableEntity<Long>  {
     @Column(name = "include_essential_contacts", nullable = false)
     private Boolean includeEssentialContact;
 
-    @Column(name = "sync_google_contacts")
-    private Boolean syncGoogleContacts;
-
     @Column(name = "decline_google_contacts")
     private Boolean declineGoogleContacts;
 
@@ -90,14 +87,6 @@ public class UserSettings extends SynchronizableEntity<Long>  {
 
     public void setIncludeEssentialContact(Boolean includeEssentialContact) {
         this.includeEssentialContact = includeEssentialContact;
-    }
-
-    public Boolean getSyncGoogleContacts() {
-        return syncGoogleContacts;
-    }
-
-    public void setSyncGoogleContacts(Boolean syncGoogleContacts) {
-        this.syncGoogleContacts = syncGoogleContacts;
     }
 
     public Boolean getDeclineGoogleContacts() {

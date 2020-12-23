@@ -1,16 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -38,46 +40,62 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public Phone convertModelToEntity(PhoneModel model) throws ConvertModelToEntityException  {
-        final User user = this.getUser();
-        final Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
+    public Phone convertModelToEntity(PhoneModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        if (auth != null) {
+            final User user = auth.getUser();
+            final Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
 
-        if (contactSearch.isPresent()) {
-            Phone phone = new Phone();
-            phone.setNumber(model.getNumber());
-            phone.setType(model.getType());
-            phone.setContact(contactSearch.get());
+            if (contactSearch.isPresent()) {
+                Phone phone = new Phone();
+                phone.setNumber(model.getNumber());
+                phone.setType(model.getType());
+                phone.setContact(contactSearch.get());
 
-            return phone;
+                return phone;
+            }
+
+            throw new ConvertModelToEntityException(ContactsConstants.INVALID_CONTACT);
         }
 
-        throw new ConvertModelToEntityException(ContactsConstants.INVALID_CONTACT);
+        throw new AuthNullException();
     }
 
     @Override
-    public void updateEntity(Phone entity, PhoneModel model) {
+    public void updateEntity(Phone entity, PhoneModel model, Auth auth) {
         entity.setNumber(model.getNumber());
         entity.setType(model.getType());
     }
 
     @Override
-    public Optional<Phone> getEntityByIdAndUser(Long id, User user) {
-        return this.repository.findByIdAndContactUserId(id, user.getId());
+    public Optional<Phone> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findByIdAndContactUserId(id, auth.getUser().getId());
     }
 
     @Override
-    public List<Phone> getEntitiesByUserId(User user) {
-        return this.repository.findAllByContactUserId(user.getId());
+    public List<Phone> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByContactUserId(auth.getUser().getId());
     }
 
     @Override
-    public List<Phone> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
-        return this.repository.findAllByIdAndContactUserId(ids, user.getId());
+    public List<Phone> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByIdAndContactUserId(ids, auth.getUser().getId());
     }
 
     @Override
-    public List<Phone> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
-        return this.repository.findAllByContactUserIdExceptIds(user.getId(), ids);
+    public List<Phone> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByContactUserIdExceptIds(auth.getUser().getId(), ids);
     }
 
     @Override

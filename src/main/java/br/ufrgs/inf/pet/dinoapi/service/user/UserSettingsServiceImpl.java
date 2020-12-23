@@ -1,19 +1,20 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
 import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
 import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
-import br.ufrgs.inf.pet.dinoapi.exception.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.synchronizable.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -38,7 +39,6 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setColorTheme(entity.getColorTheme());
         model.setFontSize(entity.getFontSize());
         model.setIncludeEssentialContact(entity.getIncludeEssentialContact());
-        model.setSyncGoogleContacts(entity.getSyncGoogleContacts());
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
         model.setSettingsStep(entity.getSettingsStep());
@@ -51,26 +51,26 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public UserSettings convertModelToEntity(UserSettingsDataModel model) throws ConvertModelToEntityException {
+    public UserSettings convertModelToEntity(UserSettingsDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+
         final UserSettings userSettings = new UserSettings();
-        final User user = this.getUser();
         this.validSettings(model);
 
         if (model.getTreatmentId() != null) {
-            final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUser(model.getTreatmentId(), user);
+            final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
 
-            if (treatment.isPresent()) {
-                userSettings.setTreatment(treatment.get());
-            }
+            treatment.ifPresent(userSettings::setTreatment);
         }
 
         userSettings.setLanguage(model.getLanguage());
         userSettings.setColorTheme(model.getColorTheme());
         userSettings.setFontSize(model.getFontSize());
         userSettings.setIncludeEssentialContact(model.getIncludeEssentialContact());
-        userSettings.setSyncGoogleContacts(model.getSyncGoogleContacts());
         userSettings.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
-        userSettings.setUser(user);
+        userSettings.setUser(auth.getUser());
         userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
         userSettings.setSettingsStep(model.getSettingsStep());
 
@@ -78,24 +78,25 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public void updateEntity(UserSettings entity, UserSettingsDataModel model) throws ConvertModelToEntityException {
-        final User user = this.getUser();
+    public void updateEntity(UserSettings entity, UserSettingsDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+
         this.validSettings(model);
 
         if (model.getTreatmentId() != null) {
             if (entity.getTreatment() == null || !entity.getTreatment().getId().equals(model.getTreatmentId())) {
-                final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUser(model.getTreatmentId(), user);
+                final Optional<Treatment> treatment =
+                        treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
 
-                if (treatment.isPresent()) {
-                    entity.setTreatment(treatment.get());
-                }
+                treatment.ifPresent(entity::setTreatment);
             }
         }
 
         entity.setColorTheme(model.getColorTheme());
         entity.setFontSize(model.getFontSize());
         entity.setLanguage(model.getLanguage());
-        entity.setSyncGoogleContacts(model.getSyncGoogleContacts());
         entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
@@ -103,23 +104,39 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public Optional<UserSettings> getEntityByIdAndUser(Long id, User user) {
-        return this.repository.findByIdAndUserId(id, user.getId());
+    public Optional<UserSettings> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+
+        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
     }
 
     @Override
-    public List<UserSettings> getEntitiesByUserId(User user) {
-        return this.repository.findAllByUserId(user.getId());
+    public List<UserSettings> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+
+        return this.repository.findAllByUserId(auth.getUser().getId());
     }
 
     @Override
-    public List<UserSettings> getEntitiesByIdsAndUserId(List<Long> ids, User user) {
-        return this.repository.findAllByIdsAndUserId(ids, user.getId());
+    public List<UserSettings> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+
+        return this.repository.findAllByIdsAndUserId(ids, auth.getUser().getId());
     }
 
     @Override
-    public List<UserSettings> getEntitiesByUserIdExceptIds(User user, List<Long> ids) {
-        return this.repository.findAllByUserIdExceptIds(user.getId(), ids);
+    public List<UserSettings> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+
+        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
     }
 
     @Override

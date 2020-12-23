@@ -22,9 +22,6 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long, 
     @NotNull(message =  UserSettingsConstants.INCLUDE_ESSENTIAL_CONTACT_NULL_MESSAGE)
     private Boolean includeEssentialContact;
 
-    @NotNull(message = UserSettingsConstants.SYNC_GOOGLE_CONTACTS_NULL_MESSAGE)
-    private Boolean syncGoogleContacts;
-
     @NotNull(message = UserSettingsConstants.DECLINE_GOOGLE_CONTACTS_NULL_MESSAGE)
     private Boolean declineGoogleContacts;
 
@@ -80,14 +77,6 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long, 
 
     public void setDeclineGoogleContacts(Boolean declineGoogleContacts) {
         this.declineGoogleContacts = declineGoogleContacts;
-    }
-
-    public Boolean getSyncGoogleContacts() {
-        return syncGoogleContacts;
-    }
-
-    public void setSyncGoogleContacts(Boolean syncGoogleContacts) {
-        this.syncGoogleContacts = syncGoogleContacts;
     }
 
     public Boolean getFirstSettingsDone() {

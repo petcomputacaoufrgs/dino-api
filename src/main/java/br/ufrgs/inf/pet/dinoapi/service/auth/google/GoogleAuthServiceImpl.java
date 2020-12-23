@@ -7,6 +7,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.*;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
@@ -56,8 +58,6 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getGoogleToken(code, scopeList);
 
-            List<String> savedScopes;
-
             if (tokenResponse != null) {
                 final GoogleIdToken idToken = tokenResponse.parseIdToken();
 
@@ -67,39 +67,34 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final String refreshToken = tokenResponse.getRefreshToken();
 
-                final GoogleAuth googleAuth = this.getGoogleAuthByGoogleId(googleId);
-
                 final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
+
+                boolean updateUser = false;
+
+                GoogleAuth googleAuth = this.getGoogleAuthByGoogleId(googleId);
 
                 User user;
 
                 if (googleAuth != null) {
                     if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
-                        googleAuthRepository.save(googleAuth);
+                        googleAuth = googleAuthRepository.save(googleAuth);
                     } else if (googleAuth.getRefreshToken().isEmpty()) {
                         return getRefreshTokenError();
                     }
 
                     user = googleAuth.getUser();
 
-                    savedScopes = this.saveAllNewScopes(currentScopes, user);
-
-                    user = this.updateUserData(payload, user);
+                    updateUser = true;
                 } else {
                     if (this.isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError();
                     }
 
-                    final String email = payload.getEmail();
-                    final String name = (String) payload.get("name");
-                    final String pictureUrl = (String) payload.get("picture");
+                    user = this.createUser(payload);
 
-                    user = userService.create(name, email, pictureUrl);
-
-                    googleAuthRepository.save(new GoogleAuth(googleId, refreshToken, user));
-
-                    savedScopes = this.saveAllScopes(currentScopes, user);
+                    googleAuth = new GoogleAuth(googleId, refreshToken, user);
+                    user.setGoogleAuth(googleAuthRepository.save(googleAuth));
                 }
 
                 final Auth auth = authService.generateAuth(user);
@@ -107,6 +102,12 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
                 final Claims claims = authService.decodeAccessToken(auth.getAccessToken());
 
                 final UserDataModel userData = new UserDataModel();
+
+                if (updateUser) {
+                    user = this.updateUser(payload, auth);
+                }
+
+                final List<GoogleScopeDataModel> savedScopes = this.saveAllScopes(currentScopes, auth);
 
                 userData.setEmail(user.getEmail());
 
@@ -120,18 +121,28 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                 final GoogleAuthResponseModel response = this.generateGoogleAuthResponse(tokenResponse);
 
+                final String accessToken = tokenResponse.getAccessToken();
+
+                final Long expiresInSeconds = tokenResponse.getExpiresInSeconds();
+
+                response.setGoogleAccessToken(accessToken);
+
+                response.setGoogleExpiresDate(expiresInSeconds);
+
                 response.setAccessToken(auth.getAccessToken());
 
                 response.setExpiresDate(claims.getExpiration().getTime());
 
                 response.setUser(userData);
 
-                response.setScopeList(savedScopes);
+                response.setScopes(savedScopes);
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
             return new ResponseEntity<>(GoogleAuthConstants.INTERNAL_AUTH_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (AuthNullException | ConvertModelToEntityException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
             return new ResponseEntity<>(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA, HttpStatus.BAD_REQUEST);
         }
@@ -169,7 +180,9 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
-                    final List<String> savedScopes = this.saveAllNewScopes(currentScopes, googleAuth.getUser());
+                    final Auth auth = authService.getCurrentAuth();
+
+                    final List<GoogleScopeDataModel> savedScopes = this.saveAllScopes(currentScopes, auth);
 
                     final GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
 
@@ -179,7 +192,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
 
                     response.setGoogleAccessToken(accessToken);
                     response.setGoogleExpiresDate(expiresInSeconds);
-                    response.setScopeList(savedScopes);
+                    response.setScopes(savedScopes);
 
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
@@ -188,6 +201,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
             }
         } catch (GoogleClientSecretIOException e) {
             return new ResponseEntity<>(GoogleAuthConstants.INTERNAL_AUTH_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
+        } catch (AuthNullException | ConvertModelToEntityException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
             return new ResponseEntity<>(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA, HttpStatus.BAD_REQUEST);
         }
@@ -200,9 +215,13 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         GoogleAuth googleAuth = this.getUserGoogleAuth();
 
         if (googleAuth != null) {
-            final GoogleRefreshAuthResponseModel response = this.refreshGoogleAuth(googleAuth);
+            try {
+                final GoogleRefreshAuthResponseModel response = this.refreshGoogleAuth(googleAuth);
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } catch (ConvertModelToEntityException | AuthNullException e) {
+                return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+            }
         }
 
         return new ResponseEntity<>(GoogleAuthConstants.GOOGLE_AUTH_FAIL, HttpStatus.BAD_REQUEST);
@@ -224,26 +243,36 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return googleAuthRepository.save(googleAuth);
     }
 
-    private List<String> saveAllNewScopes(List<String> currentScopes, User user) {
-        final List<GoogleScope> databaseScopes = googleScopeService.getEntitiesByName(user, currentScopes);
+    private List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException {
+        final List<String> scopes = new LinkedList<>(currentScopes);
 
-        if (databaseScopes.size() > 0) {
-            currentScopes.removeIf(scope ->
-                    databaseScopes.stream().anyMatch(
-                            savedScope -> savedScope.getName().equals(scope)));
+        List<GoogleScope> databaseScopes = googleScopeService.getEntitiesByUserAuth(auth);
+
+        final List<String> databaseScopesStrings = databaseScopes.stream().map(GoogleScope::getName).collect(Collectors.toList());
+
+        if (databaseScopesStrings.size() > 0) {
+            scopes.removeAll(databaseScopesStrings);
+            databaseScopesStrings.removeAll(currentScopes);
+            if (databaseScopesStrings.size() > 0) {
+                final List<GoogleScope> removedScopes = googleScopeService.getEntitiesByName(auth.getUser(), databaseScopesStrings);
+                googleScopeService.deleteAllScopes(removedScopes, auth);
+                databaseScopes = googleScopeService.getEntitiesByUserAuth(auth);
+            }
         }
 
-        return this.saveAllScopes(currentScopes, user);
-    }
+        Set<String> uniqueScopes = new HashSet<>(scopes);
 
-    private List<String> saveAllScopes(List<String> newScopes, User user) {
-        googleScopeService.setUser(user);
-        if (newScopes.size() > 0) {
-            final List<GoogleScopeDataModel> savedData = googleScopeService.saveAllScopes(newScopes);
-            return savedData.stream().map(GoogleScopeDataModel::getName).collect(Collectors.toList());
+        final List<GoogleScopeDataModel> allScopes = googleScopeService.internalConvertEntitiesToModels(databaseScopes);
+
+        if (uniqueScopes.size() > 0) {
+            final List<GoogleScopeDataModel> newScopes = googleScopeService.saveAllScopes(uniqueScopes, auth);
+
+            if (newScopes != null && newScopes.size() > 0) {
+                allScopes.addAll(newScopes);
+            }
         }
 
-        return null;
+        return allScopes;
     }
 
     private boolean grantUserIsCurrentUser(GoogleIdToken.Payload payload) {
@@ -278,25 +307,37 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
         return new Date(new Date().getTime() + (expiresInSeconds * 1000));
     }
 
-    private User updateUserData(GoogleIdToken.Payload payload, User user) {
+    private User updateUser(GoogleIdToken.Payload payload, Auth auth) {
         final String email = payload.getEmail();
         final String name = (String) payload.get("name");
         final String pictureUrl = (String) payload.get("picture");
 
-        return userService.update(name, email, pictureUrl, user);
+        return userService.save(name, email, pictureUrl, auth);
     }
 
-    private GoogleRefreshAuthResponseModel refreshGoogleAuth(GoogleAuth googleAuth) {
+    private User createUser(GoogleIdToken.Payload payload) {
+        final String email = payload.getEmail();
+        final String name = (String) payload.get("name");
+        final String pictureUrl = (String) payload.get("picture");
+
+        return userService.saveNew(name, email, pictureUrl);
+    }
+
+    private GoogleRefreshAuthResponseModel refreshGoogleAuth(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
         if (googleAuth != null) {
             final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
             final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
+            final Auth auth = authService.getCurrentAuth();
+
+            final List<GoogleScopeDataModel> savedScopes = this.saveAllScopes(currentScopes, auth);
+
             GoogleAuthResponseModel authModel = this.generateGoogleAuthResponse(tokenResponse);
 
-                GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
-                response.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
-                response.setGoogleAccessToken(authModel.getGoogleAccessToken());
-                response.setScopeList(currentScopes);
+            GoogleRefreshAuthResponseModel response = new GoogleRefreshAuthResponseModel();
+            response.setGoogleExpiresDate(authModel.getGoogleExpiresDate());
+            response.setGoogleAccessToken(authModel.getGoogleAccessToken());
+            response.setScopes(savedScopes);
 
             return response;
         }
