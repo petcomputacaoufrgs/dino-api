@@ -39,7 +39,5 @@ public interface AuthService {
 
     List<String> getAllUserWebSocketTokenExceptByAuth(Auth auth);
 
-    List<String> getAllUserWebSocketTokenByUser(User user);
-
     void setWebSocketConnected();
 }

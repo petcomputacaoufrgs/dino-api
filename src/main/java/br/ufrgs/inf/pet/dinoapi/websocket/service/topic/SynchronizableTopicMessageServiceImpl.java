@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service.topic;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -26,11 +25,6 @@ public class SynchronizableTopicMessageServiceImpl<
 
     @Override
     protected void sendModel(String json, WebSocketDestinationsEnum pathEnum, Auth auth) {
-        this.simpMessagingTemplate.convertAndSend(pathEnum.getValue(), json);
-    }
-
-    @Override
-    protected void sendModel(String json, WebSocketDestinationsEnum pathEnum, User user) {
         this.simpMessagingTemplate.convertAndSend(pathEnum.getValue(), json);
     }
 }

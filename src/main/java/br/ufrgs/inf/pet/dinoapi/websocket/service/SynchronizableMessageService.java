@@ -37,12 +37,6 @@ public abstract class SynchronizableMessageService<
         }
     }
 
-    public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum, User user) {
-        if (!data.isEmpty()) {
-            this.sendModel(this.generateUpdateModelJson(data), pathEnum, user);
-        }
-    }
-
     public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if(!data.isEmpty()) {
             this.sendModel(this.generateDeleteModelJson(data), pathEnum, auth);
@@ -76,7 +70,5 @@ public abstract class SynchronizableMessageService<
     }
 
     protected abstract void sendModel(String json, WebSocketDestinationsEnum pathEnum, Auth auth);
-
-    protected abstract void sendModel(String json, WebSocketDestinationsEnum pathEnum, User user);
 
 }

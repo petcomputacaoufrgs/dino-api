@@ -32,12 +32,6 @@ public class SynchronizableQueueMessageServiceImpl<
         this.send(json, pathEnum, webSocketTokens);
     }
 
-    @Override
-    protected void sendModel(String json, WebSocketDestinationsEnum pathEnum, User user) {
-        final List<String> webSocketTokens = authService.getAllUserWebSocketTokenByUser(user);
-        this.send(json, pathEnum, webSocketTokens);
-    }
-
     private void send(String json, WebSocketDestinationsEnum pathEnum, List<String> webSocketTokens) {
         webSocketTokens.forEach(webSocketToken -> {
             this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, pathEnum.getValue(), json);

@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
+import br.ufrgs.inf.pet.dinoapi.projection.auth.AuthWebSocketToken;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.AuthRepository;
 import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoCredentials;
 import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoUser;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import javax.xml.bind.DatatypeConverter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -191,16 +193,17 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public List<String> getAllUserWebSocketTokenExceptByAuth(Auth auth) {
-        if (auth != null && auth.getWebSocketToken() != null) {
-            return authRepository.findAllWebSocketTokensExceptOneByUser(auth.getUser(), auth.getWebSocketToken());
+        if (auth != null) {
+            List<AuthWebSocketToken> results;
+            if (auth.getWebSocketToken() != null) {
+                results = authRepository.findAllByUserExceptWithThisWebSocketToken(auth.getUser(), auth.getWebSocketToken());
+            } else {
+                results = authRepository.findAllByUser(auth.getUser());
+            }
+            return results.stream().map(AuthWebSocketToken::getWebSocketToken).collect(Collectors.toList());
         }
 
         return new ArrayList<>();
-    }
-
-    @Override
-    public List<String> getAllUserWebSocketTokenByUser(User user) {
-        return authRepository.findAllWebSocketTokensByUser(user);
     }
 
     @Override
