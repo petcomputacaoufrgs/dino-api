@@ -4,7 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * Model for delete an synchronizable entity
@@ -13,13 +13,13 @@ import java.time.LocalDateTime;
 public class SynchronizableDeleteModel<ID extends Comparable<ID> & Serializable>
         extends SynchronizableGetModel<ID> implements SynchronizableModel<ID> {
     @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
-    protected LocalDateTime lastUpdate;
+    protected ZonedDateTime lastUpdate;
 
-    public LocalDateTime getLastUpdate() {
+    public ZonedDateTime getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(LocalDateTime lastUpdate) {
+    public void setLastUpdate(ZonedDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 }

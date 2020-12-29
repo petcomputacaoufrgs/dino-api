@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.auth.google;
+package br.ufrgs.inf.pet.dinoapi.model.auth.google.auth;
 
 import javax.validation.constraints.NotNull;
 

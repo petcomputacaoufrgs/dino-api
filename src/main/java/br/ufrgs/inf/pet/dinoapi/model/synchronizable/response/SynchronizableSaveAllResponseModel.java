@@ -18,6 +18,8 @@ public class SynchronizableSaveAllResponseModel<
 
     protected String error;
 
+    protected Integer errorCode;
+
     @Override
     public void setSuccess(boolean success) {
         this.success = success;
@@ -36,6 +38,16 @@ public class SynchronizableSaveAllResponseModel<
     @Override
     public boolean isSuccess() {
         return success;
+    }
+
+    @Override
+    public Integer getErrorCode() {
+        return errorCode;
+    }
+
+    @Override
+    public void setErrorCode(Integer errorCode) {
+        this.errorCode = errorCode;
     }
 
     public List<DATA_MODEL> getData() {

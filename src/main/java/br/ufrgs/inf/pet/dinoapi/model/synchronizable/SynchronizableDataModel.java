@@ -1,11 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 /**
  * Model with complete visible data of synchronizable entity
@@ -16,7 +15,7 @@ public abstract class SynchronizableDataModel<ID extends Comparable<ID> & Serial
     private ID id;
 
     @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
-    private LocalDateTime lastUpdate;
+    private ZonedDateTime lastUpdate;
 
 
     public ID getId() {
@@ -27,11 +26,11 @@ public abstract class SynchronizableDataModel<ID extends Comparable<ID> & Serial
         this.id = id;
     }
 
-    public LocalDateTime getLastUpdate() {
+    public ZonedDateTime getLastUpdate() {
         return lastUpdate;
     }
 
-    public void setLastUpdate(LocalDateTime lastUpdate) {
+    public void setLastUpdate(ZonedDateTime lastUpdate) {
         this.lastUpdate = lastUpdate;
     }
 }

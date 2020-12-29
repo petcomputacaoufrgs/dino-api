@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.configuration.security;
+package br.ufrgs.inf.pet.dinoapi.service.contact.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
@@ -65,8 +65,8 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private void setAuthToken(HttpServletRequest httpServletRequest, Auth auth) {
-        final Boolean isAuthValidAndNecessary = SecurityContextHolder.getContext().getAuthentication() == null && auth != null && authService.isValidToken(auth);
-        if(isAuthValidAndNecessary) {
+        final boolean isAuthValid = auth != null && authService.isValidToken(auth);
+        if(isAuthValid) {
             final DinoAuthenticationToken dinoAuthToken = this.dinoUserDetailsService.loadDinoUserByAuth(auth);
             dinoAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
@@ -83,31 +83,27 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private void startServices(HttpServletRequest httpServletRequest) {
-        ServletContext servletContext = null;
-        WebApplicationContext webApplicationContext = null;
+        final ServletContext servletContext =
+                httpServletRequest.getServletContext();
+        final WebApplicationContext webApplicationContext =
+                WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
-        if (servletContext == null) {
-            servletContext = httpServletRequest.getServletContext();
-        }
+        if (webApplicationContext != null) {
+            if(this.userService == null){
+                this.userService = webApplicationContext.getBean(UserServiceImpl.class);
+            }
 
-        if (webApplicationContext == null) {
-            webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-        }
+            if(this.authService == null) {
+                this.authService = webApplicationContext.getBean(AuthServiceImpl.class);
+            }
 
-        if(this.userService == null){
-            this.userService = webApplicationContext.getBean(UserServiceImpl.class);
-        }
+            if(this.googleAuthService == null) {
+                this.googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
+            }
 
-        if(this.authService == null) {
-            this.authService = webApplicationContext.getBean(AuthServiceImpl.class);
-        }
-
-        if(this.googleAuthService == null) {
-            this.googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
-        }
-
-        if(this.dinoUserDetailsService == null){
-            this.dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
+            if(this.dinoUserDetailsService == null){
+                this.dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
+            }
         }
     }
 }

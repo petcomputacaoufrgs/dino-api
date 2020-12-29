@@ -7,6 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDelet
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
@@ -20,9 +21,9 @@ import java.util.Optional;
 public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integer, UserDataModel, UserRepository> {
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, ClockServiceImpl clockService,
                            SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {
-        super(userRepository, authService, synchronizableQueueMessageService);
+        super(userRepository, authService, clockService, synchronizableQueueMessageService);
     }
 
     @Override

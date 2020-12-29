@@ -10,6 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.ListUtils;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
 import org.springframework.data.repository.CrudRepository;
@@ -37,12 +38,14 @@ public abstract class SynchronizableServiceImpl<
     protected final REPOSITORY repository;
     protected final AuthServiceImpl authService;
     protected final SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService;
+    protected final ClockServiceImpl clock;
 
-    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService,
+    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService, ClockServiceImpl clock,
                                      SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService) {
         this.repository = repository;
         this.authService = authService;
         this.synchronizableMessageService = synchronizableMessageService;
+        this.clock = clock;
     }
 
     @Override
@@ -301,7 +304,7 @@ public abstract class SynchronizableServiceImpl<
     protected DATA_MODEL internalConvertEntityToModel(ENTITY entity) {
         final DATA_MODEL model = this.convertEntityToModel(entity);
         model.setId(entity.getId());
-        model.setLastUpdate(entity.getLastUpdate());
+        model.setLastUpdate(clock.toUTCZonedDateTime(entity.getLastUpdate()));
 
         return model;
     }
@@ -313,14 +316,14 @@ public abstract class SynchronizableServiceImpl<
     protected ENTITY internalConvertModelToEntity(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         final ENTITY entity = this.convertModelToEntity(model, auth);
         entity.setId(model.getId());
-        entity.setLastUpdate(model.getLastUpdate());
+        entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
 
         return entity;
     }
 
     protected void internalUpdateEntity(ENTITY entity, DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         this.updateEntity(entity, model, auth);
-        entity.setLastUpdate(model.getLastUpdate());
+        entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
         entity.setId(model.getId());
     }
 
@@ -350,7 +353,7 @@ public abstract class SynchronizableServiceImpl<
 
     protected DATA_MODEL create(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         ENTITY entity = this.internalConvertModelToEntity(model, auth);
-        entity.setLastUpdate(model.getLastUpdate());
+        entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
         entity = repository.save(entity);
 
         return this.internalConvertEntityToModel(entity);
@@ -359,7 +362,7 @@ public abstract class SynchronizableServiceImpl<
     protected DATA_MODEL update(ENTITY entity, DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (this.canChange(entity, model)) {
             this.internalUpdateEntity(entity, model, auth);
-            entity.setLastUpdate(model.getLastUpdate());
+            entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
             entity = repository.save(entity);
         }
         return this.internalConvertEntityToModel(entity);
@@ -409,7 +412,7 @@ public abstract class SynchronizableServiceImpl<
                 if (model.getId() == entityId) {
                     if (this.canChange(entity, model)) {
                         this.internalUpdateEntity(entity, model, auth);
-                        entity.setLastUpdate(model.getLastUpdate());
+                        entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
                         entitiesToSave.add(entity);
                         modelsInSaveList.add(model);
                     }
@@ -434,7 +437,7 @@ public abstract class SynchronizableServiceImpl<
         final List<DATA_MODEL> modelsInSaveList = new ArrayList<>();
         for (DATA_MODEL item : items) {
             final ENTITY entity = this.internalConvertModelToEntity(item, auth);
-            entity.setLastUpdate(item.getLastUpdate());
+            entity.setLastUpdate(item.getLastUpdate().toLocalDateTime());
             entitiesToSave.add(entity);
             modelsInSaveList.add(item);
         }

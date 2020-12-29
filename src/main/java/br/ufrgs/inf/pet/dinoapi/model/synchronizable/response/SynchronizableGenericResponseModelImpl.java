@@ -6,6 +6,7 @@ package br.ufrgs.inf.pet.dinoapi.model.synchronizable.response;
 public class SynchronizableGenericResponseModelImpl implements SynchronizableGenericResponseModel {
     protected boolean success;
     protected String error;
+    protected Integer errorCode;
 
     @Override
     public void setSuccess(boolean success) {
@@ -25,5 +26,15 @@ public class SynchronizableGenericResponseModelImpl implements SynchronizableGen
     @Override
     public boolean isSuccess() {
         return success;
+    }
+
+    @Override
+    public Integer getErrorCode() {
+        return errorCode;
+    }
+
+    @Override
+    public void setErrorCode(Integer errorCode) {
+        this.errorCode = errorCode;
     }
 }

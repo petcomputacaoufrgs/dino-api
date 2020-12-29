@@ -1,15 +1,19 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth;
 
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
 import br.ufrgs.inf.pet.dinoapi.projection.auth.AuthWebSocketToken;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.AuthRepository;
-import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.configuration.security.DinoUser;
+import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoCredentials;
+import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoUser;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Clock;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,29 +24,41 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import javax.xml.bind.DatatypeConverter;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private static final String KEY = "ie!>[1roh]f!7RmdPpzJ?sAQ(55+#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>p[@t/SX]TD}504T)5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
-    private static final String ENCODED_KEY = Base64.getEncoder().encodeToString(KEY.getBytes());
+    private static final String ACCESS_KEY = "ie!>[é1roh]f!7RmdPâpzõJ?sAQ(55+ç#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>pó[@t/ãSX]ÊTD}504T)ç5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
-    private static final String WEB_SOCKET_KEY = "m.|TGrhhXkp+(=Q-{6F{m2KFShSD[[D]WQEL.P[WAS]D@$JHW=qLukasdsdas224334432$@#@#hi/&l{Udnk@!@!@F%4&<0;X3l1gsSd$";
+    private static final String ACCESS_ENCODED_KEY = Base64.getEncoder().encodeToString(ACCESS_KEY.getBytes());
+
+    private static final String WEB_SOCKET_KEY = "m.|TGrãhéhXkp+(=Q-{6F{m2KFShSD[[D]WQEL.P[WAS]Dõ@$JHW=qLukasdsdas22433ç4432$@#@#hi/&l{Udnk@!@!@F%4&<0;X3l1gsSd$";
 
     private static final String WEB_SOCKET_ENCODED_KEY = Base64.getEncoder().encodeToString(WEB_SOCKET_KEY.getBytes());
 
-    private static final long TOKEN_LIFE_TIME_IN_MS = 3600000;
+    private static final String REFRESH_KEY = "J~z}[[Ri=:çm1qg,X9.zéQ+G@D3iãED}~[3=dTâ`_PQe>=BXS)xw4aP1P<m@1v)$B9;siE=7vpsZ)CZG6YX+-1f+.YYruL|}<+%i>hlSh>lRte";
+
+    private static final String REFRESH_TOKEN_ENCODED_KEY = Base64.getEncoder().encodeToString(REFRESH_KEY.getBytes());
+
+    private static final long ALLOWED_CLOCK_SKEW_SECONDS = 300;
+
+    private static final long ACCESS_TOKEN_LIFE_TIME_IN_MIN = 60;
+
+    private static final long WEB_SOCKET_TOKEN_LIFE_TIME_IN_MIN = 5;
 
     private final AuthRepository authRepository;
 
+    private final ClockServiceImpl clockService;
+
     @Autowired
-    public AuthServiceImpl(AuthRepository authRepository) {
+    public AuthServiceImpl(AuthRepository authRepository, ClockServiceImpl clockService) {
         this.authRepository = authRepository;
+        this.clockService = clockService;
     }
 
     @Override
@@ -54,6 +70,7 @@ public class AuthServiceImpl implements AuthService {
         List<String> roles = new ArrayList<>();
 
         this.generateAccessToken(auth, roles);
+        this.generateRefreshToken(auth);
 
         return authRepository.save(auth);
     }
@@ -72,22 +89,31 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
-        Optional<Auth> authSearch = authRepository.findByAccessToken(authRefreshRequestModel.getAccessToken());
+    public ResponseEntity<AuthRefreshResponseModel> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
+        final AuthRefreshResponseModel response = new AuthRefreshResponseModel();
+        final Optional<Auth> authSearch = authRepository.findByRefreshToken(authRefreshRequestModel.getRefreshToken());
 
         if (authSearch.isPresent()) {
             Auth auth = authSearch.get();
 
-            final Date tokenExpiresDate = this.generateAccessToken(auth, new ArrayList<>());
+            final LocalDateTime tokenExpiresDate = this.generateAccessToken(auth, new ArrayList<>());
 
-            authRepository.save(auth);
+            auth = authRepository.save(auth);
 
-            AuthRefreshResponseModel response = new AuthRefreshResponseModel(auth.getAccessToken(), tokenExpiresDate);
+            final AuthRefreshResponseDataModel responseData = new AuthRefreshResponseDataModel();
+            responseData.setAccessToken(auth.getAccessToken());
+            responseData.setExpiresDate(clockService.toUTCZonedDateTime(tokenExpiresDate));
+
+            response.setSuccess(true);
+            response.setData(responseData);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        return new ResponseEntity<>("Invalid refresh token.", HttpStatus.NON_AUTHORITATIVE_INFORMATION);
+        response.setSuccess(false);
+        response.setError(AuthConstants.INVALID_AUTH);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @Override
@@ -186,8 +212,10 @@ public class AuthServiceImpl implements AuthService {
     }
 
     public Claims decodeAccessToken(String accessToken) {
-        return Jwts.parser()
-                .setSigningKey(DatatypeConverter.parseBase64Binary(this.ENCODED_KEY))
+        Clock clock = new ClockServiceImpl();
+        return Jwts.parser().setClock(clock)
+                .setAllowedClockSkewSeconds(ALLOWED_CLOCK_SKEW_SECONDS)
+                .setSigningKey(DatatypeConverter.parseBase64Binary(ACCESS_ENCODED_KEY))
                 .parseClaimsJws(accessToken).getBody();
     }
 
@@ -217,41 +245,52 @@ public class AuthServiceImpl implements AuthService {
 
     public Boolean isValidToken(Auth auth) {
         final Claims claims = decodeAccessToken(auth.getAccessToken());
-        final Long currentDate = new Date().getTime();
+        final ClockServiceImpl clock = new ClockServiceImpl();
 
-        return claims.getExpiration().getTime() >= currentDate;
+        return claims.getExpiration().getTime() >= clock.now().getTime();
     }
 
     private void generateWebSocketToken(Auth auth) {
+        final ClockServiceImpl clock = new ClockServiceImpl();
         final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
         claims.put("roles", new ArrayList<>());
-        final Date now = new Date();
 
         final String webSocketToken = Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(now)
-                .setExpiration(now)
-                .signWith(SignatureAlgorithm.HS256, this.WEB_SOCKET_ENCODED_KEY)
+                .setIssuedAt(clock.now())
+                .setExpiration(clock.nowPlusMinutes(WEB_SOCKET_TOKEN_LIFE_TIME_IN_MIN))
+                .signWith(SignatureAlgorithm.HS256, WEB_SOCKET_ENCODED_KEY)
                 .compact();
 
         auth.setWebSocketToken(webSocketToken);
     }
 
-    private Date generateAccessToken(Auth auth, List<String> roles) {
+    private LocalDateTime generateAccessToken(Auth auth, List<String> roles) {
         final Claims claims = Jwts.claims().setSubject(auth.getUser().getEmail());
         claims.put("roles", roles);
-        final Date now = new Date();
-        final Date expiresDate = new Date(now.getTime() + this.TOKEN_LIFE_TIME_IN_MS);
-
+        final ClockServiceImpl clock = new ClockServiceImpl();
+        final Date expiresDate = clock.nowPlusMinutes(ACCESS_TOKEN_LIFE_TIME_IN_MIN);
         final String accessToken = Jwts.builder()
                 .setClaims(claims)
-                .setIssuedAt(now)
+                .setIssuedAt(clock.now())
                 .setExpiration(expiresDate)
-                .signWith(SignatureAlgorithm.HS256, this.ENCODED_KEY)
+                .signWith(SignatureAlgorithm.HS256, ACCESS_ENCODED_KEY)
                 .compact();
 
         auth.setAccessToken(accessToken);
+        auth.setLastTokenRefresh(LocalDateTime.now());
 
-        return expiresDate;
+        return clock.toLocalDateTime(expiresDate);
+    }
+
+    private void generateRefreshToken(Auth auth) {
+        final ClockServiceImpl clock = new ClockServiceImpl();
+
+        final String refreshToken = Jwts.builder()
+                .setIssuedAt(clock.now())
+                .signWith(SignatureAlgorithm.HS256, REFRESH_TOKEN_ENCODED_KEY)
+                .compact();
+
+        auth.setRefreshToken(refreshToken);
     }
 }

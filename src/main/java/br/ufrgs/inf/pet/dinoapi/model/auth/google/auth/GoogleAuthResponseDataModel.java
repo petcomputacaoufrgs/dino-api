@@ -1,17 +1,16 @@
-package br.ufrgs.inf.pet.dinoapi.model.auth.google;
+package br.ufrgs.inf.pet.dinoapi.model.auth.google.auth;
 
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleScopeDataModel;
+import java.time.ZonedDateTime;
 import java.util.List;
 
-public class GoogleRefreshAuthResponseModel {
+public class GoogleAuthResponseDataModel extends AuthResponseDataModel {
     private String googleAccessToken;
 
-    private Long googleExpiresDate;
+    private ZonedDateTime googleExpiresDate;
 
     private List<GoogleScopeDataModel> scopes;
-
-    private boolean declinedContactsGrant;
-
-    public GoogleRefreshAuthResponseModel() {}
 
     public String getGoogleAccessToken() {
         return googleAccessToken;
@@ -21,11 +20,11 @@ public class GoogleRefreshAuthResponseModel {
         this.googleAccessToken = googleAccessToken;
     }
 
-    public Long getGoogleExpiresDate() {
+    public ZonedDateTime getGoogleExpiresDate() {
         return googleExpiresDate;
     }
 
-    public void setGoogleExpiresDate(Long googleExpiresDate) {
+    public void setGoogleExpiresDate(ZonedDateTime googleExpiresDate) {
         this.googleExpiresDate = googleExpiresDate;
     }
 
@@ -35,13 +34,5 @@ public class GoogleRefreshAuthResponseModel {
 
     public void setScopes(List<GoogleScopeDataModel> scopes) {
         this.scopes = scopes;
-    }
-
-    public boolean isDeclinedContactsGrant() {
-        return declinedContactsGrant;
-    }
-
-    public void setDeclinedContactsGrant(boolean declinedContactsGrant) {
-        this.declinedContactsGrant = declinedContactsGrant;
     }
 }

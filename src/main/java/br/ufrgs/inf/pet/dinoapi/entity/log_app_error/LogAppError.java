@@ -1,21 +1,17 @@
 package br.ufrgs.inf.pet.dinoapi.entity.log_app_error;
 
 import javax.persistence.*;
-import java.util.Date;
-
+import java.time.LocalDateTime;
 import static br.ufrgs.inf.pet.dinoapi.constants.LogAppErrorConstants.*;
-import static javax.persistence.GenerationType.SEQUENCE;
+import static javax.persistence.GenerationType.AUTO;
 
 @Entity
 @Table(name = "log_app_error")
 public class LogAppError {
-    private static final String SEQUENCE_NAME = "log_app_error_seq";
-
     @Id
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
+    @GeneratedValue(strategy = AUTO)
     @Column(name = "id", nullable = false)
-    private Long id;
+    protected Long id;
 
     @Column(name = "title", length = TITLE_MAX)
     private String title;
@@ -27,7 +23,7 @@ public class LogAppError {
     private String error;
 
     @Column(name = "log_date", nullable = false)
-    private Date date;
+    private LocalDateTime date;
 
     @Column(name = "user_agent", nullable = false)
     private String userAgent;
@@ -60,11 +56,11 @@ public class LogAppError {
         this.error = error;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

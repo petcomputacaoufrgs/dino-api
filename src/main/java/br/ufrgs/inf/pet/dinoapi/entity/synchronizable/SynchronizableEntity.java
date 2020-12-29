@@ -1,13 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.entity.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
-
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 import static javax.persistence.GenerationType.AUTO;
 
@@ -48,24 +48,11 @@ public abstract class SynchronizableEntity<ID extends Comparable<ID> & Serializa
     public boolean isOlderOrEqualThan(SynchronizableModel<ID> model) {
         final LocalDateTime thisLastUpdate = this.getLastUpdate();
         if (thisLastUpdate != null) {
-            final LocalDateTime otherLastUpdate = model.getLastUpdate();
-            if (otherLastUpdate != null) {
-                return this.getLastUpdate().isBefore(model.getLastUpdate())
-                        || this.getLastUpdate().isEqual(model.getLastUpdate());
-            }
-
-            return false;
-        }
-
-        return true;
-    }
-
-    public boolean isOlderThan(SynchronizableModel<ID> model) {
-        final LocalDateTime thisLastUpdate = this.getLastUpdate();
-        if (thisLastUpdate != null) {
-            final LocalDateTime otherLastUpdate = model.getLastUpdate();
-            if (otherLastUpdate != null) {
-                return this.getLastUpdate().isBefore(model.getLastUpdate());
+            final ZonedDateTime zonedModelLastUpdate = model.getLastUpdate();
+            if (zonedModelLastUpdate != null) {
+                final LocalDateTime modelLastUpdate = zonedModelLastUpdate.toLocalDateTime();
+                return this.getLastUpdate().isBefore(modelLastUpdate)
+                        || this.getLastUpdate().isEqual(modelLastUpdate);
             }
 
             return false;

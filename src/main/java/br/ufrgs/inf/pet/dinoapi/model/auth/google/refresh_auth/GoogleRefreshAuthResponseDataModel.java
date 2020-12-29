@@ -1,17 +1,17 @@
-package br.ufrgs.inf.pet.dinoapi.model.auth.google;
+package br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseModel;
-
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleScopeDataModel;
+import java.time.ZonedDateTime;
 import java.util.List;
 
-public class GoogleAuthResponseModel extends AuthResponseModel {
+public class GoogleRefreshAuthResponseDataModel {
     private String googleAccessToken;
 
-    private Long googleExpiresDate;
+    private ZonedDateTime googleExpiresDate;
 
     private List<GoogleScopeDataModel> scopes;
 
-    public GoogleAuthResponseModel() {}
+    public GoogleRefreshAuthResponseDataModel() {}
 
     public String getGoogleAccessToken() {
         return googleAccessToken;
@@ -21,11 +21,11 @@ public class GoogleAuthResponseModel extends AuthResponseModel {
         this.googleAccessToken = googleAccessToken;
     }
 
-    public Long getGoogleExpiresDate() {
+    public ZonedDateTime getGoogleExpiresDate() {
         return googleExpiresDate;
     }
 
-    public void setGoogleExpiresDate(Long googleExpiresDate) {
+    public void setGoogleExpiresDate(ZonedDateTime googleExpiresDate) {
         this.googleExpiresDate = googleExpiresDate;
     }
 

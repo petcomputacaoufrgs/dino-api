@@ -2,11 +2,16 @@ package br.ufrgs.inf.pet.dinoapi.model.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 
-public class AuthResponseModel {
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+
+public class AuthResponseDataModel {
 
     private String accessToken;
 
-    private Long expiresDate;
+    private String refreshToken;
+
+    private ZonedDateTime expiresDate;
 
     private UserDataModel user;
 
@@ -18,11 +23,11 @@ public class AuthResponseModel {
         this.accessToken = accessToken;
     }
 
-    public Long getExpiresDate() {
+    public ZonedDateTime getExpiresDate() {
         return expiresDate;
     }
 
-    public void setExpiresDate(Long expiresDate) {
+    public void setExpiresDate(ZonedDateTime expiresDate) {
         this.expiresDate = expiresDate;
     }
 
@@ -32,5 +37,13 @@ public class AuthResponseModel {
 
     public void setUser(UserDataModel user) {
         this.user = user;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

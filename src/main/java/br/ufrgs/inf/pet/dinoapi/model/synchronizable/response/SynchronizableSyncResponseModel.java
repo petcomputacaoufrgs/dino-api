@@ -16,6 +16,8 @@ public class SynchronizableSyncResponseModel<
 
     private String error;
 
+    private Integer errorCode;
+
     @Override
     public void setSuccess(boolean success) {
         this.success = success;
@@ -34,6 +36,16 @@ public class SynchronizableSyncResponseModel<
     @Override
     public boolean isSuccess() {
         return success;
+    }
+
+    @Override
+    public Integer getErrorCode() {
+        return errorCode;
+    }
+
+    @Override
+    public void setErrorCode(Integer errorCode) {
+        this.errorCode = errorCode;
     }
 
     public List<DATA_MODEL> getData() {

@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.configuration.security;
+package br.ufrgs.inf.pet.dinoapi.service.contact.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import org.springframework.security.core.userdetails.UserDetails;

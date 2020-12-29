@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.configuration.security;
+package br.ufrgs.inf.pet.dinoapi.service.contact.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import javax.security.auth.Subject;

@@ -11,6 +11,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityExc
 import br.ufrgs.inf.pet.dinoapi.model.faq.*;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -26,9 +27,9 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
-    public FaqServiceImpl(FaqRepository repository, AuthServiceImpl authService, TreatmentServiceImpl treatmentService,
+    public FaqServiceImpl(FaqRepository repository, AuthServiceImpl authService, TreatmentServiceImpl treatmentService, ClockServiceImpl clockService,
                           SynchronizableTopicMessageServiceImpl<Long, Integer, FaqDataModel> synchronizableTopicMessageService) {
-        super(repository, authService, synchronizableTopicMessageService);
+        super(repository, authService, clockService, synchronizableTopicMessageService);
         this.treatmentService = treatmentService;
     }
 

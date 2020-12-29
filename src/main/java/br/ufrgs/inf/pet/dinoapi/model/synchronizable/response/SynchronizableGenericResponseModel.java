@@ -8,4 +8,8 @@ public interface SynchronizableGenericResponseModel {
     String getError();
 
     boolean isSuccess();
+
+    Integer getErrorCode();
+
+    void setErrorCode(Integer errorCode);
 }

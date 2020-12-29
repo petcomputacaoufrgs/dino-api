@@ -15,7 +15,7 @@ public class GoogleAuthConstants {
 
     public final static String GOOGLE_AUTH_FAIL = "Google auth fail.";
 
-    public final static String REFRESH_TOKEN_NECESSARY = "Refresh token lost. Please, request it again.";
+    public final static String UNKNOWN_EXCEPTION = "Unknown server exception.";
 
     public final static int GOOGLE_ID_MAX = 100;
 

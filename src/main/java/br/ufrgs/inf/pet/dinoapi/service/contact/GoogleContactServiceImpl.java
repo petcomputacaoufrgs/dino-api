@@ -10,6 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityExc
 import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
@@ -25,8 +26,9 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     @Autowired
     public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService, ContactServiceImpl contactService,
-                                    SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleContactModel> synchronizableQueueMessageService) {
-        super(repository, authService, synchronizableQueueMessageService);
+                                    SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleContactModel> synchronizableQueueMessageService,
+                                    ClockServiceImpl clockService) {
+        super(repository, authService, clockService, synchronizableQueueMessageService);
         this.contactService = contactService;
     }
 
