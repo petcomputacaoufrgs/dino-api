@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Table(name = "google_contact")
 public class GoogleContact extends SynchronizableEntity<Long> {
 
-    @Column(name = "resource_name", length = GoogleContactConstants.RESOURCE_NAME_MAX, nullable = false)
+    @Column(name = "resource_name", length = GoogleContactConstants.RESOURCE_NAME_MAX)
     private String resourceName;
 
     @ManyToOne

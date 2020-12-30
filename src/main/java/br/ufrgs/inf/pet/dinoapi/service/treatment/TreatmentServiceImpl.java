@@ -73,4 +73,8 @@ public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, 
     public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
         return WebSocketDestinationsEnum.TREATMENT_DELETE;
     }
+
+    public Optional<Treatment> getEntityById(Long id) {
+            return this.repository.findById(id);
+    }
 }

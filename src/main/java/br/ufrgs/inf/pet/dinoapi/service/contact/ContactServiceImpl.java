@@ -4,7 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactModel;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
@@ -17,17 +17,17 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, Integer, ContactModel, ContactRepository> {
+public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, Integer, ContactDataModel, ContactRepository> {
 
     @Autowired
     public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService, ClockServiceImpl clockService,
-                              SynchronizableQueueMessageServiceImpl<Long, Integer, ContactModel> synchronizableQueueMessageService) {
+                              SynchronizableQueueMessageServiceImpl<Long, Integer, ContactDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService);
     }
 
     @Override
-    public ContactModel convertEntityToModel(Contact entity) {
-        ContactModel model = new ContactModel();
+    public ContactDataModel convertEntityToModel(Contact entity) {
+        ContactDataModel model = new ContactDataModel();
         model.setName(entity.getName());
         model.setDescription(entity.getDescription());
         model.setColor(entity.getColor());
@@ -35,7 +35,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     }
 
     @Override
-    public Contact convertModelToEntity(ContactModel model, Auth auth) throws AuthNullException {
+    public Contact convertModelToEntity(ContactDataModel model, Auth auth) throws AuthNullException {
         if (auth != null) {
             Contact contact = new Contact();
             contact.setName(model.getName());
@@ -49,7 +49,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     }
 
     @Override
-    public void updateEntity(Contact entity, ContactModel model, Auth auth) throws AuthNullException {
+    public void updateEntity(Contact entity, ContactDataModel model, Auth auth) throws AuthNullException {
         if (auth != null) {
             entity.setName(model.getName());
             entity.setDescription(model.getDescription());

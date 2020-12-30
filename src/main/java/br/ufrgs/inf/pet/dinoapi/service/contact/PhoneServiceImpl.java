@@ -7,7 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneModel;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
@@ -20,21 +20,21 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Integer, PhoneModel, PhoneRepository> {
+public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Integer, PhoneDataModel, PhoneRepository> {
 
     private final ContactServiceImpl contactService;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, ContactServiceImpl contactService, AuthServiceImpl authService,
-                            SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneModel> synchronizableQueueMessageService,
+                            SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService) {
         super(repository, authService, clockService, synchronizableQueueMessageService);
         this.contactService = contactService;
     }
 
     @Override
-    public PhoneModel convertEntityToModel(Phone entity) {
-        PhoneModel model = new PhoneModel();
+    public PhoneDataModel convertEntityToModel(Phone entity) {
+        PhoneDataModel model = new PhoneDataModel();
         model.setNumber(entity.getNumber());
         model.setType(entity.getType());
         model.setContactId(entity.getContact().getId());
@@ -42,7 +42,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public Phone convertModelToEntity(PhoneModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public Phone convertModelToEntity(PhoneDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
             final User user = auth.getUser();
             final Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
@@ -63,7 +63,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public void updateEntity(Phone entity, PhoneModel model, Auth auth) {
+    public void updateEntity(Phone entity, PhoneDataModel model, Auth auth) {
         entity.setNumber(model.getNumber());
         entity.setType(model.getType());
     }

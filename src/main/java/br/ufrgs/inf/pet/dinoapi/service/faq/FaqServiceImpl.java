@@ -43,41 +43,33 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     }
 
     @Override
-    public Faq convertModelToEntity(FaqDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        if (auth != null) {
-            final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
+    public Faq convertModelToEntity(FaqDataModel model, Auth auth) throws ConvertModelToEntityException {
+        final Optional<Treatment> treatment = treatmentService.getEntityById(model.getTreatmentId());
 
-            if (treatment.isPresent()) {
-                final Faq entity = new Faq();
-                entity.setTitle(model.getTitle());
-                entity.setTreatment(treatment.get());
+        if (treatment.isPresent()) {
+            final Faq entity = new Faq();
+            entity.setTitle(model.getTitle());
+            entity.setTreatment(treatment.get());
 
-                return entity;
-            }
-
-            throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
+            return entity;
         }
 
-        throw new AuthNullException();
+        throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
     }
 
     @Override
-    public void updateEntity(Faq entity, FaqDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        if (auth != null) {
-            if (!entity.getTreatment().getId().equals(model.getTreatmentId())) {
-                final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
+    public void updateEntity(Faq entity, FaqDataModel model, Auth auth) throws ConvertModelToEntityException {
+        if (!entity.getTreatment().getId().equals(model.getTreatmentId())) {
+            final Optional<Treatment> treatment = treatmentService.getEntityById(model.getTreatmentId());
 
-                if (treatment.isPresent()) {
-                    entity.setTreatment(treatment.get());
-                } else {
-                    throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
-                }
+            if (treatment.isPresent()) {
+                entity.setTreatment(treatment.get());
+            } else {
+                throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
             }
-
-            entity.setTitle(model.getTitle());
-        } else {
-            throw new AuthNullException();
         }
+
+        entity.setTitle(model.getTitle());
     }
 
     @Override
@@ -108,5 +100,9 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     @Override
     public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
         return WebSocketDestinationsEnum.FAQ_DELETE;
+    }
+
+    public Optional<Faq> getEntityById(Long id) {
+        return this.repository.findById(id);
     }
 }

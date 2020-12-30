@@ -8,7 +8,7 @@ import java.util.List;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.*;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX_MESSAGE;
 
-public class EssentialContactSaveModel {
+public class EssentialContactSaveDataModel {
 /*
     private List<Long> faqIds;
 

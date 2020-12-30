@@ -5,7 +5,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 

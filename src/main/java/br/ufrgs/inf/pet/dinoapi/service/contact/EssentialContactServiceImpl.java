@@ -1,26 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContactMapping;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactModel;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactMappingRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class EssentialContactServiceImpl {

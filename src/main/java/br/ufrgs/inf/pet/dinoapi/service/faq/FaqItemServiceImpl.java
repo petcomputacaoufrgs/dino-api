@@ -42,9 +42,8 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        if (auth != null) {
-            final Optional<Faq> faq = faqService.getEntityByIdAndUserAuth(model.getFaqId(), auth);
+    public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
+            final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
 
             if (faq.isPresent()) {
                 final FaqItem entity = new FaqItem();
@@ -56,16 +55,12 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
             } else {
                 throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
             }
-        }
-
-        throw new AuthNullException();
     }
 
     @Override
-    public void updateEntity(FaqItem entity, FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        if (auth != null) {
+    public void updateEntity(FaqItem entity, FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
             if (!entity.getFaq().getId().equals(model.getFaqId())) {
-                final Optional<Faq> faq = faqService.getEntityByIdAndUserAuth(model.getFaqId(), auth);
+                final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
 
                 if (faq.isPresent()) {
                     entity.setFaq(faq.get());
@@ -76,9 +71,6 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
 
             entity.setAnswer(model.getAnswer());
             entity.setQuestion(model.getQuestion());
-        } else {
-            throw new AuthNullException();
-        }
     }
 
     @Override

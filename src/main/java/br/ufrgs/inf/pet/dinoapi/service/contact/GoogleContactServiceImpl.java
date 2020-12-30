@@ -7,7 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactModel;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
@@ -20,27 +20,28 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, Integer, GoogleContactModel, GoogleContactRepository> {
+public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, Integer, GoogleContactDataModel, GoogleContactRepository> {
 
     private final ContactServiceImpl contactService;
 
     @Autowired
     public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService, ContactServiceImpl contactService,
-                                    SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleContactModel> synchronizableQueueMessageService,
+                                    SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleContactDataModel> synchronizableQueueMessageService,
                                     ClockServiceImpl clockService) {
         super(repository, authService, clockService, synchronizableQueueMessageService);
         this.contactService = contactService;
     }
 
     @Override
-    public GoogleContactModel convertEntityToModel(GoogleContact entity) {
-        final GoogleContactModel model = new GoogleContactModel();
+    public GoogleContactDataModel convertEntityToModel(GoogleContact entity) {
+        final GoogleContactDataModel model = new GoogleContactDataModel();
         model.setResourceName(entity.getResourceName());
+        model.setContactId(entity.getContact().getId());
         return model;
     }
 
     @Override
-    public GoogleContact convertModelToEntity(GoogleContactModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public GoogleContact convertModelToEntity(GoogleContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
             final User user = auth.getUser();
             final Optional<Contact> googleContactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
@@ -60,7 +61,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public void updateEntity(GoogleContact entity, GoogleContactModel model, Auth auth) throws ConvertModelToEntityException {
+    public void updateEntity(GoogleContact entity, GoogleContactDataModel model, Auth auth) throws ConvertModelToEntityException {
         entity.setResourceName(model.getResourceName());
     }
 

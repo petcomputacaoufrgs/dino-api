@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.model.contacts;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 
-public class EssentialContactModel {
+public class EssentialContactDataModel {
     /*
     private Long id;
     private Long faqId;
