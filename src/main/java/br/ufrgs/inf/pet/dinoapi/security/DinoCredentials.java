@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.contact.security;
+package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 

@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.interceptor;
 
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoAuthenticationToken;
+import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.DefaultHandshakeHandler;

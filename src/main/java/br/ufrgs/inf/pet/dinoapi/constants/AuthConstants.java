@@ -10,4 +10,8 @@ public final class AuthConstants {
     public final static int NAME_MAX = 100;
 
     public final static String INVALID_AUTH = "Authentication error";
+
+    public final static String INTERNAL_ERROR= "Internal server error";
+
+    public final static String UNKNOWN_ERROR= "Unknown server error";
 }

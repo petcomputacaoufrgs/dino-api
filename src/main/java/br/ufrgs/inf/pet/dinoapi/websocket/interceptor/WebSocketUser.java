@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.interceptor;
 
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoAuthenticationToken;
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoGrantedAuthority;
+import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
+import br.ufrgs.inf.pet.dinoapi.security.DinoGrantedAuthority;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -6,7 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleGrantRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
 import org.springframework.http.ResponseEntity;
 
 public interface AuthController {
@@ -36,9 +36,9 @@ public interface AuthController {
     /**
      * Request websocket authentication
      *
-     * @return Object {@link WebSocketAuthResponse} with authentication
+     * @return Object {@link WebSocketAuthResponseModel} with authentication
      */
-    ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest();
+    ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest();
 
     /**
      * Request access token update

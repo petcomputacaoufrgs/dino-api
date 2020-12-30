@@ -6,7 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleGrantRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +47,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @GetMapping("/auth/web_socket/")
-    public ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest() {
+    public ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest() {
         return authService.webSocketAuthRequest();
     }
 

@@ -1,12 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth.web_socket;
-import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 
-public class WebSocketAuthResponse {
+public class WebSocketAuthDataModel {
     private String webSocketToken;
-
-    public WebSocketAuthResponse(Auth auth) {
-        this.webSocketToken = auth.getWebSocketToken();
-    }
 
     public String getWebSocketToken() {
         return webSocketToken;

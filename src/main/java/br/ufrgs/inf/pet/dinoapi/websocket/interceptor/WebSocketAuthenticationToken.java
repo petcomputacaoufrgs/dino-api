@@ -1,14 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.interceptor;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.context.SpringContext;
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoAuthenticationToken;
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoCredentials;
+import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
+import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class WebSocketAuthenticationToken extends AbstractAuthenticationToken {
-    private DinoCredentials credentials;
-    private WebSocketUser principal;
+    private final DinoCredentials credentials;
+    private final WebSocketUser principal;
 
     public WebSocketAuthenticationToken(DinoAuthenticationToken dinoAuthenticationToken) {
         super(dinoAuthenticationToken.getAuthorities());

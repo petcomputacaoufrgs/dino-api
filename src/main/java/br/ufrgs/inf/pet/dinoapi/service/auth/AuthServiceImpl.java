@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth;
 
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthDataModel;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
@@ -7,11 +8,11 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.projection.auth.AuthWebSocketToken;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.AuthRepository;
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoUser;
+import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
+import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Clock;
 import io.jsonwebtoken.Jwts;
@@ -32,18 +33,17 @@ import java.util.stream.Collectors;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    private static final String ACCESS_TOKEN_KEY = "ie!>[é1roh]f!7RmdPâpzõJ?sAQ(55+ç#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>pó[@t/ãSX]ÊTD}504T)ç5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
-    private static final String ACCESS_KEY = "ie!>[é1roh]f!7RmdPâpzõJ?sAQ(55+ç#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>pó[@t/ãSX]ÊTD}504T)ç5|3:iAg2jE/I[yUKN5}N[_iyxç";
+    private static final String ACCESS_TOKEN_ENCODED_KEY = Base64.getEncoder().encodeToString(ACCESS_TOKEN_KEY.getBytes());
 
-    private static final String ACCESS_ENCODED_KEY = Base64.getEncoder().encodeToString(ACCESS_KEY.getBytes());
+    private static final String WEB_SOCKET_TOKEN_KEY = "m.|TGrãhéhXkp+(=Q-{6F{m2KFShSD[[D]WQEL.P[WAS]Dõ@$JHW=qLukasdsdas22433ç4432$@#@#hi/&l{Udnk@!@!@F%4&<0;X3l1gsSd$";
 
-    private static final String WEB_SOCKET_KEY = "m.|TGrãhéhXkp+(=Q-{6F{m2KFShSD[[D]WQEL.P[WAS]Dõ@$JHW=qLukasdsdas22433ç4432$@#@#hi/&l{Udnk@!@!@F%4&<0;X3l1gsSd$";
+    private static final String WEB_SOCKET_TOKEN_ENCODED_KEY = Base64.getEncoder().encodeToString(WEB_SOCKET_TOKEN_KEY.getBytes());
 
-    private static final String WEB_SOCKET_ENCODED_KEY = Base64.getEncoder().encodeToString(WEB_SOCKET_KEY.getBytes());
+    private static final String REFRESH_TOKEN_KEY = "J~z}[[Ri=:çm1qg,X9.zéQ+G@D3iãED}~[3=dTâ`_PQe>=BXS)xw4aP1P<m@1v)$B9;siE=7vpsZ)CZG6YX+-1f+.YYruL|}<+%i>hlSh>lRte";
 
-    private static final String REFRESH_KEY = "J~z}[[Ri=:çm1qg,X9.zéQ+G@D3iãED}~[3=dTâ`_PQe>=BXS)xw4aP1P<m@1v)$B9;siE=7vpsZ)CZG6YX+-1f+.YYruL|}<+%i>hlSh>lRte";
-
-    private static final String REFRESH_TOKEN_ENCODED_KEY = Base64.getEncoder().encodeToString(REFRESH_KEY.getBytes());
+    private static final String REFRESH_TOKEN_ENCODED_KEY = Base64.getEncoder().encodeToString(REFRESH_TOKEN_KEY.getBytes());
 
     private static final long ALLOWED_CLOCK_SKEW_SECONDS = 300;
 
@@ -76,42 +76,61 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest() {
-        final Auth auth = this.getCurrentAuth();
-        auth.setWebSocketConnected(false);
-        this.generateWebSocketToken(auth);
+    public ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest() {
+        final WebSocketAuthResponseModel response = new WebSocketAuthResponseModel();
 
-        authRepository.save(auth);
+        try {
+            final Auth auth = this.getCurrentAuth();
+            auth.setWebSocketConnected(false);
+            this.generateWebSocketToken(auth);
 
-        final WebSocketAuthResponse model = new WebSocketAuthResponse(auth);
+            authRepository.save(auth);
 
-        return new ResponseEntity<>(model, HttpStatus.OK);
+            final WebSocketAuthDataModel model = new WebSocketAuthDataModel();
+            model.setWebSocketToken(auth.getWebSocketToken());
+            response.setData(model);
+            response.setSuccess(true);
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setError(AuthConstants.UNKNOWN_ERROR);
+        }
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+
     }
 
     @Override
     public ResponseEntity<AuthRefreshResponseModel> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel) {
         final AuthRefreshResponseModel response = new AuthRefreshResponseModel();
-        final Optional<Auth> authSearch = authRepository.findByRefreshToken(authRefreshRequestModel.getRefreshToken());
 
-        if (authSearch.isPresent()) {
-            Auth auth = authSearch.get();
+        try {
+            final Optional<Auth> authSearch = authRepository.findByRefreshToken(authRefreshRequestModel.getRefreshToken());
 
-            final LocalDateTime tokenExpiresDate = this.generateAccessToken(auth, new ArrayList<>());
+            if (authSearch.isPresent()) {
+                Auth auth = authSearch.get();
 
-            auth = authRepository.save(auth);
+                final LocalDateTime tokenExpiresDate = this.generateAccessToken(auth, new ArrayList<>());
 
-            final AuthRefreshResponseDataModel responseData = new AuthRefreshResponseDataModel();
-            responseData.setAccessToken(auth.getAccessToken());
-            responseData.setExpiresDate(clockService.toUTCZonedDateTime(tokenExpiresDate));
+                auth = authRepository.save(auth);
 
-            response.setSuccess(true);
-            response.setData(responseData);
+                final AuthRefreshResponseDataModel responseData = new AuthRefreshResponseDataModel();
+                responseData.setAccessToken(auth.getAccessToken());
+                responseData.setExpiresDate(clockService.toUTCZonedDateTime(tokenExpiresDate));
 
-            return new ResponseEntity<>(response, HttpStatus.OK);
+                response.setSuccess(true);
+                response.setData(responseData);
+
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            }
+
+            response.setSuccess(false);
+            response.setError(AuthConstants.INVALID_AUTH);
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setError(AuthConstants.UNKNOWN_ERROR);
         }
-
-        response.setSuccess(false);
-        response.setError(AuthConstants.INVALID_AUTH);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -143,7 +162,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public Boolean canConnectToWebSocket(Auth auth) {
+    public boolean canConnectToWebSocket(Auth auth) {
         return !auth.getWebSocketConnected();
     }
 
@@ -156,17 +175,6 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return null;
-    }
-
-    @Override
-    public User getCurrentUser() {
-        final DinoUser dinoUser = this.getPrincipal();
-
-        if (dinoUser == null) {
-            return null;
-        }
-
-        return dinoUser.getUser();
     }
 
     @Override
@@ -211,12 +219,16 @@ public class AuthServiceImpl implements AuthService {
         return (DinoCredentials) auth.getCredentials();
     }
 
-    public Claims decodeAccessToken(String accessToken) {
-        Clock clock = new ClockServiceImpl();
-        return Jwts.parser().setClock(clock)
-                .setAllowedClockSkewSeconds(ALLOWED_CLOCK_SKEW_SECONDS)
-                .setSigningKey(DatatypeConverter.parseBase64Binary(ACCESS_ENCODED_KEY))
-                .parseClaimsJws(accessToken).getBody();
+    public Claims decodeAccessToken(String token) {
+        return this.decodeJWT(token, ACCESS_TOKEN_ENCODED_KEY);
+    }
+
+    public Claims decodeRefreshToken(String token) {
+        return this.decodeJWT(token, REFRESH_TOKEN_ENCODED_KEY);
+    }
+
+    public Claims decodeWebSocketToken(String token) {
+        return this.decodeJWT(token, WEB_SOCKET_TOKEN_ENCODED_KEY);
     }
 
     @Override
@@ -243,8 +255,22 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-    public Boolean isValidToken(Auth auth) {
-        final Claims claims = decodeAccessToken(auth.getAccessToken());
+    public boolean isValidAccessToken(String token) {
+        final Claims claims = this.decodeAccessToken(token);
+        final ClockServiceImpl clock = new ClockServiceImpl();
+
+        return claims.getExpiration().getTime() >= clock.now().getTime();
+    }
+
+    public boolean isValidRefreshToken(String token) {
+        final Claims claims = this.decodeRefreshToken(token);
+        final ClockServiceImpl clock = new ClockServiceImpl();
+
+        return claims.getExpiration().getTime() >= clock.now().getTime();
+    }
+
+    public boolean isValidWebSocketToken(String token) {
+        final Claims claims = this.decodeWebSocketToken(token);
         final ClockServiceImpl clock = new ClockServiceImpl();
 
         return claims.getExpiration().getTime() >= clock.now().getTime();
@@ -259,7 +285,7 @@ public class AuthServiceImpl implements AuthService {
                 .setClaims(claims)
                 .setIssuedAt(clock.now())
                 .setExpiration(clock.nowPlusMinutes(WEB_SOCKET_TOKEN_LIFE_TIME_IN_MIN))
-                .signWith(SignatureAlgorithm.HS256, WEB_SOCKET_ENCODED_KEY)
+                .signWith(SignatureAlgorithm.HS256, WEB_SOCKET_TOKEN_ENCODED_KEY)
                 .compact();
 
         auth.setWebSocketToken(webSocketToken);
@@ -274,7 +300,7 @@ public class AuthServiceImpl implements AuthService {
                 .setClaims(claims)
                 .setIssuedAt(clock.now())
                 .setExpiration(expiresDate)
-                .signWith(SignatureAlgorithm.HS256, ACCESS_ENCODED_KEY)
+                .signWith(SignatureAlgorithm.HS256, ACCESS_TOKEN_ENCODED_KEY)
                 .compact();
 
         auth.setAccessToken(accessToken);
@@ -292,5 +318,13 @@ public class AuthServiceImpl implements AuthService {
                 .compact();
 
         auth.setRefreshToken(refreshToken);
+    }
+
+    private Claims decodeJWT(String jwt, String key) {
+        Clock clock = new ClockServiceImpl();
+        return Jwts.parser().setClock(clock)
+                .setAllowedClockSkewSeconds(ALLOWED_CLOCK_SKEW_SECONDS)
+                .setSigningKey(DatatypeConverter.parseBase64Binary(key))
+                .parseClaimsJws(jwt).getBody();
     }
 }

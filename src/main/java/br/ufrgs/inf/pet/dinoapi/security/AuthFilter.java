@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.contact.security;
+package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
@@ -48,15 +48,17 @@ public class AuthFilter extends OncePerRequestFilter {
         if (token != null) {
             final Auth auth = authService.findByAccessToken(token);
 
-            this.setAuthToken(httpServletRequest, auth);
+            if (auth != null) {
+                this.setAuth(httpServletRequest, auth);
+            }
         } else {
             final String wsToken = this.getWSToken(httpServletRequest);
 
             if (wsToken != null) {
                 final Auth auth = authService.findByWebSocketToken(wsToken);
 
-                if (authService.canConnectToWebSocket(auth)) {
-                    this.setAuthToken(httpServletRequest, auth);
+                if (auth != null && authService.canConnectToWebSocket(auth)) {
+                    this.setAuth(httpServletRequest, auth);
                 }
             }
         }
@@ -64,14 +66,11 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private void setAuthToken(HttpServletRequest httpServletRequest, Auth auth) {
-        final boolean isAuthValid = auth != null && authService.isValidToken(auth);
-        if(isAuthValid) {
-            final DinoAuthenticationToken dinoAuthToken = this.dinoUserDetailsService.loadDinoUserByAuth(auth);
-            dinoAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+    private void setAuth(HttpServletRequest httpServletRequest, Auth auth) {
+        final DinoAuthenticationToken dinoAuthToken = this.dinoUserDetailsService.loadDinoUserByAuth(auth);
+        dinoAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-            SecurityContextHolder.getContext().setAuthentication(dinoAuthToken);
-        }
+        SecurityContextHolder.getContext().setAuthentication(dinoAuthToken);
     }
 
     private String getAuthToken(HttpServletRequest httpServletRequest) {

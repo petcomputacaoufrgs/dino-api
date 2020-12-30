@@ -3,9 +3,10 @@ package br.ufrgs.inf.pet.dinoapi.service.auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.service.contact.security.DinoUser;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
+import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.ResponseEntity;
 
@@ -13,9 +14,9 @@ import java.util.List;
 
 public interface AuthService {
 
-    Auth generateAuth(User user);
+    Auth generateAuth(User user) throws JsonProcessingException;
 
-    ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest();
+    ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest();
 
     ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel);
 
@@ -23,17 +24,19 @@ public interface AuthService {
 
     Auth findByWebSocketToken(String webSocketToken);
 
-    Boolean canConnectToWebSocket(Auth auth);
+    boolean canConnectToWebSocket(Auth auth);
 
     Auth getCurrentAuth();
-
-    User getCurrentUser();
 
     DinoUser getPrincipal();
 
     DinoCredentials getCredentials();
 
-    Boolean isValidToken(Auth auth);
+    boolean isValidAccessToken(String token);
+
+    boolean isValidRefreshToken(String token);
+
+    boolean isValidWebSocketToken(String token);
 
     Claims decodeAccessToken(String accessToken);
 
