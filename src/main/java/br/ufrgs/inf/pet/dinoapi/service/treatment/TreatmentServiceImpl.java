@@ -7,6 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
@@ -19,9 +20,10 @@ import java.util.Optional;
 public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, Long, Integer, TreatmentDataModel, TreatmentRepository>  {
 
     @Autowired
-    public TreatmentServiceImpl(TreatmentRepository repository, AuthServiceImpl authService, ClockServiceImpl clockService,
+    public TreatmentServiceImpl(TreatmentRepository repository, AuthServiceImpl authService,
+                                ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                 SynchronizableTopicMessageServiceImpl<Long, Integer, TreatmentDataModel> synchronizableTopicMessageService) {
-        super(repository, authService, clockService, synchronizableTopicMessageService);
+        super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
     }
 
     @Override

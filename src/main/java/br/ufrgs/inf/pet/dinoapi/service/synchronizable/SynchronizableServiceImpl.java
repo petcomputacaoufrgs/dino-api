@@ -11,6 +11,8 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.utils.ListUtils;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
 import org.springframework.data.repository.CrudRepository;
@@ -33,7 +35,7 @@ public abstract class SynchronizableServiceImpl<
         ID extends Comparable<ID> & Serializable,
         LOCAL_ID,
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>,
-        REPOSITORY extends CrudRepository<ENTITY, ID>> implements SynchronizableService<ENTITY, ID, LOCAL_ID, DATA_MODEL> {
+        REPOSITORY extends CrudRepository<ENTITY, ID>> extends LogUtilsBase implements SynchronizableService<ENTITY, ID, LOCAL_ID, DATA_MODEL> {
 
     protected final REPOSITORY repository;
     protected final AuthServiceImpl authService;
@@ -41,7 +43,9 @@ public abstract class SynchronizableServiceImpl<
     protected final ClockServiceImpl clock;
 
     public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService, ClockServiceImpl clock,
-                                     SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService) {
+                                     SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService,
+                                     LogAPIErrorServiceImpl logAPIErrorService) {
+        super(logAPIErrorService);
         this.repository = repository;
         this.authService = authService;
         this.synchronizableMessageService = synchronizableMessageService;
@@ -495,8 +499,7 @@ public abstract class SynchronizableServiceImpl<
 
     protected <T extends SynchronizableGenericResponseModel> ResponseEntity<T>
     createUnknownExceptionResponse(Exception e, T response) {
-        //TODO LOG NA API
-        e.printStackTrace();
+        this.logAPIError(e.getMessage());
         response.setSuccess(false);
         response.setError(SynchronizableConstants.UNKNOWN_ERROR);
         return this.createResponse(response, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -12,6 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -29,8 +30,8 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     @Autowired
     public UserSettingsServiceImpl(UserSettingsRepository repository, AuthServiceImpl authService, TreatmentServiceImpl treatmentService,
                                    SynchronizableQueueMessageServiceImpl<Long, Integer, UserSettingsDataModel> synchronizableQueueMessageService,
-                                   ClockServiceImpl clockService) {
-        super(repository, authService, clockService, synchronizableQueueMessageService);
+                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+        super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;
     }
 

@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.log_app_error;
+package br.ufrgs.inf.pet.dinoapi.service.log_error;
 
 import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErroListRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErrorRequestModel;

@@ -1,8 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google;
 
-import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-
 import java.util.List;
 
 public interface GoogleAPICommunication {

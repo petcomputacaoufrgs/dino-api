@@ -10,6 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.model.faq.FaqItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
@@ -24,9 +25,10 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     private final FaqServiceImpl faqService;
 
     @Autowired
-    public FaqItemServiceImpl(FaqItemRepository repository, AuthServiceImpl authService,  FaqServiceImpl faqService, ClockServiceImpl clockService,
+    public FaqItemServiceImpl(FaqItemRepository repository, AuthServiceImpl authService,  FaqServiceImpl faqService,
+                              ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                               SynchronizableTopicMessageServiceImpl<Long, Integer, FaqItemDataModel> synchronizableTopicMessageService) {
-        super(repository, authService, clockService, synchronizableTopicMessageService);
+        super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.faqService = faqService;
     }
 

@@ -6,6 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.glossary.GlossaryItemRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
@@ -17,9 +18,10 @@ import java.util.Optional;
 @Service
 public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, Integer, GlossaryItemDataModel, GlossaryItemRepository> {
     @Autowired
-    public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, AuthServiceImpl authService, ClockServiceImpl clockService,
+    public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, AuthServiceImpl authService,
+                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                SynchronizableTopicMessageServiceImpl<Long, Integer, GlossaryItemDataModel> synchronizableTopicMessageService) {
-        super(glossaryItemRepository, authService, clockService, synchronizableTopicMessageService);
+        super(glossaryItemRepository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
     }
 
     @Override

@@ -1,16 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.service.note;
 
-import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.note.NoteColumnDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteColumnRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
@@ -26,8 +25,8 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     @Autowired
     public NoteColumnServiceImpl(NoteColumnRepository noteColumnRepository, AuthServiceImpl authService, NoteRepository noteRepository,
                                  SynchronizableQueueMessageServiceImpl<Long, Integer, NoteColumnDataModel> synchronizableQueueMessageService,
-                                 ClockServiceImpl clockService) {
-        super(noteColumnRepository, authService, clockService, synchronizableQueueMessageService);
+                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+        super(noteColumnRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.noteRepository = noteRepository;
     }
 

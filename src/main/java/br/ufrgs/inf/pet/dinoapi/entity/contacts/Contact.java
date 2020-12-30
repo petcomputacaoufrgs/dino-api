@@ -11,7 +11,6 @@ import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 @Entity
 @Table(name = "contact")
 public class Contact extends SynchronizableEntity<Long> {
-
         @Column(name = "name", length = NAME_MAX, nullable = false)
         private String name;
 
@@ -23,6 +22,9 @@ public class Contact extends SynchronizableEntity<Long> {
 
         @Column(name = "color")
         private Byte color;
+
+        @Column(name = "essential")
+        private boolean essential;
 
         @ManyToOne
         @JoinColumn(name = "user_id")

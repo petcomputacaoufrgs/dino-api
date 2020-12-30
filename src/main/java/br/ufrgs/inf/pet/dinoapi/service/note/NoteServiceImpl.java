@@ -10,6 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.model.note.NoteDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
@@ -26,8 +27,8 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     @Autowired
     public NoteServiceImpl(NoteRepository noteRepository, AuthServiceImpl authService, NoteColumnServiceImpl noteColumnService,
                            SynchronizableQueueMessageServiceImpl<Long, Integer, NoteDataModel> synchronizableQueueMessageService,
-                           ClockServiceImpl clockService) {
-        super(noteRepository, authService, clockService, synchronizableQueueMessageService);
+                           ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+        super(noteRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.noteColumnService = noteColumnService;
     }
 

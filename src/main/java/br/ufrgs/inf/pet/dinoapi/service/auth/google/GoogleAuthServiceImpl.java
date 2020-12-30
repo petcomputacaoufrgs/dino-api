@@ -22,6 +22,8 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGene
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import io.jsonwebtoken.Claims;
@@ -35,7 +37,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class GoogleAuthServiceImpl implements GoogleAuthService {
+public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthService {
 
     private final UserServiceImpl userService;
 
@@ -53,7 +55,8 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService,
                                  GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
                                  GoogleAPICommunicationImpl googleAPICommunicationImpl,
-                                 ClockServiceImpl clockService) {
+                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+        super(logAPIErrorService);
         this.userService = userService;
         this.authService = authService;
         this.googleAuthRepository = googleAuthRepository;
@@ -414,7 +417,7 @@ public class GoogleAuthServiceImpl implements GoogleAuthService {
     }
 
     private void setExceptionError(SynchronizableGenericResponseModelImpl response) {
-        //TODO Log API Error
+        this.logAPIError(response.getError());
         response.setSuccess(false);
         response.setErrorCode(GoogleAuthErrorCode.EXCEPTION.getValue());
     }
