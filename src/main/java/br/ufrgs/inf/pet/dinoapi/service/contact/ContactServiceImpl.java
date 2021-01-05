@@ -94,13 +94,8 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
-        return WebSocketDestinationsEnum.CONTACT_UPDATE;
-    }
-
-    @Override
-    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
-        return WebSocketDestinationsEnum.CONTACT_DELETE;
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.CONTACT;
     }
 
     public Optional<Contact> findContactByIdAndUser(Long id, User user) {

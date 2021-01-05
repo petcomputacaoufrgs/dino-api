@@ -4,7 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
@@ -96,12 +95,7 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
-        return WebSocketDestinationsEnum.FAQ_ITEM_UPDATE;
-    }
-
-    @Override
-    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
-        return WebSocketDestinationsEnum.FAQ_ITEM_DELETE;
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.FAQ_ITEM;
     }
 }

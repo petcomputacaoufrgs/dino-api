@@ -87,16 +87,10 @@ public interface SynchronizableService<
     List<ENTITY> getEntitiesByUserAuthExceptIds(Auth auth, List<ID> ids) throws AuthNullException;
 
     /**
-     * Get WebSocket destination for update entity
-     * @return WebSocketDestinationEnum wuth update
+     * Get WebSocket base destination
+     * @return WebSocketDestinationEnum
      */
-    WebSocketDestinationsEnum getUpdateWebSocketDestination();
-
-    /**
-     * Get WebSocket destination for delete entity
-     * @return WebSocketDestinationEnum wuth update
-     */
-    WebSocketDestinationsEnum getDeleteWebSocketDestination();
+    WebSocketDestinationsEnum getWebSocketDestination();
 
     /**
      * Implements get method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}

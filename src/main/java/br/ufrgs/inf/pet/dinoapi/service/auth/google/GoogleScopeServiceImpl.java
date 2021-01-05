@@ -101,13 +101,8 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
-        return WebSocketDestinationsEnum.GOOGLE_SCOPE_UPDATE;
-    }
-
-    @Override
-    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
-        return WebSocketDestinationsEnum.GOOGLE_SCOPE_DELETE;
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.GOOGLE_SCOPE;
     }
 
     public void deleteAllScopes(List<GoogleScope> scopes, Auth auth) {

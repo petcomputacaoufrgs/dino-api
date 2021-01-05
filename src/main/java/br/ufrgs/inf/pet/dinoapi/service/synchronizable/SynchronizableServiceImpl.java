@@ -473,7 +473,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected void sendUpdateMessage(List<DATA_MODEL> data, Auth auth) {
-        synchronizableMessageService.sendUpdateMessage(data, this.getUpdateWebSocketDestination(), auth);
+        synchronizableMessageService.sendUpdateMessage(data, this.getWebSocketDestination(), auth);
     }
 
     protected void sendDeleteMessage(ID id, Auth auth) {
@@ -483,7 +483,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected void sendDeleteMessage(List<ID> data, Auth auth) {
-        synchronizableMessageService.sendDeleteMessage(data, this.getDeleteWebSocketDestination(), auth);
+        synchronizableMessageService.sendDeleteMessage(data, this.getWebSocketDestination(), auth);
     }
 
     protected <T> ResponseEntity<T> createResponse(T response, HttpStatus status) {

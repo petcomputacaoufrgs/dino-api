@@ -93,13 +93,8 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
-        return WebSocketDestinationsEnum.NOTE_COLUMN_UPDATE;
-    }
-
-    @Override
-    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
-        return WebSocketDestinationsEnum.NOTE_COLUMN_DELETE;
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.NOTE_COLUMN;
     }
 
     @Override

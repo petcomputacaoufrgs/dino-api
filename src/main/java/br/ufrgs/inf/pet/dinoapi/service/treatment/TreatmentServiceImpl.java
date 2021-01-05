@@ -67,13 +67,8 @@ public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, 
     }
 
     @Override
-    public WebSocketDestinationsEnum getUpdateWebSocketDestination() {
-        return WebSocketDestinationsEnum.TREATMENT_UPDATE;
-    }
-
-    @Override
-    public WebSocketDestinationsEnum getDeleteWebSocketDestination() {
-        return WebSocketDestinationsEnum.TREATMENT_DELETE;
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.TREATMENT;
     }
 
     public Optional<Treatment> getEntityById(Long id) {

@@ -18,6 +18,9 @@ public abstract class SynchronizableMessageService<
         LOCAL_ID,
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>> {
 
+    protected static final String webSocketUpdateURL = "/update/";
+    protected static final String webSocketDeleteURL = "/delete/";
+
     protected final SimpMessagingTemplate simpMessagingTemplate;
 
     protected final AuthServiceImpl authService;
@@ -33,13 +36,13 @@ public abstract class SynchronizableMessageService<
 
     public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if (!data.isEmpty()) {
-            this.sendModel(this.generateUpdateModelJson(data), pathEnum, auth);
+            this.sendModel(this.generateUpdateModelJson(data), pathEnum.getValue() + webSocketUpdateURL, auth);
         }
     }
 
     public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if(!data.isEmpty()) {
-            this.sendModel(this.generateDeleteModelJson(data), pathEnum, auth);
+            this.sendModel(this.generateDeleteModelJson(data), pathEnum.getValue() + webSocketDeleteURL, auth);
         }
     }
 
@@ -69,6 +72,6 @@ public abstract class SynchronizableMessageService<
         return gson.toJson(deleteModel);
     }
 
-    protected abstract void sendModel(String json, WebSocketDestinationsEnum pathEnum, Auth auth);
+    protected abstract void sendModel(String json, String url, Auth auth);
 
 }

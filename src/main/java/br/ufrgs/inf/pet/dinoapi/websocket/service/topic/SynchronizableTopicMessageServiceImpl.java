@@ -24,7 +24,11 @@ public class SynchronizableTopicMessageServiceImpl<
     }
 
     @Override
-    protected void sendModel(String json, WebSocketDestinationsEnum pathEnum, Auth auth) {
-        this.simpMessagingTemplate.convertAndSend(pathEnum.getValue(), json);
+    protected void sendModel(String json, String url, Auth auth) {
+        this.simpMessagingTemplate.convertAndSend(this.generateTopicDest(url), json);
+    }
+
+    private String generateTopicDest(String url) {
+        return "/topic/" + url;
     }
 }

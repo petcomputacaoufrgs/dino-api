@@ -27,15 +27,20 @@ public class SynchronizableQueueMessageServiceImpl<
     }
 
     @Override
-    protected void sendModel(String json, WebSocketDestinationsEnum pathEnum, Auth auth) {
+    protected void sendModel(String json, String url, Auth auth) {
         final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptByAuth(auth);
-        this.send(json, pathEnum, webSocketTokens);
+        this.send(json, url, webSocketTokens);
     }
 
-    private void send(String json, WebSocketDestinationsEnum pathEnum, List<String> webSocketTokens) {
+    private void send(String json, String url, List<String> webSocketTokens) {
+        final String dest = this.generateQueueDest(url);
         webSocketTokens.forEach(webSocketToken -> {
-            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, pathEnum.getValue(), json);
+            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, dest, json);
         });
+    }
+
+    private String generateQueueDest(String url) {
+        return "/queue/" + url;
     }
 
 }
