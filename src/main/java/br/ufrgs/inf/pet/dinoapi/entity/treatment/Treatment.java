@@ -1,9 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.entity.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.constants.TreatmentConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
+
 import javax.persistence.*;
 import java.util.List;
 
@@ -18,6 +20,9 @@ public class Treatment extends SynchronizableEntity<Long> {
 
     @OneToMany(mappedBy = "treatment", fetch = FetchType.LAZY)
     private List<UserSettings> userSettings;
+
+    @OneToMany(mappedBy = "treatment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<EssentialContact> essentialContacts;
 
     public Treatment() {}
 

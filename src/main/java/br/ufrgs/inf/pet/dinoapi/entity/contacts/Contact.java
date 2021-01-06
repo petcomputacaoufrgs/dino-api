@@ -23,18 +23,12 @@ public class Contact extends SynchronizableEntity<Long> {
         @Column(name = "color")
         private Byte color;
 
-        @Column(name = "essential")
-        private boolean essential;
-
         @ManyToOne
         @JoinColumn(name = "user_id")
         private User user;
 
-        @OneToMany(mappedBy = "contact")
-        private List<EssentialContact> essentialContacts;
-
-        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-        private List<EssentialContactMapping> essentialContactMappings;
+        @OneToOne(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+        private EssentialContact essentialContact;
 
         @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
         private List<GoogleContact> googleContacts;
