@@ -1,122 +1,99 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactDataModel;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
-public class EssentialContactServiceImpl {
-/*
-    private final EssentialContactRepository essentialContactRepository;
-    private final ContactRepository contactRepository;
-    private final FaqRepository faqRepository;
-    private final ContactVersionServiceImpl contactVersionServiceImpl;
-    private final AuthServiceImpl authServiceImpl;
-    private final ContactServiceImpl contactServiceImpl;
-    private final PhoneServiceImpl phoneServiceImpl;
-    private final EssentialContactMappingRepository essentialContactMappingRepository;
+public class EssentialContactServiceImpl extends
+        SynchronizableServiceImpl<EssentialContact, Long, Integer, EssentialContactDataModel, EssentialContactRepository> {
 
-    @Autowired
-    public EssentialContactServiceImpl(EssentialContactRepository essentialContactRepository, ContactRepository contactRepository,
-                                       ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl,
-                                       PhoneServiceImpl phoneServiceImpl, ContactServiceImpl contactServiceImpl,
-                                       FaqRepository faqRepository, EssentialContactMappingRepository essentialContactMappingRepository) {
-        this.essentialContactRepository = essentialContactRepository;
-        this.contactRepository = contactRepository;
-        this.contactVersionServiceImpl = contactVersionServiceImpl;
-        this.phoneServiceImpl = phoneServiceImpl;
-        this.authServiceImpl = authServiceImpl;
-        this.contactServiceImpl = contactServiceImpl;
-        this.faqRepository = faqRepository;
-        this.essentialContactMappingRepository = essentialContactMappingRepository;
+    private final ContactServiceImpl contactService;
+    private final TreatmentRepository treatmentRepository;
+
+
+    public EssentialContactServiceImpl(ContactServiceImpl contactService, TreatmentRepository treatmentRepository, EssentialContactRepository repository,
+                                       AuthServiceImpl authService, ClockServiceImpl clock, SynchronizableTopicMessageServiceImpl<Long, Integer, EssentialContactDataModel> synchronizableTopicMessageService, LogAPIErrorServiceImpl logAPIErrorService) {
+        super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
+        this.contactService = contactService;
+        this.treatmentRepository = treatmentRepository;
     }
 
-    public ResponseEntity<?> saveEssentialContactAll(List<EssentialContactSaveModel> models) {
-
-        List<EssentialContact> itemsResponse = new ArrayList<>();
-
-        models.forEach(model -> {
-
-            Contact contact = contactRepository.save(new Contact(model));
-
-            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
-
-            List<Long> faqIds = model.getFaqIds();
-
-            if (faqIds != null) {
-
-                faqIds.forEach(faqId -> {
-
-                    Optional<Faq> faqSearch = faqRepository.findById(faqId);
-
-                    if (faqSearch.isPresent()) {
-
-                        Faq faqDB = faqSearch.get();
-
-                        Optional<EssentialContact> eContactSearch = essentialContactRepository
-                                .findByEssentialContactNameAndFaqId(model.getName(), faqDB.getId());
-
-                        if(eContactSearch.isEmpty()) {
-                            itemsResponse.add(essentialContactRepository.save(new EssentialContact(faqDB, contact)));
-                        }
-                    }
-                });
-            } else {
-
-                Optional<EssentialContact> eContactSearch = essentialContactRepository.findByEssentialContactName(model.getName());
-
-                if(eContactSearch.isEmpty()) {
-                    itemsResponse.add(essentialContactRepository.save(new EssentialContact(contact)));
-                }
-            }
-        });
-
-        List<EssentialContactModel> response = itemsResponse.stream()
-                .map(EssentialContactModel::new).collect(Collectors.toList());
-
-        if(response.size() > 0) {
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    @Override
+    public EssentialContactDataModel convertEntityToModel(EssentialContact entity) {
+        EssentialContactDataModel model = new EssentialContactDataModel();
+        model.setContactId(entity.getContact().getId());
+        model.setTreatmentId(entity.getTreatment().getId());
+        return model;
     }
 
-    public void setUsersDefaultContacts(User user) {
+    @Override
+    public EssentialContact convertModelToEntity(EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        final Optional<Contact> contactSearch = contactService.findContactById(model.getContactId());
 
-        List<EssentialContact> eContactsSearch = essentialContactRepository.findByFaqIdIsNull();
+        if(contactSearch.isEmpty())
+            throw new ConvertModelToEntityException(ContactsConstants.INVALID_CONTACT);
 
-        eContactsSearch.forEach(dContact ->
-                contactServiceImpl.saveContactOnRepository(
-                        new ContactSaveModel(dContact.getContact()), user)
-        );
+        Optional<Treatment> treatmentSearch = treatmentRepository.findById(model.getTreatmentId());
+
+        EssentialContact entity = new EssentialContact();
+        entity.setContact(contactSearch.get());
+        entity.setTreatment(treatmentSearch.orElseGet(() -> null));
+        return entity;
     }
 
-    public ResponseEntity<?> setUserTreatmentContacts(FaqIdModel model) {
+    @Override
+    public void updateEntity(EssentialContact entity, EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        final Optional<Contact> contactSearch = contactService.findContactById(model.getContactId());
 
-        final User user = authServiceImpl.getCurrentUser();
+        if(contactSearch.isEmpty())
+            throw new ConvertModelToEntityException(ContactsConstants.INVALID_CONTACT);
 
-            Optional<List<Contact>> oldEssentialContactsSearch = contactRepository.
-                findUserEssentialContactsByUserId(user.getId());
+        Optional<Treatment> treatmentSearch = treatmentRepository.findById(model.getTreatmentId());
 
-            if(oldEssentialContactsSearch.isPresent()) {
-                List<Contact> oldEssentialContacts = oldEssentialContactsSearch.get();
-                contactRepository.deleteAll(oldEssentialContacts);
-            }
-
-            Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository
-                    .findEssentialContactsByFaqId(model.getId());
-
-            if (eContactsSearch.isPresent()) {
-                eContactsSearch.get().forEach(eContact -> {
-                    Contact newContact = contactServiceImpl
-                            .saveContactOnRepositoryReturnContact(
-                                    new ContactSaveModel(eContact.getContact()), user);
-                    essentialContactMappingRepository.save(new EssentialContactMapping(eContact, newContact));
-                });
-                contactVersionServiceImpl.updateVersion(user);
-
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
-
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        entity.setContact(contactSearch.get());
+        entity.setTreatment(treatmentSearch.orElseGet(() -> null));
     }
 
- */
+    @Override
+    public Optional<EssentialContact> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+        return this.repository.findById(id);
+    }
+
+    @Override
+    public List<EssentialContact> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+        return (List<EssentialContact>) this.repository.findAll();
+    }
+
+    @Override
+    public List<EssentialContact> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+        return this.repository.findByIds(ids);
+    }
+
+    @Override
+    public List<EssentialContact> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+        return this.repository.findByIds(ids);
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.ESSENTIAL_CONTACT;
+    }
 }

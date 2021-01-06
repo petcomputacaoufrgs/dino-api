@@ -101,4 +101,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     public Optional<Contact> findContactByIdAndUser(Long id, User user) {
         return this.repository.findByIdAndUserId(id, user.getId());
     }
+    public Optional<Contact> findContactById(Long id) {
+        return this.repository.findById(id);
+    }
 }
