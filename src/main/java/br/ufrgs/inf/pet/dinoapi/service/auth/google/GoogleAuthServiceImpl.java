@@ -95,7 +95,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                     if (this.isWithRefreshTokenPresent(refreshToken)) {
                         googleAuth.setRefreshToken(refreshToken);
                         googleAuth = googleAuthRepository.save(googleAuth);
-                    } else if (googleAuth.getRefreshToken().isEmpty()) {
+                    } else if (this.isWithRefreshTokenEmpty(googleAuth.getRefreshToken())) {
                         return getRefreshTokenError(response, payload);
                     }
 
@@ -160,25 +160,25 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
-            this.setExceptionError(response);
             response.setError(GoogleAuthConstants.INTERNAL_AUTH_ERROR);
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AuthNullException | ConvertModelToEntityException e) {
-            this.setExceptionError(response);
             response.setError(e.getMessage());
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IOException e) {
-            this.setExceptionError(response);
             response.setError(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA);
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            this.setExceptionError(response);
             response.setError(GoogleAuthConstants.UNKNOWN_EXCEPTION);
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        this.setExceptionError(response);
         response.setError(GoogleAuthConstants.GOOGLE_AUTH_ERROR);
+        this.setExceptionError(response);
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -239,21 +239,21 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
-            this.setExceptionError(response);
             response.setError(GoogleAuthConstants.INTERNAL_AUTH_ERROR);
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AuthNullException | ConvertModelToEntityException e) {
-            this.setExceptionError(response);
             response.setError(e.getMessage());
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
-            this.setExceptionError(response);
             response.setError(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA);
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
-        this.setExceptionError(response);
         response.setError(GoogleAuthConstants.GOOGLE_AUTH_ERROR);
+        this.setExceptionError(response);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -272,8 +272,8 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                     response.setData(responseData);
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 } catch (ConvertModelToEntityException | AuthNullException e) {
-                    this.setExceptionError(response);
                     response.setError(e.getMessage());
+                    this.setExceptionError(response);
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
             }
@@ -282,8 +282,8 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
             response.setSuccess(false);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            this.setExceptionError(response);
             response.setError(GoogleAuthConstants.UNKNOWN_EXCEPTION);
+            this.setExceptionError(response);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }

@@ -63,16 +63,18 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public Auth generateAuth(User user) {
-        Auth auth = new Auth();
+        final Auth auth = new Auth();
         auth.setUser(user);
         auth.setWebSocketConnected(false);
 
+        final Auth savedAuth = authRepository.save(auth);
+
         List<String> roles = new ArrayList<>();
 
-        this.generateAccessToken(auth, roles);
-        this.generateRefreshToken(auth);
+        this.generateAccessToken(savedAuth, roles);
+        this.generateRefreshToken(savedAuth);
 
-        return authRepository.save(auth);
+        return authRepository.save(savedAuth);
     }
 
     @Override
@@ -283,6 +285,8 @@ public class AuthServiceImpl implements AuthService {
 
         final String webSocketToken = Jwts.builder()
                 .setClaims(claims)
+                .setId(auth.getId().toString())
+                .setSubject(auth.getUser().getEmail())
                 .setIssuedAt(clock.now())
                 .setExpiration(clock.nowPlusMinutes(WEB_SOCKET_TOKEN_LIFE_TIME_IN_MIN))
                 .signWith(SignatureAlgorithm.HS256, WEB_SOCKET_TOKEN_ENCODED_KEY)
@@ -297,8 +301,10 @@ public class AuthServiceImpl implements AuthService {
         final ClockServiceImpl clock = new ClockServiceImpl();
         final Date expiresDate = clock.nowPlusMinutes(ACCESS_TOKEN_LIFE_TIME_IN_MIN);
         final String accessToken = Jwts.builder()
-                .setClaims(claims)
                 .setIssuedAt(clock.now())
+                .setClaims(claims)
+                .setId(auth.getId().toString())
+                .setSubject(auth.getUser().getEmail())
                 .setExpiration(expiresDate)
                 .signWith(SignatureAlgorithm.HS256, ACCESS_TOKEN_ENCODED_KEY)
                 .compact();
@@ -314,6 +320,8 @@ public class AuthServiceImpl implements AuthService {
 
         final String refreshToken = Jwts.builder()
                 .setIssuedAt(clock.now())
+                .setId(auth.getId().toString())
+                .setSubject(auth.getUser().getEmail())
                 .signWith(SignatureAlgorithm.HS256, REFRESH_TOKEN_ENCODED_KEY)
                 .compact();
 

@@ -14,10 +14,10 @@ public class Auth {
     @Column(name = "id", nullable = false)
     protected Long id;
 
-    @Column(name = "access_token", length = AuthConstants.ACCESS_TOKEN_MAX, unique = true, nullable = false)
+    @Column(name = "access_token", length = AuthConstants.ACCESS_TOKEN_MAX, unique = true)
     private String accessToken;
 
-    @Column(name = "refresh_token", length = AuthConstants.REFRESH_TOKEN_MAX, unique = true, nullable = false)
+    @Column(name = "refresh_token", length = AuthConstants.REFRESH_TOKEN_MAX, unique = true)
     private String refreshToken;
 
     @Column(name = "web_socket_token", length = AuthConstants.WS_TOKEN_MAX, unique = true)
@@ -26,7 +26,7 @@ public class Auth {
     @Column(name = "web_socket_connected", nullable = false)
     private Boolean webSocketConnected;
 
-    @Column(name = "last_token_refresh", nullable = false)
+    @Column(name = "last_token_refresh")
     private LocalDateTime lastTokenRefresh;
 
     @ManyToOne
