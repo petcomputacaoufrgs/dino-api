@@ -5,6 +5,7 @@ public enum WebSocketDestinationsEnum {
     PHONE("phone"),
     GOOGLE_CONTACT("google_contact"),
     CONTACT("contact"),
+    ESSENTIAL_CONTACT("essential_contact"),
     GLOSSARY("glossary"),
     NOTE("note"),
     NOTE_COLUMN("note_column"),

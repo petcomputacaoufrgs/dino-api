@@ -45,12 +45,12 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     public GoogleContact convertModelToEntity(GoogleContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
             final User user = auth.getUser();
-            final Optional<Contact> googleContactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
+            final Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
 
-            if (googleContactSearch.isPresent()) {
+            if (contactSearch.isPresent()) {
                 GoogleContact googleContact = new GoogleContact();
                 googleContact.setResourceName(model.getResourceName());
-                googleContact.setContact(googleContactSearch.get());
+                googleContact.setContact(contactSearch.get());
                 googleContact.setUser(user);
                 return googleContact;
             }
