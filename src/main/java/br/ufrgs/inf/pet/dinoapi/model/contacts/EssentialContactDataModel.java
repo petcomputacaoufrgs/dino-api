@@ -1,44 +1,30 @@
 package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
+import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 
-public class EssentialContactDataModel {
-    /*
-    private Long id;
-    private Long faqId;
-    private ContactModel contact;
+import javax.validation.constraints.NotNull;
 
-    public EssentialContactModel(EssentialContact eContact) {
-        this.setId(eContact.getId());
-        Faq eContactFaq = eContact.getFaq();
-        if(eContactFaq != null) {
-            this.setFaqId(eContactFaq.getId());
-        }
-        this.setContact(new ContactModel(eContact.getContact()));
+public class EssentialContactDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+
+    private Long treatmentId;
+
+    @NotNull(message = ContactsConstants.CONTACT_ID_NULL_MESSAGE)
+    private Long contactId;
+
+    public Long getTreatmentId() {
+        return treatmentId;
     }
 
-    public Long getId() {
-        return id;
+    public void setTreatmentId(Long treatmentId) {
+        this.treatmentId = treatmentId;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getContactId() {
+        return contactId;
     }
 
-    public Long getFaqId() {
-        return faqId;
+    public void setContactId(Long contactId) {
+        this.contactId = contactId;
     }
-
-    public void setFaqId(Long faqId) {
-        this.faqId = faqId;
-    }
-
-    public ContactModel getContact() {
-        return contact;
-    }
-
-    public void setContact(ContactModel contact) {
-        this.contact = contact;
-    }*/
 }

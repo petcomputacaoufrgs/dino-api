@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 public class ContactDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
 
     @NotNull(message = ContactsConstants.NAME_NULL_MESSAGE)
-    @Size(max = ContactsConstants.NAME_MAX, message =ContactsConstants.NAME_MAX_MESSAGE)
+    @Size(max = ContactsConstants.NAME_MAX, message = ContactsConstants.NAME_MAX_MESSAGE)
     private String name;
 
     @Size(max = ContactsConstants.DESCRIPTION_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
