@@ -1,14 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.configuration.gson.gson_exclude_strategy.SynchronizableWSExcludeStrategy;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSGenericModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSUpdateModel;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.io.Serializable;
 import java.util.List;
@@ -25,53 +22,41 @@ public abstract class SynchronizableMessageService<
 
     protected final AuthServiceImpl authService;
 
-    protected final GsonBuilder gsonBuilder;
 
     public SynchronizableMessageService(SimpMessagingTemplate simpMessagingTemplate,
-                                        AuthServiceImpl authService, GsonBuilder gsonBuilder) {
+                                        AuthServiceImpl authService) {
         this.authService = authService;
         this.simpMessagingTemplate = simpMessagingTemplate;
-        this.gsonBuilder = gsonBuilder;
     }
 
     public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if (!data.isEmpty()) {
-            this.sendModel(this.generateUpdateModelJson(data), pathEnum.getValue() + webSocketUpdateURL, auth);
+            data.forEach(item -> item.setLocalId(null));
+            this.sendModel(this.generateUpdateModel(data), pathEnum.getValue() + webSocketUpdateURL, auth);
         }
     }
 
     public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if(!data.isEmpty()) {
-            this.sendModel(this.generateDeleteModelJson(data), pathEnum.getValue() + webSocketDeleteURL, auth);
+            this.sendModel(this.generateDeleteModel(data), pathEnum.getValue() + webSocketDeleteURL, auth);
         }
     }
 
-    private String generateUpdateModelJson(List<DATA_MODEL> data) {
+    private SynchronizableWSGenericModel<DATA_MODEL> generateUpdateModel(List<DATA_MODEL> data) {
+        data.forEach(item -> item.setLocalId(null));
         final SynchronizableWSUpdateModel<ID, DATA_MODEL> updateModel = new SynchronizableWSUpdateModel<>();
         updateModel.setData(data);
 
-        return this.convertUpdateModelToJson(updateModel);
+        return updateModel;
     }
 
-    private String generateDeleteModelJson(List<ID> data) {
+    private SynchronizableWSGenericModel<ID> generateDeleteModel(List<ID> data) {
         final SynchronizableWSDeleteModel<ID> deleteModel = new SynchronizableWSDeleteModel<>();
         deleteModel.setData(data);
 
-        return this.convertDeleteModelToJson(deleteModel);
+        return deleteModel;
     }
 
-    protected String convertUpdateModelToJson(SynchronizableWSUpdateModel<ID, DATA_MODEL> updateModel) {
-        final Gson gson = gsonBuilder.setExclusionStrategies(new SynchronizableWSExcludeStrategy()).create();
-
-        return gson.toJson(updateModel);
-    }
-
-    protected String convertDeleteModelToJson(SynchronizableWSDeleteModel<ID> deleteModel) {
-        final Gson gson = gsonBuilder.create();
-
-        return gson.toJson(deleteModel);
-    }
-
-    protected abstract void sendModel(String json, String url, Auth auth);
+    protected abstract <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth);
 
 }
