@@ -130,7 +130,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     private void sendUpdateMessage(User user, Auth auth) {
-        final UserDataModel model = this.internalConvertEntityToModel(user);
+        final UserDataModel model = this.completeConvertEntityToModel(user);
 
         this.sendUpdateMessage(model, auth);
     }

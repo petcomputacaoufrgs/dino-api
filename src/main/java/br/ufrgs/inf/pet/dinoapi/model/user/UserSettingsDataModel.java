@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.model.user;
 
 import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 

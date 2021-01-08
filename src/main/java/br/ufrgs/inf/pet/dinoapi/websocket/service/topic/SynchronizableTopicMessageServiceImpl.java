@@ -3,9 +3,8 @@ package br.ufrgs.inf.pet.dinoapi.websocket.service.topic;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSGenericModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
-import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -19,13 +18,13 @@ public class SynchronizableTopicMessageServiceImpl<
 
     @Autowired
     public SynchronizableTopicMessageServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                                 AuthServiceImpl authService, GsonBuilder gsonBuilder) {
-        super(simpMessagingTemplate, authService, gsonBuilder);
+                                                 AuthServiceImpl authService) {
+        super(simpMessagingTemplate, authService);
     }
 
     @Override
-    protected void sendModel(String json, String url, Auth auth) {
-        this.simpMessagingTemplate.convertAndSend(this.generateTopicDest(url), json);
+    protected <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth) {
+        this.simpMessagingTemplate.convertAndSend(this.generateTopicDest(url), data);
     }
 
     private String generateTopicDest(String url) {

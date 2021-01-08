@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.model.log_app_error;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.LogAppErrorConstants.*;

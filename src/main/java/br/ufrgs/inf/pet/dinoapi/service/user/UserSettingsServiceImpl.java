@@ -147,6 +147,10 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         return WebSocketDestinationsEnum.USER_SETTINGS;
     }
 
+    public UserSettings saveOnDatabase(UserSettings userSettings) {
+        return this.repository.save(userSettings);
+    }
+
     private void validSettings(UserSettingsDataModel model) throws ConvertModelToEntityException {
         if (!this.isValidColorTheme(model.getColorTheme())) {
             throw new ConvertModelToEntityException(UserSettingsConstants.INVALID_COLOR_THEME);
@@ -158,6 +162,10 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     private boolean isValidColorTheme(Integer colorTheme) {
+        if (colorTheme == null) {
+            return true;
+        }
+
         ColorTheme[] colorThemes = ColorTheme.values();
 
         for (ColorTheme theme : colorThemes)
@@ -167,6 +175,10 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     private boolean isValidFontSize(Integer fontSize) {
+        if (fontSize == null) {
+            return true;
+        }
+
         FontSize[] fontSizes = FontSize.values();
 
         for (FontSize size : fontSizes)

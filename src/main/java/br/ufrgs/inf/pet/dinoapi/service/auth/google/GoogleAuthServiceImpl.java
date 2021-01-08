@@ -1,6 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleAPICommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
+import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
+import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
@@ -25,6 +28,7 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +47,8 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
     private final AuthServiceImpl authService;
 
+    private final UserSettingsServiceImpl userSettingsService;
+
     private final GoogleAuthRepository googleAuthRepository;
 
     private final GoogleScopeServiceImpl googleScopeService;
@@ -55,7 +61,8 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
     public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService,
                                  GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
                                  GoogleAPICommunicationImpl googleAPICommunicationImpl,
-                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                                 UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
         this.userService = userService;
         this.authService = authService;
@@ -63,6 +70,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
         this.googleScopeService = googleScopeService;
         this.googleAPICommunicationImpl = googleAPICommunicationImpl;
         this.clockService = clockService;
+        this.userSettingsService = userSettingsService;
     }
 
     @Override
@@ -87,6 +95,8 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
                 final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
+                final GoogleAuthResponseDataModel dataResponse = this.generateGoogleAuthResponseData(tokenResponse);
+
                 GoogleAuth googleAuth = this.getGoogleAuthByGoogleId(googleId);
                 User user;
                 Auth auth;
@@ -101,6 +111,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
                     auth = authService.generateAuth(googleAuth.getUser());
                     user = this.updateUser(payload, auth);
+                    dataResponse.setSettings(userSettingsService.completeConvertEntityToModel(user.getUserAppSettings()));
                 } else {
                     if (this.isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError(response, payload);
@@ -112,6 +123,19 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                     user.setGoogleAuth(googleAuthRepository.save(googleAuth));
 
                     auth = authService.generateAuth(googleAuth.getUser());
+
+                    UserSettings userSettings = new UserSettings();
+                    userSettings.setSettingsStep(0);
+                    userSettings.setFirstSettingsDone(false);
+                    userSettings.setUser(user);
+                    userSettings.setDeclineGoogleContacts(false);
+                    userSettings.setIncludeEssentialContact(true);
+                    userSettings.setColorTheme(ColorTheme.DEVICE.getValue());
+                    userSettings.setFontSize(FontSize.DEFAULT.getValue());
+
+                    userSettings = userSettingsService.saveOnDatabase(userSettings);
+
+                    dataResponse.setSettings(userSettingsService.completeConvertEntityToModel(userSettings));
                 }
 
                 final ClockServiceImpl clock = new ClockServiceImpl();
@@ -131,8 +155,6 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                 userData.setLastUpdate(clockService.getUTCZonedDateTime());
 
                 userData.setId(user.getId());
-
-                final GoogleAuthResponseDataModel dataResponse = this.generateGoogleAuthResponseData(tokenResponse);
 
                 final String accessToken = tokenResponse.getAccessToken();
 
@@ -321,7 +343,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
         Set<String> uniqueScopes = new HashSet<>(scopes);
 
-        final List<GoogleScopeDataModel> allScopes = googleScopeService.internalConvertEntitiesToModels(databaseScopes);
+        final List<GoogleScopeDataModel> allScopes = googleScopeService.completeConvertEntitiesToModels(databaseScopes);
 
         if (uniqueScopes.size() > 0) {
             final List<GoogleScopeDataModel> newScopes = googleScopeService.saveAllScopes(uniqueScopes, auth);

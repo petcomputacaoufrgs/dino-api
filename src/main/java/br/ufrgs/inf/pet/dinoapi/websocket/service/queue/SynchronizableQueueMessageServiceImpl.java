@@ -1,12 +1,10 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service.queue;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSGenericModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
-import com.google.gson.GsonBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -22,25 +20,24 @@ public class SynchronizableQueueMessageServiceImpl<
 
     @Autowired
     public SynchronizableQueueMessageServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                                 AuthServiceImpl authService, GsonBuilder gsonBuilder) {
-        super(simpMessagingTemplate, authService, gsonBuilder);
+                                                 AuthServiceImpl authService) {
+        super(simpMessagingTemplate, authService);
     }
 
     @Override
-    protected void sendModel(String json, String url, Auth auth) {
+    protected <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth) {
         final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptByAuth(auth);
-        this.send(json, url, webSocketTokens);
+        this.send(data, url, webSocketTokens);
     }
 
-    private void send(String json, String url, List<String> webSocketTokens) {
+    private <TYPE> void send(SynchronizableWSGenericModel<TYPE> data, String url, List<String> webSocketTokens) {
         final String dest = this.generateQueueDest(url);
-        webSocketTokens.forEach(webSocketToken -> {
-            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, dest, json);
-        });
+        for (String webSocketToken : webSocketTokens) {
+            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, dest, data);
+        }
     }
 
     private String generateQueueDest(String url) {
         return "/queue/" + url;
     }
-
 }

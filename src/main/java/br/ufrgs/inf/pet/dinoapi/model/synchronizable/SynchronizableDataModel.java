@@ -17,7 +17,6 @@ public abstract class SynchronizableDataModel<ID extends Comparable<ID> & Serial
     @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
     private ZonedDateTime lastUpdate;
 
-
     public ID getId() {
         return id;
     }
