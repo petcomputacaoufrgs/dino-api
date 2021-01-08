@@ -2,6 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.model.auth.google.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleScopeDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -11,6 +13,8 @@ public class GoogleAuthResponseDataModel extends AuthResponseDataModel {
     private ZonedDateTime googleExpiresDate;
 
     private List<GoogleScopeDataModel> scopes;
+
+    private UserSettingsDataModel settings;
 
     public String getGoogleAccessToken() {
         return googleAccessToken;
@@ -34,5 +38,13 @@ public class GoogleAuthResponseDataModel extends AuthResponseDataModel {
 
     public void setScopes(List<GoogleScopeDataModel> scopes) {
         this.scopes = scopes;
+    }
+
+    public UserSettingsDataModel getSettings() {
+        return settings;
+    }
+
+    public void setSettings(UserSettingsDataModel settings) {
+        this.settings = settings;
     }
 }

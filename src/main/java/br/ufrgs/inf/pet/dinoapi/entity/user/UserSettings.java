@@ -4,13 +4,12 @@ import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "user_settings")
 public class UserSettings extends SynchronizableEntity<Long>  {
 
-    @Column(name = "language", length = UserSettingsConstants.LANGUAGE_MAX, nullable = false)
+    @Column(name = "language", length = UserSettingsConstants.LANGUAGE_MAX)
     private String language;
 
     @Column(name = "color_theme", nullable = false)
@@ -22,22 +21,22 @@ public class UserSettings extends SynchronizableEntity<Long>  {
     @Column(name = "include_essential_contacts", nullable = false)
     private Boolean includeEssentialContact;
 
-    @Column(name = "decline_google_contacts")
+    @Column(name = "decline_google_contacts", nullable = false)
     private Boolean declineGoogleContacts;
 
-    @Column(name = "first_settings_done")
+    @Column(name = "first_settings_done", nullable = false)
     private Boolean firstSettingsDone;
 
-    @Column(name = "settings_step")
+    @Column(name = "settings_step", nullable = false)
     private Integer settingsStep;
-
-    @ManyToOne
-    @JoinColumn(name = "treatment_id")
-    private Treatment treatment;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "treatment_id")
+    private Treatment treatment;
 
     public UserSettings() {}
 

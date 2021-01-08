@@ -66,7 +66,7 @@ public abstract class SynchronizableServiceImpl<
             final ENTITY entity = this.getEntity(model.getId(), auth);
 
             if (entity != null) {
-                final DATA_MODEL data = this.internalConvertEntityToModel(entity);
+                final DATA_MODEL data = this.completeConvertEntityToModel(entity);
                 response.setSuccess(true);
                 response.setData(data);
                 return this.createResponse(response, HttpStatus.OK);
@@ -128,7 +128,7 @@ public abstract class SynchronizableServiceImpl<
                 } else {
                     response.setSuccess(false);
                     response.setError(SynchronizableConstants.YOUR_VERSION_IS_OUTDATED);
-                    response.setData(this.internalConvertEntityToModel(entity));
+                    response.setData(this.completeConvertEntityToModel(entity));
                 }
             } else {
                 response.setSuccess(false);
@@ -149,7 +149,7 @@ public abstract class SynchronizableServiceImpl<
         try {
             final Auth auth = authService.getCurrentAuth();
             final List<ENTITY> entities = this.getAllEntities(auth);
-            final List<DATA_MODEL> data = entities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
+            final List<DATA_MODEL> data = entities.stream().map(this::completeConvertEntityToModel).collect(Collectors.toList());
 
             response.setSuccess(true);
             response.setData(data);
@@ -220,7 +220,7 @@ public abstract class SynchronizableServiceImpl<
 
             final List<ENTITY> entities = this.internalGetEntitiesByUserIdExceptIds(savedIds, auth);
 
-            final List<DATA_MODEL> updatedModels = this.internalConvertEntitiesToModels(entities);
+            final List<DATA_MODEL> updatedModels = this.completeConvertEntitiesToModels(entities);
 
             updatedModels.addAll(savedModels);
             response.setData(updatedModels);
@@ -305,7 +305,7 @@ public abstract class SynchronizableServiceImpl<
         return deletedIds;
     }
 
-    protected DATA_MODEL internalConvertEntityToModel(ENTITY entity) {
+    public DATA_MODEL completeConvertEntityToModel(ENTITY entity) {
         final DATA_MODEL model = this.convertEntityToModel(entity);
         model.setId(entity.getId());
         model.setLastUpdate(clock.toUTCZonedDateTime(entity.getLastUpdate()));
@@ -313,11 +313,11 @@ public abstract class SynchronizableServiceImpl<
         return model;
     }
 
-    public List<DATA_MODEL> internalConvertEntitiesToModels(List<ENTITY> entities) {
-        return entities.stream().map(this::internalConvertEntityToModel).collect(Collectors.toList());
+    public List<DATA_MODEL> completeConvertEntitiesToModels(List<ENTITY> entities) {
+        return entities.stream().map(this::completeConvertEntityToModel).collect(Collectors.toList());
     }
 
-    protected ENTITY internalConvertModelToEntity(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    protected ENTITY completeConvertModelToEntity(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         final ENTITY entity = this.convertModelToEntity(model, auth);
         entity.setId(model.getId());
         entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
@@ -356,11 +356,11 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected DATA_MODEL create(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        ENTITY entity = this.internalConvertModelToEntity(model, auth);
+        ENTITY entity = this.completeConvertModelToEntity(model, auth);
         entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
         entity = repository.save(entity);
 
-        return this.internalConvertEntityToModel(entity);
+        return this.completeConvertEntityToModel(entity);
     }
 
     protected DATA_MODEL update(ENTITY entity, DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
@@ -369,7 +369,7 @@ public abstract class SynchronizableServiceImpl<
             entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
             entity = repository.save(entity);
         }
-        return this.internalConvertEntityToModel(entity);
+        return this.completeConvertEntityToModel(entity);
     }
 
     protected boolean delete(ENTITY entity, SynchronizableDeleteModel<ID> model) {
@@ -428,7 +428,7 @@ public abstract class SynchronizableServiceImpl<
 
             model.setId(null);
 
-            final ENTITY newEntity = this.internalConvertModelToEntity(model, auth);
+            final ENTITY newEntity = this.completeConvertModelToEntity(model, auth);
             entitiesToSave.add(newEntity);
             modelsInSaveList.add(model);
         }
@@ -440,7 +440,7 @@ public abstract class SynchronizableServiceImpl<
         final List<ENTITY> entitiesToSave = new ArrayList<>();
         final List<DATA_MODEL> modelsInSaveList = new ArrayList<>();
         for (DATA_MODEL item : items) {
-            final ENTITY entity = this.internalConvertModelToEntity(item, auth);
+            final ENTITY entity = this.completeConvertModelToEntity(item, auth);
             entity.setLastUpdate(item.getLastUpdate().toLocalDateTime());
             entitiesToSave.add(entity);
             modelsInSaveList.add(item);
@@ -456,7 +456,7 @@ public abstract class SynchronizableServiceImpl<
 
         for (ENTITY entity: repository.saveAll(entitiesToSave)) {
             final DATA_MODEL originalModel = modelsInSaveList.get(count);
-            final DATA_MODEL model = this.internalConvertEntityToModel(entity);
+            final DATA_MODEL model = this.completeConvertEntityToModel(entity);
             model.setLocalId(originalModel.getLocalId());
 
             updatedModels.add(model);
