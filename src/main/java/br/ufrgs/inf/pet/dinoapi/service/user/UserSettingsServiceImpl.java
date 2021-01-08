@@ -63,9 +63,9 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         this.validSettings(model);
 
         if (model.getTreatmentId() != null) {
-            final Optional<Treatment> treatment = treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
+            final Optional<Treatment> treatmentSearch = treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
 
-            treatment.ifPresent(userSettings::setTreatment);
+            treatmentSearch.ifPresent(userSettings::setTreatment);
         }
 
         userSettings.setLanguage(model.getLanguage());

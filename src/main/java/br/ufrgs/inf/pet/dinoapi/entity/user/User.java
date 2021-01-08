@@ -41,7 +41,7 @@ public class User extends SynchronizableEntity<Long> {
     private List<Contact> contacts;
 
     @OneToMany(mappedBy = "user")
-    private List<FaqUserQuestion> faqFaqUserQuestions;
+    private List<FaqUserQuestion> faqUserQuestions;
     
     public User() {
         this.auths = new ArrayList<>();

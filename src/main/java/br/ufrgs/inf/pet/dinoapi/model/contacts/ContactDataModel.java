@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -39,4 +40,5 @@ public class ContactDataModel extends SynchronizableDataLocalIdModel<Long, Integ
     public void setColor(Byte color) {
         this.color = color;
     }
+
 }

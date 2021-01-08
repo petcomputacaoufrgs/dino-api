@@ -4,13 +4,20 @@ import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class EssentialContactDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
 
-    private Long treatmentId;
+    @NotNull(message = ContactsConstants.NAME_NULL_MESSAGE)
+    @Size(max = ContactsConstants.NAME_MAX, message = ContactsConstants.NAME_MAX_MESSAGE)
+    private String name;
 
-    @NotNull(message = ContactsConstants.CONTACT_ID_NULL_MESSAGE)
-    private Long contactId;
+    @Size(max = ContactsConstants.DESCRIPTION_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
+    private String description;
+
+    private Byte color;
+
+    private Long treatmentId;
 
     public Long getTreatmentId() {
         return treatmentId;
@@ -20,11 +27,27 @@ public class EssentialContactDataModel extends SynchronizableDataLocalIdModel<Lo
         this.treatmentId = treatmentId;
     }
 
-    public Long getContactId() {
-        return contactId;
+    public String getName() {
+        return name;
     }
 
-    public void setContactId(Long contactId) {
-        this.contactId = contactId;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Byte getColor() {
+        return color;
+    }
+
+    public void setColor(Byte color) {
+        this.color = color;
     }
 }

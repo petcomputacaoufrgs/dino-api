@@ -1,8 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
@@ -25,51 +23,46 @@ import java.util.Optional;
 public class EssentialContactServiceImpl extends
         SynchronizableServiceImpl<EssentialContact, Long, Integer, EssentialContactDataModel, EssentialContactRepository> {
 
-    private final ContactServiceImpl contactService;
     private final TreatmentRepository treatmentRepository;
 
 
-    public EssentialContactServiceImpl(ContactServiceImpl contactService, TreatmentRepository treatmentRepository, EssentialContactRepository repository,
-                                       AuthServiceImpl authService, ClockServiceImpl clock, SynchronizableTopicMessageServiceImpl<Long, Integer, EssentialContactDataModel> synchronizableTopicMessageService, LogAPIErrorServiceImpl logAPIErrorService) {
+    public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository,
+                                       AuthServiceImpl authService, ClockServiceImpl clock,
+                                       SynchronizableTopicMessageServiceImpl<Long, Integer, EssentialContactDataModel> synchronizableTopicMessageService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
-        this.contactService = contactService;
         this.treatmentRepository = treatmentRepository;
     }
 
     @Override
     public EssentialContactDataModel convertEntityToModel(EssentialContact entity) {
         EssentialContactDataModel model = new EssentialContactDataModel();
-        model.setContactId(entity.getContact().getId());
-        model.setTreatmentId(entity.getTreatment().getId());
+        model.setName(entity.getName());
+        model.setDescription(entity.getDescription());
+        model.setColor(entity.getColor());
+        if(entity.getTreatment() != null)
+            model.setTreatmentId(entity.getTreatment().getId());
         return model;
     }
 
     @Override
     public EssentialContact convertModelToEntity(EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        final Optional<Contact> contactSearch = contactService.findContactById(model.getContactId());
-
-        if(contactSearch.isEmpty())
-            throw new ConvertModelToEntityException(ContactsConstants.INVALID_CONTACT);
-
-        Optional<Treatment> treatmentSearch = treatmentRepository.findById(model.getTreatmentId());
 
         EssentialContact entity = new EssentialContact();
-        entity.setContact(contactSearch.get());
-        entity.setTreatment(treatmentSearch.orElseGet(() -> null));
+
+        entity.setName(model.getName());
+        entity.setDescription(model.getDescription());
+        entity.setColor(model.getColor());
+        searchTreatment(entity, model.getTreatmentId());
+
         return entity;
     }
 
     @Override
     public void updateEntity(EssentialContact entity, EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        final Optional<Contact> contactSearch = contactService.findContactById(model.getContactId());
 
-        if(contactSearch.isEmpty())
-            throw new ConvertModelToEntityException(ContactsConstants.INVALID_CONTACT);
-
-        Optional<Treatment> treatmentSearch = treatmentRepository.findById(model.getTreatmentId());
-
-        entity.setContact(contactSearch.get());
-        entity.setTreatment(treatmentSearch.orElseGet(() -> null));
+        entity.setName(model.getName());
+        entity.setDescription(model.getDescription());
+        entity.setColor(model.getColor());
     }
 
     @Override
@@ -84,16 +77,28 @@ public class EssentialContactServiceImpl extends
 
     @Override
     public List<EssentialContact> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
-        return this.repository.findByIds(ids);
+        return (List<EssentialContact>) this.repository.findAllById(ids);
     }
 
     @Override
     public List<EssentialContact> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
-        return this.repository.findByIds(ids);
+        return (List<EssentialContact>) this.repository.findAllById(ids);
     }
 
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.ESSENTIAL_CONTACT;
     }
+
+    private void searchTreatment (EssentialContact entity, Long treatmentId) throws ConvertModelToEntityException {
+        if(treatmentId != null) {
+            final Optional<Treatment> treatmentSearch = treatmentRepository.findById(treatmentId);
+            if(treatmentSearch.isPresent()) {
+                entity.setTreatment(treatmentSearch.get());
+            } else {
+                throw new ConvertModelToEntityException("Nop!");
+            }
+        }
+    }
+
 }

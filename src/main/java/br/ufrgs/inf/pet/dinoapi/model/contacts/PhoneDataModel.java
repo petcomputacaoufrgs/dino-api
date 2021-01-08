@@ -14,8 +14,9 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long, Integer
     @Size(max = ContactsConstants.NUMBER_MAX, message = ContactsConstants.NUMBER_MAX_MESSAGE)
     private String number;
 
-    @NotNull(message = ContactsConstants.CONTACT_ID_NULL_MESSAGE)
     private Long contactId;
+
+    private Long essentialContactId;
 
     public short getType() {
         return type;
@@ -39,5 +40,13 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long, Integer
 
     public void setContactId(Long contactId) {
         this.contactId = contactId;
+    }
+
+    public Long getEssentialContactId() {
+        return essentialContactId;
+    }
+
+    public void setEssentialContactId(Long essentialContactId) {
+        this.essentialContactId = essentialContactId;
     }
 }

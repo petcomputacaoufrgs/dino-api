@@ -14,21 +14,18 @@ public class Contact extends SynchronizableEntity<Long> {
         @Column(name = "name", length = NAME_MAX, nullable = false)
         private String name;
 
-        @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-        private List<Phone> phones;
-
         @Column(name = "description", length = DESCRIPTION_MAX)
         private String description;
 
         @Column(name = "color")
         private Byte color;
 
+        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+        private List<Phone> phones;
+
         @ManyToOne
         @JoinColumn(name = "user_id")
         private User user;
-
-        @OneToOne(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-        private EssentialContact essentialContact;
 
         @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
         private List<GoogleContact> googleContacts;

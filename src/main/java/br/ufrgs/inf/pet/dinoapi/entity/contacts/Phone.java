@@ -16,8 +16,12 @@ public class Phone extends SynchronizableEntity<Long> {
     @Column(name = "number", length = NUMBER_MAX, nullable = false)
     private String number;
 
-    @ManyToOne
-    @JoinColumn(name = "contact_id", nullable = false)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "essential_contact_id")
+    private EssentialContact essentialContact;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contact_id")
     private Contact contact;
 
     public Phone(){}
@@ -32,6 +36,14 @@ public class Phone extends SynchronizableEntity<Long> {
 
     public void setContact(Contact contact) {
         this.contact = contact;
+    }
+
+    public EssentialContact getEssentialContact() {
+        return essentialContact;
+    }
+
+    public void setEssentialContact(EssentialContact essentialContact) {
+        this.essentialContact = essentialContact;
     }
 
     public String getNumber() {

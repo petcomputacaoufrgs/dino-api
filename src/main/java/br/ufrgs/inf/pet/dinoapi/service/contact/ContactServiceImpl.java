@@ -14,6 +14,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -39,15 +40,15 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     @Override
     public Contact convertModelToEntity(ContactDataModel model, Auth auth) throws AuthNullException {
         if (auth != null) {
-            Contact contact = new Contact();
-            contact.setName(model.getName());
-            contact.setDescription(model.getDescription());
-            contact.setColor(model.getColor());
-            contact.setUser(auth.getUser());
-            return contact;
+            Contact entity = new Contact();
+            entity.setName(model.getName());
+            entity.setDescription(model.getDescription());
+            entity.setColor(model.getColor());
+            entity.setUser(auth.getUser());
+            return entity;
+        } else {
+            throw new AuthNullException();
         }
-
-        throw new AuthNullException();
     }
 
     @Override
@@ -100,8 +101,5 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
 
     public Optional<Contact> findContactByIdAndUser(Long id, User user) {
         return this.repository.findByIdAndUserId(id, user.getId());
-    }
-    public Optional<Contact> findContactById(Long id) {
-        return this.repository.findById(id);
     }
 }
