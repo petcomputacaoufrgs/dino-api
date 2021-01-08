@@ -31,7 +31,6 @@ public abstract class SynchronizableMessageService<
 
     public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if (!data.isEmpty()) {
-            data.forEach(item -> item.setLocalId(null));
             this.sendModel(this.generateUpdateModel(data), pathEnum.getValue() + webSocketUpdateURL, auth);
         }
     }
@@ -43,7 +42,6 @@ public abstract class SynchronizableMessageService<
     }
 
     private SynchronizableWSGenericModel<DATA_MODEL> generateUpdateModel(List<DATA_MODEL> data) {
-        data.forEach(item -> item.setLocalId(null));
         final SynchronizableWSUpdateModel<ID, DATA_MODEL> updateModel = new SynchronizableWSUpdateModel<>();
         updateModel.setData(data);
 
