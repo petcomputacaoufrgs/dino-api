@@ -1,11 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.service.faq;
 
-import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
+import br.ufrgs.inf.pet.dinoapi.constants.TreatmentConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.faq.*;
+import br.ufrgs.inf.pet.dinoapi.model.faq.FaqDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
@@ -16,6 +16,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -53,7 +54,7 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
             return entity;
         }
 
-        throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
+        throw new ConvertModelToEntityException(TreatmentConstants.INVALID_TREATMENT);
     }
 
     @Override
@@ -64,7 +65,7 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
             if (treatment.isPresent()) {
                 entity.setTreatment(treatment.get());
             } else {
-                throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
+                throw new ConvertModelToEntityException(TreatmentConstants.INVALID_TREATMENT);
             }
         }
 

@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.constants.TreatmentConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
@@ -100,7 +101,7 @@ public class EssentialContactServiceImpl extends
             if(treatmentSearch.isPresent()) {
                 entity.setTreatments(treatmentSearch.get());
             } else {
-                throw new ConvertModelToEntityException("Não encontrado!");
+                throw new ConvertModelToEntityException(TreatmentConstants.INVALID_TREATMENT);
             }
         }
     }

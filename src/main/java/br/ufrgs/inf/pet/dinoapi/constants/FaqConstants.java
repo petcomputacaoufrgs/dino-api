@@ -26,8 +26,7 @@ public final class FaqConstants {
 
     public final static String FAQ_USER_QUESTION_SUCCESS = "success";
 
-    public final static String INVALID_FAQ = "invalid faq";
+    public final static String INVALID_FAQ = "invalid FAQ";
 
-    public final static String INVALID_TREATMENT = "invalid treatment";
 
 }

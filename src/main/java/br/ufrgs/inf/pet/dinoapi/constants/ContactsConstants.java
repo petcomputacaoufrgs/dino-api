@@ -22,4 +22,6 @@ public final class ContactsConstants {
     public final static String SUCCESS_DECLINE_REQUEST = "Success";
     public final static String SUCCESS_DECLINE_REQUEST_WITHOUT_ALERT= "Success, but server fail to alert another devices.";
 
+
+
 }
