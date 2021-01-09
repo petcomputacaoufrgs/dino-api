@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class EssentialContactServiceImpl extends
@@ -39,8 +41,10 @@ public class EssentialContactServiceImpl extends
         model.setName(entity.getName());
         model.setDescription(entity.getDescription());
         model.setColor(entity.getColor());
-        if(entity.getTreatment() != null)
-            model.setTreatmentId(entity.getTreatment().getId());
+        if(entity.getTreatments() != null) {
+            model.setTreatmentIds(entity.getTreatments().stream()
+                    .map(SynchronizableEntity::getId).collect(Collectors.toList()));
+        }
         return model;
     }
 
@@ -52,17 +56,17 @@ public class EssentialContactServiceImpl extends
         entity.setName(model.getName());
         entity.setDescription(model.getDescription());
         entity.setColor(model.getColor());
-        searchTreatment(entity, model.getTreatmentId());
+        searchTreatments(entity, model.getTreatmentIds());
 
         return entity;
     }
 
     @Override
     public void updateEntity(EssentialContact entity, EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-
         entity.setName(model.getName());
         entity.setDescription(model.getDescription());
         entity.setColor(model.getColor());
+        searchTreatments(entity, model.getTreatmentIds());
     }
 
     @Override
@@ -90,14 +94,12 @@ public class EssentialContactServiceImpl extends
         return WebSocketDestinationsEnum.ESSENTIAL_CONTACT;
     }
 
-    private void searchTreatment (EssentialContact entity, Long treatmentId) throws ConvertModelToEntityException {
-        if(treatmentId != null) {
-            final Optional<Treatment> treatmentSearch = treatmentRepository.findById(treatmentId);
-            if(treatmentSearch.isPresent()) {
-                entity.setTreatment(treatmentSearch.get());
-            } else {
-                throw new ConvertModelToEntityException("Nop!");
-            }
+    private void searchTreatments (EssentialContact entity, List<Long> treatmentIds) throws ConvertModelToEntityException {
+        if(treatmentIds != null && treatmentIds.size() != 0) {
+            final List<Treatment> treatmentSearch = (List<Treatment>) treatmentRepository.findAllById(treatmentIds);
+            entity.setTreatments(treatmentSearch);
+        } else {
+            throw new ConvertModelToEntityException("Nop!");
         }
     }
 

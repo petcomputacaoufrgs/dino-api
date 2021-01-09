@@ -13,9 +13,9 @@ import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 @Table(name = "essential_contact")
 public class EssentialContact extends SynchronizableEntity<Long> {
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "treatment_id")
-    private Treatment treatment;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinColumn(name = "treatment_ids")
+    private List<Treatment> treatments;
 
     @Column(name = "name", length = NAME_MAX, nullable = false)
     private String name;
@@ -31,20 +31,20 @@ public class EssentialContact extends SynchronizableEntity<Long> {
 
     public EssentialContact() {}
 
-    public EssentialContact(Treatment treatment, String name, String description, Byte color, List<Phone> phones) {
-        this.treatment = treatment;
+    public EssentialContact(List<Treatment> treatments, String name, String description, Byte color, List<Phone> phones) {
+        this.treatments = treatments;
         this.name = name;
         this.description = description;
         this.color = color;
         this.phones = phones;
     }
 
-    public Treatment getTreatment() {
-        return treatment;
+    public List<Treatment> getTreatments() {
+        return treatments;
     }
 
-    public void setTreatment(Treatment treatment) {
-        this.treatment = treatment;
+    public void setTreatments(List<Treatment> treatments) {
+        this.treatments = treatments;
     }
 
     public String getName() {

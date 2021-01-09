@@ -21,7 +21,7 @@ public class Treatment extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "treatment", fetch = FetchType.LAZY)
     private List<UserSettings> userSettings;
 
-    @OneToMany(mappedBy = "treatment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "treatments", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<EssentialContact> essentialContacts;
 
     public Treatment() {}

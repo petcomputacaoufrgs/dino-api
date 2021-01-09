@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.List;
 
 public class EssentialContactDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
 
@@ -17,14 +18,14 @@ public class EssentialContactDataModel extends SynchronizableDataLocalIdModel<Lo
 
     private Byte color;
 
-    private Long treatmentId;
+    private List<Long> treatmentIds;
 
-    public Long getTreatmentId() {
-        return treatmentId;
+    public List<Long> getTreatmentIds() {
+        return treatmentIds;
     }
 
-    public void setTreatmentId(Long treatmentId) {
-        this.treatmentId = treatmentId;
+    public void setTreatmentIds(List<Long> treatmentIds) {
+        this.treatmentIds = treatmentIds;
     }
 
     public String getName() {
