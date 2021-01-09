@@ -5,7 +5,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TreatmentRepository extends CrudRepository<Treatment, Long> {
@@ -14,6 +16,9 @@ public interface TreatmentRepository extends CrudRepository<Treatment, Long> {
 
     @Query("SELECT te FROM Treatment te WHERE te.id IN :ids")
     List<Treatment> findByIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT te FROM Treatment te WHERE te.id IN :ids")
+    Optional<List<Treatment>> findAllByIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT te FROM Treatment te WHERE te.id IN :ids")
     List<Treatment> findAllExceptIds(@Param("ids") List<Long> ids);

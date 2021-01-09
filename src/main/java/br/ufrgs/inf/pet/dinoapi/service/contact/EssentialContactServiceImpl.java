@@ -96,11 +96,12 @@ public class EssentialContactServiceImpl extends
 
     private void searchTreatments (EssentialContact entity, List<Long> treatmentIds) throws ConvertModelToEntityException {
         if(treatmentIds != null && treatmentIds.size() != 0) {
-            final List<Treatment> treatmentSearch = (List<Treatment>) treatmentRepository.findAllById(treatmentIds);
-            entity.setTreatments(treatmentSearch);
-        } else {
-            throw new ConvertModelToEntityException("Nop!");
+            final Optional<List<Treatment>> treatmentSearch = treatmentRepository.findAllByIds(treatmentIds);
+            if(treatmentSearch.isPresent()) {
+                entity.setTreatments(treatmentSearch.get());
+            } else {
+                throw new ConvertModelToEntityException("Não encontrado!");
+            }
         }
     }
-
 }
