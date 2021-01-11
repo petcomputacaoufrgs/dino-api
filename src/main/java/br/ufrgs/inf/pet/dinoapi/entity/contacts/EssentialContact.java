@@ -2,21 +2,14 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
-
 import javax.persistence.*;
 import java.util.List;
-
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
 @Entity
 @Table(name = "essential_contact")
 public class EssentialContact extends SynchronizableEntity<Long> {
-
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinColumn(name = "treatment_ids")
-    private List<Treatment> treatments;
-
     @Column(name = "name", length = NAME_MAX, nullable = false)
     private String name;
 
@@ -29,15 +22,13 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Phone> phones;
 
-    public EssentialContact() {}
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "essential_contact__treatment",
+            joinColumns = {@JoinColumn(name = "essential_contact_id")},
+            inverseJoinColumns = {@JoinColumn(name="treatment_id")})
+    private List<Treatment> treatments;
 
-    public EssentialContact(List<Treatment> treatments, String name, String description, Byte color, List<Phone> phones) {
-        this.treatments = treatments;
-        this.name = name;
-        this.description = description;
-        this.color = color;
-        this.phones = phones;
-    }
+    public EssentialContact() {}
 
     public List<Treatment> getTreatments() {
         return treatments;
