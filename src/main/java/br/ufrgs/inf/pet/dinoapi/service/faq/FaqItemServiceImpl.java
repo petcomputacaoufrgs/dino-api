@@ -80,7 +80,7 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public List<FaqItem> getEntitiesByUserAuth(Auth auth) {
+    public List<FaqItem> getEntitiesThatUserCanRead(Auth auth) {
         return this.repository.findAll();
     }
 
@@ -90,7 +90,7 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public List<FaqItem> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) {
+    public List<FaqItem> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
         return this.repository.findAllExceptIds(ids);
     }
 

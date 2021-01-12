@@ -75,7 +75,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public List<GoogleContact> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+    public List<GoogleContact> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -91,7 +91,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public List<GoogleContact> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<GoogleContact> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }

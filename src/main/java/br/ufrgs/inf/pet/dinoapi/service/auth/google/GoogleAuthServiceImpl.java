@@ -111,7 +111,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
                     auth = authService.generateAuth(googleAuth.getUser());
                     user = this.updateUser(payload, auth);
-                    dataResponse.setSettings(userSettingsService.completeConvertEntityToModel(user.getUserAppSettings()));
+                    dataResponse.setSettings(userSettingsService.createUserSettingsDataModel(user.getUserAppSettings()));
                 } else {
                     if (this.isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError(response, payload);
@@ -135,7 +135,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
                     userSettings = userSettingsService.saveOnDatabase(userSettings);
 
-                    dataResponse.setSettings(userSettingsService.completeConvertEntityToModel(userSettings));
+                    dataResponse.setSettings(userSettingsService.createUserSettingsDataModel(userSettings));
                 }
 
                 final ClockServiceImpl clock = new ClockServiceImpl();
@@ -327,7 +327,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
     private List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException {
         final List<String> scopes = new LinkedList<>(currentScopes);
 
-        List<GoogleScope> databaseScopes = googleScopeService.getEntitiesByUserAuth(auth);
+        List<GoogleScope> databaseScopes = googleScopeService.getEntitiesThatUserCanRead(auth);
 
         final List<String> databaseScopesStrings = databaseScopes.stream().map(GoogleScope::getName).collect(Collectors.toList());
 
@@ -337,13 +337,13 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
             if (databaseScopesStrings.size() > 0) {
                 final List<GoogleScope> removedScopes = googleScopeService.getEntitiesByName(auth.getUser(), databaseScopesStrings);
                 googleScopeService.deleteAllScopes(removedScopes, auth);
-                databaseScopes = googleScopeService.getEntitiesByUserAuth(auth);
+                databaseScopes = googleScopeService.getEntitiesThatUserCanRead(auth);
             }
         }
 
         Set<String> uniqueScopes = new HashSet<>(scopes);
 
-        final List<GoogleScopeDataModel> allScopes = googleScopeService.completeConvertEntitiesToModels(databaseScopes);
+        final List<GoogleScopeDataModel> allScopes = googleScopeService.createGoogleScopeDataModels(databaseScopes);
 
         if (uniqueScopes.size() > 0) {
             final List<GoogleScopeDataModel> newScopes = googleScopeService.saveAllScopes(uniqueScopes, auth);

@@ -78,7 +78,7 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     }
 
     @Override
-    public List<Faq> getEntitiesByUserAuth(Auth auth) {
+    public List<Faq> getEntitiesThatUserCanRead(Auth auth) {
         return this.repository.findAll();
     }
 
@@ -88,7 +88,7 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     }
 
     @Override
-    public List<Faq> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) {
+    public List<Faq> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
         return this.repository.findAllExceptIds(ids);
     }
 

@@ -91,7 +91,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+    public List<FaqUserQuestion> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -107,7 +107,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<FaqUserQuestion> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }

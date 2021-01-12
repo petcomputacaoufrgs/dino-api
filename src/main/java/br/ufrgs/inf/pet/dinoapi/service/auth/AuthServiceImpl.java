@@ -249,6 +249,16 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public List<String> getAllUserWebSocketToken(User user) {
+        if (user != null) {
+            List<AuthWebSocketToken> results = authRepository.findAllByUser(user);
+            return results.stream().map(AuthWebSocketToken::getWebSocketToken).collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
+    @Override
     public void setWebSocketConnected() {
         final Auth auth = this.getCurrentAuth();
         if (auth != null) {

@@ -22,7 +22,10 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Phone> phones;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Contact> contacts;
+
+    @ManyToMany
     @JoinTable(name = "essential_contact__treatment",
             joinColumns = {@JoinColumn(name = "essential_contact_id")},
             inverseJoinColumns = {@JoinColumn(name="treatment_id")})
@@ -68,5 +71,13 @@ public class EssentialContact extends SynchronizableEntity<Long> {
 
     public void setPhones(List<Phone> phones) {
         this.phones = phones;
+    }
+
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
     }
 }

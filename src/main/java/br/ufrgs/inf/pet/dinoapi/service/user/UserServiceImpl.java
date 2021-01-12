@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
@@ -64,7 +65,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public List<User> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+    public List<User> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -84,7 +85,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public List<User> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<User> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -144,5 +145,13 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
         }
 
         return null;
+    }
+
+    public List<User> findUserBySaveEssentialContacts() {
+        return this.repository.findUserBySaveEssentialContacts();
+    }
+
+    public List<User> findUserBySaveEssentialContactsAndTreatments(List<Treatment> treatments) {
+        return this.repository.findUserBySaveEssentialContactsAndTreatments(treatments);
     }
 }

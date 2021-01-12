@@ -1,13 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneDataModel;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -18,37 +20,40 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Integer, PhoneDataModel, PhoneRepository> {
-
-    private final ContactRepository contactRepository;
+    private final ContactServiceImpl contactService;
     private final EssentialContactRepository essentialContactRepository;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, AuthServiceImpl authService,
                             SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                            ContactRepository contactRepository, EssentialContactRepository essentialContactRepository) {
+                            ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
-
-        this.contactRepository = contactRepository;
+        this.contactService = contactService;
         this.essentialContactRepository = essentialContactRepository;
     }
 
     @Override
     public PhoneDataModel convertEntityToModel(Phone entity) {
-        PhoneDataModel model = new PhoneDataModel();
+        final PhoneDataModel model = new PhoneDataModel();
         model.setNumber(entity.getNumber());
         model.setType(entity.getType());
-        Contact contact = entity.getContact();
+        final Contact contact = entity.getContact();
         if (contact != null) {
             model.setContactId(contact.getId());
+
+            final Phone originalEPhone = entity.getOriginalEssentialPhone();
+            if (originalEPhone != null) {
+                model.setOriginalEssentialPhoneId(originalEPhone.getId());
+            }
         } else {
-            EssentialContact essentialContact = entity.getEssentialContact();
+            final EssentialContact essentialContact = entity.getEssentialContact();
             if(essentialContact != null) {
                 model.setEssentialContactId(entity.getEssentialContact().getId());
             }
@@ -59,22 +64,25 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     @Override
     public Phone convertModelToEntity(PhoneDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
-            Phone entity = new Phone();
+            final Phone entity = new Phone();
             entity.setNumber(model.getNumber());
             entity.setType(model.getType());
-            Long contactId = model.getContactId();
-            Long essentialContactId = model.getEssentialContactId();
+            final Long contactId = model.getContactId();
+            final Long essentialContactId = model.getEssentialContactId();
 
             if(contactId != null) {
+                if(essentialContactId != null) throw new ConvertModelToEntityException(ContactsConstants.PHONE_WITH_CONTACT_AND_ECONTACT);
+                searchContact(entity, contactId, auth);
 
-                if(essentialContactId != null) throw new ConvertModelToEntityException("Pode não");
+                final Long originalEssentialPhoneId = model.getOriginalEssentialPhoneId();
+                if(originalEssentialPhoneId != null) {
+                    final Optional<Phone> originalEPhoneSearch = this.findById(originalEssentialPhoneId);
 
-                searchContact(entity, contactId);
-
+                    originalEPhoneSearch.ifPresent(entity::setOriginalEssentialPhone);
+                }
             } else if (essentialContactId != null) {
                 searchEssentialContact(entity, essentialContactId);
-
-            } else throw new ConvertModelToEntityException("Nem Contato nem Contato Essencial encontrados");
+            } else throw new ConvertModelToEntityException(ContactsConstants.PHONE_WITHOUT_CONTACT_OR_ECONTACT);
 
             return entity;
         }
@@ -97,11 +105,11 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public List<Phone> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+    public List<Phone> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByContactUserId(auth.getUser().getId());
+        return this.repository.findAllByUserId(auth.getUser().getId());
     }
 
     @Override
@@ -109,11 +117,11 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByIdAndContactUserId(ids, auth.getUser().getId());
+        return this.repository.findAllByIdAndUserId(ids, auth.getUser().getId());
     }
 
     @Override
-    public List<Phone> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<Phone> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -125,12 +133,94 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
         return WebSocketDestinationsEnum.PHONE;
     }
 
-    private void searchContact(Phone entity, Long id) throws ConvertModelToEntityException {
-        final Optional<Contact> contactSearch = contactRepository.findById(id);
+    @Override
+    protected void onDataCreated(PhoneDataModel model) throws AuthNullException, ConvertModelToEntityException {
+        final Long essentialContactId = model.getEssentialContactId();
+
+        if (essentialContactId == null) return;
+
+        final List<Contact> contacts = contactService.findAllByEssentialContactId(essentialContactId);
+        final List<Phone> phones = repository.findAllByEssentialContactId(essentialContactId);
+
+        for (Contact contact : contacts) {
+            final Auth fakeAuth = new Auth();
+            fakeAuth.setUser(contact.getUser());
+
+            final List<PhoneDataModel> phoneDataModels = phones.stream().map(phone -> {
+                final PhoneDataModel phoneDataModel = new PhoneDataModel();
+                phoneDataModel.setType(phone.getType());
+                phoneDataModel.setNumber(phone.getNumber());
+                phoneDataModel.setContactId(contact.getId());
+                phoneDataModel.setLastUpdate(clock.getUTCZonedDateTime());
+                phoneDataModel.setOriginalEssentialPhoneId(phone.getId());
+
+                return phoneDataModel;
+            }).collect(Collectors.toList());
+
+            this.internalSaveAll(phoneDataModels, fakeAuth);
+        }
+    }
+
+    @Override
+    protected void onDataUpdated(PhoneDataModel model, Phone entity) throws AuthNullException, ConvertModelToEntityException {
+        final EssentialContact essentialContact = entity.getEssentialContact();
+
+        if (essentialContact == null) return;
+
+        final List<Phone> phones = repository.findAllByOriginalEssentialPhone(entity);
+
+        for (Phone phone : phones) {
+            final Auth fakeAuth = new Auth();
+            fakeAuth.setUser(phone.getContact().getUser());
+
+            final PhoneDataModel phoneDataModel = new PhoneDataModel();
+            phoneDataModel.setType(phone.getType());
+            phoneDataModel.setNumber(phone.getNumber());
+            phoneDataModel.setContactId(phone.getContact().getId());
+            phoneDataModel.setLastUpdate(clock.getUTCZonedDateTime());
+            phoneDataModel.setId(phone.getId());
+            phoneDataModel.setOriginalEssentialPhoneId(entity.getId());
+            this.internalSave(phoneDataModel, fakeAuth);
+        }
+    }
+
+    @Override
+    protected void onDataDeleted(Phone entity) throws AuthNullException {
+        final List<Phone> phones = repository.findAllByOriginalEssentialPhone(entity);
+
+        for (Phone phone : phones) {
+            final Auth fakeAuth = new Auth();
+            fakeAuth.setUser(phone.getContact().getUser());
+
+            final SynchronizableDeleteModel<Long> model = new SynchronizableDeleteModel<>();
+            model.setLastUpdate(clock.getUTCZonedDateTime());
+            model.setId(phone.getId());
+
+            this.internalDelete(model, fakeAuth);
+        }
+    }
+
+    public void deleteAllByUser(List<SynchronizableDeleteModel<Long>> model, User user) throws AuthNullException {
+        final Auth fakeAuth = new Auth();
+        fakeAuth.setUser(user);
+
+        this.internalDeleteAll(model, fakeAuth);
+    }
+
+    public Optional<Phone> findById(Long id) {
+        return repository.findById(id);
+    }
+
+    public List<Phone> findAllByContactId(Long contactId) {
+        return repository.findAllByContactId(contactId);
+    }
+
+    private void searchContact(Phone entity, Long id, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        final Optional<Contact> contactSearch = contactService.getEntityByIdAndUserAuth(id, auth);
 
         if(contactSearch.isPresent()) {
             entity.setContact(contactSearch.get());
-        } else throw new ConvertModelToEntityException("Contato não encontrado");
+        } else throw new ConvertModelToEntityException(ContactsConstants.PHONE_INVALID_CONTACT);
     }
 
     private void searchEssentialContact(Phone entity, Long id) throws ConvertModelToEntityException {
@@ -138,8 +228,6 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
 
         if(essentialContactSearch.isPresent()) {
             entity.setEssentialContact(essentialContactSearch.get());
-        } else throw new ConvertModelToEntityException("Contato Essencial não encontrado");
+        } else throw new ConvertModelToEntityException(ContactsConstants.PHONE_INVALID_ECONTACT);
     }
-
-
 }

@@ -24,6 +24,10 @@ public class Contact extends SynchronizableEntity<Long> {
         private List<Phone> phones;
 
         @ManyToOne
+        @JoinColumn(name = "essential_contact_id")
+        private EssentialContact essentialContact;
+
+        @ManyToOne
         @JoinColumn(name = "user_id")
         private User user;
 
@@ -78,5 +82,13 @@ public class Contact extends SynchronizableEntity<Long> {
 
         public void setGoogleContacts(List<GoogleContact> googleContacts) {
                 this.googleContacts = googleContacts;
+        }
+
+        public EssentialContact getEssentialContact() {
+                return essentialContact;
+        }
+
+        public void setEssentialContact(EssentialContact essentialContact) {
+                this.essentialContact = essentialContact;
         }
 }

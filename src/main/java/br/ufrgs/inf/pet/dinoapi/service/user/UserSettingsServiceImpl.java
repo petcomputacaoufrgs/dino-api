@@ -116,7 +116,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public List<UserSettings> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+    public List<UserSettings> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -134,7 +134,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public List<UserSettings> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<UserSettings> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -149,6 +149,10 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
 
     public UserSettings saveOnDatabase(UserSettings userSettings) {
         return this.repository.save(userSettings);
+    }
+
+    public UserSettingsDataModel createUserSettingsDataModel(UserSettings userSettings) {
+        return this.completeConvertEntityToModel(userSettings);
     }
 
     private void validSettings(UserSettingsDataModel model) throws ConvertModelToEntityException {

@@ -28,12 +28,6 @@ public interface SynchronizableService<
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>> {
 
     /**
-     * Override it to define if entity should be deleted
-     * @param entity base entity
-     */
-    boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model);
-
-    /**
      * Create a complete data model ({@link DATA_MODEL}) based in an entity ({@link ENTITY})
      * @exception NullPointerException service will throws this exception if this method returns null
      * @param entity base entity
@@ -58,6 +52,7 @@ public interface SynchronizableService<
 
     /**
      * Get entity from database based on authenticated user for security validation (only takes data that the user has access)
+     * All data here can be edited and deleted by the user.
      * @param id entity's id
      * @param auth current auth user
      * @return database entity if valid params or null
@@ -66,13 +61,15 @@ public interface SynchronizableService<
 
     /**
      * Get entities from database based on authenticated user for security validation (only takes data that the user has access)
+     * Should be used without authentication when user can only see the data (without edit our remove).
      * @param auth current auth user
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesByUserAuth(Auth auth) throws AuthNullException;
+    List<ENTITY> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException;
 
     /**
      * Get entities from database using a list of ids based on authenticated user for security validation (only takes data that the user has access)
+     * All data here can be edited and deleted by the user.
      * @param ids list of entity ids
      * @param auth current auth user
      * @return list of database entities (can be an empty list)
@@ -81,11 +78,12 @@ public interface SynchronizableService<
 
     /**
      * Get entities from database based on authenticated user except when entity id is in param list "ids"
+     * Should be used without authentication when any user can only see the data (without edit our remove).
      * @param auth current auth user
      * @param ids ids of entities to exclude em search
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesByUserAuthExceptIds(Auth auth, List<ID> ids) throws AuthNullException;
+    List<ENTITY> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<ID> ids) throws AuthNullException;
 
     /**
      * Get WebSocket base destination

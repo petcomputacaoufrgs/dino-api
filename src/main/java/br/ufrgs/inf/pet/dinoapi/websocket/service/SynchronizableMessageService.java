@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -35,9 +36,21 @@ public abstract class SynchronizableMessageService<
         }
     }
 
+    public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum, User user) {
+        if (!data.isEmpty()) {
+            this.sendModel(this.generateUpdateModel(data), pathEnum.getValue() + webSocketUpdateURL, user);
+        }
+    }
+
     public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if(!data.isEmpty()) {
             this.sendModel(this.generateDeleteModel(data), pathEnum.getValue() + webSocketDeleteURL, auth);
+        }
+    }
+
+    public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, User user) {
+        if(!data.isEmpty()) {
+            this.sendModel(this.generateDeleteModel(data), pathEnum.getValue() + webSocketDeleteURL, user);
         }
     }
 
@@ -57,4 +70,5 @@ public abstract class SynchronizableMessageService<
 
     protected abstract <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth);
 
+    protected abstract <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, User user);
 }

@@ -60,7 +60,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesByUserAuth(Auth auth) {
+    public List<GlossaryItem> getEntitiesThatUserCanRead(Auth auth) {
         return this.repository.findAll();
     }
 
@@ -70,7 +70,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) {
+    public List<GlossaryItem> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
         return this.repository.findAllExceptIds(ids);
     }
 

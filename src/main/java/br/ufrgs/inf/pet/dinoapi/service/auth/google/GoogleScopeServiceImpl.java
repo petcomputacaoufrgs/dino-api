@@ -76,7 +76,7 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
     }
 
     @Override
-    public List<GoogleScope> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+    public List<GoogleScope> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -93,7 +93,7 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
     }
 
     @Override
-    public List<GoogleScope> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<GoogleScope> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -120,6 +120,10 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
 
     public List<GoogleScope> getEntitiesByName(User user, List<String> name) {
         return this.repository.findAllByName(user.getId(), name);
+    }
+
+    public List<GoogleScopeDataModel> createGoogleScopeDataModels(List<GoogleScope> googleScopes) {
+        return this.completeConvertEntitiesToModels(googleScopes);
     }
 
     private List<GoogleScopeDataModel> convertScopeStringInDataModel(Set<String> scopes) {

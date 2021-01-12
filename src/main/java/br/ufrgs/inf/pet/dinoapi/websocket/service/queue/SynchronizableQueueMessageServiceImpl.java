@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.service.queue;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSGenericModel;
@@ -27,6 +28,13 @@ public class SynchronizableQueueMessageServiceImpl<
     @Override
     protected <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth) {
         final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptByAuth(auth);
+        this.send(data, url, webSocketTokens);
+    }
+
+
+    @Override
+    protected <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, User user) {
+        final List<String> webSocketTokens = authService.getAllUserWebSocketToken(user);
         this.send(data, url, webSocketTokens);
     }
 

@@ -14,6 +14,16 @@ public final class ContactsConstants {
 
     public final static String TYPE_NULL_MESSAGE = "phone type cannot be null.";
 
+    public final static String PHONE_WITHOUT_CONTACT_OR_ECONTACT = "phone need to have a contact or a essential contact";
+
+    public final static String PHONE_WITH_CONTACT_AND_ECONTACT = "phone can not have both, contact and essential contact";
+
+    public final static String PHONE_INVALID_CONTACT = "invalid contact";
+
+    public final static String PHONE_INVALID_ECONTACT = "invalid essential contact";
+
+    public final static String IS_ESSENTIAL_NULL_MESSAGE = "isEssential cannot be null";
+
     public final static String CONTACT_ID_NULL_MESSAGE = "contact id cannot be null";
 
     public final static String INVALID_CONTACT = "Invalid contact";

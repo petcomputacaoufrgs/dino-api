@@ -99,7 +99,7 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public List<Note> getEntitiesByUserAuth(Auth auth) throws AuthNullException {
+    public List<Note> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -115,7 +115,7 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public List<Note> getEntitiesByUserAuthExceptIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<Note> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
