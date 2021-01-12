@@ -121,31 +121,34 @@ public class EssentialContactServiceImpl extends
         }
 
         for (User user : users) {
-            final ContactDataModel contactDataModel = new ContactDataModel();
-            contactDataModel.setEssentialContactId(model.getId());
-            contactDataModel.setColor(model.getColor());
-            contactDataModel.setDescription(model.getDescription());
-            contactDataModel.setName(model.getName());
-            contactDataModel.setLastUpdate(clock.getUTCZonedDateTime());
+            if(user.getUserAppSettings().getIncludeEssentialContact()) {
+                final ContactDataModel contactDataModel = new ContactDataModel();
+                contactDataModel.setEssentialContactId(model.getId());
+                contactDataModel.setColor(model.getColor());
+                contactDataModel.setDescription(model.getDescription());
+                contactDataModel.setName(model.getName());
+                contactDataModel.setLastUpdate(clock.getUTCZonedDateTime());
 
-            contactService.saveByUser(contactDataModel, user);
+                contactService.saveByUser(contactDataModel, user);
+            }
         }
     }
 
     @Override
     protected void onDataUpdated(EssentialContactDataModel model, EssentialContact entity) throws AuthNullException, ConvertModelToEntityException {
        final List<Contact> contacts = contactService.findAllByEssentialContactId(model.getId());
+       for (Contact contact : contacts) {
+           final User user = contact.getUser();
 
-        for (Contact contact : contacts) {
-            final ContactDataModel contactDataModel = new ContactDataModel();
-            contactDataModel.setEssentialContactId(model.getId());
-            contactDataModel.setColor(model.getColor());
-            contactDataModel.setDescription(model.getDescription());
-            contactDataModel.setName(model.getName());
-            contactDataModel.setLastUpdate(clock.getUTCZonedDateTime());
-            contactDataModel.setId(contact.getId());
+           final ContactDataModel contactDataModel = new ContactDataModel();
+           contactDataModel.setEssentialContactId(model.getId());
+           contactDataModel.setColor(model.getColor());
+           contactDataModel.setDescription(model.getDescription());
+           contactDataModel.setName(model.getName());
+           contactDataModel.setLastUpdate(clock.getUTCZonedDateTime());
+           contactDataModel.setId(contact.getId());
 
-            contactService.saveByUser(contactDataModel, contact.getUser());
+           contactService.saveByUser(contactDataModel, contact.getUser());
         }
     }
 

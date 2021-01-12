@@ -143,21 +143,25 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
         final List<Phone> phones = repository.findAllByEssentialContactId(essentialContactId);
 
         for (Contact contact : contacts) {
-            final Auth fakeAuth = new Auth();
-            fakeAuth.setUser(contact.getUser());
+            final User user = contact.getUser();
 
-            final List<PhoneDataModel> phoneDataModels = phones.stream().map(phone -> {
-                final PhoneDataModel phoneDataModel = new PhoneDataModel();
-                phoneDataModel.setType(phone.getType());
-                phoneDataModel.setNumber(phone.getNumber());
-                phoneDataModel.setContactId(contact.getId());
-                phoneDataModel.setLastUpdate(clock.getUTCZonedDateTime());
-                phoneDataModel.setOriginalEssentialPhoneId(phone.getId());
+            if (user.getUserAppSettings().getIncludeEssentialContact()) {
+                final Auth fakeAuth = new Auth();
+                fakeAuth.setUser(user);
 
-                return phoneDataModel;
-            }).collect(Collectors.toList());
+                final List<PhoneDataModel> phoneDataModels = phones.stream().map(phone -> {
+                    final PhoneDataModel phoneDataModel = new PhoneDataModel();
+                    phoneDataModel.setType(phone.getType());
+                    phoneDataModel.setNumber(phone.getNumber());
+                    phoneDataModel.setContactId(contact.getId());
+                    phoneDataModel.setLastUpdate(clock.getUTCZonedDateTime());
+                    phoneDataModel.setOriginalEssentialPhoneId(phone.getId());
 
-            this.internalSaveAll(phoneDataModels, fakeAuth);
+                    return phoneDataModel;
+                }).collect(Collectors.toList());
+
+                this.internalSaveAll(phoneDataModels, fakeAuth);
+            }
         }
     }
 
