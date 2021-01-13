@@ -21,5 +21,7 @@ public class GoogleAuthConstants {
 
     public final static int REFRESH_TOKEN_MAX = 200;
 
+    public final static int ACCESS_TOKEN_MAX = 400;
+
     public final static int GOOGLE_SCOPE_MAX = 200;
 }

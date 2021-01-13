@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -20,7 +20,7 @@ import java.util.Optional;
 public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, Long, Integer, TreatmentDataModel, TreatmentRepository>  {
 
     @Autowired
-    public TreatmentServiceImpl(TreatmentRepository repository, AuthServiceImpl authService,
+    public TreatmentServiceImpl(TreatmentRepository repository, OAuthServiceImpl authService,
                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                 SynchronizableTopicMessageServiceImpl<Long, Integer, TreatmentDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);

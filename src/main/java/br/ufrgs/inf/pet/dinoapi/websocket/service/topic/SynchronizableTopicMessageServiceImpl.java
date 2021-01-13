@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.websocket.service.topic;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSGenericModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ public class SynchronizableTopicMessageServiceImpl<
 
     @Autowired
     public SynchronizableTopicMessageServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                                 AuthServiceImpl authService) {
+                                                 OAuthServiceImpl authService) {
         super(simpMessagingTemplate, authService);
     }
 

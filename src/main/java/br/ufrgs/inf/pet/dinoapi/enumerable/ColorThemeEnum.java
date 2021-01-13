@@ -1,13 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.enumerable;
 
-public enum GoogleAuthErrorCode {
-    REFRESH_TOKEN(0),
-    EXCEPTION(1),
-    INVALID_GOOGLE_GRANT_USER(2);
+public enum ColorThemeEnum {
+    LIGHT(1),
+    DARK(2),
+    DALTONIAN(3),
+    DEVICE(4);
 
     private int value;
 
-    GoogleAuthErrorCode(int value) {
+    ColorThemeEnum(int value) {
         this.value = value;
     }
 

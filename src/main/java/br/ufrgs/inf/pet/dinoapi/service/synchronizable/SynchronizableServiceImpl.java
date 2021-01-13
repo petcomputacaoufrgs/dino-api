@@ -11,7 +11,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
@@ -45,11 +45,11 @@ public abstract class SynchronizableServiceImpl<
         REPOSITORY extends CrudRepository<ENTITY, ID>> extends LogUtilsBase implements SynchronizableService<ENTITY, ID, LOCAL_ID, DATA_MODEL> {
 
     protected final REPOSITORY repository;
-    protected final AuthServiceImpl authService;
+    protected final OAuthServiceImpl authService;
     protected final SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService;
     protected final ClockServiceImpl clock;
 
-    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService, ClockServiceImpl clock,
+    public SynchronizableServiceImpl(REPOSITORY repository, OAuthServiceImpl authService, ClockServiceImpl clock,
                                      SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService,
                                      LogAPIErrorServiceImpl logAPIErrorService) {
         super(logAPIErrorService);

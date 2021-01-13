@@ -7,11 +7,12 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeURLEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleScopeDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleScopeRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -27,7 +28,7 @@ import java.util.stream.Collectors;
 @Service
 public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScope, Long, Integer, GoogleScopeDataModel, GoogleScopeRepository> {
     @Autowired
-    public GoogleScopeServiceImpl(GoogleScopeRepository repository, AuthServiceImpl authService,
+    public GoogleScopeServiceImpl(GoogleScopeRepository repository, OAuthServiceImpl authService,
                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                   SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleScopeDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
@@ -124,6 +125,13 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
 
     public List<GoogleScopeDataModel> createGoogleScopeDataModels(List<GoogleScope> googleScopes) {
         return this.completeConvertEntitiesToModels(googleScopes);
+    }
+
+    public boolean hasGoogleContactScope(User user) {
+        final Optional<GoogleScope> contactGoogleScopeSearch =
+                this.repository.findByName(user.getId(), GoogleScopeURLEnum.SCOPE_CONTACT.getValue());
+
+        return contactGoogleScopeSearch.isPresent();
     }
 
     private List<GoogleScopeDataModel> convertScopeStringInDataModel(Set<String> scopes) {

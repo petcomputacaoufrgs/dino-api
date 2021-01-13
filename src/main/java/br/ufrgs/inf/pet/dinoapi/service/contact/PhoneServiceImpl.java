@@ -12,7 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -30,7 +30,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     private final EssentialContactRepository essentialContactRepository;
 
     @Autowired
-    public PhoneServiceImpl(PhoneRepository repository, AuthServiceImpl authService,
+    public PhoneServiceImpl(PhoneRepository repository, OAuthServiceImpl authService,
                             SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                             ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository) {

@@ -1,13 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.enumerable;
 
-public enum FontSize {
-    DEFAULT(1),
-    LARGE(2),
-    LARGER(3);
+public enum GoogleAuthErrorCodeEnum {
+    REFRESH_TOKEN(0),
+    EXCEPTION(1),
+    INVALID_GOOGLE_GRANT_USER(2);
 
     private int value;
 
-    FontSize(int value) {
+    GoogleAuthErrorCodeEnum(int value) {
         this.value = value;
     }
 

@@ -24,4 +24,7 @@ public interface GoogleScopeRepository extends CrudRepository<GoogleScope, Long>
 
     @Query("SELECT n FROM GoogleScope n WHERE n.googleAuth.user.id = :userId AND n.name IN :names")
     List<GoogleScope> findAllByName(@Param("userId") Long userId, @Param("names") List<String> names);
+
+    @Query("SELECT n FROM GoogleScope n WHERE n.googleAuth.user.id = :userId AND n.name = :name")
+    Optional<GoogleScope> findByName(@Param("userId") Long userId, @Param("name") String name);
 }

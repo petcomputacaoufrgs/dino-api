@@ -7,7 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -23,7 +23,7 @@ import java.util.Optional;
 public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integer, UserDataModel, UserRepository> {
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
+    public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                            SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {
         super(userRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);

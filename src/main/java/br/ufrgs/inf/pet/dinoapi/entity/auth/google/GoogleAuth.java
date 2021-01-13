@@ -5,18 +5,15 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import static javax.persistence.GenerationType.SEQUENCE;
+import static javax.persistence.GenerationType.AUTO;
 
 @Entity
 @Table(name = "google_auth")
 public class GoogleAuth {
-    private static final String SEQUENCE_NAME = "google_auth_seq";
-
     @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
+    @GeneratedValue(strategy = AUTO)
     @Column(name = "id", nullable = false)
-    private Long id;
+    protected Long id;
 
     @Column(name = "google_id", length = GoogleAuthConstants.GOOGLE_ID_MAX, unique = true, nullable = false)
     private String googleId;

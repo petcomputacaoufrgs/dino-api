@@ -2,8 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,14 +24,14 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private UserServiceImpl userService;
 
-    private AuthServiceImpl authService;
+    private OAuthServiceImpl authService;
 
-    private GoogleAuthServiceImpl googleAuthService;
+    private GoogleOAuthServiceImpl googleAuthService;
 
     private DinoUserDetailsService dinoUserDetailsService;
 
     @Autowired
-    public AuthFilter(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
+    public AuthFilter(UserServiceImpl userService, OAuthServiceImpl authService, GoogleOAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
         super();
         this.userService = userService;
         this.authService = authService;
@@ -67,10 +67,12 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private void setAuth(HttpServletRequest httpServletRequest, Auth auth) {
-        final DinoAuthenticationToken dinoAuthToken = this.dinoUserDetailsService.loadDinoUserByAuth(auth);
-        dinoAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
+        if (authService.isValidAccessToken(auth.getAccessToken())) {
+            final DinoAuthenticationToken dinoAuthToken = dinoUserDetailsService.loadDinoUserByAuth(auth);
+            dinoAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
-        SecurityContextHolder.getContext().setAuthentication(dinoAuthToken);
+            SecurityContextHolder.getContext().setAuthentication(dinoAuthToken);
+        }
     }
 
     private String getAuthToken(HttpServletRequest httpServletRequest) {
@@ -93,11 +95,11 @@ public class AuthFilter extends OncePerRequestFilter {
             }
 
             if(this.authService == null) {
-                this.authService = webApplicationContext.getBean(AuthServiceImpl.class);
+                this.authService = webApplicationContext.getBean(OAuthServiceImpl.class);
             }
 
             if(this.googleAuthService == null) {
-                this.googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
+                this.googleAuthService = webApplicationContext.getBean(GoogleOAuthServiceImpl.class);
             }
 
             if(this.dinoUserDetailsService == null){

@@ -7,9 +7,10 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -26,7 +27,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     private final ContactServiceImpl contactService;
 
     @Autowired
-    public GoogleContactServiceImpl(GoogleContactRepository repository, AuthServiceImpl authService, ContactServiceImpl contactService,
+    public GoogleContactServiceImpl(GoogleContactRepository repository, OAuthServiceImpl authService, ContactServiceImpl contactService,
                                     SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleContactDataModel> synchronizableQueueMessageService,
                                     ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
@@ -101,5 +102,12 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.GOOGLE_CONTACT;
+    }
+
+    public GoogleContactDataModel saveByUser(GoogleContactDataModel googleContactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
+        final Auth fakeAuth = new Auth();
+        fakeAuth.setUser(user);
+
+        return this.internalSave(googleContactDataModel, fakeAuth);
     }
 }

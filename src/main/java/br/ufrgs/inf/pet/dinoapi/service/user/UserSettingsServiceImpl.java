@@ -4,13 +4,13 @@ import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
-import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
-import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
+import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -28,7 +28,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
-    public UserSettingsServiceImpl(UserSettingsRepository repository, AuthServiceImpl authService, TreatmentServiceImpl treatmentService,
+    public UserSettingsServiceImpl(UserSettingsRepository repository, OAuthServiceImpl authService, TreatmentServiceImpl treatmentService,
                                    SynchronizableQueueMessageServiceImpl<Long, Integer, UserSettingsDataModel> synchronizableQueueMessageService,
                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
@@ -170,9 +170,9 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
             return true;
         }
 
-        ColorTheme[] colorThemes = ColorTheme.values();
+        ColorThemeEnum[] colorThemeEnums = ColorThemeEnum.values();
 
-        for (ColorTheme theme : colorThemes)
+        for (ColorThemeEnum theme : colorThemeEnums)
             if (theme.getValue() == colorTheme)
                 return true;
         return false;
@@ -183,9 +183,9 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
             return true;
         }
 
-        FontSize[] fontSizes = FontSize.values();
+        FontSizeEnum[] fontSizeEnums = FontSizeEnum.values();
 
-        for (FontSize size : fontSizes)
+        for (FontSizeEnum size : fontSizeEnums)
             if (size.getValue() == fontSize)
                 return true;
         return false;

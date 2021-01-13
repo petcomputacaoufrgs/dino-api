@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -27,7 +27,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     private final EssentialContactRepository essentialContactRepository;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
+    public ContactServiceImpl(ContactRepository repository, OAuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                               SynchronizableQueueMessageServiceImpl<Long, Integer, ContactDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
@@ -125,10 +125,10 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         return this.repository.findByIdAndUserId(id, user.getId());
     }
 
-    public void saveByUser(ContactDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
+    public ContactDataModel saveByUser(ContactDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
         final Auth fakeAuth = this.getFakeAuth(user);
 
-        this.internalSave(contactDataModel, fakeAuth);
+        return this.internalSave(contactDataModel, fakeAuth);
     }
 
     public void deleteByUser(SynchronizableDeleteModel<Long> model, User user) throws AuthNullException {

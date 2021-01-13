@@ -7,8 +7,8 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleGrantRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,12 +17,12 @@ import javax.validation.Valid;
 @RestController
 public class AuthControllerImpl implements AuthController {
 
-    private final GoogleAuthServiceImpl googleAuthService;
+    private final GoogleOAuthServiceImpl googleAuthService;
 
-    private final AuthServiceImpl authService;
+    private final OAuthServiceImpl authService;
 
     @Autowired
-    public AuthControllerImpl(GoogleAuthServiceImpl googleAuthService, AuthServiceImpl authService) {
+    public AuthControllerImpl(GoogleOAuthServiceImpl googleAuthService, OAuthServiceImpl authService) {
         this.googleAuthService = googleAuthService;
         this.authService = authService;
     }

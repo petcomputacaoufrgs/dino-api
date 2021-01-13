@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
-import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleAPICommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
 import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
@@ -53,14 +53,14 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
     private final GoogleScopeServiceImpl googleScopeService;
 
-    private final GoogleAPICommunicationImpl googleAPICommunicationImpl;
+    private final GoogleaOAuthCommunicationImpl googleAPICommunicationImpl;
 
     private final ClockServiceImpl clockService;
 
     @Autowired
     public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService,
                                  GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
-                                 GoogleAPICommunicationImpl googleAPICommunicationImpl,
+                                 GoogleaOAuthCommunicationImpl googleAPICommunicationImpl,
                                  ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                  UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
@@ -285,7 +285,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
         try {
             final Auth auth = authService.getCurrentAuth();
 
-            GoogleAuth googleAuth = this.getUserGoogleAuth(auth);
+            final GoogleAuth googleAuth = this.getUserGoogleAuth(auth);
 
             if (googleAuth != null) {
                 try {
@@ -324,7 +324,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
         return googleAuthRepository.save(googleAuth);
     }
 
-    private List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException {
+    public List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException {
         final List<String> scopes = new LinkedList<>(currentScopes);
 
         List<GoogleScope> databaseScopes = googleScopeService.getEntitiesThatUserCanRead(auth);
@@ -405,7 +405,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
     private GoogleRefreshAuthResponseDataModel refreshGoogleAuth(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
         if (googleAuth != null) {
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.refreshAccessToken(googleAuth.getRefreshToken());
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getNewAccessTokenWithRefreshToken(googleAuth.getRefreshToken());
             final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
             final Auth auth = authService.getCurrentAuth();

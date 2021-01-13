@@ -1,14 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.enumerable;
 
-public enum ColorTheme {
-    LIGHT(1),
-    DARK(2),
-    DALTONIAN(3),
-    DEVICE(4);
+public enum FontSizeEnum {
+    DEFAULT(1),
+    LARGE(2),
+    LARGER(3);
 
     private int value;
 
-    ColorTheme(int value) {
+    FontSizeEnum(int value) {
         this.value = value;
     }
 

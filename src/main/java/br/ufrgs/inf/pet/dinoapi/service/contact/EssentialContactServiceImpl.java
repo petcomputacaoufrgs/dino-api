@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.communication.google.people.GooglePeopleCommunication;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
@@ -11,10 +12,12 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -37,18 +40,23 @@ public class EssentialContactServiceImpl extends
     private final UserServiceImpl userService;
     private final ContactServiceImpl contactService;
     private final PhoneServiceImpl phoneService;
+    private final GooglePeopleCommunication googlePeopleCommunication;
+    private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
     public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository, PhoneServiceImpl phoneService,
-                                       AuthServiceImpl authService, ClockServiceImpl clock, UserServiceImpl userService, TreatmentServiceImpl treatmentService,
-                                       ContactServiceImpl contactService, LogAPIErrorServiceImpl logAPIErrorService,
-                                       SynchronizableTopicMessageServiceImpl<Long, Integer, EssentialContactDataModel> synchronizableTopicMessageService) {
+                                       OAuthServiceImpl authService, ClockServiceImpl clock, UserServiceImpl userService, TreatmentServiceImpl treatmentService,
+                                       ContactServiceImpl contactService, LogAPIErrorServiceImpl logAPIErrorService, GooglePeopleCommunication googlePeopleCommunication,
+                                       SynchronizableTopicMessageServiceImpl<Long, Integer, EssentialContactDataModel> synchronizableTopicMessageService,
+                                       GoogleContactServiceImpl googleContactService) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;
         this.userService = userService;
         this.contactService = contactService;
         this.treatmentService = treatmentService;
         this.phoneService = phoneService;
+        this.googlePeopleCommunication = googlePeopleCommunication;
+        this.googleContactService = googleContactService;
     }
 
     @Override
@@ -129,7 +137,17 @@ public class EssentialContactServiceImpl extends
                 contactDataModel.setName(model.getName());
                 contactDataModel.setLastUpdate(clock.getUTCZonedDateTime());
 
-                contactService.saveByUser(contactDataModel, user);
+                final ContactDataModel resultDataModel = contactService.saveByUser(contactDataModel, user);
+                final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.createContact(user, resultDataModel);
+
+                if (googlePeopleModel != null) {
+                    final GoogleContactDataModel googleContactDataModel = new GoogleContactDataModel();
+                    googleContactDataModel.setContactId(contactDataModel.getId());
+                    googleContactDataModel.setLastUpdate(this.clock.getUTCZonedDateTime());
+                    googleContactDataModel.setResourceName(googlePeopleModel.getResourceName());
+
+                    googleContactService.saveByUser(googleContactDataModel, user);
+                }
             }
         }
     }
@@ -138,8 +156,6 @@ public class EssentialContactServiceImpl extends
     protected void onDataUpdated(EssentialContactDataModel model, EssentialContact entity) throws AuthNullException, ConvertModelToEntityException {
        final List<Contact> contacts = contactService.findAllByEssentialContactId(model.getId());
        for (Contact contact : contacts) {
-           final User user = contact.getUser();
-
            final ContactDataModel contactDataModel = new ContactDataModel();
            contactDataModel.setEssentialContactId(model.getId());
            contactDataModel.setColor(model.getColor());

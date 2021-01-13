@@ -31,7 +31,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class AuthServiceImpl implements AuthService {
+public class OAuthServiceImpl implements OAuthService {
 
     private static final String ACCESS_TOKEN_KEY = "ie!>[é1roh]f!7RmdPâpzõJ?sAQ(55+ç#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>pó[@t/ãSX]ÊTD}504T)ç5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
     private final ClockServiceImpl clockService;
 
     @Autowired
-    public AuthServiceImpl(AuthRepository authRepository, ClockServiceImpl clockService) {
+    public OAuthServiceImpl(AuthRepository authRepository, ClockServiceImpl clockService) {
         this.authRepository = authRepository;
         this.clockService = clockService;
     }

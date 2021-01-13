@@ -11,7 +11,7 @@ public final class AuthConstants {
 
     public final static String INVALID_AUTH = "Authentication error";
 
-    public final static String INTERNAL_ERROR= "Internal server error";
+    public final static String UNKNOWN_ERROR = "Unknown server error";
 
-    public final static String UNKNOWN_ERROR= "Unknown server error";
+    public final static String ERROR_READING_CONFIG_FILES = "Internal server error";
 }
