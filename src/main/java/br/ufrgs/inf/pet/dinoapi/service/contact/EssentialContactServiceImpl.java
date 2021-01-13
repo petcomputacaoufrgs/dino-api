@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.communication.google.people.GooglePeopleCommunic
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
@@ -137,17 +138,9 @@ public class EssentialContactServiceImpl extends
                 contactDataModel.setName(model.getName());
                 contactDataModel.setLastUpdate(clock.getUTCZonedDateTime());
 
-                final ContactDataModel resultDataModel = contactService.saveByUser(contactDataModel, user);
-                final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.createContact(user, resultDataModel);
+                final ContactDataModel savedDataModel = contactService.saveByUser(contactDataModel, user);
 
-                if (googlePeopleModel != null) {
-                    final GoogleContactDataModel googleContactDataModel = new GoogleContactDataModel();
-                    googleContactDataModel.setContactId(contactDataModel.getId());
-                    googleContactDataModel.setLastUpdate(this.clock.getUTCZonedDateTime());
-                    googleContactDataModel.setResourceName(googlePeopleModel.getResourceName());
-
-                    googleContactService.saveByUser(googleContactDataModel, user);
-                }
+                this.createGoogleContact(user, savedDataModel);
             }
         }
     }
@@ -156,6 +149,8 @@ public class EssentialContactServiceImpl extends
     protected void onDataUpdated(EssentialContactDataModel model, EssentialContact entity) throws AuthNullException, ConvertModelToEntityException {
        final List<Contact> contacts = contactService.findAllByEssentialContactId(model.getId());
        for (Contact contact : contacts) {
+           final User user = contact.getUser();
+
            final ContactDataModel contactDataModel = new ContactDataModel();
            contactDataModel.setEssentialContactId(model.getId());
            contactDataModel.setColor(model.getColor());
@@ -164,7 +159,15 @@ public class EssentialContactServiceImpl extends
            contactDataModel.setLastUpdate(clock.getUTCZonedDateTime());
            contactDataModel.setId(contact.getId());
 
-           contactService.saveByUser(contactDataModel, contact.getUser());
+           final ContactDataModel savedDataModel = contactService.saveByUser(contactDataModel, user);
+           final Long contactId = savedDataModel.getId();
+           final Optional<GoogleContact> googleContact = googleContactService.findByContactId(contactId);
+           if (googleContact.isEmpty()) {
+               this.createGoogleContact(user, savedDataModel);
+           } else {
+               final List<String> phones = phoneService.findAllByContactId(contactId).stream().map(Phone::getNumber).collect(Collectors.toList());
+               googlePeopleCommunication.updateContact(user, savedDataModel.getName(), savedDataModel.getDescription(), phones, googleContact.get());
+           }
         }
     }
 
@@ -173,24 +176,40 @@ public class EssentialContactServiceImpl extends
         final List<Contact> contacts = contactService.findAllByEssentialContactId(entity.getId());
 
         for (Contact contact : contacts) {
+            final User user = contact.getUser();
+
+            final Optional<GoogleContact> googleContact = googleContactService.findByContactId(contact.getId());
+            googleContact.ifPresent(value -> googlePeopleCommunication.deleteContact(user, value));
+
             final List<Phone> phones = phoneService.findAllByContactId(contact.getId());
 
             final List<SynchronizableDeleteModel<Long>> phoneModels = phones.stream().map(phone -> {
                 final SynchronizableDeleteModel<Long> model = new SynchronizableDeleteModel<>();
                 model.setLastUpdate(clock.getUTCZonedDateTime());
                 model.setId(phone.getId());
-
                 return model;
             }).collect(Collectors.toList());
-
-            phoneService.deleteAllByUser(phoneModels, contact.getUser());
+            phoneService.deleteAllByUser(phoneModels, user);
 
             final SynchronizableDeleteModel<Long> model = new SynchronizableDeleteModel<>();
             model.setLastUpdate(clock.getUTCZonedDateTime());
             model.setId(contact.getId());
-
-            contactService.deleteByUser(model, contact.getUser());
+            contactService.deleteByUser(model, user);
         }
+    }
+
+    private void createGoogleContact(User user, ContactDataModel savedDataModel) throws AuthNullException, ConvertModelToEntityException {
+        final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.createContact(user, savedDataModel.getName(), savedDataModel.getDescription());
+
+        final GoogleContactDataModel googleContactDataModel = new GoogleContactDataModel();
+        googleContactDataModel.setContactId(savedDataModel.getId());
+        googleContactDataModel.setLastUpdate(this.clock.getUTCZonedDateTime());
+
+        if (googlePeopleModel != null) {
+            googleContactDataModel.setResourceName(googlePeopleModel.getResourceName());
+        }
+
+        googleContactService.saveByUser(googleContactDataModel, user);
     }
 
     private void searchTreatments(EssentialContact entity, List<Long> treatmentIds) {

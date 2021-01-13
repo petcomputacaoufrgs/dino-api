@@ -10,16 +10,18 @@ import java.util.Optional;
 
 @Repository
 public interface GoogleContactRepository extends CrudRepository<GoogleContact, Long> {
-    @Query("SELECT n FROM GoogleContact n WHERE n.contact.id = :id AND n.contact.user.id = :userId")
+    @Query("SELECT n FROM GoogleContact n WHERE n.id = :id AND n.contact.user.id = :userId")
     Optional<GoogleContact> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
     @Query("SELECT n FROM GoogleContact n WHERE n.contact.user.id = :id")
     List<GoogleContact> findAllByUserId(@Param("id") Long id);
 
-    @Query("SELECT n FROM GoogleContact n WHERE n.contact.id IN :userId AND n.contact.user.id = :ids")
+    @Query("SELECT n FROM GoogleContact n WHERE n.id IN :userId AND n.contact.user.id = :ids")
     List<GoogleContact> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
-    @Query("SELECT n FROM GoogleContact n WHERE n.contact.id NOT IN :ids AND n.contact.user.id = :userId")
+    @Query("SELECT n FROM GoogleContact n WHERE n.id NOT IN :ids AND n.contact.user.id = :userId")
     List<GoogleContact> findAllByUserIdExceptIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
 
+    @Query("SELECT n FROM GoogleContact n WHERE n.contact.id = :contactId")
+    Optional<GoogleContact> findByContactId(@Param("contactId") Long contactId);
 }

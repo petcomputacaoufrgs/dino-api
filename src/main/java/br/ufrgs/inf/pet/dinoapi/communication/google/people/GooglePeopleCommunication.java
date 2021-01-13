@@ -19,26 +19,29 @@ public interface GooglePeopleCommunication {
 
     /**
      * Save a contact on Google People API
-     *  @param user dino user that owns the contact
+     * @param user dino user that owns the contact
+     * @param name contact name
+     * @param description contact description
      * @param contactDataModel data model of contact to save
      * @return saved GooglePeopleModel or null
      */
-    GooglePeopleModel createContact(User user, ContactDataModel contactDataModel);
+    GooglePeopleModel createContact(User user, String name, String description);
 
     /**
      * Save a contact on Google People API
-     *  @param user dino user that owns the contact
-     * @param contactDataModel data model of contact to save
+     * @param user dino user that owns the contact
+     * @param name contact name
+     * @param description contact description
+     * @param phoneNumbers list of contact's phone numbers
      * @param googleContact saved GoogleContact
      * @return saved GooglePeopleModel or null
      */
-    GooglePeopleModel updateContact(User user, ContactDataModel contactDataModel, List<Phone> phones, GoogleContact googleContact);
+    GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, GoogleContact googleContact);
 
     /**
      * Delete a contact on Google People API
      * @param user dino user that owns the contact
-     * @param contactDataModel data model of contact to save
      * @param googleContact saved GoogleContact
      */
-    void deleteContact(User user, ContactDataModel contactDataModel, List<Phone> phones, GoogleContact googleContact);
+    void deleteContact(User user, GoogleContact googleContact);
 }

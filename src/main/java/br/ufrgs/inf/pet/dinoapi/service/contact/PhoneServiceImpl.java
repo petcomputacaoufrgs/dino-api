@@ -1,9 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.communication.google.people.GooglePeopleCommunication;
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
@@ -28,15 +30,20 @@ import java.util.stream.Collectors;
 public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Integer, PhoneDataModel, PhoneRepository> {
     private final ContactServiceImpl contactService;
     private final EssentialContactRepository essentialContactRepository;
+    private final GooglePeopleCommunication googlePeopleCommunication;
+    private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, OAuthServiceImpl authService,
                             SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                            ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository) {
+                            ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository,
+                            GooglePeopleCommunication googlePeopleCommunication, GoogleContactServiceImpl googleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;
         this.essentialContactRepository = essentialContactRepository;
+        this.googlePeopleCommunication = googlePeopleCommunication;
+        this.googleContactService = googleContactService;
     }
 
     @Override
@@ -160,7 +167,12 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
                     return phoneDataModel;
                 }).collect(Collectors.toList());
 
-                this.internalSaveAll(phoneDataModels, fakeAuth);
+                final List<PhoneDataModel> savedDataModels = this.internalSaveAll(phoneDataModels, fakeAuth);
+
+                if (savedDataModels.size() > 0) {
+                    final List<String> phoneNumbers = savedDataModels.stream().map(PhoneDataModel::getNumber).collect(Collectors.toList());
+                    this.updateGoogleContactPhones(user, contact, phoneNumbers);
+                }
             }
         }
     }
@@ -174,8 +186,11 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
         final List<Phone> phones = repository.findAllByOriginalEssentialPhone(entity);
 
         for (Phone phone : phones) {
+            final Contact contact = phone.getContact();
+            final User user = contact.getUser();
+
             final Auth fakeAuth = new Auth();
-            fakeAuth.setUser(phone.getContact().getUser());
+            fakeAuth.setUser(user);
 
             final PhoneDataModel phoneDataModel = new PhoneDataModel();
             phoneDataModel.setType(phone.getType());
@@ -184,7 +199,12 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
             phoneDataModel.setLastUpdate(clock.getUTCZonedDateTime());
             phoneDataModel.setId(phone.getId());
             phoneDataModel.setOriginalEssentialPhoneId(entity.getId());
-            this.internalSave(phoneDataModel, fakeAuth);
+
+            final PhoneDataModel saveDataModel = this.internalSave(phoneDataModel, fakeAuth);
+
+            if (saveDataModel != null) {
+                this.updateGoogleContactPhones(user, contact);
+            }
         }
     }
 
@@ -193,14 +213,19 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
         final List<Phone> phones = repository.findAllByOriginalEssentialPhone(entity);
 
         for (Phone phone : phones) {
+            final Contact contact = phone.getContact();
+            final User user = contact.getUser();
+
             final Auth fakeAuth = new Auth();
-            fakeAuth.setUser(phone.getContact().getUser());
+            fakeAuth.setUser(user);
 
             final SynchronizableDeleteModel<Long> model = new SynchronizableDeleteModel<>();
             model.setLastUpdate(clock.getUTCZonedDateTime());
             model.setId(phone.getId());
 
             this.internalDelete(model, fakeAuth);
+
+            this.updateGoogleContactPhones(user, contact);
         }
     }
 
@@ -217,6 +242,24 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
 
     public List<Phone> findAllByContactId(Long contactId) {
         return repository.findAllByContactId(contactId);
+    }
+
+    private void updateGoogleContactPhones(User user, Contact contact) {
+        final Optional<GoogleContact> googleContactSearch = googleContactService.findByContactId(contact.getId());
+
+        googleContactSearch.ifPresent(googleContact -> {
+            final List<Phone> contactPhones = repository.findAllByContactId(contact.getId());
+            final List<String> phoneNumbers = contactPhones.stream().map(Phone::getNumber).collect(Collectors.toList());
+
+            googlePeopleCommunication.updateContact(user, contact.getName(), contact.getDescription(), phoneNumbers, googleContact);
+        });
+    }
+
+    private void updateGoogleContactPhones(User user, Contact contact, List<String> phoneNumbers) {
+        final Optional<GoogleContact> googleContactSearch = googleContactService.findByContactId(contact.getId());
+
+        googleContactSearch.ifPresent(googleContact -> googlePeopleCommunication
+                .updateContact(user, contact.getName(), contact.getDescription(), phoneNumbers, googleContact));
     }
 
     private void searchContact(Phone entity, Long id, Auth auth) throws ConvertModelToEntityException, AuthNullException {

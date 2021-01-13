@@ -85,7 +85,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel createContact(User user, ContactDataModel contactDataModel) {
+    public GooglePeopleModel createContact(User user, String name, String description) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -95,7 +95,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
             if (accessToken == null) return null;
 
-            final GooglePeopleModel googlePeopleModel = this.getGooglePeopleModel(contactDataModel, new ArrayList<>());
+            final GooglePeopleModel googlePeopleModel = this.getGooglePeopleModel(name, description, new ArrayList<>());
 
             final String jsonModel = JsonUtils.convertToJson(googlePeopleModel);
 
@@ -118,7 +118,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel updateContact(User user, ContactDataModel contactDataModel, List<Phone> phones, GoogleContact googleContact) {
+    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, GoogleContact googleContact) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -130,7 +130,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
             final GooglePeopleModel currentPeopleModel = this.getContact(user, googleContact);
 
-            final GooglePeopleModel newGooglePeopleModel = this.getGooglePeopleModel(contactDataModel, phones);
+            final GooglePeopleModel newGooglePeopleModel = this.getGooglePeopleModel(name, description, phoneNumbers);
             newGooglePeopleModel.setEtag(currentPeopleModel.getEtag());
 
             final String jsonModel = JsonUtils.convertToJson(newGooglePeopleModel);
@@ -157,7 +157,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public void deleteContact(User user, ContactDataModel contactDataModel, List<Phone> phones, GoogleContact googleContact) {
+    public void deleteContact(User user, GoogleContact googleContact) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -195,25 +195,25 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
                 .send(request, HttpResponse.BodyHandlers.ofString());
     }
 
-    private GooglePeopleModel getGooglePeopleModel(ContactDataModel contactDataModel, List<Phone> phones) {
+    private GooglePeopleModel getGooglePeopleModel(String name, String description, List<String> phoneNumbers) {
         final GooglePeopleModel model = new GooglePeopleModel();
 
         final GooglePeopleNameModel nameModel = new GooglePeopleNameModel();
-        nameModel.setGivenName(contactDataModel.getName());
+        nameModel.setGivenName(name);
 
         model.setNames(Collections.singletonList(nameModel));
 
-        if (phones.size() > 0) {
-            model.setPhoneNumbers(phones.stream().map(phone -> {
+        if (phoneNumbers.size() > 0) {
+            model.setPhoneNumbers(phoneNumbers.stream().map(phoneNumber -> {
                 final GooglePeoplePhoneNumberModel numberModel = new GooglePeoplePhoneNumberModel();
-                numberModel.setValue(phone.getNumber());
+                numberModel.setValue(phoneNumber);
                 return numberModel;
             }).collect(Collectors.toList()));
         }
 
-        if (contactDataModel.getDescription() != null) {
+        if (description != null) {
             final GooglePeopleBiographiesModel biographiesModel = new GooglePeopleBiographiesModel();
-            biographiesModel.setValue(contactDataModel.getDescription());
+            biographiesModel.setValue(description);
             biographiesModel.setContentType("TEXT_PLAIN");
             model.setBiographies(Collections.singletonList(biographiesModel));
         }

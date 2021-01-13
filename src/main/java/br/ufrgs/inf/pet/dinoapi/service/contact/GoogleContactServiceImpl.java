@@ -72,7 +72,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
+        return repository.findByIdAndUserId(id, auth.getUser().getId());
     }
 
     @Override
@@ -80,7 +80,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserId(auth.getUser().getId());
+        return repository.findAllByUserId(auth.getUser().getId());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByIdAndUserId(ids, auth.getUser().getId());
+        return repository.findAllByIdAndUserId(ids, auth.getUser().getId());
     }
 
     @Override
@@ -96,7 +96,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
+        return repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
     }
 
     @Override
@@ -109,5 +109,9 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         fakeAuth.setUser(user);
 
         return this.internalSave(googleContactDataModel, fakeAuth);
+    }
+
+    public Optional<GoogleContact> findByContactId(Long contactId) {
+        return repository.findByContactId(contactId);
     }
 }

@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DinoUser implements UserDetails {
-
     private List<DinoGrantedAuthority> authorityList;
 
     private User user;
