@@ -2,15 +2,15 @@ package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
-import br.ufrgs.inf.pet.dinoapi.enumerable.ColorTheme;
-import br.ufrgs.inf.pet.dinoapi.enumerable.FontSize;
+import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAuthErrorCode;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAuthErrorCodeEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -24,7 +24,7 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuth
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGenericResponseModelImpl;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
@@ -41,11 +41,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthService {
+public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthService {
 
     private final UserServiceImpl userService;
 
-    private final AuthServiceImpl authService;
+    private final OAuthServiceImpl authService;
 
     private final UserSettingsServiceImpl userSettingsService;
 
@@ -58,11 +58,11 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
     private final ClockServiceImpl clockService;
 
     @Autowired
-    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService,
-                                 GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
-                                 GoogleaOAuthCommunicationImpl googleAPICommunicationImpl,
-                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                 UserSettingsServiceImpl userSettingsService) {
+    public GoogleOAuthServiceImpl(UserServiceImpl userService, OAuthServiceImpl authService,
+                                  GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
+                                  GoogleaOAuthCommunicationImpl googleAPICommunicationImpl,
+                                  ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                                  UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
         this.userService = userService;
         this.authService = authService;
@@ -130,8 +130,8 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                     userSettings.setUser(user);
                     userSettings.setDeclineGoogleContacts(false);
                     userSettings.setIncludeEssentialContact(true);
-                    userSettings.setColorTheme(ColorTheme.DEVICE.getValue());
-                    userSettings.setFontSize(FontSize.DEFAULT.getValue());
+                    userSettings.setColorTheme(ColorThemeEnum.DEVICE.getValue());
+                    userSettings.setFontSize(FontSizeEnum.DEFAULT.getValue());
 
                     userSettings = userSettingsService.saveOnDatabase(userSettings);
 
@@ -257,7 +257,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
                 response.setSuccess(false);
                 response.setError(auth.getUser().getEmail());
-                response.setErrorCode(GoogleAuthErrorCode.INVALID_GOOGLE_GRANT_USER.getValue());
+                response.setErrorCode(GoogleAuthErrorCodeEnum.INVALID_GOOGLE_GRANT_USER.getValue());
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
         } catch (GoogleClientSecretIOException e) {
@@ -324,6 +324,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
         return googleAuthRepository.save(googleAuth);
     }
 
+    @Override
     public List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException {
         final List<String> scopes = new LinkedList<>(currentScopes);
 
@@ -356,6 +357,15 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
         return allScopes;
     }
 
+    @Override
+    public LocalDateTime getExpiresDateFromToken(GoogleTokenResponse tokenResponse) {
+        final Long googleExpiresDateInSeconds = tokenResponse.getExpiresInSeconds();
+
+        final LocalDateTime localDateTime = LocalDateTime.now();
+
+        return localDateTime.plusSeconds(googleExpiresDateInSeconds);
+    }
+
     private boolean grantUserIsCurrentUser(GoogleIdToken.Payload payload, Auth auth) {
         final String email = payload.getEmail();
 
@@ -383,7 +393,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
         response.setSuccess(false);
         response.setError(email);
-        response.setErrorCode(GoogleAuthErrorCode.REFRESH_TOKEN.getValue());
+        response.setErrorCode(GoogleAuthErrorCodeEnum.REFRESH_TOKEN.getValue());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -441,14 +451,6 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
     private void setExceptionError(SynchronizableGenericResponseModelImpl response) {
         this.logAPIError(response.getError());
         response.setSuccess(false);
-        response.setErrorCode(GoogleAuthErrorCode.EXCEPTION.getValue());
-    }
-
-    private LocalDateTime getExpiresDateFromToken(GoogleTokenResponse tokenResponse) {
-        final Long googleExpiresDateInSeconds = tokenResponse.getExpiresInSeconds();
-
-        final LocalDateTime localDateTime = LocalDateTime.now();
-
-        return localDateTime.plusSeconds(googleExpiresDateInSeconds);
+        response.setErrorCode(GoogleAuthErrorCodeEnum.EXCEPTION.getValue());
     }
 }
