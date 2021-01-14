@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -10,6 +11,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -25,13 +27,15 @@ import java.util.Optional;
 public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, Integer, ContactDataModel, ContactRepository> {
 
     private final EssentialContactRepository essentialContactRepository;
+    private final PhoneRepository phoneRepository;
 
     @Autowired
     public ContactServiceImpl(ContactRepository repository, OAuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
-                              ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                              ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService, PhoneRepository phoneRepository,
                               SynchronizableQueueMessageServiceImpl<Long, Integer, ContactDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.essentialContactRepository = essentialContactRepository;
+        this.phoneRepository = phoneRepository;
     }
 
     @Override
@@ -128,6 +132,14 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.CONTACT;
+    }
+
+    @Override
+    public boolean shouldDelete(Contact contact, SynchronizableDeleteModel<Long> model) {
+        Integer phoneCount = phoneRepository
+                .countByNoteColumnAndLastUpdateGreaterOrEqual(contact.getId(), model.getLastUpdate().toLocalDateTime());
+
+        return phoneCount == 0;
     }
 
     public Optional<Contact> findContactByIdAndUser(Long id, User user) {

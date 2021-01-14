@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,4 +41,7 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
 
     @Query("SELECT p FROM Phone p WHERE p.id = :id AND p.essentialContact IS NOT NULL")
     Optional<Phone> findEssentialById(@Param("id") Long id);
+
+    @Query("SELECT COUNT(p) FROM Phone p WHERE p.contact.id = :contactId AND p.lastUpdate >= :lastUpdate")
+    Integer countByNoteColumnAndLastUpdateGreaterOrEqual(@Param("contactId") Long contactId, @Param("lastUpdate") LocalDateTime lastUpdate);
 }
