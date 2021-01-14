@@ -16,7 +16,7 @@ public interface GoogleContactRepository extends CrudRepository<GoogleContact, L
     @Query("SELECT n FROM GoogleContact n WHERE n.contact.user.id = :id")
     List<GoogleContact> findAllByUserId(@Param("id") Long id);
 
-    @Query("SELECT n FROM GoogleContact n WHERE n.id IN :userId AND n.contact.user.id = :ids")
+    @Query("SELECT n FROM GoogleContact n WHERE n.id IN :ids AND n.contact.user.id = :userId")
     List<GoogleContact> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
     @Query("SELECT n FROM GoogleContact n WHERE n.id NOT IN :ids AND n.contact.user.id = :userId")
