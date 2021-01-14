@@ -37,6 +37,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
         userDataModel.setEmail(entity.getEmail());
         userDataModel.setName(entity.getName());
         userDataModel.setPictureURL(entity.getPictureURL());
+        userDataModel.setPermission(entity.getPermission());
 
         return userDataModel;
     }
@@ -47,6 +48,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
             throw new AuthNullException();
         }
         final User user = auth.getUser();
+        user.setPermission(model.getPermission());
         user.setPictureURL(model.getPictureURL());
         return user;
     }
