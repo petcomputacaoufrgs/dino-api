@@ -68,7 +68,16 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
     }
 
     @Override
-    public Optional<GoogleScope> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<GoogleScope> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findEntityById(id, auth);
+    }
+
+    @Override
+    public Optional<GoogleScope> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findEntityById(id, auth);
+    }
+
+    private Optional<GoogleScope> findEntityById(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -77,7 +86,7 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
     }
 
     @Override
-    public List<GoogleScope> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<GoogleScope> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -86,7 +95,7 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
     }
 
     @Override
-    public List<GoogleScope> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<GoogleScope> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -94,11 +103,11 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
     }
 
     @Override
-    public List<GoogleScope> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<GoogleScope> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
+        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override

@@ -18,7 +18,7 @@ public interface FaqUserQuestionRepository extends CrudRepository<FaqUserQuestio
     List<FaqUserQuestion> findAllByIdsAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
     @Query("SELECT n FROM FaqUserQuestion n WHERE n.id NOT IN :ids AND n.user.id = :userId")
-    List<FaqUserQuestion> findAllByUserIdExceptIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
+    List<FaqUserQuestion> findAllByUserIdExcludingIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
 
     @Query("SELECT n FROM FaqUserQuestion n WHERE n.user.id = :userId")
     List<FaqUserQuestion> findAllByUserId(@Param("userId")  Long userId);

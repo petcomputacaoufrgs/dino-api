@@ -328,7 +328,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
     public List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException {
         final List<String> scopes = new LinkedList<>(currentScopes);
 
-        List<GoogleScope> databaseScopes = googleScopeService.getEntitiesThatUserCanRead(auth);
+        List<GoogleScope> databaseScopes = googleScopeService.findEntitiesThatUserCanRead(auth);
 
         final List<String> databaseScopesStrings = databaseScopes.stream().map(GoogleScope::getName).collect(Collectors.toList());
 
@@ -338,7 +338,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
             if (databaseScopesStrings.size() > 0) {
                 final List<GoogleScope> removedScopes = googleScopeService.getEntitiesByName(auth.getUser(), databaseScopesStrings);
                 googleScopeService.deleteAllScopes(removedScopes, auth);
-                databaseScopes = googleScopeService.getEntitiesThatUserCanRead(auth);
+                databaseScopes = googleScopeService.findEntitiesThatUserCanRead(auth);
             }
         }
 

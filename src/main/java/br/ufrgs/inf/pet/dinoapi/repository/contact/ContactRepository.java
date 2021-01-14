@@ -17,7 +17,7 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
     List<Contact> findAllByIdsAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
     @Query("SELECT c FROM Contact c WHERE c.id NOT IN :ids AND c.user.id = :userId")
-    List<Contact> findAllByUserIdExceptIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
+    List<Contact> findAllByUserIdExcludingIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
 
     @Query("SELECT c FROM Contact c WHERE c.user.id = :userId")
     List<Contact> findAllByUserId(@Param("userId")  Long userId);

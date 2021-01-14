@@ -104,23 +104,42 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public Optional<Phone> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<Phone> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findByIdAndContactUserId(id, auth.getUser().getId());
+        final Optional<Phone> phone = this.repository.findByIdAndUserId(id, auth.getUser().getId());
+
+        if (phone.isPresent()) {
+            return phone;
+        }
+
+        return this.repository.findEssentialById(id);
     }
 
     @Override
-    public List<Phone> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public Optional<Phone> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserId(auth.getUser().getId());
+        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
     }
 
     @Override
-    public List<Phone> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<Phone> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        final List<Phone> userPhones = this.repository.findAllByUserId(auth.getUser().getId());
+        final List<Phone> essentialPhones = this.repository.findAllEssentialPhones();
+
+        userPhones.addAll(essentialPhones);
+
+        return userPhones;
+    }
+
+    @Override
+    public List<Phone> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -128,11 +147,16 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    public List<Phone> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<Phone> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByContactUserIdExceptIds(auth.getUser().getId(), ids);
+        final List<Phone> userPhones = this.repository.findAllByIdAndUserIdExcludingIds(ids, auth.getUser().getId());
+        final List<Phone> essentialPhones = this.repository.findAllEssentialPhonesExcludingIds(ids);
+
+        userPhones.addAll(essentialPhones);
+
+        return userPhones;
     }
 
     @Override
@@ -263,7 +287,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     private void searchContact(Phone entity, Long id, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        final Optional<Contact> contactSearch = contactService.getEntityByIdAndUserAuth(id, auth);
+        final Optional<Contact> contactSearch = contactService.findEntityByIdThatUserCanRead(id, auth);
 
         if(contactSearch.isPresent()) {
             entity.setContact(contactSearch.get());

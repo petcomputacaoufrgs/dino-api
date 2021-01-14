@@ -45,7 +45,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     @Override
     public FaqUserQuestion convertModelToEntity(FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
-            final Optional<Faq> faq = faqService.getEntityByIdAndUserAuth(model.getFaqId(), auth);
+            final Optional<Faq> faq = faqService.findEntityByIdThatUserCanRead(model.getFaqId(), auth);
 
             if (faq.isEmpty()) {
                 throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
@@ -67,7 +67,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     public void updateEntity(FaqUserQuestion entity, FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
             if (!entity.getFaq().getId().equals(model.getFaqId())) {
-                final Optional<Faq> faq = faqService.getEntityByIdAndUserAuth(model.getFaqId(), auth);
+                final Optional<Faq> faq = faqService.findEntityByIdThatUserCanRead(model.getFaqId(), auth);
 
                 if (faq.isEmpty()) {
                     throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
@@ -83,7 +83,16 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public Optional<FaqUserQuestion> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<FaqUserQuestion> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
+    }
+
+    @Override
+    public Optional<FaqUserQuestion> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
+    }
+
+    private Optional<FaqUserQuestion> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -91,7 +100,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<FaqUserQuestion> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -99,7 +108,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<FaqUserQuestion> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -107,11 +116,11 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<FaqUserQuestion> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
+        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override

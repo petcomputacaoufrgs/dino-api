@@ -17,7 +17,7 @@ public interface GoogleScopeRepository extends CrudRepository<GoogleScope, Long>
     List<GoogleScope> findAllByIdsAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
     @Query("SELECT n FROM GoogleScope n WHERE n.id NOT IN :ids AND n.googleAuth.user.id = :userId")
-    List<GoogleScope> findAllByUserIdExceptIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
+    List<GoogleScope> findAllByUserIdExcludingIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
 
     @Query("SELECT n FROM GoogleScope n WHERE n.googleAuth.user.id = :userId")
     List<GoogleScope> findAllByUserId(@Param("userId")  Long userId);

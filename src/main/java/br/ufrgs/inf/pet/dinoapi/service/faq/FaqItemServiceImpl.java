@@ -75,23 +75,28 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     }
 
     @Override
-    public Optional<FaqItem> getEntityByIdAndUserAuth(Long id, Auth auth) {
+    public Optional<FaqItem> findEntityByIdThatUserCanRead(Long id, Auth auth) {
         return this.repository.findById(id);
     }
 
     @Override
-    public List<FaqItem> getEntitiesThatUserCanRead(Auth auth) {
+    public Optional<FaqItem> findEntityByIdThatUserCanEdit(Long id, Auth auth) {
+        return this.repository.findById(id);
+    }
+
+    @Override
+    public List<FaqItem> findEntitiesThatUserCanRead(Auth auth) {
         return this.repository.findAll();
     }
 
     @Override
-    public List<FaqItem> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) {
+    public List<FaqItem> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) {
         return this.repository.findAllByIds(ids);
     }
 
     @Override
-    public List<FaqItem> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
-        return this.repository.findAllExceptIds(ids);
+    public List<FaqItem> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
+        return this.repository.findAllExcludingIds(ids);
     }
 
     @Override

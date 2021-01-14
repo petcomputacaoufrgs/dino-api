@@ -63,7 +63,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         this.validSettings(model);
 
         if (model.getTreatmentId() != null) {
-            final Optional<Treatment> treatmentSearch = treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
+            final Optional<Treatment> treatmentSearch = treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
 
             treatmentSearch.ifPresent(userSettings::setTreatment);
         }
@@ -91,7 +91,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         if (model.getTreatmentId() != null) {
             if (entity.getTreatment() == null || !entity.getTreatment().getId().equals(model.getTreatmentId())) {
                 final Optional<Treatment> treatment =
-                        treatmentService.getEntityByIdAndUserAuth(model.getTreatmentId(), auth);
+                        treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
 
                 treatment.ifPresent(entity::setTreatment);
             }
@@ -107,7 +107,16 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public Optional<UserSettings> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<UserSettings> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUserId(id, auth);
+    }
+
+    @Override
+    public Optional<UserSettings> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUserId(id, auth);
+    }
+
+    private Optional<UserSettings> findByIdAndUserId(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -116,7 +125,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public List<UserSettings> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<UserSettings> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -125,7 +134,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public List<UserSettings> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<UserSettings> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -134,12 +143,12 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     @Override
-    public List<UserSettings> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<UserSettings> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
 
-        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
+        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override

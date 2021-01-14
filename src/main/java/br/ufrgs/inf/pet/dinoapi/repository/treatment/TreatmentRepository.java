@@ -20,5 +20,5 @@ public interface TreatmentRepository extends CrudRepository<Treatment, Long> {
     List<Treatment> findAllByIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT te FROM Treatment te WHERE te.id IN :ids")
-    List<Treatment> findAllExceptIds(@Param("ids") List<Long> ids);
+    List<Treatment> findAllExcludingIds(@Param("ids") List<Long> ids);
 }

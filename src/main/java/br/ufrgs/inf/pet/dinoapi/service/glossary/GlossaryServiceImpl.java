@@ -55,23 +55,28 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
-    public Optional<GlossaryItem> getEntityByIdAndUserAuth(Long id, Auth auth) {
+    public Optional<GlossaryItem> findEntityByIdThatUserCanRead(Long id, Auth auth) {
         return this.repository.findById(id);
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesThatUserCanRead(Auth auth) {
+    public Optional<GlossaryItem> findEntityByIdThatUserCanEdit(Long id, Auth auth) {
+        return this.repository.findById(id);
+    }
+
+    @Override
+    public List<GlossaryItem> findEntitiesThatUserCanRead(Auth auth) {
         return this.repository.findAll();
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) {
+    public List<GlossaryItem> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) {
         return this.repository.findByIds(ids);
     }
 
     @Override
-    public List<GlossaryItem> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
-        return this.repository.findAllExceptIds(ids);
+    public List<GlossaryItem> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
+        return this.repository.findAllExcludingIds(ids);
     }
 
     @Override

@@ -20,7 +20,7 @@ public interface GoogleContactRepository extends CrudRepository<GoogleContact, L
     List<GoogleContact> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
     @Query("SELECT n FROM GoogleContact n WHERE n.id NOT IN :ids AND n.contact.user.id = :userId")
-    List<GoogleContact> findAllByUserIdExceptIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
+    List<GoogleContact> findAllByUserIdExcludingIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
 
     @Query("SELECT n FROM GoogleContact n WHERE n.contact.id = :contactId")
     Optional<GoogleContact> findByContactId(@Param("contactId") Long contactId);

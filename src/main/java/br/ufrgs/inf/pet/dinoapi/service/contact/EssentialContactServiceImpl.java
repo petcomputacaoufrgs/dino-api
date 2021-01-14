@@ -94,23 +94,28 @@ public class EssentialContactServiceImpl extends
     }
 
     @Override
-    public Optional<EssentialContact> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<EssentialContact> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
         return this.repository.findById(id);
     }
 
     @Override
-    public List<EssentialContact> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public Optional<EssentialContact> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.repository.findById(id);
+    }
+
+    @Override
+    public List<EssentialContact> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         return this.repository.findAll();
     }
 
     @Override
-    public List<EssentialContact> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
-        return (List<EssentialContact>) this.repository.findAllById(ids);
+    public List<EssentialContact> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
+        return this.repository.findAllById(ids);
     }
 
     @Override
-    public List<EssentialContact> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
-        return (List<EssentialContact>) this.repository.findAllById(ids);
+    public List<EssentialContact> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+        return this.repository.findAllExcludingIds(ids);
     }
 
     @Override

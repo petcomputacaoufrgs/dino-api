@@ -16,6 +16,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -57,7 +58,16 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public Optional<User> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<User> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByUser(auth);
+    }
+
+    @Override
+    public Optional<User> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByUser(auth);
+    }
+
+    private Optional<User> findByUser(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -65,7 +75,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public List<User> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<User> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -75,17 +85,16 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
     }
 
     @Override
-    public List<User> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<User> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        List<User> users = new ArrayList<>();
-        users.add(auth.getUser());
-        return users;
+
+        return Collections.singletonList(auth.getUser());
     }
 
     @Override
-    public List<User> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<User> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }

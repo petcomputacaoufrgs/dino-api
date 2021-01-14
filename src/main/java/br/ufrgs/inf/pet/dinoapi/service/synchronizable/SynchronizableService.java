@@ -9,7 +9,6 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import org.springframework.http.ResponseEntity;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
@@ -52,20 +51,29 @@ public interface SynchronizableService<
 
     /**
      * Get entity from database based on authenticated user for security validation (only takes data that the user has access)
+     * All data here can be read be the user.
+     * @param id entity's id
+     * @param auth current auth user
+     * @return database entity if valid params or null
+     */
+    Optional<ENTITY> findEntityByIdThatUserCanRead(ID id, Auth auth) throws AuthNullException;
+
+    /**
+     * Get entity from database based on authenticated user for security validation (only takes data that the user has access)
      * All data here can be edited and deleted by the user.
      * @param id entity's id
      * @param auth current auth user
      * @return database entity if valid params or null
      */
-    Optional<ENTITY> getEntityByIdAndUserAuth(ID id, Auth auth) throws AuthNullException;
+    Optional<ENTITY> findEntityByIdThatUserCanEdit(ID id, Auth auth) throws AuthNullException;
 
     /**
      * Get entities from database based on authenticated user for security validation (only takes data that the user has access)
-     * Should be used without authentication when user can only see the data (without edit our remove).
+     * All data here can be read be the user.
      * @param auth current auth user
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException;
+    List<ENTITY> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException;
 
     /**
      * Get entities from database using a list of ids based on authenticated user for security validation (only takes data that the user has access)
@@ -74,16 +82,16 @@ public interface SynchronizableService<
      * @param auth current auth user
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesByIdsAndUserAuth(List<ID> ids, Auth auth) throws AuthNullException;
+    List<ENTITY> findEntitiesByIdThatUserCanEdit(List<ID> ids, Auth auth) throws AuthNullException;
 
     /**
      * Get entities from database based on authenticated user except when entity id is in param list "ids"
-     * Should be used without authentication when any user can only see the data (without edit our remove).
+     * All data here can be read be the user.
      * @param auth current auth user
      * @param ids ids of entities to exclude em search
      * @return list of database entities (can be an empty list)
      */
-    List<ENTITY> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<ID> ids) throws AuthNullException;
+    List<ENTITY> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<ID> ids) throws AuthNullException;
 
     /**
      * Get WebSocket base destination

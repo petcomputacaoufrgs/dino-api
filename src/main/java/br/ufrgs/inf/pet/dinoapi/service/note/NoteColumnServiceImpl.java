@@ -61,7 +61,16 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public Optional<NoteColumn> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<NoteColumn> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
+    }
+
+    @Override
+    public Optional<NoteColumn> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
+    }
+
+    private Optional<NoteColumn> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -69,7 +78,7 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public List<NoteColumn> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<NoteColumn> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -77,7 +86,7 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public List<NoteColumn> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<NoteColumn> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -85,11 +94,11 @@ public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn,
     }
 
     @Override
-    public List<NoteColumn> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<NoteColumn> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
+        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override

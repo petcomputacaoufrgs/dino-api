@@ -22,7 +22,7 @@ public interface NoteRepository extends CrudRepository<Note, Long> {
         List<Note> findAllByIdsAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 
         @Query("SELECT n FROM Note n WHERE n.id NOT IN :ids AND n.noteColumn.user.id = :userId")
-        List<Note> findAllByUserIdExceptIds(@Param("userId") Long userID, @Param("ids") List<Long> ids);
+        List<Note> findAllByUserIdExcludingIds(@Param("userId") Long userID, @Param("ids") List<Long> ids);
 
         @Query("SELECT COUNT(n) FROM Note n WHERE n.noteColumn.id = :columnId AND n.lastUpdate >= :lastUpdate")
         Integer countByNoteColumnAndLastUpdateGreaterOrEqual(@Param("columnId") Long columnId, @Param("lastUpdate") LocalDateTime lastUpdate);

@@ -13,11 +13,17 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
     @Query("SELECT p FROM Phone p WHERE p.id IN :ids AND p.contact.user.id = :userId")
     List<Phone> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
-    @Query("SELECT p FROM Phone p WHERE (p.contact.user.id = :userId OR p.essentialContact IS NOT NULL) AND p.id NOT IN :ids")
-    List<Phone> findAllByContactUserIdExceptIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
+    @Query("SELECT p FROM Phone p WHERE p.contact.user.id = :userId AND p.id NOT IN :ids")
+    List<Phone> findAllByIdAndUserIdExcludingIds(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
-    @Query("SELECT p FROM Phone p WHERE p.contact.user.id = :userId OR p.essentialContact IS NOT NULL")
-    List<Phone> findAllByUserId(Long userId);
+    @Query("SELECT p FROM Phone p WHERE p.essentialContact IS NOT NULL AND p.id NOT IN :ids")
+    List<Phone> findAllEssentialPhonesExcludingIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT p FROM Phone p WHERE p.contact.user.id = :userId")
+    List<Phone> findAllByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT p FROM Phone p WHERE p.essentialContact IS NOT NULL")
+    List<Phone> findAllEssentialPhones();
 
     @Query("SELECT p FROM Phone p WHERE p.essentialContact.id = :essentialContactId")
     List<Phone> findAllByEssentialContactId(@Param("essentialContactId") Long essentialContactId);
@@ -28,5 +34,9 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
     @Query("SELECT p FROM Phone p WHERE p.contact.id = :contactId")
     List<Phone> findAllByContactId(@Param("contactId") Long contactId);
 
-    Optional<Phone> findByIdAndContactUserId(Long id, Long id1);
+    @Query("SELECT p FROM Phone p WHERE p.id = :id AND p.contact.user.id = :userId")
+    Optional<Phone> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
+
+    @Query("SELECT p FROM Phone p WHERE p.id = :id AND p.essentialContact IS NOT NULL")
+    Optional<Phone> findEssentialById(@Param("id") Long id);
 }

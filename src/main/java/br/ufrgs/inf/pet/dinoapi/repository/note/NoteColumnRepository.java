@@ -20,5 +20,5 @@ public interface NoteColumnRepository extends CrudRepository<NoteColumn, Long> {
     List<NoteColumn> findAllByIdAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 
     @Query("SELECT n FROM NoteColumn n WHERE n.id NOT IN :ids AND n.user.id = :userId")
-    List<NoteColumn> findAllByUserIdExceptIds(@Param("userId") Long userID, @Param("ids") List<Long> ids);
+    List<NoteColumn> findAllByUserIdExcludingIds(@Param("userId") Long userID, @Param("ids") List<Long> ids);
 }

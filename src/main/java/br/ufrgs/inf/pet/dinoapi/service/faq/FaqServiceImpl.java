@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.TreatmentConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
@@ -16,7 +17,6 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -73,23 +73,28 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer
     }
 
     @Override
-    public Optional<Faq> getEntityByIdAndUserAuth(Long id, Auth auth) {
+    public Optional<Faq> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
         return this.repository.findById(id);
     }
 
     @Override
-    public List<Faq> getEntitiesThatUserCanRead(Auth auth) {
+    public Optional<Faq> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.repository.findById(id);
+    }
+
+    @Override
+    public List<Faq> findEntitiesThatUserCanRead(Auth auth) {
         return this.repository.findAll();
     }
 
     @Override
-    public List<Faq> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) {
+    public List<Faq> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         return this.repository.findAllByIds(ids);
     }
 
     @Override
-    public List<Faq> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
-        return this.repository.findAllExceptIds(ids);
+    public List<Faq> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
+        return this.repository.findAllExcludingIds(ids);
     }
 
     @Override

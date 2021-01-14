@@ -16,5 +16,5 @@ public interface FaqItemRepository extends CrudRepository<FaqItem, Long> {
     List<FaqItem> findAllByIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT fi FROM FaqItem fi WHERE fi.id NOT IN :ids")
-    List<FaqItem> findAllExceptIds(@Param("ids") List<Long> ids);
+    List<FaqItem> findAllExcludingIds(@Param("ids") List<Long> ids);
 }

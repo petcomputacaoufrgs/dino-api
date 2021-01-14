@@ -7,7 +7,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
@@ -68,7 +67,16 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public Optional<GoogleContact> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<GoogleContact> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
+    }
+
+    @Override
+    public Optional<GoogleContact> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
+    }
+
+    private Optional<GoogleContact> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -76,7 +84,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public List<GoogleContact> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<GoogleContact> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -84,7 +92,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public List<GoogleContact> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<GoogleContact> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -92,11 +100,11 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     }
 
     @Override
-    public List<GoogleContact> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<GoogleContact> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
+        return repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override
@@ -104,11 +112,11 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         return WebSocketDestinationsEnum.GOOGLE_CONTACT;
     }
 
-    public GoogleContactDataModel saveByUser(GoogleContactDataModel googleContactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
+    public void saveByUser(GoogleContactDataModel googleContactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
         final Auth fakeAuth = new Auth();
         fakeAuth.setUser(user);
 
-        return this.internalSave(googleContactDataModel, fakeAuth);
+        this.internalSave(googleContactDataModel, fakeAuth);
     }
 
     public Optional<GoogleContact> findByContactId(Long contactId) {

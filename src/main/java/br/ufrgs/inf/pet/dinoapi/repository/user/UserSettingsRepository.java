@@ -20,8 +20,5 @@ public interface UserSettingsRepository extends CrudRepository<UserSettings, Lon
     List<UserSettings> findAllByIdsAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userID);
 
     @Query("SELECT us FROM UserSettings us WHERE us.id NOT IN :ids AND us.user.id = :userId")
-    List<UserSettings> findAllByUserIdExceptIds(@Param("userId") Long userID, @Param("ids") List<Long> ids);
-
-    @Query("SELECT us FROM UserSettings us WHERE us.user.id = :userId")
-    Optional<UserSettings> findByUserId(@Param("userId") Long userID);
+    List<UserSettings> findAllByUserIdExcludingIds(@Param("userId") Long userID, @Param("ids") List<Long> ids);
 }

@@ -48,8 +48,7 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     @Override
     public Note convertModelToEntity(NoteDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
-            final Optional<NoteColumn> noteColumn =
-                    noteColumnService.getEntityByIdAndUserAuth(model.getColumnId(), auth);
+            final Optional<NoteColumn> noteColumn = noteColumnService.findEntityByIdThatUserCanRead(model.getColumnId(), auth);
             if (noteColumn.isPresent()) {
                 final Note note = new Note();
                 note.setNoteColumn(noteColumn.get());
@@ -72,7 +71,7 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
         if (auth != null) {
             if (!entity.getNoteColumn().getId().equals(model.getColumnId())) {
                 final Optional<NoteColumn> noteColumn =
-                        noteColumnService.getEntityByIdAndUserAuth(model.getColumnId(), auth);
+                        noteColumnService.findEntityByIdThatUserCanRead(model.getColumnId(), auth);
 
                 if (noteColumn.isPresent()) {
                     entity.setNoteColumn(noteColumn.get());
@@ -91,7 +90,16 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public Optional<Note> getEntityByIdAndUserAuth(Long id, Auth auth) throws AuthNullException {
+    public Optional<Note> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAnUser(id, auth);
+    }
+
+    @Override
+    public Optional<Note> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAnUser(id, auth);
+    }
+
+    private Optional<Note> findByIdAnUser(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -99,7 +107,7 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public List<Note> getEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<Note> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -107,7 +115,7 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public List<Note> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<Note> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -115,11 +123,11 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integ
     }
 
     @Override
-    public List<Note> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<Note> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserIdExceptIds(auth.getUser().getId(), ids);
+        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override

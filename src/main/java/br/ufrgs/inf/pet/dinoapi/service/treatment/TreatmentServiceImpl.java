@@ -47,23 +47,28 @@ public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, 
     }
 
     @Override
-    public Optional<Treatment> getEntityByIdAndUserAuth(Long id, Auth auth) {
+    public Optional<Treatment> findEntityByIdThatUserCanRead(Long id, Auth auth) {
         return this.repository.findById(id);
     }
 
     @Override
-    public List<Treatment> getEntitiesThatUserCanRead(Auth auth) {
+    public Optional<Treatment> findEntityByIdThatUserCanEdit(Long id, Auth auth) {
+        return this.repository.findById(id);
+    }
+
+    @Override
+    public List<Treatment> findEntitiesThatUserCanRead(Auth auth) {
         return this.repository.findAll();
     }
 
     @Override
-    public List<Treatment> getEntitiesByIdsAndUserAuth(List<Long> ids, Auth auth) {
+    public List<Treatment> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) {
         return this.repository.findByIds(ids);
     }
 
     @Override
-    public List<Treatment> getEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
-        return this.repository.findAllExceptIds(ids);
+    public List<Treatment> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) {
+        return this.repository.findAllExcludingIds(ids);
     }
 
     @Override
