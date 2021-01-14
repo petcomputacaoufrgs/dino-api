@@ -28,7 +28,7 @@ public class UserSettings extends SynchronizableEntity<Long>  {
     private Boolean firstSettingsDone;
 
     @Column(name = "settings_step", nullable = false)
-    private Integer settingsStep;
+    private Integer step;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -104,11 +104,11 @@ public class UserSettings extends SynchronizableEntity<Long>  {
         this.firstSettingsDone = firstSettingsDone;
     }
 
-    public Integer getSettingsStep() {
-        return settingsStep;
+    public Integer getStep() {
+        return step;
     }
 
-    public void setSettingsStep(Integer settingsStep) {
-        this.settingsStep = settingsStep;
+    public void setStep(Integer step) {
+        this.step = step;
     }
 }

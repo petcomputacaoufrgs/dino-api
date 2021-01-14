@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.AuthEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
@@ -135,8 +136,16 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integ
         user.setPictureURL(pictureUrl);
         user.setEmail(email);
         user.setName(name);
+        user.setPermission(this.getUserPermission(email));
 
         return this.repository.save(user);
+    }
+
+    private int getUserPermission(String email) {
+        if(email.equals("petcompufrgs@gmail.com")) {
+            return AuthEnum.ADMIN.getValue();
+        }
+        return AuthEnum.USER.getValue();
     }
 
     private void sendUpdateMessage(User user, Auth auth) {

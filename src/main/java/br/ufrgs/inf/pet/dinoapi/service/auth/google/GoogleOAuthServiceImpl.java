@@ -125,7 +125,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                     auth = authService.generateAuth(googleAuth.getUser());
 
                     UserSettings userSettings = new UserSettings();
-                    userSettings.setSettingsStep(0);
+                    userSettings.setStep(0);
                     userSettings.setFirstSettingsDone(false);
                     userSettings.setUser(user);
                     userSettings.setDeclineGoogleContacts(false);

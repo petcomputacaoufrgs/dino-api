@@ -6,6 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -24,6 +25,9 @@ public class User extends SynchronizableEntity<Long> {
 
     @Column(name = "picture_url", length = PICTURE_URL_MAX, nullable = false)
     private String pictureURL;
+
+    @Column(name = "permission", nullable = false)
+    private int permission;
 
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
@@ -116,4 +120,12 @@ public class User extends SynchronizableEntity<Long> {
     }
 
     public List<Contact> getContacts() { return contacts; }
+
+    public int getPermission() {
+        return permission;
+    }
+
+    public void setPermission(int permission) {
+        this.permission = permission;
+    }
 }

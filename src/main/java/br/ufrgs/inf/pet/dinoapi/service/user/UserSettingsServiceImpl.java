@@ -44,7 +44,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setIncludeEssentialContact(entity.getIncludeEssentialContact());
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
-        model.setSettingsStep(entity.getSettingsStep());
+        model.setStep(entity.getStep());
 
         if (entity.getTreatment() != null) {
             model.setTreatmentId(entity.getTreatment().getId());
@@ -75,7 +75,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
         userSettings.setUser(auth.getUser());
         userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
-        userSettings.setSettingsStep(model.getSettingsStep());
+        userSettings.setStep(model.getStep());
 
         return userSettings;
     }
@@ -103,7 +103,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
-        entity.setSettingsStep(model.getSettingsStep());
+        entity.setStep(model.getStep());
     }
 
     @Override

@@ -1,10 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.entity.auth;
 
-import static javax.persistence.GenerationType.AUTO;
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
+
+import static javax.persistence.GenerationType.AUTO;
 
 @Entity
 @Table(name = "auth")
@@ -88,4 +90,6 @@ public class Auth {
     public void setLastTokenRefresh(LocalDateTime lastTokenRefresh) {
         this.lastTokenRefresh = lastTokenRefresh;
     }
+
+
 }
