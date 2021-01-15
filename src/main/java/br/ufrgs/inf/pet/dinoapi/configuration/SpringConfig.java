@@ -1,16 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.configuration;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
-import br.ufrgs.inf.pet.dinoapi.configuration.exception_handler.AsyncExceptionHandler;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
-import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
-import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.annotation.AsyncConfigurer;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,13 +19,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.Executor;
 
 @Configuration
 @EnableWebSecurity
-public class SpringConfig extends WebSecurityConfigurerAdapter implements AsyncConfigurer {
-    private final LogAPIErrorServiceImpl logAPIErrorService;
-
+@EnableAsync
+public class SpringConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService dinoUserDetailsService;
 
     private final AuthFilter authFilter;
@@ -39,12 +34,11 @@ public class SpringConfig extends WebSecurityConfigurerAdapter implements AsyncC
 
     @Autowired
     public SpringConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService,
-                        AppConfig appConfig, LogAPIErrorServiceImpl logAPIErrorService) {
+                        AppConfig appConfig) {
         super();
         this.authFilter = authFilter;
         this.dinoUserDetailsService = dinoUserDetailsService;
         this.appConfig = appConfig;
-        this.logAPIErrorService = logAPIErrorService;
     }
 
     @Override
@@ -63,11 +57,6 @@ public class SpringConfig extends WebSecurityConfigurerAdapter implements AsyncC
         httpSecurity.addFilterBefore(this.authFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
-    @Override
-    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
-        return new AsyncExceptionHandler(logAPIErrorService);
-    }
-
     @Bean
     @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
@@ -77,15 +66,26 @@ public class SpringConfig extends WebSecurityConfigurerAdapter implements AsyncC
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(appConfig.getOrigin()));
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList(
+        configuration.setAllowedOrigins(Collections.singletonList(appConfig.getOrigin()));
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setExposedHeaders(Collections.singletonList(
                 HeaderEnum.AUTHORIZATION.getValue()));
         configuration.setAllowCredentials(true);
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean(name = "threadPoolTaskExecutor")
+    public Executor threadPoolTaskExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(2);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(500);
+        executor.setThreadNamePrefix("DinoAPI-");
+        executor.initialize();
+        return executor;
     }
 }
