@@ -16,11 +16,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, Integer, GlossaryItemDataModel, GlossaryItemRepository> {
+public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository> {
     @Autowired
     public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, OAuthServiceImpl authService,
                                ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                               SynchronizableTopicMessageServiceImpl<Long, Integer, GlossaryItemDataModel> synchronizableTopicMessageService) {
+                               SynchronizableTopicMessageServiceImpl<Long, GlossaryItemDataModel> synchronizableTopicMessageService) {
         super(glossaryItemRepository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
     }
 

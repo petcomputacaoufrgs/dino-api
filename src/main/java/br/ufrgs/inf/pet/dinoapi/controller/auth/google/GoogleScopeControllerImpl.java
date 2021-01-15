@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/auth/google/scope/")
 public class GoogleScopeControllerImpl extends SynchronizableControllerImpl<
-        GoogleScope, Long, Integer, GoogleScopeDataModel, GoogleScopeRepository, GoogleScopeServiceImpl> {
+        GoogleScope, Long, GoogleScopeDataModel, GoogleScopeRepository, GoogleScopeServiceImpl> {
 
     @Autowired
     protected GoogleScopeControllerImpl(GoogleScopeServiceImpl service) {

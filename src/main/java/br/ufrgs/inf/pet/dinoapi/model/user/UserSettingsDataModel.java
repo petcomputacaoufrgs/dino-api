@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long, Integer>  {
+public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long>  {
     @NotNull(message = UserSettingsConstants.LANGUAGE_NULL_MESSAGE)
     @Size(min = UserSettingsConstants.LANGUAGE_MIN, max = UserSettingsConstants.LANGUAGE_MAX, message = UserSettingsConstants.LANGUAGE_SIZE_MESSAGE)
     private String language;

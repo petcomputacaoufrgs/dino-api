@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class GlossaryItemDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class GlossaryItemDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = GlossaryConstants.TITLE_NULL_MESSAGE)
     @Size(min = GlossaryConstants.TITLE_MIN, max = GlossaryConstants.TITLE_MAX, message = GlossaryConstants.TITLE_MESSAGE)
     private String title;

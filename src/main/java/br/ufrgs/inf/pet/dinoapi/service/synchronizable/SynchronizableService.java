@@ -23,8 +23,7 @@ import java.util.Optional;
 public interface SynchronizableService<
         ENTITY extends SynchronizableEntity<ID>,
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>> {
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> {
 
     /**
      * Create a complete data model ({@link DATA_MODEL}) based in an entity ({@link ENTITY})
@@ -122,8 +121,8 @@ public interface SynchronizableService<
     /**
      * Implements saveAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL>>
-    saveAll(SynchronizableSaveAllModel<ID, LOCAL_ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSaveAllResponseModel<ID, DATA_MODEL>>
+    saveAll(SynchronizableSaveAllModel<ID, DATA_MODEL> model);
 
     /**
      * Implements deleteAll method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
@@ -135,5 +134,5 @@ public interface SynchronizableService<
     /**
      * Implements sync method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, DATA_MODEL> model);
 }

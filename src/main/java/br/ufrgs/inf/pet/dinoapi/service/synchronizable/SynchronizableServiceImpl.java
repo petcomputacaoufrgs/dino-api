@@ -40,17 +40,16 @@ import java.util.stream.Collectors;
 public abstract class SynchronizableServiceImpl<
         ENTITY extends SynchronizableEntity<ID>,
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>,
-        REPOSITORY extends CrudRepository<ENTITY, ID>> extends LogUtilsBase implements SynchronizableService<ENTITY, ID, LOCAL_ID, DATA_MODEL> {
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>,
+        REPOSITORY extends CrudRepository<ENTITY, ID>> extends LogUtilsBase implements SynchronizableService<ENTITY, ID, DATA_MODEL> {
 
     protected final REPOSITORY repository;
     protected final OAuthServiceImpl authService;
-    protected final SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService;
+    protected final SynchronizableMessageService<ID, DATA_MODEL> synchronizableMessageService;
     protected final ClockServiceImpl clock;
 
     public SynchronizableServiceImpl(REPOSITORY repository, OAuthServiceImpl authService, ClockServiceImpl clock,
-                                     SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> synchronizableMessageService,
+                                     SynchronizableMessageService<ID, DATA_MODEL> synchronizableMessageService,
                                      LogAPIErrorServiceImpl logAPIErrorService) {
         super(logAPIErrorService);
         this.repository = repository;
@@ -170,9 +169,9 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL>>
-    saveAll(SynchronizableSaveAllModel<ID, LOCAL_ID, DATA_MODEL> model) {
-        final SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL> response = new SynchronizableSaveAllResponseModel<>();
+    public ResponseEntity<SynchronizableSaveAllResponseModel<ID, DATA_MODEL>>
+    saveAll(SynchronizableSaveAllModel<ID, DATA_MODEL> model) {
+        final SynchronizableSaveAllResponseModel<ID, DATA_MODEL> response = new SynchronizableSaveAllResponseModel<>();
 
         try {
             final Auth auth = authService.getCurrentAuth();
@@ -210,8 +209,8 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model) {
-        final SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL> response = new SynchronizableSyncResponseModel<>();
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, DATA_MODEL> model) {
+        final SynchronizableSyncResponseModel<ID, DATA_MODEL> response = new SynchronizableSyncResponseModel<>();
 
         try {
             final Auth auth = authService.getCurrentAuth();

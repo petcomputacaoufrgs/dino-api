@@ -18,13 +18,13 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn, Long, Integer, NoteColumnDataModel, NoteColumnRepository> {
+public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn, Long, NoteColumnDataModel, NoteColumnRepository> {
 
     private final NoteRepository noteRepository;
 
     @Autowired
     public NoteColumnServiceImpl(NoteColumnRepository noteColumnRepository, OAuthServiceImpl authService, NoteRepository noteRepository,
-                                 SynchronizableQueueMessageServiceImpl<Long, Integer, NoteColumnDataModel> synchronizableQueueMessageService,
+                                 SynchronizableQueueMessageServiceImpl<Long, NoteColumnDataModel> synchronizableQueueMessageService,
                                  ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(noteColumnRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.noteRepository = noteRepository;

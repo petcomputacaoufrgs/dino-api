@@ -23,13 +23,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, Integer, UserSettingsDataModel, UserSettingsRepository> {
+public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, UserSettingsDataModel, UserSettingsRepository> {
 
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
     public UserSettingsServiceImpl(UserSettingsRepository repository, OAuthServiceImpl authService, TreatmentServiceImpl treatmentService,
-                                   SynchronizableQueueMessageServiceImpl<Long, Integer, UserSettingsDataModel> synchronizableQueueMessageService,
+                                   SynchronizableQueueMessageServiceImpl<Long, UserSettingsDataModel> synchronizableQueueMessageService,
                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;

@@ -4,5 +4,5 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import java.io.Serializable;
 
 public class SynchronizableGenericListLocalIdModel
-        <ID extends Comparable<ID> & Serializable, LOCAL_ID, DATA_TYPE extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>>
+        <ID extends Comparable<ID> & Serializable, DATA_TYPE extends SynchronizableDataLocalIdModel<ID>>
     extends  SynchronizableGenericListModel<ID, DATA_TYPE> { }

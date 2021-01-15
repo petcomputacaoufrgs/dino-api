@@ -20,13 +20,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, Integer, NoteDataModel, NoteRepository> {
+public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, NoteDataModel, NoteRepository> {
 
     private final NoteColumnServiceImpl noteColumnService;
 
     @Autowired
     public NoteServiceImpl(NoteRepository noteRepository, OAuthServiceImpl authService, NoteColumnServiceImpl noteColumnService,
-                           SynchronizableQueueMessageServiceImpl<Long, Integer, NoteDataModel> synchronizableQueueMessageService,
+                           SynchronizableQueueMessageServiceImpl<Long, NoteDataModel> synchronizableQueueMessageService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(noteRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.noteColumnService = noteColumnService;

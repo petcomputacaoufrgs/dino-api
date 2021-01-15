@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     @NotNull(message = ContactsConstants.TYPE_NULL_MESSAGE)
     private short type;

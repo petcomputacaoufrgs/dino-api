@@ -6,7 +6,7 @@ import javax.validation.constraints.Size;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.UserConstants.*;
 
-public class UserDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class UserDataModel extends SynchronizableDataLocalIdModel<Long> {
     private String name;
 
     private String email;

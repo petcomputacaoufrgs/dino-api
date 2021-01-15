@@ -6,7 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class GoogleScopeDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class GoogleScopeDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = ContactsConstants.NAME_NULL_MESSAGE)
     @Size(max = ContactsConstants.NAME_MAX, message =ContactsConstants.NAME_MAX_MESSAGE)
     private String name;

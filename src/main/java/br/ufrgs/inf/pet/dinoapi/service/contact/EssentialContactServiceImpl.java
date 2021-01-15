@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class EssentialContactServiceImpl extends
-        SynchronizableServiceImpl<EssentialContact, Long, Integer, EssentialContactDataModel, EssentialContactRepository> {
+        SynchronizableServiceImpl<EssentialContact, Long, EssentialContactDataModel, EssentialContactRepository> {
 
     private final TreatmentRepository treatmentRepository;
     private final AsyncEssentialContactService asyncEssentialContactService;
@@ -32,7 +32,7 @@ public class EssentialContactServiceImpl extends
     @Autowired
     public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository,
                                        OAuthServiceImpl authService, ClockServiceImpl clock, LogAPIErrorServiceImpl logAPIErrorService,
-                                       SynchronizableTopicMessageServiceImpl<Long, Integer, EssentialContactDataModel> synchronizableTopicMessageService,
+                                       SynchronizableTopicMessageServiceImpl<Long, EssentialContactDataModel> synchronizableTopicMessageService,
                                        AsyncEssentialContactService asyncEssentialContactService) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;

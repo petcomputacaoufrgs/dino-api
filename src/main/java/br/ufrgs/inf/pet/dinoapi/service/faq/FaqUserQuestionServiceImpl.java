@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUserQuestion, Long, Integer, FaqUserQuestionDataModel, FaqUserQuestionRepository>  {
+public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUserQuestion, Long, FaqUserQuestionDataModel, FaqUserQuestionRepository>  {
 
     private final FaqServiceImpl faqService;
 
@@ -28,7 +28,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     public FaqUserQuestionServiceImpl(FaqUserQuestionRepository repository, OAuthServiceImpl authService,
                                       FaqServiceImpl faqService, ClockServiceImpl clockService,
                                       LogAPIErrorServiceImpl logAPIErrorService,
-                                      SynchronizableQueueMessageServiceImpl<Long, Integer, FaqUserQuestionDataModel> synchronizableQueueMessageService) {
+                                      SynchronizableQueueMessageServiceImpl<Long, FaqUserQuestionDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.faqService = faqService;
     }

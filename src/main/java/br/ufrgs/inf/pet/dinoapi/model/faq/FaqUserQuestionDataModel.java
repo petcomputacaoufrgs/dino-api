@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.*;
 
-public class FaqUserQuestionDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class FaqUserQuestionDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = ID_NULL_MESSAGE)
     private Long faqId;
 

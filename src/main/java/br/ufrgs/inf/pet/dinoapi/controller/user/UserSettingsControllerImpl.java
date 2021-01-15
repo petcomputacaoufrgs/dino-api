@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/user_settings/")
-public class UserSettingsControllerImpl extends SynchronizableControllerImpl<UserSettings, Long, Integer,
+public class UserSettingsControllerImpl extends SynchronizableControllerImpl<UserSettings, Long,
         UserSettingsDataModel, UserSettingsRepository, UserSettingsServiceImpl> {
 
     @Autowired

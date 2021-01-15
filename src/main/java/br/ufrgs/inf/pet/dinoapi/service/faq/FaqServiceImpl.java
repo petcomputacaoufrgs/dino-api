@@ -21,14 +21,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, Integer, FaqDataModel, FaqRepository> {
+public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, FaqDataModel, FaqRepository> {
 
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
     public FaqServiceImpl(FaqRepository repository, OAuthServiceImpl authService, TreatmentServiceImpl treatmentService,
                           ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                          SynchronizableTopicMessageServiceImpl<Long, Integer, FaqDataModel> synchronizableTopicMessageService) {
+                          SynchronizableTopicMessageServiceImpl<Long, FaqDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;
     }

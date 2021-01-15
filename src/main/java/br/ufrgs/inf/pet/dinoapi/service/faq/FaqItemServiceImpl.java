@@ -19,14 +19,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long, Integer, FaqItemDataModel, FaqItemRepository> {
+public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long, FaqItemDataModel, FaqItemRepository> {
 
     private final FaqServiceImpl faqService;
 
     @Autowired
     public FaqItemServiceImpl(FaqItemRepository repository, OAuthServiceImpl authService, FaqServiceImpl faqService,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                              SynchronizableTopicMessageServiceImpl<Long, Integer, FaqItemDataModel> synchronizableTopicMessageService) {
+                              SynchronizableTopicMessageServiceImpl<Long, FaqItemDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.faqService = faqService;
     }

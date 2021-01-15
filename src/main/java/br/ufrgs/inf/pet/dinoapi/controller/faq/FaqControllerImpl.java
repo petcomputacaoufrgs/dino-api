@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/public/faq/")
 public class FaqControllerImpl extends SynchronizableControllerImpl<
-        Faq, Long, Integer, FaqDataModel, FaqRepository, FaqServiceImpl> {
+        Faq, Long, FaqDataModel, FaqRepository, FaqServiceImpl> {
 
     @Autowired
     protected FaqControllerImpl(FaqServiceImpl service) {

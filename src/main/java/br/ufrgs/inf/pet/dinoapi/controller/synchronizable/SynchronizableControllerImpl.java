@@ -24,11 +24,10 @@ import java.util.List;
 public abstract class SynchronizableControllerImpl<
         ENTITY extends SynchronizableEntity<ID>,
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>,
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>,
         REPOSITORY extends CrudRepository<ENTITY, ID>,
-        SERVICE extends SynchronizableServiceImpl<ENTITY, ID, LOCAL_ID, DATA_MODEL, REPOSITORY>>
-        implements SynchronizableController<ID, LOCAL_ID, DATA_MODEL> {
+        SERVICE extends SynchronizableServiceImpl<ENTITY, ID, DATA_MODEL, REPOSITORY>>
+        implements SynchronizableController<ID, DATA_MODEL> {
 
     protected final SERVICE service;
 
@@ -65,8 +64,8 @@ public abstract class SynchronizableControllerImpl<
 
     @Override
     @PostMapping("save/all/")
-    public ResponseEntity<SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL>>
-    saveAll(@Valid @RequestBody SynchronizableSaveAllModel<ID, LOCAL_ID, DATA_MODEL> model) {
+    public ResponseEntity<SynchronizableSaveAllResponseModel<ID, DATA_MODEL>>
+    saveAll(@Valid @RequestBody SynchronizableSaveAllModel<ID, DATA_MODEL> model) {
         return service.saveAll(model);
     }
 
@@ -79,8 +78,8 @@ public abstract class SynchronizableControllerImpl<
 
     @Override
     @PutMapping("sync/")
-    public ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>>
-    sync(@Valid @RequestBody SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model){
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>>
+    sync(@Valid @RequestBody SynchronizableSyncModel<ID, DATA_MODEL> model){
         return service.sync(model);
     }
 }

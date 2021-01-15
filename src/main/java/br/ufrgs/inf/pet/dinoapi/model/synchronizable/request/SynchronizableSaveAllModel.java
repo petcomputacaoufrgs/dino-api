@@ -11,7 +11,6 @@ import java.io.Serializable;
  */
 public class SynchronizableSaveAllModel<
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>>
-        extends SynchronizableGenericListLocalIdModel<ID, LOCAL_ID, DATA_MODEL> {
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>>
+        extends SynchronizableGenericListLocalIdModel<ID, DATA_MODEL> {
 }

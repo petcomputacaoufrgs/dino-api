@@ -21,13 +21,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, Integer, GoogleContactDataModel, GoogleContactRepository> {
+public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, GoogleContactDataModel, GoogleContactRepository> {
 
     private final ContactServiceImpl contactService;
 
     @Autowired
     public GoogleContactServiceImpl(GoogleContactRepository repository, OAuthServiceImpl authService, ContactServiceImpl contactService,
-                                    SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleContactDataModel> synchronizableQueueMessageService,
+                                    SynchronizableQueueMessageServiceImpl<Long, GoogleContactDataModel> synchronizableQueueMessageService,
                                     ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;

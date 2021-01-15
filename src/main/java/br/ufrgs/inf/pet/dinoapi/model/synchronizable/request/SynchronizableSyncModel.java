@@ -5,7 +5,7 @@ import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 
-public class SynchronizableSyncModel<ID extends Comparable<ID> & Serializable, LOCAL_ID, DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>> {
+public class SynchronizableSyncModel<ID extends Comparable<ID> & Serializable, DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> {
     @Valid
     private List<DATA_MODEL> save;
 

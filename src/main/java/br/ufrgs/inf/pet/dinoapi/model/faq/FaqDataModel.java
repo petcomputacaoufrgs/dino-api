@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class FaqDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class FaqDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = FaqConstants.TITLE_NULL_MESSAGE)
     @Size(min = FaqConstants.TITLE_MIN, max = FaqConstants.TITLE_MAX, message = FaqConstants.TITLE_MAX_MESSAGE)
     private String title;

@@ -13,8 +13,7 @@ import java.util.List;
 
 public abstract class SynchronizableMessageService<
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>> {
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> {
 
     protected static final String webSocketUpdateURL = "/update/";
     protected static final String webSocketDeleteURL = "/delete/";
@@ -36,21 +35,9 @@ public abstract class SynchronizableMessageService<
         }
     }
 
-    public void sendUpdateMessage(List<DATA_MODEL> data, WebSocketDestinationsEnum pathEnum, User user) {
-        if (!data.isEmpty()) {
-            this.sendModel(this.generateUpdateModel(data), pathEnum.getValue() + webSocketUpdateURL, user);
-        }
-    }
-
     public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, Auth auth) {
         if(!data.isEmpty()) {
             this.sendModel(this.generateDeleteModel(data), pathEnum.getValue() + webSocketDeleteURL, auth);
-        }
-    }
-
-    public void sendDeleteMessage(List<ID> data, WebSocketDestinationsEnum pathEnum, User user) {
-        if(!data.isEmpty()) {
-            this.sendModel(this.generateDeleteModel(data), pathEnum.getValue() + webSocketDeleteURL, user);
         }
     }
 

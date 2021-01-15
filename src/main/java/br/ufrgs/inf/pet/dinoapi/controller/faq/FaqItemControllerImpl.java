@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/public/faq_item/")
 public class FaqItemControllerImpl extends SynchronizableControllerImpl<
-        FaqItem, Long, Integer, FaqItemDataModel, FaqItemRepository, FaqItemServiceImpl> {
+        FaqItem, Long, FaqItemDataModel, FaqItemRepository, FaqItemServiceImpl> {
 
     @Autowired
     protected FaqItemControllerImpl(FaqItemServiceImpl service) {

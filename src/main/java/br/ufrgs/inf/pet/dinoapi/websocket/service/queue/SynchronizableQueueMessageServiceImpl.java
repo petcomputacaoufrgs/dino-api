@@ -15,9 +15,8 @@ import java.util.List;
 @Service
 public class SynchronizableQueueMessageServiceImpl<
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>>
-        extends SynchronizableMessageService<ID, LOCAL_ID, DATA_MODEL> {
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>>
+        extends SynchronizableMessageService<ID, DATA_MODEL> {
 
     @Autowired
     public SynchronizableQueueMessageServiceImpl(SimpMessagingTemplate simpMessagingTemplate,

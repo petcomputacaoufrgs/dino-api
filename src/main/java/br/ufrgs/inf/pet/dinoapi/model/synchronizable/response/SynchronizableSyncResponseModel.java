@@ -6,8 +6,7 @@ import java.util.List;
 
 public class SynchronizableSyncResponseModel<
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>>
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>>
         implements SynchronizableGenericResponseModel {
 
     private List<DATA_MODEL> data;

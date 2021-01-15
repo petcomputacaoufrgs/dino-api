@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/public/treatment/")
 public class TreatmentControllerImpl extends SynchronizableControllerImpl<
-        Treatment, Long, Integer, TreatmentDataModel, TreatmentRepository, TreatmentServiceImpl> {
+        Treatment, Long, TreatmentDataModel, TreatmentRepository, TreatmentServiceImpl> {
 
     @Autowired
     protected TreatmentControllerImpl(TreatmentServiceImpl service) {

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/note/")
 public class NoteControllerImpl extends SynchronizableControllerImpl<
-        Note, Long, Integer, NoteDataModel, NoteRepository, NoteServiceImpl> {
+        Note, Long, NoteDataModel, NoteRepository, NoteServiceImpl> {
 
     @Autowired
     public NoteControllerImpl(NoteServiceImpl noteService) {

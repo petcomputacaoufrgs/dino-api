@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integer, UserDataModel, UserRepository> {
+public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> {
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                           SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {
+                           SynchronizableQueueMessageServiceImpl<Long, UserDataModel> synchronizableQueueMessageService) {
         super(userRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
     }
 

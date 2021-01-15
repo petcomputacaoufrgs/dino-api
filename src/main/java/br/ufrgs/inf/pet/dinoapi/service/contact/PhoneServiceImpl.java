@@ -28,14 +28,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Integer, PhoneDataModel, PhoneRepository> {
+public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, PhoneDataModel, PhoneRepository> {
     private final ContactServiceImpl contactService;
     private final EssentialContactRepository essentialContactRepository;
     private final AsyncPhoneService asyncPhoneService;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, OAuthServiceImpl authService,
-                            SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneDataModel> synchronizableQueueMessageService,
+                            SynchronizableQueueMessageServiceImpl<Long, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                             ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository,
                             AsyncPhoneService asyncPhoneService) {

@@ -26,11 +26,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScope, Long, Integer, GoogleScopeDataModel, GoogleScopeRepository> {
+public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScope, Long, GoogleScopeDataModel, GoogleScopeRepository> {
     @Autowired
     public GoogleScopeServiceImpl(GoogleScopeRepository repository, OAuthServiceImpl authService,
                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                  SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleScopeDataModel> synchronizableQueueMessageService) {
+                                  SynchronizableQueueMessageServiceImpl<Long, GoogleScopeDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
     }
 
