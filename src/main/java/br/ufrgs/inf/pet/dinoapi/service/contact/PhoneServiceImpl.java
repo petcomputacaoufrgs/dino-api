@@ -5,7 +5,6 @@ import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
@@ -16,34 +15,34 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncPhoneService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Integer, PhoneDataModel, PhoneRepository> {
     private final ContactServiceImpl contactService;
     private final EssentialContactRepository essentialContactRepository;
-    private final GooglePeopleCommunication googlePeopleCommunication;
-    private final GoogleContactServiceImpl googleContactService;
+    private final AsyncPhoneService asyncPhoneService;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, OAuthServiceImpl authService,
                             SynchronizableQueueMessageServiceImpl<Long, Integer, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                             ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository,
-                            GooglePeopleCommunication googlePeopleCommunication, GoogleContactServiceImpl googleContactService) {
+                            AsyncPhoneService asyncPhoneService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;
         this.essentialContactRepository = essentialContactRepository;
-        this.googlePeopleCommunication = googlePeopleCommunication;
-        this.googleContactService = googleContactService;
+        this.asyncPhoneService = asyncPhoneService;
     }
 
     @Override
@@ -165,92 +164,39 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
     }
 
     @Override
-    protected void onDataCreated(PhoneDataModel model) throws AuthNullException, ConvertModelToEntityException {
-        final Long essentialContactId = model.getEssentialContactId();
-
-        if (essentialContactId == null) return;
-
-        final List<Contact> contacts = contactService.findAllByEssentialContactId(essentialContactId);
-        final List<Phone> phones = repository.findAllByEssentialContactId(essentialContactId);
-
-        for (Contact contact : contacts) {
-            final User user = contact.getUser();
-
-            if (user.getUserAppSettings().getIncludeEssentialContact()) {
-                final Auth fakeAuth = new Auth();
-                fakeAuth.setUser(user);
-
-                final List<PhoneDataModel> phoneDataModels = phones.stream().map(phone -> {
-                    final PhoneDataModel phoneDataModel = new PhoneDataModel();
-                    phoneDataModel.setType(phone.getType());
-                    phoneDataModel.setNumber(phone.getNumber());
-                    phoneDataModel.setContactId(contact.getId());
-                    phoneDataModel.setLastUpdate(clock.getUTCZonedDateTime());
-                    phoneDataModel.setOriginalEssentialPhoneId(phone.getId());
-
-                    return phoneDataModel;
-                }).collect(Collectors.toList());
-
-                final List<PhoneDataModel> savedDataModels = this.internalSaveAll(phoneDataModels, fakeAuth);
-
-                if (savedDataModels.size() > 0) {
-                    final List<String> phoneNumbers = savedDataModels.stream().map(PhoneDataModel::getNumber).collect(Collectors.toList());
-                    this.updateGoogleContactPhones(user, contact, phoneNumbers);
-                }
+    protected void onDataCreated(PhoneDataModel model) {
+        asyncPhoneService.createPhoneOnGoogleAPI(model, (phoneDataModels, auth) -> {
+            try {
+                return this.internalSaveAll(phoneDataModels, auth);
+            } catch (Exception e) {
+                this.logAPIError(e.getMessage());
             }
-        }
+            return new ArrayList<>();
+        });
     }
 
     @Override
-    protected void onDataUpdated(PhoneDataModel model, Phone entity) throws AuthNullException, ConvertModelToEntityException {
-        final EssentialContact essentialContact = entity.getEssentialContact();
-
-        if (essentialContact == null) return;
-
-        final List<Phone> phones = repository.findAllByOriginalEssentialPhone(entity);
-
-        for (Phone phone : phones) {
-            final Contact contact = phone.getContact();
-            final User user = contact.getUser();
-
-            final Auth fakeAuth = new Auth();
-            fakeAuth.setUser(user);
-
-            final PhoneDataModel phoneDataModel = new PhoneDataModel();
-            phoneDataModel.setType(phone.getType());
-            phoneDataModel.setNumber(phone.getNumber());
-            phoneDataModel.setContactId(phone.getContact().getId());
-            phoneDataModel.setLastUpdate(clock.getUTCZonedDateTime());
-            phoneDataModel.setId(phone.getId());
-            phoneDataModel.setOriginalEssentialPhoneId(entity.getId());
-
-            final PhoneDataModel saveDataModel = this.internalSave(phoneDataModel, fakeAuth);
-
-            if (saveDataModel != null) {
-                this.updateGoogleContactPhones(user, contact);
+    protected void onDataUpdated(PhoneDataModel model, Phone entity) {
+        asyncPhoneService.updatePhoneOnGoogleAPI(entity, (phoneDataModel, auth) -> {
+            try {
+                return this.internalSave(phoneDataModel, auth);
+            } catch (Exception e) {
+                this.logAPIError(e.getMessage());
             }
-        }
+            return null;
+        });
     }
 
     @Override
-    protected void onDataDeleted(Phone entity) throws AuthNullException {
-        final List<Phone> phones = repository.findAllByOriginalEssentialPhone(entity);
-
-        for (Phone phone : phones) {
-            final Contact contact = phone.getContact();
-            final User user = contact.getUser();
-
-            final Auth fakeAuth = new Auth();
-            fakeAuth.setUser(user);
-
-            final SynchronizableDeleteModel<Long> model = new SynchronizableDeleteModel<>();
-            model.setLastUpdate(clock.getUTCZonedDateTime());
-            model.setId(phone.getId());
-
-            this.internalDelete(model, fakeAuth);
-
-            this.updateGoogleContactPhones(user, contact);
-        }
+    protected void onDataDeleted(Phone entity) {
+        asyncPhoneService.deletePhonesOnGoogleAPI(entity, (model, auth) -> {
+            try {
+                this.internalDelete(model, auth);
+            } catch (Exception e) {
+                this.logAPIError(e.getMessage());
+            }
+            return null;
+        });
     }
 
     public void deleteAllByUser(List<SynchronizableDeleteModel<Long>> model, User user) throws AuthNullException {
@@ -266,24 +212,6 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Int
 
     public List<Phone> findAllByContactId(Long contactId) {
         return repository.findAllByContactId(contactId);
-    }
-
-    private void updateGoogleContactPhones(User user, Contact contact) {
-        final Optional<GoogleContact> googleContactSearch = googleContactService.findByContactId(contact.getId());
-
-        googleContactSearch.ifPresent(googleContact -> {
-            final List<Phone> contactPhones = repository.findAllByContactId(contact.getId());
-            final List<String> phoneNumbers = contactPhones.stream().map(Phone::getNumber).collect(Collectors.toList());
-
-            googlePeopleCommunication.updateContact(user, contact.getName(), contact.getDescription(), phoneNumbers, googleContact);
-        });
-    }
-
-    private void updateGoogleContactPhones(User user, Contact contact, List<String> phoneNumbers) {
-        final Optional<GoogleContact> googleContactSearch = googleContactService.findByContactId(contact.getId());
-
-        googleContactSearch.ifPresent(googleContact -> googlePeopleCommunication
-                .updateContact(user, contact.getName(), contact.getDescription(), phoneNumbers, googleContact));
     }
 
     private void searchContact(Phone entity, Long id, Auth auth) throws ConvertModelToEntityException, AuthNullException {

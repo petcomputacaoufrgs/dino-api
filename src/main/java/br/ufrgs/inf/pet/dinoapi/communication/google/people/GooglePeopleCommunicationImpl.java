@@ -4,13 +4,11 @@ import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunica
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.*;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleBiographiesModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleNameModel;

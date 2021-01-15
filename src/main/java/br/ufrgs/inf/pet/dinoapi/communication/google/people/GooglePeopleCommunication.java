@@ -1,11 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.people;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
-
 import java.util.List;
 
 public interface GooglePeopleCommunication {
@@ -22,7 +19,6 @@ public interface GooglePeopleCommunication {
      * @param user dino user that owns the contact
      * @param name contact name
      * @param description contact description
-     * @param contactDataModel data model of contact to save
      * @return saved GooglePeopleModel or null
      */
     GooglePeopleModel createContact(User user, String name, String description);

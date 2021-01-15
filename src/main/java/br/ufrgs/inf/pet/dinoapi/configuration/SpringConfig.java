@@ -1,11 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.configuration;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.exception_handler.AsyncExceptionHandler;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.task.TaskExecutor;
+import org.springframework.scheduling.annotation.AsyncConfigurer;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,7 +28,8 @@ import java.util.Arrays;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SpringConfig extends WebSecurityConfigurerAdapter implements AsyncConfigurer {
+    private final LogAPIErrorServiceImpl logAPIErrorService;
 
     private final UserDetailsService dinoUserDetailsService;
 
@@ -30,11 +38,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AppConfig appConfig;
 
     @Autowired
-    public SecurityConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService, AppConfig appConfig) {
+    public SpringConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService,
+                        AppConfig appConfig, LogAPIErrorServiceImpl logAPIErrorService) {
         super();
         this.authFilter = authFilter;
         this.dinoUserDetailsService = dinoUserDetailsService;
         this.appConfig = appConfig;
+        this.logAPIErrorService = logAPIErrorService;
     }
 
     @Override
@@ -54,7 +64,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
+    public AsyncUncaughtExceptionHandler getAsyncUncaughtExceptionHandler() {
+        return new AsyncExceptionHandler(logAPIErrorService);
+    }
+
     @Bean
+    @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
