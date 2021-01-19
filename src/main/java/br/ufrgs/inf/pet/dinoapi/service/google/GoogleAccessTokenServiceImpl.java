@@ -9,6 +9,7 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.time.LocalDateTime;
 import java.util.Optional;
 

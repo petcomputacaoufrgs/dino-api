@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.model.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.constants.TreatmentConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 

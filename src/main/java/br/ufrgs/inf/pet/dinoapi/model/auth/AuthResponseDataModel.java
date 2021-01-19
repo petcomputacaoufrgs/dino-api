@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.model.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 
-import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 
 public class AuthResponseDataModel {

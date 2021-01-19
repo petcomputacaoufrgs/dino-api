@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
 import javax.persistence.*;
-
 import java.util.List;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NUMBER_MAX;
@@ -32,7 +31,8 @@ public class Phone extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "originalEssentialPhone", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Phone> derivativePhones;
 
-    public Phone(){}
+    public Phone() {
+    }
 
     public Long getId() {
         return id;

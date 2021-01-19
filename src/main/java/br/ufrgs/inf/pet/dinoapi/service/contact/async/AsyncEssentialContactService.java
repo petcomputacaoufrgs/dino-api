@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.service.contact.async;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.people.GooglePeopleCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
@@ -23,12 +22,12 @@ import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.stereotype.Service;
 
 @Service
 public class AsyncEssentialContactService {
@@ -69,7 +68,7 @@ public class AsyncEssentialContactService {
         }
 
         for (User user : users) {
-            if(user.getUserAppSettings().getIncludeEssentialContact()) {
+            if (user.getUserAppSettings().getIncludeEssentialContact()) {
                 final ContactDataModel contactDataModel = new ContactDataModel();
                 contactDataModel.setEssentialContactId(model.getId());
                 contactDataModel.setColor(model.getColor());

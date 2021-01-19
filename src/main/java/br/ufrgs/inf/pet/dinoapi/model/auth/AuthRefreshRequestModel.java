@@ -6,7 +6,8 @@ public class AuthRefreshRequestModel {
     @NotNull
     private String refreshToken;
 
-    public AuthRefreshRequestModel(){ }
+    public AuthRefreshRequestModel() {
+    }
 
     public String getRefreshToken() {
         return refreshToken;

@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable.request;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
+
 import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;

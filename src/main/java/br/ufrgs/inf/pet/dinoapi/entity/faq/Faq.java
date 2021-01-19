@@ -2,9 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.entity.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.TITLE_MAX;
 
 @Entity

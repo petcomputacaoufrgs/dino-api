@@ -13,11 +13,12 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, Long, TreatmentDataModel, TreatmentRepository>  {
+public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, Long, TreatmentDataModel, TreatmentRepository> {
 
     @Autowired
     public TreatmentServiceImpl(TreatmentRepository repository, OAuthServiceImpl authService,
@@ -77,7 +78,7 @@ public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, 
     }
 
     public Optional<Treatment> getEntityById(Long id) {
-            return this.repository.findById(id);
+        return this.repository.findById(id);
     }
 
     public List<Treatment> getEntitiesByIds(List<Long> ids) {

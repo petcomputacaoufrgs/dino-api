@@ -2,13 +2,14 @@ package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class DinoUser implements UserDetails {
     private List<DinoGrantedAuthority> authorityList;
 
-    private User user;
+    private final User user;
 
     public DinoUser(User user) {
         this.user = user;
@@ -39,7 +40,9 @@ public class DinoUser implements UserDetails {
     }
 
     @Override
-    public boolean isAccountNonExpired() { return true; }
+    public boolean isAccountNonExpired() {
+        return true;
+    }
 
     @Override
     public boolean isAccountNonLocked() {

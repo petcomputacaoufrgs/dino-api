@@ -6,7 +6,8 @@ public class GoogleAuthRequestModel {
     @NotNull
     private String code;
 
-    public GoogleAuthRequestModel() {}
+    public GoogleAuthRequestModel() {
+    }
 
     public String getCode() {
         return code;

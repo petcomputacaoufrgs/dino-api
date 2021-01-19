@@ -22,6 +22,7 @@ import com.google.api.client.util.Lists;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,8 +30,8 @@ import java.util.stream.Collectors;
 /**
  * Base service with get, getAll, save/update and delete for synchronizable entity
  *
- * @param <ENTITY> Synchronizable entity
- * @param <ID> Id type of synchronizable entity
+ * @param <ENTITY>     Synchronizable entity
+ * @param <ID>         Id type of synchronizable entity
  * @param <DATA_MODEL> Data model of synchronizable entity
  * @param <REPOSITORY> Repository of synchronizable entity
  */
@@ -57,25 +58,32 @@ public abstract class SynchronizableServiceImpl<
 
     /**
      * Override it to do something when an new entity is created
+     *
      * @param model base model
      */
-    protected void onDataCreated(DATA_MODEL model) throws AuthNullException, ConvertModelToEntityException {}
+    protected void onDataCreated(DATA_MODEL model) throws AuthNullException, ConvertModelToEntityException {
+    }
 
     /**
      * Override it to do something when an entity is updated
-     * @param model base model
+     *
+     * @param model  base model
      * @param entity updated entity
      */
-    protected void onDataUpdated(DATA_MODEL model, ENTITY entity) throws AuthNullException, ConvertModelToEntityException {}
+    protected void onDataUpdated(DATA_MODEL model, ENTITY entity) throws AuthNullException, ConvertModelToEntityException {
+    }
 
     /**
      * Override it to do something before an entity be deleted
+     *
      * @param entity deleted entity
      */
-    protected void onDataDeleted(ENTITY entity) throws AuthNullException {}
+    protected void onDataDeleted(ENTITY entity) throws AuthNullException {
+    }
 
     /**
      * Override it to define if entity should be deleted
+     *
      * @param entity base entity
      */
     protected boolean shouldDelete(ENTITY entity, SynchronizableDeleteModel<ID> model) {
@@ -364,7 +372,7 @@ public abstract class SynchronizableServiceImpl<
 
             ID id = orderedIds.get(count);
 
-            while(!Objects.equals(entityId, id)) {
+            while (!Objects.equals(entityId, id)) {
                 count++;
 
                 id = orderedIds.get(count);
@@ -555,14 +563,14 @@ public abstract class SynchronizableServiceImpl<
     }
 
     private Tuple2<List<DATA_MODEL>, List<ENTITY>> saveEntitiesAndUpdateModels(List<ENTITY> entitiesToSave,
-                                                           List<DATA_MODEL> modelsInSaveList) {
+                                                                               List<DATA_MODEL> modelsInSaveList) {
         final List<DATA_MODEL> updatedModels = new ArrayList<>();
 
         int count = 0;
 
         final List<ENTITY> entities = Lists.newArrayList(repository.saveAll(entitiesToSave));
 
-        for (ENTITY entity: entities) {
+        for (ENTITY entity : entities) {
             final DATA_MODEL originalModel = modelsInSaveList.get(count);
             final DATA_MODEL model = this.completeConvertEntityToModel(entity);
             model.setLocalId(originalModel.getLocalId());

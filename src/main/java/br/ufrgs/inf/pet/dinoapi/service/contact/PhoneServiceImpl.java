@@ -59,7 +59,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
             }
         } else {
             final EssentialContact essentialContact = entity.getEssentialContact();
-            if(essentialContact != null) {
+            if (essentialContact != null) {
                 model.setEssentialContactId(entity.getEssentialContact().getId());
             }
         }
@@ -75,12 +75,13 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
             final Long contactId = model.getContactId();
             final Long essentialContactId = model.getEssentialContactId();
 
-            if(contactId != null) {
-                if(essentialContactId != null) throw new ConvertModelToEntityException(ContactsConstants.PHONE_WITH_CONTACT_AND_ECONTACT);
+            if (contactId != null) {
+                if (essentialContactId != null)
+                    throw new ConvertModelToEntityException(ContactsConstants.PHONE_WITH_CONTACT_AND_ECONTACT);
                 searchContact(entity, contactId, auth);
 
                 final Long originalEssentialPhoneId = model.getOriginalEssentialPhoneId();
-                if(originalEssentialPhoneId != null) {
+                if (originalEssentialPhoneId != null) {
                     final Optional<Phone> originalEPhoneSearch = this.findById(originalEssentialPhoneId);
 
                     originalEPhoneSearch.ifPresent(entity::setOriginalEssentialPhone);
@@ -225,7 +226,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
     private void searchContact(Phone entity, Long id, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         final Optional<Contact> contactSearch = contactService.findEntityByIdThatUserCanRead(id, auth);
 
-        if(contactSearch.isPresent()) {
+        if (contactSearch.isPresent()) {
             entity.setContact(contactSearch.get());
         } else throw new ConvertModelToEntityException(ContactsConstants.PHONE_INVALID_CONTACT);
     }
@@ -233,7 +234,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
     private void searchEssentialContact(Phone entity, Long id) throws ConvertModelToEntityException {
         final Optional<EssentialContact> essentialContactSearch = essentialContactRepository.findById(id);
 
-        if(essentialContactSearch.isPresent()) {
+        if (essentialContactSearch.isPresent()) {
             entity.setEssentialContact(essentialContactSearch.get());
         } else throw new ConvertModelToEntityException(ContactsConstants.PHONE_INVALID_ECONTACT);
     }

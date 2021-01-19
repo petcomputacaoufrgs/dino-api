@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity.synchronizable;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -13,6 +14,7 @@ import static javax.persistence.GenerationType.AUTO;
 
 /**
  * Base for Synchronizable Entity
+ *
  * @param <ID> Type of synchronizable entity id
  */
 @MappedSuperclass

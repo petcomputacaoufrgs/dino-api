@@ -2,10 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.model.user;
 
 import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long>  {
+public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = UserSettingsConstants.LANGUAGE_NULL_MESSAGE)
     @Size(min = UserSettingsConstants.LANGUAGE_MIN, max = UserSettingsConstants.LANGUAGE_MAX, message = UserSettingsConstants.LANGUAGE_SIZE_MESSAGE)
     private String language;
@@ -13,12 +14,12 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> 
     @NotNull(message = UserSettingsConstants.COLOR_THEME__NULL_MESSAGE)
     private Integer colorTheme;
 
-    @NotNull(message =  UserSettingsConstants.FONT_SIZE__NULL_MESSAGE)
+    @NotNull(message = UserSettingsConstants.FONT_SIZE__NULL_MESSAGE)
     private Integer fontSize;
 
     private Long treatmentId;
 
-    @NotNull(message =  UserSettingsConstants.INCLUDE_ESSENTIAL_CONTACT_NULL_MESSAGE)
+    @NotNull(message = UserSettingsConstants.INCLUDE_ESSENTIAL_CONTACT_NULL_MESSAGE)
     private Boolean includeEssentialContact;
 
     @NotNull(message = UserSettingsConstants.DECLINE_GOOGLE_CONTACTS_NULL_MESSAGE)

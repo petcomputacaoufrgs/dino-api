@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleScopeDataModel;
+
 import java.time.ZonedDateTime;
 import java.util.List;
 
@@ -11,7 +12,8 @@ public class GoogleRefreshAuthResponseDataModel {
 
     private List<GoogleScopeDataModel> scopes;
 
-    public GoogleRefreshAuthResponseDataModel() {}
+    public GoogleRefreshAuthResponseDataModel() {
+    }
 
     public String getGoogleAccessToken() {
         return googleAccessToken;

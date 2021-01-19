@@ -1,18 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthDataModel;
-import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.projection.auth.AuthWebSocketToken;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.AuthRepository;
 import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
 import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Clock;
 import io.jsonwebtoken.Jwts;
@@ -25,6 +25,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+
 import javax.xml.bind.DatatypeConverter;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -181,7 +182,7 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public DinoUser getPrincipal() {
-        final SecurityContext context =  SecurityContextHolder.getContext();
+        final SecurityContext context = SecurityContextHolder.getContext();
 
         if (context == null) {
             return null;
@@ -202,7 +203,7 @@ public class OAuthServiceImpl implements OAuthService {
 
     @Override
     public DinoCredentials getCredentials() {
-        final SecurityContext context =  SecurityContextHolder.getContext();
+        final SecurityContext context = SecurityContextHolder.getContext();
 
         if (context == null) {
             return null;

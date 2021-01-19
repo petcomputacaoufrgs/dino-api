@@ -20,6 +20,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,7 +51,7 @@ public class EssentialContactServiceImpl extends
         model.setName(entity.getName());
         model.setDescription(entity.getDescription());
         model.setColor(entity.getColor());
-        if(entity.getTreatments() != null) {
+        if (entity.getTreatments() != null) {
             model.setTreatmentIds(entity.getTreatments().stream()
                     .map(SynchronizableEntity::getId).collect(Collectors.toList()));
         }
@@ -129,7 +130,7 @@ public class EssentialContactServiceImpl extends
     }
 
     private void searchTreatments(EssentialContact entity, List<Long> treatmentIds) {
-        if(treatmentIds != null && treatmentIds.size() != 0) {
+        if (treatmentIds != null && treatmentIds.size() != 0) {
             final List<Treatment> treatmentSearch = treatmentRepository.findAllByIds(treatmentIds);
             entity.setTreatments(treatmentSearch);
         }

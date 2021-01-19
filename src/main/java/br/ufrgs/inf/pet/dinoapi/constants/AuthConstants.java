@@ -4,7 +4,7 @@ public final class AuthConstants {
     public final static int ACCESS_TOKEN_MAX = 560;
 
     public final static int REFRESH_TOKEN_MAX = 560;
-    
+
     public final static int WS_TOKEN_MAX = 560;
 
     public final static int NAME_MAX = 100;

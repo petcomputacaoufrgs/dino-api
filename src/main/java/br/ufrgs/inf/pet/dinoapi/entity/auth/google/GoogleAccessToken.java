@@ -1,5 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity.auth.google;
+
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 

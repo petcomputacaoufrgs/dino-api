@@ -6,7 +6,8 @@ import java.io.Serializable;
 
 /**
  * Response model for synchronizable entity
- * @param <ID>: synchronizable entity id's type
+ *
+ * @param <ID>:         synchronizable entity id's type
  * @param <DATA_MODEL>: data model of synchronizable entity
  */
 public class SynchronizableDataResponseModelImpl<

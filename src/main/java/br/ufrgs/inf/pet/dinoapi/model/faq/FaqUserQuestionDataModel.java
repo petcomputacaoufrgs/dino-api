@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.*;
 
 public class FaqUserQuestionDataModel extends SynchronizableDataLocalIdModel<Long> {
@@ -14,7 +15,8 @@ public class FaqUserQuestionDataModel extends SynchronizableDataLocalIdModel<Lon
     @Size(min = 1, max = USER_QUESTION_MAX, message = QUESTION_SIZE_MESSAGE)
     private String question;
 
-    public FaqUserQuestionDataModel() {}
+    public FaqUserQuestionDataModel() {
+    }
 
     public Long getFaqId() {
         return faqId;

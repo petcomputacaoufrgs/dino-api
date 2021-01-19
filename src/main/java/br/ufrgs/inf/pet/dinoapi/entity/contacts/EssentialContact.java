@@ -2,8 +2,10 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+
 import javax.persistence.*;
 import java.util.List;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
@@ -28,10 +30,11 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     @ManyToMany
     @JoinTable(name = "essential_contact__treatment",
             joinColumns = {@JoinColumn(name = "essential_contact_id")},
-            inverseJoinColumns = {@JoinColumn(name="treatment_id")})
+            inverseJoinColumns = {@JoinColumn(name = "treatment_id")})
     private List<Treatment> treatments;
 
-    public EssentialContact() {}
+    public EssentialContact() {
+    }
 
     public List<Treatment> getTreatments() {
         return treatments;

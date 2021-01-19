@@ -15,6 +15,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -44,34 +45,34 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
 
     @Override
     public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-            final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
+        final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
 
-            if (faq.isPresent()) {
-                final FaqItem entity = new FaqItem();
-                entity.setQuestion(model.getQuestion());
-                entity.setAnswer(model.getAnswer());
-                entity.setFaq(faq.get());
+        if (faq.isPresent()) {
+            final FaqItem entity = new FaqItem();
+            entity.setQuestion(model.getQuestion());
+            entity.setAnswer(model.getAnswer());
+            entity.setFaq(faq.get());
 
-                return entity;
-            } else {
-                throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
-            }
+            return entity;
+        } else {
+            throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+        }
     }
 
     @Override
     public void updateEntity(FaqItem entity, FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-            if (!entity.getFaq().getId().equals(model.getFaqId())) {
-                final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
+        if (!entity.getFaq().getId().equals(model.getFaqId())) {
+            final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
 
-                if (faq.isPresent()) {
-                    entity.setFaq(faq.get());
-                } else {
-                    throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
-                }
+            if (faq.isPresent()) {
+                entity.setFaq(faq.get());
+            } else {
+                throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
             }
+        }
 
-            entity.setAnswer(model.getAnswer());
-            entity.setQuestion(model.getQuestion());
+        entity.setAnswer(model.getAnswer());
+        entity.setQuestion(model.getQuestion());
     }
 
     @Override

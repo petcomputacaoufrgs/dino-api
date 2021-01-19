@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.model.faq;
 
 import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -17,7 +18,8 @@ public class FaqItemDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = FaqConstants.FAQ_ID_NULL_MESSAGE)
     private Long faqId;
 
-    public FaqItemDataModel() {}
+    public FaqItemDataModel() {
+    }
 
     public String getQuestion() {
         return question;

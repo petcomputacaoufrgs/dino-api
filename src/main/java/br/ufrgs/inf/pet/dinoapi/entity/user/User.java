@@ -6,6 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -32,7 +33,7 @@ public class User extends SynchronizableEntity<Long> {
     private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Auth> auths;
+    private final List<Auth> auths;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<NoteColumn> noteColumns;
@@ -42,7 +43,7 @@ public class User extends SynchronizableEntity<Long> {
 
     @OneToMany(mappedBy = "user")
     private List<FaqUserQuestion> faqUserQuestions;
-    
+
     public User() {
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
@@ -115,5 +116,7 @@ public class User extends SynchronizableEntity<Long> {
         this.contacts = contacts;
     }
 
-    public List<Contact> getContacts() { return contacts; }
+    public List<Contact> getContacts() {
+        return contacts;
+    }
 }

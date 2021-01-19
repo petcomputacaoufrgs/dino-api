@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.entity.log_error;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.LogAppErrorConstants.*;
 import static javax.persistence.GenerationType.AUTO;
 
