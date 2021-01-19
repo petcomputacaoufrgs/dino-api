@@ -14,8 +14,8 @@ public class LogAppErrorRequestModel {
     @Size(max = FILE_MAX, message = FILE_MESSAGE)
     private String file;
 
-    @Size(max = ERROR_MAX, message = ERROR_MESSAGE)
-    @NotNull(message = ERROR_NULL_MESSAGE)
+    @Size(max = STACK_TRACE_MAX, message = STACK_TRACE_MESSAGE)
+    @NotNull(message = STACK_TRACE_NULL_MESSAGE)
     private String error;
 
     @NotNull(message = DATE_NULL_MESSAGE)

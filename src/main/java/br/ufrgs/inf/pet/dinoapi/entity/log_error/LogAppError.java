@@ -19,7 +19,7 @@ public class LogAppError {
     @Column(name = "file", length = FILE_MAX)
     private String file;
 
-    @Column(name = "error", length = ERROR_MAX, nullable = false)
+    @Column(name = "error", length = STACK_TRACE_MAX, nullable = false)
     private String error;
 
     @Column(name = "log_date", nullable = false)

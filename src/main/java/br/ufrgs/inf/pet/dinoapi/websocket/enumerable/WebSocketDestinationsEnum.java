@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.enumerable;
 
 public enum WebSocketDestinationsEnum {
-    GOOGLE_SCOPE("auth/google/scope"),
+    GOOGLE_SCOPE("google_scope"),
     PHONE("phone"),
     GOOGLE_CONTACT("google_contact"),
     CONTACT("contact"),

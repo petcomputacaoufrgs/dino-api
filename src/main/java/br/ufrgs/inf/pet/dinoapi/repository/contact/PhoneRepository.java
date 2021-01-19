@@ -30,11 +30,14 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
     @Query("SELECT p FROM Phone p WHERE p.essentialContact.id = :essentialContactId")
     List<Phone> findAllByEssentialContactId(@Param("essentialContactId") Long essentialContactId);
 
-    @Query("SELECT p FROM Phone p WHERE p.originalEssentialPhone = :originalEssentialPhone")
-    List<Phone> findAllByOriginalEssentialPhone(@Param("originalEssentialPhone") Phone originalEssentialPhone);
+    @Query("SELECT p FROM Phone p WHERE p.originalEssentialPhone.id = :originalEssentialPhoneId")
+    List<Phone> findAllByOriginalEssentialPhone(@Param("originalEssentialPhoneId") Long originalEssentialPhoneId);
 
     @Query("SELECT p FROM Phone p WHERE p.contact.id = :contactId")
     List<Phone> findAllByContactId(@Param("contactId") Long contactId);
+
+    @Query("SELECT p.number FROM Phone p WHERE p.contact.id = :contactId")
+    List<String> findAllPhoneNumbersByContactId(@Param("contactId") Long contactId);
 
     @Query("SELECT p FROM Phone p WHERE p.id = :id AND p.contact.user.id = :userId")
     Optional<Phone> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);

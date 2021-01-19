@@ -14,7 +14,7 @@ public class GoogleContact extends SynchronizableEntity<Long> {
     private String resourceName;
 
     @ManyToOne
-    @JoinColumn(name = "contact_id", nullable = false)
+    @JoinColumn(name = "contact_id")
     private Contact contact;
 
     @ManyToOne

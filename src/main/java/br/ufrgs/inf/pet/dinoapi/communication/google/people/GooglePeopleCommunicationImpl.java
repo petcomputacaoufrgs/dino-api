@@ -49,7 +49,36 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel getContact(User user, GoogleContact googleContact) {
+    public GooglePeopleModel getContact(User user, String resourceName) throws IOException, InterruptedException, URISyntaxException {
+        final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
+
+        if (googleAuth == null) return null;
+
+        final String accessToken = this.validateGrantAndGetAccessToken(googleAuth);
+
+        if (accessToken == null) return null;
+
+        if (resourceName == null) return null;
+
+        final HttpRequest request = this.createBaseRequest(accessToken)
+                .uri(new URI(
+                        GoogleAPIURLEnum.GET_CONTACT_BASE.getValue()
+                                + resourceName
+                                + "?personFields=names,phoneNumbers,biographies"))
+                .GET()
+                .build();
+
+        final HttpResponse<String> response = this.send(request);
+
+        if (response.statusCode() == HttpStatus.OK.value()) {
+            return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public GooglePeopleModel createContact(User user, String name, String description, List<String> phoneNumbers) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -59,31 +88,16 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
             if (accessToken == null) return null;
 
-            if (googleContact.getResourceName() == null) return null;
-
-            final HttpRequest request = this.createBaseRequest(accessToken)
-                    .uri(new URI(
-                            GoogleAPIURLEnum.GET_CONTACT_BASE.getValue()
-                                    + googleContact.getResourceName()
-                                    + "?personFields=names,phoneNumbers,biographies"))
-                    .GET()
-                    .build();
-
-            final HttpResponse<String> response = this.send(request);
-
-            if (response.statusCode() == HttpStatus.OK.value()) {
-                return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
-            }
-
+            return this.createNewGoogleContact(accessToken, name, description, phoneNumbers);
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
+            this.logAPIError(e);
         }
 
         return null;
     }
 
     @Override
-    public GooglePeopleModel createContact(User user, String name, String description) {
+    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, String resourceName) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -93,40 +107,11 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
             if (accessToken == null) return null;
 
-            final GooglePeopleModel googlePeopleModel = this.getGooglePeopleModel(name, description, new ArrayList<>());
+            final GooglePeopleModel currentPeopleModel = this.getContact(user, resourceName);
 
-            final String jsonModel = JsonUtils.convertToJson(googlePeopleModel);
-
-            final HttpRequest request = this.createBaseRequest(accessToken)
-                    .uri(new URI(GoogleAPIURLEnum.CREATE_CONTACT.getValue()))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonModel))
-                    .build();
-
-            final HttpResponse<String> response = this.send(request);
-
-            if (response.statusCode() == HttpStatus.OK.value()) {
-                return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
+            if (currentPeopleModel == null) {
+                return this.createNewGoogleContact(accessToken, name, description, phoneNumbers);
             }
-
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
-        }
-
-        return null;
-    }
-
-    @Override
-    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, GoogleContact googleContact) {
-        try {
-            final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
-
-            if (googleAuth == null) return null;
-
-            final String accessToken = this.validateGrantAndGetAccessToken(googleAuth);
-
-            if (accessToken == null) return null;
-
-            final GooglePeopleModel currentPeopleModel = this.getContact(user, googleContact);
 
             final GooglePeopleModel newGooglePeopleModel = this.getGooglePeopleModel(name, description, phoneNumbers);
             newGooglePeopleModel.setEtag(currentPeopleModel.getEtag());
@@ -136,8 +121,8 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             final HttpRequest request = this.createBaseRequest(accessToken)
                     .uri(new URI(
                     GoogleAPIURLEnum.UPDATE_CONTACT_BASE.getValue()
-                            + googleContact.getResourceName()
-                            + "/:updateContact?updatePersonFields=names,phoneNumbers,biographies"))
+                            + resourceName
+                            + ":updateContact?updatePersonFields=names,phoneNumbers,biographies"))
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonModel))
                     .build();
 
@@ -148,35 +133,57 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             }
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
+            this.logAPIError(e);
         }
 
         return null;
     }
 
     @Override
-    public void deleteContact(User user, GoogleContact googleContact) {
+    public boolean deleteContact(User user, GoogleContact googleContact) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
-            if (googleAuth == null) return;
+            if (googleAuth == null) return false;
 
             final String accessToken = this.validateGrantAndGetAccessToken(googleAuth);
 
-            if (accessToken == null) return;
+            if (accessToken == null) return false;
 
             final HttpRequest request = this.createBaseRequest(accessToken)
                     .uri(new URI(
                             GoogleAPIURLEnum.DELETE_CONTACT_BASE.getValue()
                                     + googleContact.getResourceName()
-                                    + "/:deleteContact"))
+                                    + ":deleteContact"))
                     .DELETE()
                     .build();
 
             this.send(request);
+
+            return true;
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
+            this.logAPIError(e);
         }
+        return false;
+    }
+
+    private GooglePeopleModel createNewGoogleContact(String accessToken, String name, String description, List<String> phoneNumbers) throws IOException, InterruptedException, URISyntaxException {
+        final GooglePeopleModel googlePeopleModel = this.getGooglePeopleModel(name, description, phoneNumbers);
+
+        final String jsonModel = JsonUtils.convertToJson(googlePeopleModel);
+
+        final HttpRequest request = this.createBaseRequest(accessToken)
+                .uri(new URI(GoogleAPIURLEnum.CREATE_CONTACT.getValue()))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonModel))
+                .build();
+
+        final HttpResponse<String> response = this.send(request);
+
+        if (response.statusCode() == HttpStatus.OK.value()) {
+            return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
+        }
+
+        return null;
     }
 
     private HttpRequest.Builder createBaseRequest(String accessToken) {

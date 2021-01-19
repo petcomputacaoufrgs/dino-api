@@ -17,8 +17,11 @@ public class LogAPIError {
     @Column(name = "file", length = FILE_MAX)
     private String className;
 
-    @Column(name = "error", length = ERROR_MAX, nullable = false)
-    private String error;
+    @Column(name = "message", length = MESSAGE_MAX, nullable = false)
+    private String message;
+
+    @Column(name = "stack_trace", length = STACK_TRACE_MAX, nullable = false)
+    private String stackTract;
 
     @Column(name = "log_date", nullable = false)
     private LocalDateTime date;
@@ -39,12 +42,20 @@ public class LogAPIError {
         this.className = file;
     }
 
-    public String getError() {
-        return error;
+    public String getMessage() {
+        return message;
     }
 
-    public void setError(String error) {
-        this.error = error;
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public String getStackTract() {
+        return stackTract;
+    }
+
+    public void setStackTract(String stackTract) {
+        this.stackTract = stackTract;
     }
 
     public LocalDateTime getDate() {

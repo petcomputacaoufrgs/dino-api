@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.communication.google.people.GooglePeopleCommunication;
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
@@ -169,7 +168,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
             try {
                 return this.internalSaveAll(phoneDataModels, auth);
             } catch (Exception e) {
-                this.logAPIError(e.getMessage());
+                this.logAPIError(e);
             }
             return new ArrayList<>();
         });
@@ -181,7 +180,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
             try {
                 return this.internalSave(phoneDataModel, auth);
             } catch (Exception e) {
-                this.logAPIError(e.getMessage());
+                this.logAPIError(e);
             }
             return null;
         });
@@ -189,11 +188,16 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
 
     @Override
     protected void onDataDeleted(Phone entity) {
-        asyncPhoneService.deletePhonesOnGoogleAPI(entity, (model, auth) -> {
+        final List<Phone> ePhones = this.repository.findAllByOriginalEssentialPhone(entity.getId());
+
+        ePhones.forEach(phone -> phone.setOriginalEssentialPhone(null));
+        this.repository.saveAll(ePhones);
+
+        asyncPhoneService.deletePhonesOnGoogleAPI(ePhones, (model, auth) -> {
             try {
                 this.internalDelete(model, auth);
             } catch (Exception e) {
-                this.logAPIError(e.getMessage());
+                this.logAPIError(e);
             }
             return null;
         });
@@ -212,6 +216,10 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
 
     public List<Phone> findAllByContactId(Long contactId) {
         return repository.findAllByContactId(contactId);
+    }
+
+    public List<String> findAllPhoneNumbersByContactId(Long contactId) {
+        return repository.findAllPhoneNumbersByContactId(contactId);
     }
 
     private void searchContact(Phone entity, Long id, Auth auth) throws ConvertModelToEntityException, AuthNullException {

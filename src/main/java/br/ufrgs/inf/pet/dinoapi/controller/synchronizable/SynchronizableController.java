@@ -100,5 +100,5 @@ public interface SynchronizableController<
      *
      * @return model with all items
      */
-    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
 }

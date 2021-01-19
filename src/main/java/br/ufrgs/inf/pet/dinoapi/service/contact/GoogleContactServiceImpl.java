@@ -11,6 +11,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -25,12 +26,16 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     private final ContactServiceImpl contactService;
 
+    private final AsyncGoogleContactImpl asyncGoogleContact;
+
     @Autowired
     public GoogleContactServiceImpl(GoogleContactRepository repository, OAuthServiceImpl authService, ContactServiceImpl contactService,
                                     SynchronizableQueueMessageServiceImpl<Long, GoogleContactDataModel> synchronizableQueueMessageService,
-                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                                    AsyncGoogleContactImpl asyncGoogleContact) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;
+        this.asyncGoogleContact = asyncGoogleContact;
     }
 
     @Override
@@ -49,9 +54,11 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
             if (contactSearch.isPresent()) {
                 GoogleContact googleContact = new GoogleContact();
-                googleContact.setResourceName(model.getResourceName());
                 googleContact.setContact(contactSearch.get());
                 googleContact.setUser(user);
+                if (model.getResourceName() != null) {
+                    googleContact.setResourceName(model.getResourceName());
+                }
                 return googleContact;
             }
 
@@ -63,7 +70,45 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     @Override
     public void updateEntity(GoogleContact entity, GoogleContactDataModel model, Auth auth) throws ConvertModelToEntityException {
-        entity.setResourceName(model.getResourceName());
+        if (model.getResourceName() != null) {
+            entity.setResourceName(model.getResourceName());
+        }
+    }
+
+    @Override
+    protected void onDataCreated(GoogleContactDataModel model) {
+        asyncGoogleContact.createContactOnGoogleAPI(model, (phoneDataModel, auth) -> {
+            try {
+                return this.internalSave(phoneDataModel, auth, false);
+            } catch (Exception e) {
+                this.logAPIError(e);
+            }
+            return null;
+        });
+    }
+
+    @Override
+    protected void onDataUpdated(GoogleContactDataModel model, GoogleContact entity) {
+        asyncGoogleContact.updateContactOnGoogleAPI(entity, (phoneDataModel, auth) -> {
+            try {
+                return this.internalSave(phoneDataModel, auth, false);
+            } catch (Exception e) {
+                this.logAPIError(e);
+            }
+            return null;
+        });
+    }
+
+    @Override
+    protected void onDataDeleted(GoogleContact entity) {
+        asyncGoogleContact.deleteContactOnGoogleAPI(entity, (model, auth) -> {
+            try {
+                this.internalDelete(model, auth, false);
+            } catch (Exception e) {
+                this.logAPIError(e);
+            }
+            return null;
+        });
     }
 
     @Override
@@ -116,7 +161,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         final Auth fakeAuth = new Auth();
         fakeAuth.setUser(user);
 
-        this.internalSave(googleContactDataModel, fakeAuth);
+        this.internalSave(googleContactDataModel, fakeAuth, false);
     }
 
     public Optional<GoogleContact> findByContactId(Long contactId) {

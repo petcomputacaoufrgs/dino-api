@@ -78,13 +78,27 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    @Bean(name = "threadPoolTaskExecutor")
+    @Bean(name = "googleContactThreadPoolTaskExecutor")
     public Executor threadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(2);
-        executor.setQueueCapacity(500);
-        executor.setThreadNamePrefix("DinoAPI-");
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(8);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
+        executor.setThreadNamePrefix("DinoAPI-Google-Contact-");
+        executor.initialize();
+        return executor;
+    }
+
+    /**
+     * Single thread pool for essential contacts creation
+     */
+    @Bean(name = "essentialContactsThreadPoolTaskExecutor")
+    public Executor essentialContactsThreadPoolTaskExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(1);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
+        executor.setThreadNamePrefix("DinoAPI-EssentialContacts-");
         executor.initialize();
         return executor;
     }

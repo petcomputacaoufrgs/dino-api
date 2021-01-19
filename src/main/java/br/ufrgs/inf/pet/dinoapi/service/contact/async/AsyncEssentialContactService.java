@@ -14,6 +14,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.ContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.GoogleContactServiceImpl;
@@ -22,6 +23,8 @@ import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,12 +39,14 @@ public class AsyncEssentialContactService {
     private final PhoneServiceImpl phoneService;
     private final GoogleContactServiceImpl googleContactService;
     private final GooglePeopleCommunicationImpl googlePeopleCommunication;
+    private final GoogleScopeServiceImpl googleScopeService;
 
     @Autowired
     public AsyncEssentialContactService(TreatmentServiceImpl treatmentService, UserServiceImpl userService,
                                         ClockServiceImpl clockService, ContactServiceImpl contactService,
                                         PhoneServiceImpl phoneService, GoogleContactServiceImpl googleContactService,
-                                        GooglePeopleCommunicationImpl googlePeopleCommunication) {
+                                        GooglePeopleCommunicationImpl googlePeopleCommunication,
+                                        GoogleScopeServiceImpl googleScopeService) {
         this.treatmentService = treatmentService;
         this.userService = userService;
         this.clockService = clockService;
@@ -49,9 +54,10 @@ public class AsyncEssentialContactService {
         this.phoneService = phoneService;
         this.googleContactService = googleContactService;
         this.googlePeopleCommunication = googlePeopleCommunication;
+        this.googleScopeService = googleScopeService;
     }
 
-    @Async("threadPoolTaskExecutor")
+    @Async("essentialContactsThreadPoolTaskExecutor")
     public void createContactsOnGoogleAPI(EssentialContactDataModel model) throws AuthNullException, ConvertModelToEntityException {
         final List<Treatment> treatments = treatmentService.getEntitiesByIds(model.getTreatmentIds());
 
@@ -78,8 +84,8 @@ public class AsyncEssentialContactService {
         }
     }
 
-    @Async("threadPoolTaskExecutor")
-    public void updateContactsOnGoogleAPI(EssentialContactDataModel model, EssentialContact entity) throws AuthNullException, ConvertModelToEntityException {
+    @Async("essentialContactsThreadPoolTaskExecutor")
+    public void updateContactsOnGoogleAPI(EssentialContactDataModel model) throws AuthNullException, ConvertModelToEntityException {
         final List<Contact> contacts = contactService.findAllByEssentialContactId(model.getId());
         for (Contact contact : contacts) {
             final User user = contact.getUser();
@@ -94,25 +100,32 @@ public class AsyncEssentialContactService {
 
             final ContactDataModel savedDataModel = contactService.saveByUser(contactDataModel, user);
             final Long contactId = savedDataModel.getId();
-            final Optional<GoogleContact> googleContact = googleContactService.findByContactId(contactId);
-            if (googleContact.isEmpty()) {
+            final Optional<GoogleContact> googleContactSearch = googleContactService.findByContactId(contactId);
+            if (googleContactSearch.isEmpty()) {
                 this.createGoogleContact(user, savedDataModel);
             } else {
-                final List<String> phones = phoneService.findAllByContactId(contactId).stream().map(Phone::getNumber).collect(Collectors.toList());
-                googlePeopleCommunication.updateContact(user, savedDataModel.getName(), savedDataModel.getDescription(), phones, googleContact.get());
+                final GoogleContact googleContact = googleContactSearch.get();
+                final String resourceName = googleContact.getResourceName();
+                final List<String> phones = phoneService.findAllPhoneNumbersByContactId(contactId);
+                final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.updateContact(user, savedDataModel.getName(), savedDataModel.getDescription(), phones, resourceName);
+                if (googlePeopleModel != null && !googlePeopleModel.getResourceName().equals(resourceName)) {
+                    this.saveGoogleContact(user, googleContact.getId(), googleContact.getContact().getId(), googlePeopleModel);
+                }
             }
         }
     }
 
-    @Async("threadPoolTaskExecutor")
-    public void deleteContactsOnGoogleAPI(EssentialContact entity) throws AuthNullException {
-        final List<Contact> contacts = contactService.findAllByEssentialContactId(entity.getId());
-
+    @Async("essentialContactsThreadPoolTaskExecutor")
+    public void deleteContactsOnGoogleAPI(List<Contact> contacts) throws AuthNullException {
         for (Contact contact : contacts) {
             final User user = contact.getUser();
 
             final Optional<GoogleContact> googleContact = googleContactService.findByContactId(contact.getId());
-            googleContact.ifPresent(value -> googlePeopleCommunication.deleteContact(user, value));
+            googleContact.ifPresent(value -> {
+                if (googleScopeService.hasGoogleContactScope(user)) {
+                    googlePeopleCommunication.deleteContact(user, value);
+                }
+            });
 
             final List<Phone> phones = phoneService.findAllByContactId(contact.getId());
 
@@ -132,11 +145,18 @@ public class AsyncEssentialContactService {
     }
 
     private void createGoogleContact(User user, ContactDataModel savedDataModel) throws AuthNullException, ConvertModelToEntityException {
-        final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.createContact(user, savedDataModel.getName(), savedDataModel.getDescription());
+        if (googleScopeService.hasGoogleContactScope(user)) {
+            final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.createContact(user, savedDataModel.getName(), savedDataModel.getDescription(), new ArrayList<>());
 
+            this.saveGoogleContact(user, null, savedDataModel.getId(), googlePeopleModel);
+        }
+    }
+
+    private void saveGoogleContact(User user, Long id, Long contactId, GooglePeopleModel googlePeopleModel) throws AuthNullException, ConvertModelToEntityException {
         final GoogleContactDataModel googleContactDataModel = new GoogleContactDataModel();
-        googleContactDataModel.setContactId(savedDataModel.getId());
+        googleContactDataModel.setContactId(contactId);
         googleContactDataModel.setLastUpdate(clockService.getUTCZonedDateTime());
+        googleContactDataModel.setId(id);
 
         if (googlePeopleModel != null) {
             googleContactDataModel.setResourceName(googlePeopleModel.getResourceName());

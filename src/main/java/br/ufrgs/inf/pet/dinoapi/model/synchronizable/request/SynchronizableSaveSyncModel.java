@@ -5,12 +5,9 @@ import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 
-public class SynchronizableSyncModel<ID extends Comparable<ID> & Serializable, DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> {
+public class SynchronizableSaveSyncModel<ID extends Comparable<ID> & Serializable, DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> {
     @Valid
     private List<DATA_MODEL> save;
-
-    @Valid
-    private List<SynchronizableDeleteModel<ID>> delete;
 
     public List<DATA_MODEL> getSave() {
         return save;
@@ -18,13 +15,5 @@ public class SynchronizableSyncModel<ID extends Comparable<ID> & Serializable, D
 
     public void setSave(List<DATA_MODEL> save) {
         this.save = save;
-    }
-
-    public List<SynchronizableDeleteModel<ID>> getDelete() {
-        return delete;
-    }
-
-    public void setDelete(List<SynchronizableDeleteModel<ID>> delete) {
-        this.delete = delete;
     }
 }

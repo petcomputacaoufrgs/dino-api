@@ -1,12 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactDataModel;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
@@ -28,15 +30,18 @@ public class EssentialContactServiceImpl extends
 
     private final TreatmentRepository treatmentRepository;
     private final AsyncEssentialContactService asyncEssentialContactService;
+    private final ContactRepository contactRepository;
 
     @Autowired
     public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository,
                                        OAuthServiceImpl authService, ClockServiceImpl clock, LogAPIErrorServiceImpl logAPIErrorService,
                                        SynchronizableTopicMessageServiceImpl<Long, EssentialContactDataModel> synchronizableTopicMessageService,
-                                       AsyncEssentialContactService asyncEssentialContactService) {
+                                       AsyncEssentialContactService asyncEssentialContactService,
+                                       ContactRepository contactRepository) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;
         this.asyncEssentialContactService = asyncEssentialContactService;
+        this.contactRepository = contactRepository;
     }
 
     @Override
@@ -109,12 +114,18 @@ public class EssentialContactServiceImpl extends
 
     @Override
     protected void onDataUpdated(EssentialContactDataModel model, EssentialContact entity) throws AuthNullException, ConvertModelToEntityException {
-        asyncEssentialContactService.updateContactsOnGoogleAPI(model, entity);
+        asyncEssentialContactService.updateContactsOnGoogleAPI(model);
     }
 
     @Override
     protected void onDataDeleted(EssentialContact entity) throws AuthNullException {
-        asyncEssentialContactService.deleteContactsOnGoogleAPI(entity);
+        final List<Contact> contacts = contactRepository.findAllByEssentialContactId(entity.getId());
+
+        contacts.forEach(contact -> contact.setEssentialContact(null));
+
+        contactRepository.saveAll(contacts);
+
+        asyncEssentialContactService.deleteContactsOnGoogleAPI(contacts);
     }
 
     private void searchTreatments(EssentialContact entity, List<Long> treatmentIds) {

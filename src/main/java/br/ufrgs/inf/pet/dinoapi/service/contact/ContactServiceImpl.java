@@ -161,11 +161,14 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         return this.repository.findAllByEssentialContactId(essentialContactId);
     }
 
+    public Optional<Contact> findById(Long id) {
+        return this.repository.findById(id);
+    }
+
     private Auth getFakeAuth(User user) {
         final Auth fakeAuth = new Auth();
         fakeAuth.setUser(user);
 
         return fakeAuth;
     }
-
 }
