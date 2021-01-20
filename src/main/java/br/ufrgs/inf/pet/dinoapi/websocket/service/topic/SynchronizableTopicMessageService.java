@@ -12,13 +12,13 @@ import org.springframework.stereotype.Service;
 import java.io.Serializable;
 
 @Service
-public class SynchronizableTopicMessageServiceImpl<
+public class SynchronizableTopicMessageService<
         ID extends Comparable<ID> & Serializable,
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> extends SynchronizableMessageService<ID, DATA_MODEL> {
 
     @Autowired
-    public SynchronizableTopicMessageServiceImpl(SimpMessagingTemplate simpMessagingTemplate,
-                                                 OAuthServiceImpl authService) {
+    public SynchronizableTopicMessageService(SimpMessagingTemplate simpMessagingTemplate,
+                                             OAuthServiceImpl authService) {
         super(simpMessagingTemplate, authService);
     }
 

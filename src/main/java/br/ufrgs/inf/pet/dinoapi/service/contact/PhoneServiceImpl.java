@@ -18,7 +18,7 @@ import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncPhoneService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +34,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, OAuthServiceImpl authService,
-                            SynchronizableQueueMessageServiceImpl<Long, PhoneDataModel> synchronizableQueueMessageService,
+                            SynchronizableQueueMessageService<Long, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                             ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository,
                             AsyncPhoneService asyncPhoneService) {

@@ -9,7 +9,7 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,7 +21,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     @Autowired
     public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, OAuthServiceImpl authService,
                                ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                               SynchronizableTopicMessageServiceImpl<Long, GlossaryItemDataModel> synchronizableTopicMessageService) {
+                               SynchronizableTopicMessageService<Long, GlossaryItemDataModel> synchronizableTopicMessageService) {
         super(glossaryItemRepository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
     }
 

@@ -20,7 +20,7 @@ public class GoogleAuth {
     @Column(name = "google_id", length = GoogleAuthConstants.GOOGLE_ID_MAX, unique = true, nullable = false)
     private String googleId;
 
-    @Column(name = "refresh_token", length = GoogleAuthConstants.REFRESH_TOKEN_MAX, unique = true, nullable = false)
+    @Column(name = "refresh_token", length = GoogleAuthConstants.REFRESH_TOKEN_MAX, unique = true)
     private String refreshToken;
 
     @OneToOne

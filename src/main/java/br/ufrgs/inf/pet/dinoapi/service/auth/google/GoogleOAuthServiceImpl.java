@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
-import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
@@ -55,14 +55,14 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
     private final GoogleScopeServiceImpl googleScopeService;
 
-    private final GoogleaOAuthCommunicationImpl googleAPICommunicationImpl;
+    private final GoogleOAuthCommunicationImpl googleAPICommunicationImpl;
 
     private final ClockServiceImpl clockService;
 
     @Autowired
     public GoogleOAuthServiceImpl(UserServiceImpl userService, OAuthServiceImpl authService,
                                   GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
-                                  GoogleaOAuthCommunicationImpl googleAPICommunicationImpl,
+                                  GoogleOAuthCommunicationImpl googleAPICommunicationImpl,
                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                   UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
@@ -417,7 +417,10 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
     private GoogleRefreshAuthResponseDataModel refreshGoogleAuth(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
         if (googleAuth != null) {
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getNewAccessTokenWithRefreshToken(googleAuth.getRefreshToken());
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getNewAccessTokenWithRefreshToken(googleAuth);
+
+            if (tokenResponse == null) return null;
+
             final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
             final Auth auth = authService.getCurrentAuth();

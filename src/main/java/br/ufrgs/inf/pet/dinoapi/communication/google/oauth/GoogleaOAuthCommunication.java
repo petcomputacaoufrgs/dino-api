@@ -1,22 +1,24 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.oauth;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import java.util.List;
 
 public interface GoogleaOAuthCommunication {
     /**
-     * Requisita os tokens de acesso do Google utilizando um token de autenticação do usuário
+     * Request a new login with Google API
      *
-     * @param token Token de autorização Google
-     * @return GoogleTokenResponse contendo todos os dados e tokens necessários para login
+     * @param token Google login token
+     * @return GoogleTokenResponse with new access data
      */
     GoogleTokenResponse getGoogleToken(String token, List<String> scopes) throws Exception;
     
     /**
-     *  Solicita um novo token de acesso utilizando o token de atualização
+     *  Get new access token from Google API
      *
-     * @param refreshToken Token de atualização do Google
-     * @return GoogleTokenResponse contendo todos os dados e tokens necessários para login renovados
+     * @param googleAuth Google auth data
+     * @return GoogleTokenResponse with new access data
      */
-    GoogleTokenResponse getNewAccessTokenWithRefreshToken(String refreshToken);
+    GoogleTokenResponse getNewAccessTokenWithRefreshToken(GoogleAuth googleAuth);
 }

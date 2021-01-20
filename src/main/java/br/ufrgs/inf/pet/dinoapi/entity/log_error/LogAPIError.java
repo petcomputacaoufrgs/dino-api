@@ -17,7 +17,7 @@ public class LogAPIError {
     @Column(name = "file", length = FILE_MAX)
     private String className;
 
-    @Column(name = "message", length = MESSAGE_MAX, nullable = false)
+    @Column(name = "message", length = MESSAGE_MAX)
     private String message;
 
     @Column(name = "stack_trace", length = STACK_TRACE_MAX, nullable = false)
