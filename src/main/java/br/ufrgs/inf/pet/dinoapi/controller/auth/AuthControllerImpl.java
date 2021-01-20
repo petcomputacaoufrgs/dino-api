@@ -1,11 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleGrantRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleGrantRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,49 +17,43 @@ import javax.validation.Valid;
 @RestController
 public class AuthControllerImpl implements AuthController {
 
-    private final GoogleAuthServiceImpl googleAuthService;
+    private final GoogleOAuthServiceImpl googleAuthService;
 
-    private final AuthServiceImpl authService;
+    private final OAuthServiceImpl authService;
 
     @Autowired
-    public AuthControllerImpl(GoogleAuthServiceImpl googleAuthService, AuthServiceImpl authService) {
+    public AuthControllerImpl(GoogleOAuthServiceImpl googleAuthService, OAuthServiceImpl authService) {
         this.googleAuthService = googleAuthService;
         this.authService = authService;
     }
 
     @Override
     @PostMapping("/public/auth/google/")
-    public ResponseEntity<?> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel googleAuthRequestModel) {
-        return googleAuthService.googleAuthRequest(googleAuthRequestModel);
+    public ResponseEntity<GoogleAuthResponseModel> googleAuthRequest(@Valid @RequestBody GoogleAuthRequestModel googleAuthRequestDataModel) {
+        return googleAuthService.googleAuthRequest(googleAuthRequestDataModel);
     }
 
     @Override
     @PostMapping("/auth/google/grant/")
-    public ResponseEntity<?> googleGrantRequest(@Valid @RequestBody GoogleGrantRequestModel googleGrantRequestModel) {
+    public ResponseEntity<GoogleAuthResponseModel> googleGrantRequest(@Valid @RequestBody GoogleGrantRequestModel googleGrantRequestModel) {
         return googleAuthService.googleGrantRequest(googleGrantRequestModel);
     }
 
     @Override
     @GetMapping("/auth/google/")
-    public ResponseEntity<?> googleRefreshAuth() {
+    public ResponseEntity<GoogleRefreshAuthResponseModel> googleRefreshAuth() {
         return googleAuthService.googleRefreshAuth();
     }
 
     @Override
     @GetMapping("/auth/web_socket/")
-    public ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest() {
+    public ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest() {
         return authService.webSocketAuthRequest();
     }
 
     @Override
     @PutMapping("/public/auth/refresh/")
-    public ResponseEntity<?> refreshAuth(@Valid @RequestBody AuthRefreshRequestModel authRefreshRequestModel) {
+    public ResponseEntity<AuthRefreshResponseModel> refreshAuth(@Valid @RequestBody AuthRefreshRequestModel authRefreshRequestModel) {
         return authService.refreshAuth(authRefreshRequestModel);
-    }
-
-    @Override
-    @PutMapping("/auth/logout/")
-    public ResponseEntity<?> logout() {
-        return authService.logout();
     }
 }

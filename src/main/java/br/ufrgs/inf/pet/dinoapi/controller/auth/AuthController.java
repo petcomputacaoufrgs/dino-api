@@ -1,56 +1,49 @@
 package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleGrantRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleRefreshAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponse;
+import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleGrantRequestModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuthResponseModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
 import org.springframework.http.ResponseEntity;
 
 public interface AuthController {
     /**
-     * Requisita um token de acesso Google pelo token de autenticação
+     * Request google authentication
      *
-     * @param googleAuthRequestModel - Objeto do tipo {@link GoogleAuthRequestModel}
-     * @return Objeto {@link GoogleAuthResponseModel} com o novo token do google ou mensagem de erro
+     * @param googleAuthRequestDataModel - Object {@link GoogleAuthRequestModel}
+     * @return Object {@link GoogleAuthResponseModel} with authentication or error
      */
-    ResponseEntity<?> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestModel);
+    ResponseEntity<GoogleAuthResponseModel> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestDataModel);
 
     /**
-     * Requisita uma nova permissão para o Google
+     * Request a Google Grant
      *
      * @param googleGrantRequestModel - Objeto do tipo {@link GoogleGrantRequestModel}
-     * @return Objeto {@link GoogleAuthResponseModel} com o novo token do google ou mensagem de erro
+     * @return Object {@link GoogleRefreshAuthResponseModel} with new authentication or error
      */
-    ResponseEntity<?> googleGrantRequest(GoogleGrantRequestModel googleGrantRequestModel);
+    ResponseEntity<GoogleAuthResponseModel> googleGrantRequest(GoogleGrantRequestModel googleGrantRequestModel);
 
     /**
-     * Requisita um token de acesso para conexão com o WebSocket
+     * Update Google Access Token
      *
-     * @return Objeto {@link WebSocketAuthResponse} com o token gerado
+     * @return Object {@link GoogleRefreshAuthResponseModel} with new authentication or error
      */
-    ResponseEntity<WebSocketAuthResponse> webSocketAuthRequest();
+    ResponseEntity<GoogleRefreshAuthResponseModel> googleRefreshAuth();
 
     /**
-     * Requisita a atualização do token de acesso
+     * Request websocket authentication
      *
-     * @return Objeto {@link AuthResponseModel} com o novo token de acesso ou mensagem de erro
+     * @return Object {@link WebSocketAuthResponseModel} with authentication
      */
-    ResponseEntity<?> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel);
+    ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest();
 
     /**
-     * Requisita a atualização do token de acesso Google
+     * Request access token update
      *
-     * @return Objeto {@link GoogleRefreshAuthResponseModel} com o novo token de acesso ou erro
+     * @return Object {@link AuthRefreshResponseModel} with new authentication or error
      */
-    ResponseEntity<?> googleRefreshAuth();
-
-    /**
-     * Limpa as informações da autenticação corrente
-     *
-     * @return Mensagem de remoção
-     */
-    ResponseEntity<?> logout();
+    ResponseEntity<AuthRefreshResponseModel> refreshAuth(AuthRefreshRequestModel authRefreshRequestModel);
 }

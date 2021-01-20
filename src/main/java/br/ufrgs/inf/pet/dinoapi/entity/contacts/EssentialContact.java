@@ -1,66 +1,86 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 
 import javax.persistence.*;
-import java.io.Serializable;
+import java.util.List;
 
-import static javax.persistence.GenerationType.SEQUENCE;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
 @Entity
 @Table(name = "essential_contact")
-public class EssentialContact implements Serializable {
+public class EssentialContact extends SynchronizableEntity<Long> {
+    @Column(name = "name", length = NAME_MAX, nullable = false)
+    private String name;
 
-    private static final long serialVersionUID = 1L;
+    @Column(name = "description", length = DESCRIPTION_MAX)
+    private String description;
 
-    private static final String SEQUENCE_NAME = "ess_contact_seq";
+    @Column(name = "color")
+    private Byte color;
 
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
+    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Phone> phones;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "faq_id")
-    private Faq faq;
+    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Contact> contacts;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contact_id", nullable = false)
-    private Contact contact;
+    @ManyToMany
+    @JoinTable(name = "essential_contact__treatment",
+            joinColumns = {@JoinColumn(name = "essential_contact_id")},
+            inverseJoinColumns = {@JoinColumn(name = "treatment_id")})
+    private List<Treatment> treatments;
 
-    public EssentialContact() {}
-
-    public EssentialContact(Faq faq, Contact contact) {
-        this.faq = faq;
-        this.contact = contact;
+    public EssentialContact() {
     }
 
-    public EssentialContact(Contact contact) {
-        this.contact = contact;
+    public List<Treatment> getTreatments() {
+        return treatments;
     }
 
-    public Long getId() {
-        return id;
+    public void setTreatments(List<Treatment> treatments) {
+        this.treatments = treatments;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public String getName() {
+        return name;
     }
 
-    public Faq getFaq() {
-        return faq;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setFaq(Faq faq) {
-        this.faq = faq;
+    public String getDescription() {
+        return description;
     }
 
-    public Contact getContact() {
-        return contact;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setContact(Contact contact) {
-        this.contact = contact;
+    public Byte getColor() {
+        return color;
+    }
+
+    public void setColor(Byte color) {
+        this.color = color;
+    }
+
+    public List<Phone> getPhones() {
+        return phones;
+    }
+
+    public void setPhones(List<Phone> phones) {
+        this.phones = phones;
+    }
+
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
     }
 }

@@ -1,142 +1,138 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContactMapping;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactModel;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqIdModel;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactMappingRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialContactService;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class EssentialContactServiceImpl {
+public class EssentialContactServiceImpl extends
+        SynchronizableServiceImpl<EssentialContact, Long, EssentialContactDataModel, EssentialContactRepository> {
 
-    private final EssentialContactRepository essentialContactRepository;
+    private final TreatmentRepository treatmentRepository;
+    private final AsyncEssentialContactService asyncEssentialContactService;
     private final ContactRepository contactRepository;
-    private final FaqRepository faqRepository;
-    private final ContactVersionServiceImpl contactVersionServiceImpl;
-    private final AuthServiceImpl authServiceImpl;
-    private final ContactServiceImpl contactServiceImpl;
-    private final PhoneServiceImpl phoneServiceImpl;
-    private final EssentialContactMappingRepository essentialContactMappingRepository;
 
     @Autowired
-    public EssentialContactServiceImpl(EssentialContactRepository essentialContactRepository, ContactRepository contactRepository,
-                                       ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl,
-                                       PhoneServiceImpl phoneServiceImpl, ContactServiceImpl contactServiceImpl,
-                                       FaqRepository faqRepository, EssentialContactMappingRepository essentialContactMappingRepository) {
-        this.essentialContactRepository = essentialContactRepository;
+    public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository,
+                                       OAuthServiceImpl authService, ClockServiceImpl clock, LogAPIErrorServiceImpl logAPIErrorService,
+                                       SynchronizableTopicMessageServiceImpl<Long, EssentialContactDataModel> synchronizableTopicMessageService,
+                                       AsyncEssentialContactService asyncEssentialContactService,
+                                       ContactRepository contactRepository) {
+        super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
+        this.treatmentRepository = treatmentRepository;
+        this.asyncEssentialContactService = asyncEssentialContactService;
         this.contactRepository = contactRepository;
-        this.contactVersionServiceImpl = contactVersionServiceImpl;
-        this.phoneServiceImpl = phoneServiceImpl;
-        this.authServiceImpl = authServiceImpl;
-        this.contactServiceImpl = contactServiceImpl;
-        this.faqRepository = faqRepository;
-        this.essentialContactMappingRepository = essentialContactMappingRepository;
     }
 
-    public ResponseEntity<?> saveEssentialContactAll(List<EssentialContactSaveModel> models) {
-
-        List<EssentialContact> itemsResponse = new ArrayList<>();
-
-        models.forEach(model -> {
-
-            Contact contact = contactRepository.save(new Contact(model));
-
-            contact.setPhones(phoneServiceImpl.savePhones(model.getPhones(), contact));
-
-            List<Long> faqIds = model.getFaqIds();
-
-            if (faqIds != null) {
-
-                faqIds.forEach(faqId -> {
-
-                    Optional<Faq> faqSearch = faqRepository.findById(faqId);
-
-                    if (faqSearch.isPresent()) {
-
-                        Faq faqDB = faqSearch.get();
-
-                        Optional<EssentialContact> eContactSearch = essentialContactRepository
-                                .findByEssentialContactNameAndFaqId(model.getName(), faqDB.getId());
-
-                        if(eContactSearch.isEmpty()) {
-                            itemsResponse.add(essentialContactRepository.save(new EssentialContact(faqDB, contact)));
-                        }
-                    }
-                });
-            } else {
-
-                Optional<EssentialContact> eContactSearch = essentialContactRepository.findByEssentialContactName(model.getName());
-
-                if(eContactSearch.isEmpty()) {
-                    itemsResponse.add(essentialContactRepository.save(new EssentialContact(contact)));
-                }
-            }
-        });
-
-        List<EssentialContactModel> response = itemsResponse.stream()
-                .map(EssentialContactModel::new).collect(Collectors.toList());
-
-        if(response.size() > 0) {
-            return new ResponseEntity<>(response, HttpStatus.OK);
+    @Override
+    public EssentialContactDataModel convertEntityToModel(EssentialContact entity) {
+        final EssentialContactDataModel model = new EssentialContactDataModel();
+        model.setName(entity.getName());
+        model.setDescription(entity.getDescription());
+        model.setColor(entity.getColor());
+        if (entity.getTreatments() != null) {
+            model.setTreatmentIds(entity.getTreatments().stream()
+                    .map(SynchronizableEntity::getId).collect(Collectors.toList()));
         }
-        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        return model;
     }
 
-    public void setUsersDefaultContacts(User user) {
+    @Override
+    public EssentialContact convertModelToEntity(EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        final EssentialContact entity = new EssentialContact();
 
-        List<EssentialContact> eContactsSearch = essentialContactRepository.findByFaqIdIsNull();
+        entity.setName(model.getName());
+        entity.setDescription(model.getDescription());
+        entity.setColor(model.getColor());
+        searchTreatments(entity, model.getTreatmentIds());
 
-        eContactsSearch.forEach(dContact ->
-                contactServiceImpl.saveContactOnRepository(
-                        new ContactSaveModel(dContact.getContact()), user)
-        );
+        return entity;
     }
 
-    public ResponseEntity<?> setUserTreatmentContacts(FaqIdModel model) {
+    @Override
+    public void updateEntity(EssentialContact entity, EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        entity.setName(model.getName());
+        entity.setDescription(model.getDescription());
+        entity.setColor(model.getColor());
+        searchTreatments(entity, model.getTreatmentIds());
+    }
 
-        final User user = authServiceImpl.getCurrentUser();
+    @Override
+    public Optional<EssentialContact> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.repository.findById(id);
+    }
 
-            Optional<List<Contact>> oldEssentialContactsSearch = contactRepository.
-                findUserEssentialContactsByUserId(user.getId());
+    @Override
+    public Optional<EssentialContact> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.repository.findById(id);
+    }
 
-            if(oldEssentialContactsSearch.isPresent()) {
-                List<Contact> oldEssentialContacts = oldEssentialContactsSearch.get();
-                contactRepository.deleteAll(oldEssentialContacts);
-            }
+    @Override
+    public List<EssentialContact> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+        return this.repository.findAll();
+    }
 
-            Optional<List<EssentialContact>> eContactsSearch = essentialContactRepository
-                    .findEssentialContactsByFaqId(model.getId());
+    @Override
+    public List<EssentialContact> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
+        return this.repository.findAllById(ids);
+    }
 
-            if (eContactsSearch.isPresent()) {
-                eContactsSearch.get().forEach(eContact -> {
-                    Contact newContact = contactServiceImpl
-                            .saveContactOnRepositoryReturnContact(
-                                    new ContactSaveModel(eContact.getContact()), user);
-                    essentialContactMappingRepository.save(new EssentialContactMapping(eContact, newContact));
-                });
-                contactVersionServiceImpl.updateVersion(user);
+    @Override
+    public List<EssentialContact> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+        return this.repository.findAllExcludingIds(ids);
+    }
 
-                return new ResponseEntity<>(HttpStatus.OK);
-            }
+    @Override
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.ESSENTIAL_CONTACT;
+    }
 
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    @Override
+    protected void onDataCreated(EssentialContactDataModel model) throws AuthNullException, ConvertModelToEntityException {
+        asyncEssentialContactService.createContactsOnGoogleAPI(model);
+    }
+
+    @Override
+    protected void onDataUpdated(EssentialContactDataModel model, EssentialContact entity) throws AuthNullException, ConvertModelToEntityException {
+        asyncEssentialContactService.updateContactsOnGoogleAPI(model);
+    }
+
+    @Override
+    protected void onDataDeleted(EssentialContact entity) throws AuthNullException {
+        final List<Contact> contacts = contactRepository.findAllByEssentialContactId(entity.getId());
+
+        contacts.forEach(contact -> contact.setEssentialContact(null));
+
+        contactRepository.saveAll(contacts);
+
+        asyncEssentialContactService.deleteContactsOnGoogleAPI(contacts);
+    }
+
+    private void searchTreatments(EssentialContact entity, List<Long> treatmentIds) {
+        if (treatmentIds != null && treatmentIds.size() != 0) {
+            final List<Treatment> treatmentSearch = treatmentRepository.findAllByIds(treatmentIds);
+            entity.setTreatments(treatmentSearch);
+        }
     }
 }

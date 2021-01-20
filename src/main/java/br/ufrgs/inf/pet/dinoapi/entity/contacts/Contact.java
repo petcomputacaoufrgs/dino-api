@@ -1,119 +1,106 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactSaveModel;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactSaveModel;
 
 import javax.persistence.*;
-import javax.validation.Valid;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
-import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "contact")
-public class Contact implements Serializable {
+public class Contact extends SynchronizableEntity<Long> {
+    @Column(name = "name", length = NAME_MAX, nullable = false)
+    private String name;
 
-        private static final long serialVersionUID = 1L;
+    @Column(name = "description", length = DESCRIPTION_MAX)
+    private String description;
 
-        private static final String SEQUENCE_NAME = "contact_seq";
+    @Column(name = "color")
+    private Byte color;
 
-        @Id
-        @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-        @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-        @Column(name = "id", nullable = false)
-        private Long id;
+    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Phone> phones;
 
-        @Column(name = "name", length = NAME_MAX, nullable = false)
-        private String name;
+    @ManyToOne
+    @JoinColumn(name = "essential_contact_id")
+    private EssentialContact essentialContact;
 
-        @Valid
-        @OneToMany(mappedBy = "contact", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-        private List<Phone> phones;
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
-        @Column(name = "description", length = DESCRIPTION_MAX)
-        private String description;
+    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<GoogleContact> googleContacts;
 
-        @Column(name = "color")
-        private Byte color;
+    public Contact() {
+        this.phones = new ArrayList<>();
+    }
 
-        @ManyToOne
-        @JoinColumn(name = "user_id")
-        private User user;
+    public Long getId() {
+        return id;
+    }
 
-        @OneToMany(mappedBy = "contact")
-        private List<EssentialContact> essentialContacts;
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-        private List<EssentialContactMapping> essentialContactMappings;
+    public String getName() {
+        return name;
+    }
 
-        @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-        private List<GoogleContact> googleContacts;
+    public void setName(String name) {
+        this.name = name;
+    }
 
-        public Contact() {
-                this.phones = new ArrayList<>();
-        }
+    public List<Phone> getPhones() {
+        return phones;
+    }
 
-        public Contact(ContactSaveModel model, User user){
-                this.setName(model.getName());
-                this.setDescription(model.getDescription());
-                this.setColor(model.getColor());
-                this.setUser(user);
-        }
+    public void setPhones(List<Phone> phones) {
+        this.phones = phones;
+    }
 
-        public Contact(EssentialContactSaveModel model) {
-                this.setName(model.getName());
-                this.setDescription(model.getDescription());
-                this.setColor(model.getColor());
-        }
+    public String getDescription() {
+        return description;
+    }
 
-        public Long getId() {
-            return id;
-        }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-        public void setId(Long id) { this.id = id; }
+    public Byte getColor() {
+        return color;
+    }
 
-        public String getName() {
-            return name;
-        }
+    public void setColor(Byte color) {
+        this.color = color;
+    }
 
-        public void setName(String name) {
-            this.name = name;
-        }
+    public User getUser() {
+        return user;
+    }
 
-        public List<Phone> getPhones() { return phones; }
+    public void setUser(User user) {
+        this.user = user;
+    }
 
-        public void setPhones(List<Phone> phones) { this.phones = phones; }
+    public List<GoogleContact> getGoogleContacts() {
+        return googleContacts;
+    }
 
-        public String getDescription() {
-            return description;
-        }
+    public void setGoogleContacts(List<GoogleContact> googleContacts) {
+        this.googleContacts = googleContacts;
+    }
 
-        public void setDescription (String description) { this.description = description; }
+    public EssentialContact getEssentialContact() {
+        return essentialContact;
+    }
 
-        public Byte getColor() {
-                return color;
-        }
-
-        public void setColor (Byte color) { this.color = color; }
-
-        public User getUser() {
-            return user;
-        }
-
-        public void setUser(User user) {
-            this.user = user;
-        }
-
-        public List<GoogleContact> getGoogleContacts() {
-                return googleContacts;
-        }
-
-        public void setGoogleContacts(List<GoogleContact> googleContacts) {
-                this.googleContacts = googleContacts;
-        }
+    public void setEssentialContact(EssentialContact essentialContact) {
+        this.essentialContact = essentialContact;
+    }
 }

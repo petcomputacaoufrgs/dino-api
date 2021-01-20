@@ -4,15 +4,16 @@ import javax.validation.constraints.NotNull;
 
 public class AuthRefreshRequestModel {
     @NotNull
-    private String accessToken;
+    private String refreshToken;
 
-    public AuthRefreshRequestModel(){ }
-
-    public String getAccessToken() {
-        return accessToken;
+    public AuthRefreshRequestModel() {
     }
 
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
     }
 }

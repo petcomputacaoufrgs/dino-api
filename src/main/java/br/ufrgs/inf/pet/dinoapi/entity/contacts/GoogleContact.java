@@ -1,43 +1,27 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
-import java.io.Serializable;
-
-import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "google_contact")
-public class GoogleContact implements Serializable {
-    private static final long serialVersionUID = 1L;
+public class GoogleContact extends SynchronizableEntity<Long> {
 
-    private static final String SEQUENCE_NAME = "google_contact_seq";
-
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
-    @Column(name = "resource_name", length = GoogleContactConstants.RESOURCE_NAME_MAX, nullable = false)
+    @Column(name = "resource_name", length = GoogleContactConstants.RESOURCE_NAME_MAX)
     private String resourceName;
 
     @ManyToOne
-    @JoinColumn(name = "contact_id", nullable = false)
+    @JoinColumn(name = "contact_id")
     private Contact contact;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public GoogleContact() {}
-
-    public GoogleContact(Contact contact, String resourceName, User user) {
-        this.contact = contact;
-        this.resourceName = resourceName;
-        this.user = user;
+    public GoogleContact() {
     }
 
     public Long getId() {

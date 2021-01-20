@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.controller.log_app_error;
 
 import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErroListRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.log_app_error.LogAppErrorRequestModel;
-import br.ufrgs.inf.pet.dinoapi.service.log_app_error.LogAppErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAppErrorServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

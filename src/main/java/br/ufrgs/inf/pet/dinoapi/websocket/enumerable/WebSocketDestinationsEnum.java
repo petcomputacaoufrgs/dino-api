@@ -1,19 +1,20 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.enumerable;
 
 public enum WebSocketDestinationsEnum {
-    ALERT_GLOSSARY_UPDATE("/topic/glossary/update"),
-    ALERT_APP_SETTINGS_UPDATE("/queue/user_app_settings/update"),
-    ALERT_NOTE_UPDATE("/queue/note/update"),
-    ALERT_NOTE_ORDER_UPDATE("/queue/note/order/update"),
-    ALERT_NOTE_DELETE("/queue/note/delete"),
-    ALERT_USER_UPDATE("/queue/user/update"),
-    ALERT_CONTACT_UPDATE("/queue/contact/update"),
-    ALERT_FAQ_UPDATE("/topic/faq/update"),
-    ALERT_FAQ_USER_UPDATE("/queue/faq/update/user"),
-    ALERT_NOTE_COLUMN_UPDATE("/queue/note_column/update"),
-    ALERT_NOTE_COLUMN_ORDER_UPDATE("/queue/note_column/order/update"),
-    ALERT_NOTE_COLUMN_DELETE("/queue/note_column/delete"),
-    ALERT_AUTH_SCOPE_UPDATE("/queue/auth/scope/update");
+    GOOGLE_SCOPE("google_scope"),
+    PHONE("phone"),
+    GOOGLE_CONTACT("google_contact"),
+    CONTACT("contact"),
+    ESSENTIAL_CONTACT("essential_contact"),
+    GLOSSARY("glossary"),
+    NOTE("note"),
+    NOTE_COLUMN("note_column"),
+    USER("user"),
+    USER_SETTINGS("user_settings"),
+    TREATMENT("treatment"),
+    FAQ_ITEM("faq_item"),
+    FAQ("faq"),
+    FAQ_USER_QUESTION("faq_user_question");
 
     private String value;
 
@@ -24,4 +25,5 @@ public enum WebSocketDestinationsEnum {
     public String getValue() {
         return this.value;
     }
+
 }

@@ -1,250 +1,175 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.*;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
-public class ContactServiceImpl implements ContactService {
+public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, ContactDataModel, ContactRepository> {
 
-    private final ContactRepository contactRepository;
-    private final ContactVersionServiceImpl contactVersionServiceImpl;
-    private final AuthServiceImpl authServiceImpl;
-    private final PhoneServiceImpl phoneServiceImpl;
-    private final GoogleContactRepository googleContactRepository;
-    private final GoogleAuthServiceImpl googleAuthService;
+    private final EssentialContactRepository essentialContactRepository;
+    private final PhoneRepository phoneRepository;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository contactRepository, ContactVersionServiceImpl contactVersionServiceImpl, AuthServiceImpl authServiceImpl, PhoneServiceImpl phoneServiceImpl,
-                              GoogleContactRepository googleContactRepository, @Lazy GoogleAuthServiceImpl googleAuthService) {
-        this.contactRepository = contactRepository;
-        this.contactVersionServiceImpl = contactVersionServiceImpl;
-        this.phoneServiceImpl = phoneServiceImpl;
-        this.authServiceImpl = authServiceImpl;
-        this.googleContactRepository = googleContactRepository;
-        this.googleAuthService = googleAuthService;
+    public ContactServiceImpl(ContactRepository repository, OAuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
+                              ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService, PhoneRepository phoneRepository,
+                              SynchronizableQueueMessageServiceImpl<Long, ContactDataModel> synchronizableQueueMessageService) {
+        super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
+        this.essentialContactRepository = essentialContactRepository;
+        this.phoneRepository = phoneRepository;
     }
 
+    @Override
+    public ContactDataModel convertEntityToModel(Contact entity) {
+        final ContactDataModel model = new ContactDataModel();
+        model.setName(entity.getName());
+        model.setDescription(entity.getDescription());
+        model.setColor(entity.getColor());
 
-    public ResponseEntity<List<ContactModel>> getUserContacts() {
-            final User user = authServiceImpl.getCurrentUser();
+        final EssentialContact essentialContact = entity.getEssentialContact();
 
-            final List<Contact> contacts = contactRepository.findByUserIdWithGoogleContacts(user.getId());
-
-            final List<ContactModel> response = contacts.stream().map(ContactModel::new).collect(Collectors.toList());
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    public ContactModel saveContactOnRepository(ContactSaveModel model, User user) {
-
-        final Contact contact = contactRepository.save(new Contact(model, user));
-
-        return saveContactRelatedData(user, model, contact);
-    }
-
-    public Contact saveContactOnRepositoryReturnContact(ContactSaveModel model, User user) {
-
-        final Contact contact = contactRepository.save(new Contact(model, user));
-
-        saveContactRelatedData(user, model, contact);
-
-        return contact;
-    }
-
-
-    public ResponseEntity<SaveResponseModel> saveContact(ContactSaveModel model) {
-            final User user = authServiceImpl.getCurrentUser();
-
-            ContactModel responseModel = saveContactOnRepository(model, user);
-
-            contactVersionServiceImpl.updateVersion(user);
-
-            final SaveResponseModel response = new SaveResponseModel(user.getContactVersion().getVersion(), responseModel);
-
-            return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    public ResponseEntity<SaveResponseModelAll> saveContacts(List<ContactSaveModel> models) {
-
-        final User user = authServiceImpl.getCurrentUser();
-
-        final List<ContactModel> responseModels = new ArrayList<>();
-
-        contactVersionServiceImpl.updateVersion(user);
-
-        models.forEach(model -> {
-
-            final ContactModel responseModel = saveContactOnRepository(model, user);
-
-            responseModels.add(responseModel);
-        });
-
-        final SaveResponseModelAll response = new SaveResponseModelAll(user.getContactVersion().getVersion(), responseModels);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private ContactModel saveContactRelatedData(User user, ContactSaveModel modelContact, Contact contact) {
-
-        contact.setPhones(phoneServiceImpl.savePhones(modelContact.getPhones(), contact));
-
-        ContactModel responseModel = new ContactModel(contact);
-
-        final String googleResourceName = modelContact.getResourceName();
-
-        final Boolean hasGResourceName = googleResourceName != null && !googleResourceName.isEmpty();
-
-        if (hasGResourceName) {
-            final GoogleContact googleContact = new GoogleContact(contact, modelContact.getResourceName(), user);
-            googleContactRepository.save(googleContact);
-            responseModel.setResourceName(modelContact.getResourceName());
+        if (essentialContact != null) {
+            model.setEssentialContactId(essentialContact.getId());
         }
 
-        return responseModel;
+        return model;
     }
 
-    public ResponseEntity<?> deleteContact(ContactIdModel model) {
-        if (model == null || model.getId() == null) {
-            return new ResponseEntity<>(HttpStatus.OK);
-        }
+    @Override
+    public Contact convertModelToEntity(ContactDataModel model, Auth auth) throws AuthNullException {
+        if (auth != null) {
+            final Contact entity = new Contact();
+            entity.setName(model.getName());
+            entity.setDescription(model.getDescription());
+            entity.setColor(model.getColor());
+            entity.setUser(auth.getUser());
 
-        final User user = authServiceImpl.getCurrentUser();
+            final Long essentialContactId = model.getEssentialContactId();
 
-        final Optional<Contact> contactToDeleteSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
+            if (essentialContactId != null) {
+                final Optional<EssentialContact> essentialContactSearch = essentialContactRepository.findById(essentialContactId);
 
-        if(contactToDeleteSearch.isPresent()) {
-            final Contact contactToDelete = contactToDeleteSearch.get();
-
-            contactRepository.delete(contactToDelete);
-
-            contactVersionServiceImpl.updateVersion(user);
-        }
-
-        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
-    }
-
-    public ResponseEntity<Long> deleteContacts(List<ContactIdModel> models) {
-        final User user = authServiceImpl.getCurrentUser();
-
-        final List<Long> validIds = models.stream()
-                .filter(Objects::nonNull)
-                .map(ContactIdModel::getId)
-                .collect(Collectors.toList());
-
-        if (validIds.size() > 0) {
-            final Optional<List<Contact>> contactsToDeleteSearch = contactRepository.findAllByIdAndUserId(validIds, user.getId());
-
-            if (contactsToDeleteSearch.isPresent()) {
-                final List<Contact> contactsToDelete = contactsToDeleteSearch.get();
-
-                contactRepository.deleteAll(contactsToDelete);
-
-                contactVersionServiceImpl.updateVersion(user);
+                essentialContactSearch.ifPresent(entity::setEssentialContact);
             }
-        }
 
-        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
-    }
-
-    public ResponseEntity<?> editContact(ContactModel model) {
-        final User user = authServiceImpl.getCurrentUser();
-
-        final Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
-
-        if (contactSearch.isPresent()) {
-            final Contact contact = contactSearch.get();
-
-            checkEdits(contact, model, user);
+            return entity;
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            throw new AuthNullException();
         }
-
-        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> editContacts(List<ContactModel> models) {
-        final User user = authServiceImpl.getCurrentUser();
-
-        models.forEach(model -> {
-            final Optional<Contact> contactSearch = contactRepository.findByIdAndUserId(model.getId(), user.getId());
-
-            if (contactSearch.isPresent()) {
-                final Contact contact = contactSearch.get();
-
-                checkEdits(contact, model, user);
-            }
-        });
-
-        if(models.size() > 0) {
-            contactVersionServiceImpl.updateVersion(user);
+    @Override
+    public void updateEntity(Contact entity, ContactDataModel model, Auth auth) throws AuthNullException {
+        if (auth != null) {
+            entity.setName(model.getName());
+            entity.setDescription(model.getDescription());
+            entity.setColor(model.getColor());
+        } else {
+            throw new AuthNullException();
         }
-
-        return new ResponseEntity<>(user.getContactVersion().getVersion(), HttpStatus.OK);
     }
 
-    public ResponseEntity<?> declineGoogleContacts() {
-        return googleAuthService.declineGoogleContacts();
+    @Override
+    public Optional<Contact> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
     }
 
-    private void checkEdits(Contact contact, ContactModel model, User user) {
-        boolean changed = ! model.getName().equals(contact.getName());
-        if (changed) {
-            contact.setName(model.getName());
-        }
-        if(!model.getDescription().equals(contact.getDescription())){
-            changed = true;
-            contact.setDescription(model.getDescription());
-        }
-
-        if (model.getColor() != null) {
-            final Byte color = model.getColor();
-
-            if(color == null || !color.equals(contact.getColor())){
-                changed = true;
-                contact.setColor(model.getColor());
-            }
-        }
-
-        this.checkGResourceNameEdit(contact, model, user);
-
-        if(changed) {
-            contactRepository.save(contact);
-        }
-        phoneServiceImpl.editPhones(model.getPhones(), contact);
+    @Override
+    public Optional<Contact> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByIdAndUser(id, auth);
     }
 
-    private void checkGResourceNameEdit(Contact contact, ContactModel model, User user) {
-        final String gResourceName = model.getResourceName();
-
-        final Boolean hasGResourceName = !gResourceName.isEmpty();
-
-        if (hasGResourceName) {
-            final Optional<GoogleContact> googleContactSearch = googleContactRepository.findByContactIdAndUserId(contact.getId(), user.getId());
-
-            if (googleContactSearch.isPresent()) {
-                final GoogleContact googleContact = googleContactSearch.get();
-                if (!gResourceName.equals(googleContact.getResourceName())) {
-                    googleContact.setResourceName(gResourceName);
-                    googleContactRepository.save(googleContact);
-                }
-            }
+    private Optional<Contact> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
         }
+        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
+    }
+
+    @Override
+    public List<Contact> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByUserId(auth.getUser().getId());
+    }
+
+    @Override
+    public List<Contact> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByIdsAndUserId(ids, auth.getUser().getId());
+    }
+
+    @Override
+    public List<Contact> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.CONTACT;
+    }
+
+    @Override
+    public boolean shouldDelete(Contact contact, SynchronizableDeleteModel<Long> model) {
+        Integer phoneCount = phoneRepository
+                .countByNoteColumnAndLastUpdateGreaterOrEqual(contact.getId(), model.getLastUpdate().toLocalDateTime());
+
+        return phoneCount == 0;
+    }
+
+    public Optional<Contact> findContactByIdAndUser(Long id, User user) {
+        return this.repository.findByIdAndUserId(id, user.getId());
+    }
+
+    public ContactDataModel saveByUser(ContactDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
+        final Auth fakeAuth = this.getFakeAuth(user);
+
+        return this.internalSave(contactDataModel, fakeAuth);
+    }
+
+    public void deleteByUser(SynchronizableDeleteModel<Long> model, User user) throws AuthNullException {
+        final Auth fakeAuth = this.getFakeAuth(user);
+
+        this.internalDelete(model, fakeAuth);
+    }
+
+    public List<Contact> findAllByEssentialContactId(Long essentialContactId) {
+        return this.repository.findAllByEssentialContactId(essentialContactId);
+    }
+
+    public Optional<Contact> findById(Long id) {
+        return this.repository.findById(id);
+    }
+
+    private Auth getFakeAuth(User user) {
+        final Auth fakeAuth = new Auth();
+        fakeAuth.setUser(user);
+
+        return fakeAuth;
     }
 }

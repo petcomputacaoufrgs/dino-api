@@ -1,61 +1,28 @@
 package br.ufrgs.inf.pet.dinoapi.entity.note;
 
+import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "note")
-public class Note {
-    private static final String SEQUENCE_NAME = "note_seq";
-
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+public class Note extends SynchronizableEntity<Long> {
     @Column(name = "n_order", nullable = false)
     private Integer order;
 
-    @Column(name = "question", length = 250, nullable = false)
+    @Column(name = "question", length = NoteConstants.QUESTION_MAX, nullable = false)
     private String question;
 
-    @Column(name = "answer", length = 500)
+    @Column(name = "answer", length = NoteConstants.ANSWER_MAX)
     private String answer;
-
-    @Column(name = "last_update", nullable = false)
-    private Date lastUpdate;
-
-    @Column(name = "last_order_update", nullable = false)
-    private Date lastOrderUpdate;
 
     @ManyToOne
     @JoinColumn(name = "note_column_id", nullable = false)
     private NoteColumn noteColumn;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "note__note_tag",
-            joinColumns = @JoinColumn(name = "note_id", nullable = false),
-            inverseJoinColumns = @JoinColumn(name = "note_tag_id", nullable = false))
-    private List<NoteTag> tags;
-
-    public Note() {
-        this.tags = new ArrayList<>();
-    }
-
-    public Note(NoteColumn noteColumn, Integer order, Date lastOrderUpdate) {
-        this.order = order;
-        this.noteColumn = noteColumn;
-        this.lastOrderUpdate = lastOrderUpdate;
-        this.tags = new ArrayList<>();
-    }
-
-    public Long getId() {
-        return id;
-    }
+    @Column(name = "tags", length = NoteConstants.MAX_TAGS_SIZE)
+    private String tags;
 
     public Integer getOrder() {
         return order;
@@ -70,7 +37,7 @@ public class Note {
     }
 
     public void setQuestion(String question) {
-        this.question = question.trim();
+        this.question = question;
     }
 
     public String getAnswer() {
@@ -78,41 +45,7 @@ public class Note {
     }
 
     public void setAnswer(String answer) {
-        if (answer != null) {
-            answer = answer.trim();
-        }
-
         this.answer = answer;
-    }
-
-    public Date getLastUpdate() {
-        return lastUpdate;
-    }
-
-    public void setLastUpdate(Date lastUpdate) {
-        this.lastUpdate = lastUpdate;
-    }
-
-    public Date getLastOrderUpdate() {
-        return lastOrderUpdate;
-    }
-
-    public void setLastOrderUpdate(Date lastOrderUpdate) {
-        this.lastOrderUpdate = lastOrderUpdate;
-    }
-
-    public List<NoteTag> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<NoteTag> tags) {
-        this.tags = tags;
-    }
-
-    public void addTags(List<NoteTag> tags) { this.tags.addAll(tags); }
-
-    public void deleteTags(List<NoteTag> tags) {
-        this.tags.removeAll(tags);
     }
 
     public NoteColumn getNoteColumn() {
@@ -121,5 +54,13 @@ public class Note {
 
     public void setNoteColumn(NoteColumn noteColumn) {
         this.noteColumn = noteColumn;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
     }
 }

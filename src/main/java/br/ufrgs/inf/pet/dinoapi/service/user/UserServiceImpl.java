@@ -1,133 +1,154 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.model.user.UpdateUserPictureRequestModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.UserResponseModel;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.EssentialContactServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.alert_update.AlertUpdateQueueServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl implements UserService {
-
-    private final UserRepository userRepository;
-
-    private final AuthServiceImpl authService;
-
-    private final AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl;
-
-    private final EssentialContactServiceImpl essentialContactServiceImpl;
+public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> {
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService, AlertUpdateQueueServiceImpl alertUpdateQueueServiceImpl,
-                           EssentialContactServiceImpl essentialContactServiceImpl) {
-        this.userRepository = userRepository;
-        this.authService = authService;
-        this.alertUpdateQueueServiceImpl = alertUpdateQueueServiceImpl;
-        this.essentialContactServiceImpl = essentialContactServiceImpl;
+    public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
+                           ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                           SynchronizableQueueMessageServiceImpl<Long, UserDataModel> synchronizableQueueMessageService) {
+        super(userRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
     }
 
     @Override
-    public ResponseEntity<?> getVersion() {
-        final User currentUser = authService.getCurrentUser();
+    public UserDataModel convertEntityToModel(User entity) {
+        final UserDataModel userDataModel = new UserDataModel();
+        userDataModel.setEmail(entity.getEmail());
+        userDataModel.setName(entity.getName());
+        userDataModel.setPictureURL(entity.getPictureURL());
 
-        if (currentUser != null) {
-            return new ResponseEntity<>(currentUser.getVersion(), HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("Usuário não encontrado.", HttpStatus.INTERNAL_SERVER_ERROR);
+        return userDataModel;
     }
 
     @Override
-    public ResponseEntity<?> getUser() {
-        final User currentUser = authService.getCurrentUser();
-
-        if (currentUser != null) {
-            final UserResponseModel model = new UserResponseModel();
-            model.setEmail(currentUser.getEmail());
-            model.setName(currentUser.getName());
-            model.setPictureURL(currentUser.getPictureURL());
-
-            return new ResponseEntity<>(model, HttpStatus.OK);
+    public User convertModelToEntity(UserDataModel model, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
         }
-
-        return new ResponseEntity<>("Usuário não encontrado.", HttpStatus.INTERNAL_SERVER_ERROR);
+        final User user = auth.getUser();
+        user.setPictureURL(model.getPictureURL());
+        return user;
     }
 
     @Override
-    public ResponseEntity<?> setUserPhoto(UpdateUserPictureRequestModel model) {
-        User currentUser = authService.getCurrentUser();
-
-        if (model.getPictureURL().isBlank()) {
-            return new ResponseEntity<>("A URL de foto de perfil não pode ser vazia.", HttpStatus.BAD_REQUEST);
+    public void updateEntity(User user, UserDataModel model, Auth auth) {
+        if (!user.getPictureURL().equals(model.getPictureURL())) {
+            user.setPictureURL(model.getPictureURL());
         }
-
-        if (currentUser != null) {
-            currentUser.setPictureURL(model.getPictureURL());
-            currentUser.updateVersion();
-            currentUser = userRepository.save(currentUser);
-            alertUpdateQueueServiceImpl.sendUpdateMessage(currentUser.getVersion(), WebSocketDestinationsEnum.ALERT_USER_UPDATE);
-
-            return new ResponseEntity<>(currentUser.getVersion(), HttpStatus.OK);
-        }
-
-        return new ResponseEntity<>("Usuário não encontrado.", HttpStatus.BAD_REQUEST);
     }
 
     @Override
-    public User create(String name, String email, String pictureUrl) {
+    public Optional<User> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findByUser(auth);
+    }
+
+    @Override
+    public Optional<User> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findByUser(auth);
+    }
+
+    private Optional<User> findByUser(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return Optional.of(auth.getUser());
+    }
+
+    @Override
+    public List<User> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        List<User> users = new ArrayList<>();
+        users.add(auth.getUser());
+        return users;
+    }
+
+    @Override
+    public List<User> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+
+        return Collections.singletonList(auth.getUser());
+    }
+
+    @Override
+    public List<User> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        List<User> users = new ArrayList<>();
+        users.add(auth.getUser());
+        return users;
+    }
+
+    @Override
+    public WebSocketDestinationsEnum getWebSocketDestination() {
+        return WebSocketDestinationsEnum.USER;
+    }
+
+    @Override
+    public boolean shouldDelete(User user, SynchronizableDeleteModel<Long> model) {
+        return false;
+    }
+
+    public User save(String name, String email, String pictureUrl, Auth auth) {
+        final User savedUser = this.saveUser(name, email, pictureUrl, auth.getUser());
+
+        this.sendUpdateMessage(savedUser, auth);
+
+        return savedUser;
+    }
+
+    public User saveNew(String name, String email, String pictureUrl) {
         User user = this.findUserByEmail(email);
 
         if (user == null) {
-            user = this.save(new User(name, email, pictureUrl));
-            essentialContactServiceImpl.setUsersDefaultContacts(user);
-            return user;
-        }
-        return null;
-    }
-
-    @Override
-    public User update(String name, String email, String pictureUrl) {
-        User user = this.findUserByEmail(email);
-        boolean updated = false;
-
-        if (user != null) {
-            if (!user.getEmail().equals(email)) {
-                user.setEmail(email);
-                updated = true;
-            }
-            if (!user.getName().equals(name)) {
-                user.setName(name);
-                updated = true;
-            }
-            if(!user.getPictureURL().equals(pictureUrl)) {
-                user.setPictureURL(pictureUrl);
-                updated = true;
-            }
-            if (updated) {
-                user.updateVersion();
-                alertUpdateQueueServiceImpl.sendUpdateMessage(user.getVersion(), WebSocketDestinationsEnum.ALERT_USER_UPDATE);
-                return this.save(user);
-            }
-
-            return user;
+            user = new User();
         }
 
-        return null;
+        return this.saveUser(name, email, pictureUrl, user);
     }
 
-    @Override
+    private User saveUser(String name, String email, String pictureUrl, User user) {
+        user.setPictureURL(pictureUrl);
+        user.setEmail(email);
+        user.setName(name);
+
+        return this.repository.save(user);
+    }
+
+    private void sendUpdateMessage(User user, Auth auth) {
+        final UserDataModel model = this.completeConvertEntityToModel(user);
+
+        this.sendUpdateMessage(model, auth);
+    }
+
     public User findUserByEmail(String email) {
         if (email != null) {
-            final Optional<User> queryResult = userRepository.findByEmail(email);
+            final Optional<User> queryResult = this.repository.findByEmail(email);
             if (queryResult.isPresent()) {
                 return queryResult.get();
             }
@@ -136,8 +157,11 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
-    private User save(User user) {
-        return userRepository.save(user);
+    public List<User> findUserBySaveEssentialContacts() {
+        return this.repository.findUserBySaveEssentialContacts();
     }
 
+    public List<User> findUserBySaveEssentialContactsAndTreatments(List<Treatment> treatments) {
+        return this.repository.findUserBySaveEssentialContactsAndTreatments(treatments);
+    }
 }

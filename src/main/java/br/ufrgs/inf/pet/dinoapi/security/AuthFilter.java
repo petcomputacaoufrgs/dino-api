@@ -2,10 +2,9 @@ package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.user_details.DinoUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -13,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -25,14 +25,14 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private UserServiceImpl userService;
 
-    private AuthServiceImpl authService;
+    private OAuthServiceImpl authService;
 
-    private GoogleAuthServiceImpl googleAuthService;
+    private GoogleOAuthServiceImpl googleAuthService;
 
     private DinoUserDetailsService dinoUserDetailsService;
 
     @Autowired
-    public AuthFilter(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
+    public AuthFilter(UserServiceImpl userService, OAuthServiceImpl authService, GoogleOAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
         super();
         this.userService = userService;
         this.authService = authService;
@@ -49,15 +49,17 @@ public class AuthFilter extends OncePerRequestFilter {
         if (token != null) {
             final Auth auth = authService.findByAccessToken(token);
 
-            this.setAuthToken(httpServletRequest, auth);
+            if (auth != null) {
+                this.setAuth(httpServletRequest, auth);
+            }
         } else {
             final String wsToken = this.getWSToken(httpServletRequest);
 
             if (wsToken != null) {
                 final Auth auth = authService.findByWebSocketToken(wsToken);
 
-                if (authService.canConnectToWebSocket(auth)) {
-                    this.setAuthToken(httpServletRequest, auth);
+                if (auth != null && authService.canConnectToWebSocket(auth)) {
+                    this.setAuth(httpServletRequest, auth);
                 }
             }
         }
@@ -65,10 +67,9 @@ public class AuthFilter extends OncePerRequestFilter {
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 
-    private void setAuthToken(HttpServletRequest httpServletRequest, Auth auth) {
-        final Boolean isAuthValidAndNecessary = SecurityContextHolder.getContext().getAuthentication() == null && auth != null && authService.isValidToken(auth);
-        if(isAuthValidAndNecessary) {
-            final DinoAuthenticationToken dinoAuthToken = this.dinoUserDetailsService.loadDinoUserByAuth(auth);
+    private void setAuth(HttpServletRequest httpServletRequest, Auth auth) {
+        if (authService.isValidAccessToken(auth.getAccessToken())) {
+            final DinoAuthenticationToken dinoAuthToken = dinoUserDetailsService.loadDinoUserByAuth(auth);
             dinoAuthToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
 
             SecurityContextHolder.getContext().setAuthentication(dinoAuthToken);
@@ -84,31 +85,27 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     private void startServices(HttpServletRequest httpServletRequest) {
-        ServletContext servletContext = null;
-        WebApplicationContext webApplicationContext = null;
+        final ServletContext servletContext =
+                httpServletRequest.getServletContext();
+        final WebApplicationContext webApplicationContext =
+                WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
-        if (servletContext == null) {
-            servletContext = httpServletRequest.getServletContext();
-        }
+        if (webApplicationContext != null) {
+            if (this.userService == null) {
+                this.userService = webApplicationContext.getBean(UserServiceImpl.class);
+            }
 
-        if (webApplicationContext == null) {
-            webApplicationContext = WebApplicationContextUtils.getWebApplicationContext(servletContext);
-        }
+            if (this.authService == null) {
+                this.authService = webApplicationContext.getBean(OAuthServiceImpl.class);
+            }
 
-        if(this.userService == null){
-            this.userService = webApplicationContext.getBean(UserServiceImpl.class);
-        }
+            if (this.googleAuthService == null) {
+                this.googleAuthService = webApplicationContext.getBean(GoogleOAuthServiceImpl.class);
+            }
 
-        if(this.authService == null) {
-            this.authService = webApplicationContext.getBean(AuthServiceImpl.class);
-        }
-
-        if(this.googleAuthService == null) {
-            this.googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
-        }
-
-        if(this.dinoUserDetailsService == null){
-            this.dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
+            if (this.dinoUserDetailsService == null) {
+                this.dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
+            }
         }
     }
 }

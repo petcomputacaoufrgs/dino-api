@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.security;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 
 public class DinoCredentials {
-    private Auth auth;
+    private final Auth auth;
 
     public DinoCredentials(Auth auth) {
         this.auth = auth;

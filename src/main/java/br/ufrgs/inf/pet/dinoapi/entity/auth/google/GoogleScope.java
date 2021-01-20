@@ -1,22 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.entity.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
 import javax.persistence.*;
 
-import static javax.persistence.GenerationType.SEQUENCE;
-
 @Entity
 @Table(name = "google_scope")
-public class GoogleScope {
-    private static final String SEQUENCE_NAME = "google_scope_seq";
-
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+public class GoogleScope extends SynchronizableEntity<Long> {
     @Column(name = "name", length = GoogleAuthConstants.GOOGLE_SCOPE_MAX, nullable = false)
     private String name;
 
@@ -24,19 +15,7 @@ public class GoogleScope {
     @JoinColumn(name = "google_scope", nullable = false)
     private GoogleAuth googleAuth;
 
-    public GoogleScope() { }
-
-    public GoogleScope(GoogleAuth googleAuth, String name) {
-        this.name = name;
-        this.googleAuth = googleAuth;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public GoogleScope() {
     }
 
     public String getName() {
@@ -45,5 +24,13 @@ public class GoogleScope {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public GoogleAuth getGoogleAuth() {
+        return googleAuth;
+    }
+
+    public void setGoogleAuth(GoogleAuth googleAuth) {
+        this.googleAuth = googleAuth;
     }
 }

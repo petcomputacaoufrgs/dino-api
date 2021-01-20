@@ -1,32 +1,35 @@
 package br.ufrgs.inf.pet.dinoapi.entity.auth;
 
+import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.ACCESS_TOKEN_MAX;
-import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.WS_TOKEN_MAX;
-import static javax.persistence.GenerationType.SEQUENCE;
+import static javax.persistence.GenerationType.AUTO;
 
 @Entity
 @Table(name = "auth")
 public class Auth {
-    private static final String SEQUENCE_NAME = "auth_seq";
-
     @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
+    @GeneratedValue(strategy = AUTO)
     @Column(name = "id", nullable = false)
-    private Long id;
+    protected Long id;
 
-    @Column(name = "access_token", length = ACCESS_TOKEN_MAX, unique = true, nullable = false)
+    @Column(name = "access_token", length = AuthConstants.ACCESS_TOKEN_MAX, unique = true)
     private String accessToken;
 
-    @Column(name = "web_socket_token", length = WS_TOKEN_MAX, unique = true)
+    @Column(name = "refresh_token", length = AuthConstants.REFRESH_TOKEN_MAX, unique = true)
+    private String refreshToken;
+
+    @Column(name = "web_socket_token", length = AuthConstants.WS_TOKEN_MAX, unique = true)
     private String webSocketToken;
 
     @Column(name = "web_socket_connected", nullable = false)
     private Boolean webSocketConnected;
+
+    @Column(name = "last_token_refresh")
+    private LocalDateTime lastTokenRefresh;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -70,5 +73,21 @@ public class Auth {
 
     public void setWebSocketConnected(Boolean webSocketConnected) {
         this.webSocketConnected = webSocketConnected;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+
+    public LocalDateTime getLastTokenRefresh() {
+        return lastTokenRefresh;
+    }
+
+    public void setLastTokenRefresh(LocalDateTime lastTokenRefresh) {
+        this.lastTokenRefresh = lastTokenRefresh;
     }
 }

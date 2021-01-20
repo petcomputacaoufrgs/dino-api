@@ -1,28 +1,15 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
-import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneModel;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneSaveModel;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
 import javax.persistence.*;
-import java.io.Serializable;
+import java.util.List;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NUMBER_MAX;
-import static javax.persistence.GenerationType.SEQUENCE;
 
 @Entity
 @Table(name = "phone")
-public class Phone implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private static final String SEQUENCE_NAME = "phone_seq";
-
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+public class Phone extends SynchronizableEntity<Long> {
     @Column(name = "type", nullable = false)
     private short type;
 
@@ -30,27 +17,21 @@ public class Phone implements Serializable {
     private String number;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contact_id", nullable = false)
+    @JoinColumn(name = "original_essential_phone")
+    private Phone originalEssentialPhone;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "essential_contact_id")
+    private EssentialContact essentialContact;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "contact_id")
     private Contact contact;
 
-    public Phone(){}
+    @OneToMany(mappedBy = "originalEssentialPhone", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Phone> derivativePhones;
 
-    public Phone(PhoneSaveModel phoneSaveModel, Contact contact){
-        this.setType(phoneSaveModel.getType());
-        this.setNumber(phoneSaveModel.getNumber());
-        this.setContact(contact);
-    }
-
-    public Phone(PhoneModel phoneModel, Contact contact){
-        this.setType(phoneModel.getType());
-        this.setNumber(phoneModel.getNumber());
-        this.setContact(contact);
-    }
-
-    public Phone(Phone phone, Contact contact){
-        this.setType(phone.getType());
-        this.setNumber(phone.getNumber());
-        this.setContact(contact);
+    public Phone() {
     }
 
     public Long getId() {
@@ -63,6 +44,14 @@ public class Phone implements Serializable {
 
     public void setContact(Contact contact) {
         this.contact = contact;
+    }
+
+    public EssentialContact getEssentialContact() {
+        return essentialContact;
+    }
+
+    public void setEssentialContact(EssentialContact essentialContact) {
+        this.essentialContact = essentialContact;
     }
 
     public String getNumber() {
@@ -81,4 +70,19 @@ public class Phone implements Serializable {
         this.type = type;
     }
 
+    public Phone getOriginalEssentialPhone() {
+        return originalEssentialPhone;
+    }
+
+    public void setOriginalEssentialPhone(Phone originalEssentialPhone) {
+        this.originalEssentialPhone = originalEssentialPhone;
+    }
+
+    public List<Phone> getDerivativePhones() {
+        return derivativePhones;
+    }
+
+    public void setDerivativePhones(List<Phone> derivativePhones) {
+        this.derivativePhones = derivativePhones;
+    }
 }

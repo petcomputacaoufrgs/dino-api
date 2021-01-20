@@ -3,34 +3,20 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.ContactVersion;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUser;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
-import br.ufrgs.inf.pet.dinoapi.entity.note.NoteVersion;
+import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.AuthConstants.*;
-import static javax.persistence.GenerationType.SEQUENCE;
+import static br.ufrgs.inf.pet.dinoapi.constants.UserConstants.*;
 
 @Entity
 @Table(name = "dino_user")
-public class User {
-    private static final String SEQUENCE_NAME = "dino_user_seq";
-
-    public static final Long DEFAULT_VERSION = 0L;
-
-    @Id
-    @GeneratedValue(strategy = SEQUENCE, generator = SEQUENCE_NAME)
-    @SequenceGenerator(name = SEQUENCE_NAME, sequenceName = SEQUENCE_NAME)
-    @Column(name = "id", nullable = false)
-    private Long id;
-
+public class User extends SynchronizableEntity<Long> {
     @Column(name = "name", length = NAME_MAX, nullable = false)
     private String name;
 
@@ -40,20 +26,14 @@ public class User {
     @Column(name = "picture_url", length = PICTURE_URL_MAX, nullable = false)
     private String pictureURL;
 
-    @Column(name = "version", nullable = false)
-    private Long version;
-
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
     @OneToOne(mappedBy = "user")
-    private UserAppSettings userAppSettings;
-
-    @OneToOne(mappedBy = "user")
-    private NoteVersion noteVersion;
+    private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Auth> auths;
+    private final List<Auth> auths;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<NoteColumn> noteColumns;
@@ -62,17 +42,8 @@ public class User {
     private List<Contact> contacts;
 
     @OneToMany(mappedBy = "user")
-    private List<GoogleContact> googleContacts;
+    private List<FaqUserQuestion> faqUserQuestions;
 
-    @OneToOne(mappedBy = "user")
-    private ContactVersion contactVersion;
-
-    @OneToOne(mappedBy = "user")
-    private FaqUser faqUser;
-
-    @OneToMany(mappedBy = "user")
-    private List<FaqUserQuestion> faqFaqUserQuestions;
-    
     public User() {
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
@@ -83,18 +54,10 @@ public class User {
         this.name = name;
         this.email = email;
         this.pictureURL = pictureURL;
-        this.version = DEFAULT_VERSION;
+        this.lastUpdate = LocalDateTime.now();
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();
         this.noteColumns = new ArrayList<>();
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public boolean hasGoogleAuth() {
@@ -125,18 +88,6 @@ public class User {
         this.pictureURL = pictureURL;
     }
 
-    public Long getVersion() {
-        return version;
-    }
-
-    public void updateVersion() {
-        this.version = version + 1l;
-    }
-
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-
     public GoogleAuth getGoogleAuth() {
         return googleAuth;
     }
@@ -145,12 +96,12 @@ public class User {
         this.googleAuth = googleAuth;
     }
 
-    public UserAppSettings getUserAppSettings() {
-        return userAppSettings;
+    public UserSettings getUserAppSettings() {
+        return userSettings;
     }
 
-    public void setUserAppSettings(UserAppSettings userAppSettings) {
-        this.userAppSettings = userAppSettings;
+    public void setUserAppSettings(UserSettings userSettings) {
+        this.userSettings = userSettings;
     }
 
     public List<NoteColumn> getNoteColumns() {
@@ -161,43 +112,11 @@ public class User {
         this.noteColumns = noteColumns;
     }
 
-    public NoteVersion getNoteVersion() {
-        return noteVersion;
-    }
-
     public void setContacts(List<Contact> contacts) {
         this.contacts = contacts;
     }
 
-    public List<Contact> getContacts() { return contacts; }
-
-    public ContactVersion getContactVersion() {
-        return contactVersion;
-    }
-
-    public void setContactVersion(ContactVersion contactVersion) {
-        this.contactVersion = contactVersion;
-    }
-
-    public void setNoteVersion(NoteVersion noteVersion) {
-        this.noteVersion = noteVersion;
-    }
-
-    public FaqUser getFaqUser() { return faqUser; }
-
-    public Faq getUserTreatment() {
-        return faqUser.getFaq();
-    }
-
-    public void setFaqUser(FaqUser faqUser) {
-        this.faqUser = faqUser;
-    }
-
-    public List<GoogleContact> getGoogleContacts() {
-        return googleContacts;
-    }
-
-    public void setGoogleContacts(List<GoogleContact> googleContacts) {
-        this.googleContacts = googleContacts;
+    public List<Contact> getContacts() {
+        return contacts;
     }
 }
