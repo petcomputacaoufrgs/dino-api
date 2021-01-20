@@ -6,6 +6,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.IntEnumInterface;
+import br.ufrgs.inf.pet.dinoapi.enumerable.LanguageEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
@@ -20,6 +22,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -166,38 +169,24 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     }
 
     private void validSettings(UserSettingsDataModel model) throws ConvertModelToEntityException {
-        if (!this.isValidColorTheme(model.getColorTheme())) {
+        if (this.isInvalidIntEnum(model.getColorTheme(), ColorThemeEnum.values())) {
             throw new ConvertModelToEntityException(UserSettingsConstants.INVALID_COLOR_THEME);
         }
 
-        if (!this.isValidFontSize(model.getFontSize())) {
+        if (this.isInvalidIntEnum(model.getFontSize(), FontSizeEnum.values())) {
             throw new ConvertModelToEntityException(UserSettingsConstants.INVALID_FONT_SIZE);
         }
+
+        if (this.isInvalidIntEnum(model.getLanguage(), LanguageEnum.values())) {
+            throw new ConvertModelToEntityException(UserSettingsConstants.INVALID_LANGUAGE);
+        }
     }
 
-    private boolean isValidColorTheme(Integer colorTheme) {
-        if (colorTheme == null) {
-            return true;
+    private <T extends IntEnumInterface> boolean isInvalidIntEnum(Integer selected, T[] enumerables) {
+        if (selected == null) {
+            return false;
         }
 
-        ColorThemeEnum[] colorThemeEnums = ColorThemeEnum.values();
-
-        for (ColorThemeEnum theme : colorThemeEnums)
-            if (theme.getValue() == colorTheme)
-                return true;
-        return false;
-    }
-
-    private boolean isValidFontSize(Integer fontSize) {
-        if (fontSize == null) {
-            return true;
-        }
-
-        FontSizeEnum[] fontSizeEnums = FontSizeEnum.values();
-
-        for (FontSizeEnum size : fontSizeEnums)
-            if (size.getValue() == fontSize)
-                return true;
-        return false;
+        return Arrays.stream(enumerables).noneMatch(enumerable -> selected == enumerable.getValue());
     }
 }

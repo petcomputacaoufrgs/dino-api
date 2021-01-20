@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.entity.user;
 
-import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 
@@ -10,8 +9,8 @@ import javax.persistence.*;
 @Table(name = "user_settings")
 public class UserSettings extends SynchronizableEntity<Long> {
 
-    @Column(name = "language", length = UserSettingsConstants.LANGUAGE_MAX)
-    private String language;
+    @Column(name = "language")
+    private Integer language;
 
     @Column(name = "color_theme", nullable = false)
     private Integer colorTheme;
@@ -42,11 +41,11 @@ public class UserSettings extends SynchronizableEntity<Long> {
     public UserSettings() {
     }
 
-    public String getLanguage() {
+    public Integer getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(Integer language) {
         this.language = language;
     }
 

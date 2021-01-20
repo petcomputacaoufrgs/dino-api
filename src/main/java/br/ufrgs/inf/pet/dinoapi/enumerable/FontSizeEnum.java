@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.enumerable;
 
-public enum FontSizeEnum {
+public enum FontSizeEnum implements IntEnumInterface {
     DEFAULT(1),
     LARGE(2),
     LARGER(3);

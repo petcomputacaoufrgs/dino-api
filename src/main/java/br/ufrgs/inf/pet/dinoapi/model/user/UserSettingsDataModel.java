@@ -4,12 +4,10 @@ import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
 
 public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = UserSettingsConstants.LANGUAGE_NULL_MESSAGE)
-    @Size(min = UserSettingsConstants.LANGUAGE_MIN, max = UserSettingsConstants.LANGUAGE_MAX, message = UserSettingsConstants.LANGUAGE_SIZE_MESSAGE)
-    private String language;
+    private Integer language;
 
     @NotNull(message = UserSettingsConstants.COLOR_THEME__NULL_MESSAGE)
     private Integer colorTheme;
@@ -31,11 +29,11 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> 
     @NotNull(message = UserSettingsConstants.SETTINGS_STEP_NULL_MESSAGE)
     private Integer settingsStep;
 
-    public String getLanguage() {
+    public Integer getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(Integer language) {
         this.language = language;
     }
 
