@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.entity.log_error;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.LogAppErrorConstants.*;
 import static javax.persistence.GenerationType.AUTO;
 
@@ -19,7 +20,7 @@ public class LogAppError {
     @Column(name = "file", length = FILE_MAX)
     private String file;
 
-    @Column(name = "error", length = ERROR_MAX, nullable = false)
+    @Column(name = "error", length = STACK_TRACE_MAX, nullable = false)
     private String error;
 
     @Column(name = "log_date", nullable = false)

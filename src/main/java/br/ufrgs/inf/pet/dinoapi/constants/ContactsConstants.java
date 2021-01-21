@@ -30,8 +30,7 @@ public final class ContactsConstants {
 
     public final static String INVALID_DECLINE_REQUEST = "User does not have Google Authentication";
     public final static String SUCCESS_DECLINE_REQUEST = "Success";
-    public final static String SUCCESS_DECLINE_REQUEST_WITHOUT_ALERT= "Success, but server fail to alert another devices.";
-
+    public final static String SUCCESS_DECLINE_REQUEST_WITHOUT_ALERT = "Success, but server fail to alert another devices.";
 
 
 }

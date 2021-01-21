@@ -7,7 +7,8 @@ public class AuthRefreshResponseDataModel {
 
     private ZonedDateTime expiresDate;
 
-    public AuthRefreshResponseDataModel() { }
+    public AuthRefreshResponseDataModel() {
+    }
 
     public String getAccessToken() {
         return accessToken;

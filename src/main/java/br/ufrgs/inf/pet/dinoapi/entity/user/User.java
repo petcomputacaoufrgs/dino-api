@@ -36,7 +36,7 @@ public class User extends SynchronizableEntity<Long> {
     private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private List<Auth> auths;
+    private final List<Auth> auths;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<NoteColumn> noteColumns;
@@ -46,7 +46,7 @@ public class User extends SynchronizableEntity<Long> {
 
     @OneToMany(mappedBy = "user")
     private List<FaqUserQuestion> faqUserQuestions;
-    
+
     public User() {
         this.auths = new ArrayList<>();
         this.contacts = new ArrayList<>();

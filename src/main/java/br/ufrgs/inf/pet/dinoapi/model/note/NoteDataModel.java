@@ -2,10 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.model.note;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class NoteDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class NoteDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = NoteConstants.ORDER_NULL_MESSAGE)
     private Integer order;
 

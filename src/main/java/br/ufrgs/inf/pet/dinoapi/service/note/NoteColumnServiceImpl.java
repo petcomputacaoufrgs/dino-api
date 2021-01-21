@@ -12,19 +12,21 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.*;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
-public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn, Long, Integer, NoteColumnDataModel, NoteColumnRepository> {
+public class NoteColumnServiceImpl extends SynchronizableServiceImpl<NoteColumn, Long, NoteColumnDataModel, NoteColumnRepository> {
 
     private final NoteRepository noteRepository;
 
     @Autowired
     public NoteColumnServiceImpl(NoteColumnRepository noteColumnRepository, OAuthServiceImpl authService, NoteRepository noteRepository,
-                                 SynchronizableQueueMessageServiceImpl<Long, Integer, NoteColumnDataModel> synchronizableQueueMessageService,
+                                 SynchronizableQueueMessageService<Long, NoteColumnDataModel> synchronizableQueueMessageService,
                                  ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(noteColumnRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.noteRepository = noteRepository;

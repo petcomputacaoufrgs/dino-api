@@ -14,7 +14,7 @@ import java.time.ZonedDateTime;
 public abstract class SynchronizableDataModel<ID extends Comparable<ID> & Serializable> implements SynchronizableModel<ID> {
     private ID id;
 
-    @NotNull(message= SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
+    @NotNull(message = SynchronizableConstants.LAST_UPDATE_CANNOT_BE_NULL)
     private ZonedDateTime lastUpdate;
 
     public ID getId() {

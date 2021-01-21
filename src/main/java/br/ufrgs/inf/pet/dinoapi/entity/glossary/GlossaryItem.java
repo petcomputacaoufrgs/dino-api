@@ -2,13 +2,15 @@ package br.ufrgs.inf.pet.dinoapi.entity.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Table;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants.*;
 
 @Entity
 @Table(name = "glossary_item")
-public class GlossaryItem extends SynchronizableEntity<Long>  {
+public class GlossaryItem extends SynchronizableEntity<Long> {
     @Column(name = "title", length = TITLE_MAX, nullable = false, unique = true)
     private String title;
 

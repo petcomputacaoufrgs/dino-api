@@ -11,7 +11,8 @@ public class GoogleGrantRequestModel extends GoogleAuthRequestModel {
     @Size(min = 1, max = 10, message = GoogleAuthConstants.SCOPE_LIST_MAX_SIZE)
     private List<String> scopeList;
 
-    public GoogleGrantRequestModel() {}
+    public GoogleGrantRequestModel() {
+    }
 
     public List<String> getScopeList() {
         return scopeList;

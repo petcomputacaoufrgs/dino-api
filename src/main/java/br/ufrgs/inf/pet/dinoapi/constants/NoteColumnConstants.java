@@ -15,7 +15,7 @@ public class NoteColumnConstants {
 
     public final static String ID_NULL_MESSAGE = "id cannot be null.";
 
-    public final static String ORDER_NULL_MESSAGE ="order cannot be null.";
+    public final static String ORDER_NULL_MESSAGE = "order cannot be null.";
 
     public final static String NOTE_COLUMN_NOT_FOUND_MESSAGE = "note column not found.";
 

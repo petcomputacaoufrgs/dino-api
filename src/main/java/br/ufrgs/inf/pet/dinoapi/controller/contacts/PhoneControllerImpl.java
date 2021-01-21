@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/phone/")
 public class PhoneControllerImpl extends SynchronizableControllerImpl<
-        Phone, Long, Integer, PhoneDataModel, PhoneRepository, PhoneServiceImpl> {
+        Phone, Long, PhoneDataModel, PhoneRepository, PhoneServiceImpl> {
 
     @Autowired
     public PhoneControllerImpl(PhoneServiceImpl service) {

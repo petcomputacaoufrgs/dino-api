@@ -13,21 +13,22 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, Integer, UserDataModel, UserRepository> {
+public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> {
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                           SynchronizableQueueMessageServiceImpl<Long, Integer, UserDataModel> synchronizableQueueMessageService) {
+                           SynchronizableQueueMessageService<Long, UserDataModel> synchronizableQueueMessageService) {
         super(userRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
     }
 

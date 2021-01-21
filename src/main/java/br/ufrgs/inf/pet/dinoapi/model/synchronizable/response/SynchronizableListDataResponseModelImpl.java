@@ -7,7 +7,8 @@ import java.util.List;
 
 /**
  * Response model for list of synchronizable entity
- * @param <ID>: synchronizable entity id's type
+ *
+ * @param <ID>:         synchronizable entity id's type
  * @param <DATA_MODEL>: data model of synchronizable entity
  */
 public class SynchronizableListDataResponseModelImpl<

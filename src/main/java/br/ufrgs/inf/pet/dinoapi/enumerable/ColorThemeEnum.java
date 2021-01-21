@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.enumerable;
 
-public enum ColorThemeEnum {
+public enum ColorThemeEnum implements IntEnumInterface {
     LIGHT(1),
     DARK(2),
     DALTONIAN(3),

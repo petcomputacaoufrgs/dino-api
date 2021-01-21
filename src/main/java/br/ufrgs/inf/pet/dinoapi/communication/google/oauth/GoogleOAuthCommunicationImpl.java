@@ -3,8 +3,17 @@ package br.ufrgs.inf.pet.dinoapi.communication.google.oauth;
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.GoogleOAuth2Config;
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
+import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAPIURLEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
+import br.ufrgs.inf.pet.dinoapi.model.logout.LogoutMessage;
+import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
+import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
@@ -17,16 +26,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class GoogleaOAuthCommunicationImpl implements GoogleaOAuthCommunication {
-
+public class GoogleOAuthCommunicationImpl extends LogUtilsBase implements GoogleaOAuthCommunication {
     private final GoogleOAuth2Config googleOAuth2Config;
-
     private final AppConfig appConfig;
+    private final GenericQueueMessageService genericQueueMessageService;
+    private final GoogleAuthRepository googleAuthRepository;
 
     @Autowired
-    public GoogleaOAuthCommunicationImpl(GoogleOAuth2Config googleOAuth2Config, AppConfig appConfig) {
+    public GoogleOAuthCommunicationImpl(GoogleOAuth2Config googleOAuth2Config, AppConfig appConfig,
+                                        LogAPIErrorServiceImpl logAPIErrorService,
+                                        GenericQueueMessageService genericQueueMessageService,
+                                        GoogleAuthRepository googleAuthRepository) {
+        super(logAPIErrorService);
         this.googleOAuth2Config = googleOAuth2Config;
         this.appConfig = appConfig;
+        this.genericQueueMessageService = genericQueueMessageService;
+        this.googleAuthRepository = googleAuthRepository;
     }
 
     @Override
@@ -50,7 +65,7 @@ public class GoogleaOAuthCommunicationImpl implements GoogleaOAuthCommunication 
     }
 
     @Override
-    public GoogleTokenResponse getNewAccessTokenWithRefreshToken(String refreshToken) {
+    public GoogleTokenResponse getNewAccessTokenWithRefreshToken(GoogleAuth googleAuth) {
         final ArrayList<String> scopes = new ArrayList<>();
 
         GoogleTokenResponse tokenResponse;
@@ -58,20 +73,33 @@ public class GoogleaOAuthCommunicationImpl implements GoogleaOAuthCommunication 
             tokenResponse = new GoogleRefreshTokenRequest(
                     new NetHttpTransport(),
                     JacksonFactory.getDefaultInstance(),
-                    refreshToken,
+                    googleAuth.getRefreshToken(),
                     googleOAuth2Config.getClientid(),
                     googleOAuth2Config.getClientsecret())
                     .setScopes(scopes)
                     .setGrantType("refresh_token")
                     .execute();
 
+            if (tokenResponse == null || tokenResponse.getAccessToken() == null) {
+                this.cleanRefreshTokenAndSendLogoutMessage(googleAuth);
+            }
             return tokenResponse;
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            this.cleanRefreshTokenAndSendLogoutMessage(googleAuth);
+            this.logAPIError(e);
         }
 
         return null;
     }
 
+    private void cleanRefreshTokenAndSendLogoutMessage(GoogleAuth googleAuth) {
+        final User user = googleAuth.getUser();
+        googleAuth.setRefreshToken(null);
+        googleAuthRepository.save(googleAuth);
 
+        final LogoutMessage logoutMessage = new LogoutMessage();
+        logoutMessage.setMessage(GoogleAuthConstants.GOOGLE_LOGOUT_REQUEST);
+
+        genericQueueMessageService.send(logoutMessage, WebSocketDestinationsEnum.LOGOUT_REQUEST.getValue(), user);
+    }
 }

@@ -1,5 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.model.google.people;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GooglePeopleBiographiesModel {
     private String value;
     private String contentType;

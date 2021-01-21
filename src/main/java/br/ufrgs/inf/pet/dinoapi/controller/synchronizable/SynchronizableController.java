@@ -18,8 +18,7 @@ import java.util.List;
  */
 public interface SynchronizableController<
         ID extends Comparable<ID> & Serializable,
-        LOCAL_ID,
-        DATA_MODEL extends SynchronizableDataLocalIdModel<ID, LOCAL_ID>> {
+        DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> {
     /**
      * Search for a item using id and lastUpdate date
      * @param model: object with search data
@@ -79,7 +78,7 @@ public interface SynchronizableController<
      *
      * Obs.: If save/update entities then send the updated entities by websocket to related users using {@link SynchronizableWSUpdateModel}
      */
-    ResponseEntity<SynchronizableSaveAllResponseModel<ID, LOCAL_ID, DATA_MODEL>> saveAll(SynchronizableSaveAllModel<ID, LOCAL_ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSaveAllResponseModel<ID, DATA_MODEL>> saveAll(SynchronizableSaveAllModel<ID, DATA_MODEL> model);
 
     /**
      * Delete a list of elements if exists
@@ -101,5 +100,5 @@ public interface SynchronizableController<
      *
      * @return model with all items
      */
-    ResponseEntity<SynchronizableSyncResponseModel<ID, LOCAL_ID, DATA_MODEL>> sync(SynchronizableSyncModel<ID, LOCAL_ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
 }

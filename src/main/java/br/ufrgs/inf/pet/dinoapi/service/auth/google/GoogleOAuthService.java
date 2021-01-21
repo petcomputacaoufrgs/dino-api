@@ -28,16 +28,18 @@ public interface GoogleOAuthService {
 
     /**
      * Save current scopes
+     *
      * @param currentScopes current scopes
-     * @param auth user auth
+     * @param auth          user auth
      * @return data model list of new scopes
-     * @throws AuthNullException throw when auth is null
+     * @throws AuthNullException             throw when auth is null
      * @throws ConvertModelToEntityException throw when an error occur in model to entity conversion
      */
     List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException;
 
     /**
      * Get Expires data in GoogleTokenResponse
+     *
      * @param tokenResponse GoogleTokenResponse of auth request
      * @return token expires date
      */

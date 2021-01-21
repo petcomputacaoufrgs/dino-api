@@ -9,24 +9,25 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, Integer, GlossaryItemDataModel, GlossaryItemRepository> {
+public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository> {
     @Autowired
     public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, OAuthServiceImpl authService,
                                ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                               SynchronizableTopicMessageServiceImpl<Long, Integer, GlossaryItemDataModel> synchronizableTopicMessageService) {
+                               SynchronizableTopicMessageService<Long, GlossaryItemDataModel> synchronizableTopicMessageService) {
         super(glossaryItemRepository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
     }
 
     @Override
     public GlossaryItemDataModel convertEntityToModel(GlossaryItem entity) {
-        final GlossaryItemDataModel model =  new GlossaryItemDataModel();
+        final GlossaryItemDataModel model = new GlossaryItemDataModel();
         model.setText(entity.getText());
         model.setSubtitle(entity.getSubtitle());
         model.setFullText(entity.getFullText());

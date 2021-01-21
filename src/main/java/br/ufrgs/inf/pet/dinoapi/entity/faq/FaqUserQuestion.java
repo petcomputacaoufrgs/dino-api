@@ -2,7 +2,9 @@ package br.ufrgs.inf.pet.dinoapi.entity.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+
 import javax.persistence.*;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.USER_QUESTION_MAX;
 
 @Entity
@@ -19,7 +21,8 @@ public class FaqUserQuestion extends SynchronizableEntity<Long> {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-    public FaqUserQuestion() {}
+    public FaqUserQuestion() {
+    }
 
     public Faq getFaq() {
         return faq;

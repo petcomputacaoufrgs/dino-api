@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
-public interface ClockService extends Clock  {
+public interface ClockService extends Clock {
     Date nowPlusMinutes(long minutes);
 
     LocalDateTime toLocalDateTime(Date date);

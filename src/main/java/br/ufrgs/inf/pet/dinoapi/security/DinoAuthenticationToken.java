@@ -1,12 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.security;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+
 import javax.security.auth.Subject;
 import java.util.List;
 
 public class DinoAuthenticationToken extends AbstractAuthenticationToken {
-    private DinoCredentials credentials;
-    private DinoUser principal;
+    private final DinoCredentials credentials;
+    private final DinoUser principal;
 
     public DinoAuthenticationToken(DinoUser principal, DinoCredentials credentials, List<DinoGrantedAuthority> authorities) {
         super(authorities);

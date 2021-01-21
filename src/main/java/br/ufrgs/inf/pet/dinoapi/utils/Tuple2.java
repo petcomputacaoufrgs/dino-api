@@ -4,7 +4,8 @@ public class Tuple2<K, V> {
     private K first;
     private V second;
 
-    public Tuple2(){ }
+    public Tuple2() {
+    }
 
     public K getFirst() {
         return first;

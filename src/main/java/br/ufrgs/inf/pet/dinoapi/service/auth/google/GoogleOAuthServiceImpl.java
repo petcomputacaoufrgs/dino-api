@@ -1,20 +1,19 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth.google;
 
-import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunicationImpl;
-import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
-import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
-import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
-import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
+import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAuthErrorCodeEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.auth.google.*;
+import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleScopeDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleAuthResponseModel;
@@ -25,16 +24,19 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGene
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
-import com.google.api.client.googleapis.auth.oauth2.*;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -53,14 +55,14 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
     private final GoogleScopeServiceImpl googleScopeService;
 
-    private final GoogleaOAuthCommunicationImpl googleAPICommunicationImpl;
+    private final GoogleOAuthCommunicationImpl googleAPICommunicationImpl;
 
     private final ClockServiceImpl clockService;
 
     @Autowired
     public GoogleOAuthServiceImpl(UserServiceImpl userService, OAuthServiceImpl authService,
                                   GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
-                                  GoogleaOAuthCommunicationImpl googleAPICommunicationImpl,
+                                  GoogleOAuthCommunicationImpl googleAPICommunicationImpl,
                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                   UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
@@ -183,24 +185,24 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
             }
         } catch (GoogleClientSecretIOException e) {
             response.setError(GoogleAuthConstants.INTERNAL_AUTH_ERROR);
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AuthNullException | ConvertModelToEntityException e) {
             response.setError(e.getMessage());
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (IOException e) {
             response.setError(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA);
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.setError(GoogleAuthConstants.UNKNOWN_EXCEPTION);
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         response.setError(GoogleAuthConstants.GOOGLE_AUTH_ERROR);
-        this.setExceptionError(response);
+        this.setExceptionError(response, new Exception(GoogleAuthConstants.GOOGLE_AUTH_ERROR));
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
@@ -262,20 +264,20 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
             }
         } catch (GoogleClientSecretIOException e) {
             response.setError(GoogleAuthConstants.INTERNAL_AUTH_ERROR);
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (AuthNullException | ConvertModelToEntityException e) {
             response.setError(e.getMessage());
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         } catch (IOException e) {
             response.setError(GoogleAuthConstants.INVALID_GOOGLE_AUTH_DATA);
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
 
         response.setError(GoogleAuthConstants.GOOGLE_AUTH_ERROR);
-        this.setExceptionError(response);
+        this.setExceptionError(response, new Exception(GoogleAuthConstants.GOOGLE_AUTH_ERROR));
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -295,7 +297,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 } catch (ConvertModelToEntityException | AuthNullException e) {
                     response.setError(e.getMessage());
-                    this.setExceptionError(response);
+                    this.setExceptionError(response, e);
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 }
             }
@@ -305,7 +307,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
             response.setError(GoogleAuthConstants.UNKNOWN_EXCEPTION);
-            this.setExceptionError(response);
+            this.setExceptionError(response, e);
             return new ResponseEntity<>(response, HttpStatus.OK);
         }
     }
@@ -415,7 +417,10 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
     private GoogleRefreshAuthResponseDataModel refreshGoogleAuth(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
         if (googleAuth != null) {
-            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getNewAccessTokenWithRefreshToken(googleAuth.getRefreshToken());
+            final GoogleTokenResponse tokenResponse = googleAPICommunicationImpl.getNewAccessTokenWithRefreshToken(googleAuth);
+
+            if (tokenResponse == null) return null;
+
             final List<String> currentScopes = Arrays.asList(tokenResponse.getScope().split(" "));
 
             final Auth auth = authService.getCurrentAuth();
@@ -448,8 +453,8 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
         return response;
     }
 
-    private void setExceptionError(SynchronizableGenericResponseModelImpl response) {
-        this.logAPIError(response.getError());
+    private void setExceptionError(SynchronizableGenericResponseModelImpl response, Exception e) {
+        this.logAPIError(e);
         response.setSuccess(false);
         response.setErrorCode(GoogleAuthErrorCodeEnum.EXCEPTION.getValue());
     }

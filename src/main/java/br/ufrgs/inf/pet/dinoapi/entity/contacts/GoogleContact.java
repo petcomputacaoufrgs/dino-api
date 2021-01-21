@@ -14,14 +14,15 @@ public class GoogleContact extends SynchronizableEntity<Long> {
     private String resourceName;
 
     @ManyToOne
-    @JoinColumn(name = "contact_id", nullable = false)
+    @JoinColumn(name = "contact_id")
     private Contact contact;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public GoogleContact() {}
+    public GoogleContact() {
+    }
 
     public Long getId() {
         return id;

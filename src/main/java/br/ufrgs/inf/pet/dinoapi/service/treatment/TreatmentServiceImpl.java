@@ -10,19 +10,20 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, Long, Integer, TreatmentDataModel, TreatmentRepository>  {
+public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, Long, TreatmentDataModel, TreatmentRepository> {
 
     @Autowired
     public TreatmentServiceImpl(TreatmentRepository repository, OAuthServiceImpl authService,
                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                SynchronizableTopicMessageServiceImpl<Long, Integer, TreatmentDataModel> synchronizableTopicMessageService) {
+                                SynchronizableTopicMessageService<Long, TreatmentDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
     }
 
@@ -77,7 +78,7 @@ public class TreatmentServiceImpl  extends SynchronizableServiceImpl<Treatment, 
     }
 
     public Optional<Treatment> getEntityById(Long id) {
-            return this.repository.findById(id);
+        return this.repository.findById(id);
     }
 
     public List<Treatment> getEntitiesByIds(List<Long> ids) {

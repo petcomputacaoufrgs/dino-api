@@ -2,10 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.model.faq;
 
 import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class FaqItemDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class FaqItemDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = FaqConstants.QUESTION_NULL_MESSAGE)
     @Size(min = FaqConstants.QUESTION_MIN, max = FaqConstants.QUESTION_MAX, message = FaqConstants.QUESTION_SIZE_MESSAGE)
     private String question;
@@ -17,7 +18,8 @@ public class FaqItemDataModel extends SynchronizableDataLocalIdModel<Long, Integ
     @NotNull(message = FaqConstants.FAQ_ID_NULL_MESSAGE)
     private Long faqId;
 
-    public FaqItemDataModel() {}
+    public FaqItemDataModel() {
+    }
 
     public String getQuestion() {
         return question;

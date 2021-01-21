@@ -12,21 +12,22 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long, Integer, FaqItemDataModel, FaqItemRepository> {
+public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long, FaqItemDataModel, FaqItemRepository> {
 
     private final FaqServiceImpl faqService;
 
     @Autowired
     public FaqItemServiceImpl(FaqItemRepository repository, OAuthServiceImpl authService, FaqServiceImpl faqService,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                              SynchronizableTopicMessageServiceImpl<Long, Integer, FaqItemDataModel> synchronizableTopicMessageService) {
+                              SynchronizableTopicMessageService<Long, FaqItemDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.faqService = faqService;
     }
@@ -44,34 +45,34 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
 
     @Override
     public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-            final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
+        final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
 
-            if (faq.isPresent()) {
-                final FaqItem entity = new FaqItem();
-                entity.setQuestion(model.getQuestion());
-                entity.setAnswer(model.getAnswer());
-                entity.setFaq(faq.get());
+        if (faq.isPresent()) {
+            final FaqItem entity = new FaqItem();
+            entity.setQuestion(model.getQuestion());
+            entity.setAnswer(model.getAnswer());
+            entity.setFaq(faq.get());
 
-                return entity;
-            } else {
-                throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
-            }
+            return entity;
+        } else {
+            throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+        }
     }
 
     @Override
     public void updateEntity(FaqItem entity, FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-            if (!entity.getFaq().getId().equals(model.getFaqId())) {
-                final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
+        if (!entity.getFaq().getId().equals(model.getFaqId())) {
+            final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
 
-                if (faq.isPresent()) {
-                    entity.setFaq(faq.get());
-                } else {
-                    throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
-                }
+            if (faq.isPresent()) {
+                entity.setFaq(faq.get());
+            } else {
+                throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
             }
+        }
 
-            entity.setAnswer(model.getAnswer());
-            entity.setQuestion(model.getQuestion());
+        entity.setAnswer(model.getAnswer());
+        entity.setQuestion(model.getQuestion());
     }
 
     @Override

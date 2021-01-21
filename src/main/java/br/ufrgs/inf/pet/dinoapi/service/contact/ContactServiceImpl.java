@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -17,14 +16,15 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, Integer, ContactDataModel, ContactRepository> {
+public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, ContactDataModel, ContactRepository> {
 
     private final EssentialContactRepository essentialContactRepository;
     private final PhoneRepository phoneRepository;
@@ -32,7 +32,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     @Autowired
     public ContactServiceImpl(ContactRepository repository, OAuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService, PhoneRepository phoneRepository,
-                              SynchronizableQueueMessageServiceImpl<Long, Integer, ContactDataModel> synchronizableQueueMessageService) {
+                              SynchronizableQueueMessageService<Long, ContactDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.essentialContactRepository = essentialContactRepository;
         this.phoneRepository = phoneRepository;
@@ -162,11 +162,14 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         return this.repository.findAllByEssentialContactId(essentialContactId);
     }
 
+    public Optional<Contact> findById(Long id) {
+        return this.repository.findById(id);
+    }
+
     private Auth getFakeAuth(User user) {
         final Auth fakeAuth = new Auth();
         fakeAuth.setUser(user);
 
         return fakeAuth;
     }
-
 }

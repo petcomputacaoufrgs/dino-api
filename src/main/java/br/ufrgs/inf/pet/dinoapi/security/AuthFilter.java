@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -90,19 +91,19 @@ public class AuthFilter extends OncePerRequestFilter {
                 WebApplicationContextUtils.getWebApplicationContext(servletContext);
 
         if (webApplicationContext != null) {
-            if(this.userService == null){
+            if (this.userService == null) {
                 this.userService = webApplicationContext.getBean(UserServiceImpl.class);
             }
 
-            if(this.authService == null) {
+            if (this.authService == null) {
                 this.authService = webApplicationContext.getBean(OAuthServiceImpl.class);
             }
 
-            if(this.googleAuthService == null) {
+            if (this.googleAuthService == null) {
                 this.googleAuthService = webApplicationContext.getBean(GoogleOAuthServiceImpl.class);
             }
 
-            if(this.dinoUserDetailsService == null){
+            if (this.dinoUserDetailsService == null) {
                 this.dinoUserDetailsService = webApplicationContext.getBean(DinoUserDetailsService.class);
             }
         }

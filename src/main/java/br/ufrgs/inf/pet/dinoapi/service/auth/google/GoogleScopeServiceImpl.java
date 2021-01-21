@@ -17,20 +17,21 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScope, Long, Integer, GoogleScopeDataModel, GoogleScopeRepository> {
+public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScope, Long, GoogleScopeDataModel, GoogleScopeRepository> {
     @Autowired
     public GoogleScopeServiceImpl(GoogleScopeRepository repository, OAuthServiceImpl authService,
                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                  SynchronizableQueueMessageServiceImpl<Long, Integer, GoogleScopeDataModel> synchronizableQueueMessageService) {
+                                  SynchronizableQueueMessageService<Long, GoogleScopeDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
     }
 

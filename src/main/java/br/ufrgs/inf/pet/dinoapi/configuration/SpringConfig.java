@@ -6,6 +6,8 @@ import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -17,12 +19,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.Arrays;
+import java.util.Collections;
+import java.util.concurrent.Executor;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
-
+@EnableAsync
+public class SpringConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService dinoUserDetailsService;
 
     private final AuthFilter authFilter;
@@ -30,7 +33,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final AppConfig appConfig;
 
     @Autowired
-    public SecurityConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService, AppConfig appConfig) {
+    public SpringConfig(AuthFilter authFilter, UserDetailsService dinoUserDetailsService,
+                        AppConfig appConfig) {
         super();
         this.authFilter = authFilter;
         this.dinoUserDetailsService = dinoUserDetailsService;
@@ -53,8 +57,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         httpSecurity.addFilterBefore(this.authFilter, UsernamePasswordAuthenticationFilter.class);
     }
 
-    @Override
     @Bean
+    @Override
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
@@ -62,15 +66,40 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         final CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(appConfig.getOrigin()));
-        configuration.setAllowedMethods(Arrays.asList("*"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setExposedHeaders(Arrays.asList(
+        configuration.setAllowedOrigins(Collections.singletonList(appConfig.getOrigin()));
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setExposedHeaders(Collections.singletonList(
                 HeaderEnum.AUTHORIZATION.getValue()));
         configuration.setAllowCredentials(true);
 
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
+    }
+
+    @Bean(name = "googleContactThreadPoolTaskExecutor")
+    public Executor threadPoolTaskExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(4);
+        executor.setMaxPoolSize(8);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
+        executor.setThreadNamePrefix("DinoAPI-Google-Contact-");
+        executor.initialize();
+        return executor;
+    }
+
+    /**
+     * Single thread pool for essential contacts creation
+     */
+    @Bean(name = "essentialContactsThreadPoolTaskExecutor")
+    public Executor essentialContactsThreadPoolTaskExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(1);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
+        executor.setThreadNamePrefix("DinoAPI-EssentialContacts-");
+        executor.initialize();
+        return executor;
     }
 }

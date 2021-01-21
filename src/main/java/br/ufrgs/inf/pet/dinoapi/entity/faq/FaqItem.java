@@ -1,7 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.entity.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+
 import javax.persistence.*;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.ANSWER_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.QUESTION_MAX;
 
@@ -19,7 +21,8 @@ public class FaqItem extends SynchronizableEntity<Long> {
     @JoinColumn(name = "faq_id", nullable = false)
     private Faq faq;
 
-    public FaqItem() {}
+    public FaqItem() {
+    }
 
     public String getQuestion() {
         return question;

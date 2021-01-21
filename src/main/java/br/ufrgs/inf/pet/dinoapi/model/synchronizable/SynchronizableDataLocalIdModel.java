@@ -2,16 +2,17 @@ package br.ufrgs.inf.pet.dinoapi.model.synchronizable;
 
 import java.io.Serializable;
 
-public abstract class SynchronizableDataLocalIdModel<ID extends Comparable<ID> & Serializable, LOCAL_ID> extends SynchronizableDataModel<ID> {
-    public SynchronizableDataLocalIdModel() {}
+public abstract class SynchronizableDataLocalIdModel<ID extends Comparable<ID> & Serializable> extends SynchronizableDataModel<ID> {
+    public SynchronizableDataLocalIdModel() {
+    }
 
-    private LOCAL_ID localId;
+    private Integer localId;
 
-    public LOCAL_ID getLocalId() {
+    public Integer getLocalId() {
         return localId;
     }
 
-    public void setLocalId(LOCAL_ID localId) {
+    public void setLocalId(Integer localId) {
         this.localId = localId;
     }
 }

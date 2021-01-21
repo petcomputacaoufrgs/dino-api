@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
-public class EssentialContactDataModel extends SynchronizableDataLocalIdModel<Long, Integer> {
+public class EssentialContactDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     @NotNull(message = ContactsConstants.NAME_NULL_MESSAGE)
     @Size(max = ContactsConstants.NAME_MAX, message = ContactsConstants.NAME_MAX_MESSAGE)

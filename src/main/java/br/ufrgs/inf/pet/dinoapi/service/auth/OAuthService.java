@@ -11,7 +11,6 @@ import io.jsonwebtoken.Claims;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface OAuthService {
 

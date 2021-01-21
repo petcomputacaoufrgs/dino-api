@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.entity.note;
 
 import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+
 import javax.persistence.*;
 
 @Entity

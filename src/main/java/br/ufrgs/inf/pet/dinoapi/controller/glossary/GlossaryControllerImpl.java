@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/public/glossary/")
 public class GlossaryControllerImpl extends SynchronizableControllerImpl<
-        GlossaryItem, Long, Integer, GlossaryItemDataModel, GlossaryItemRepository, GlossaryServiceImpl> {
+        GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository, GlossaryServiceImpl> {
 
     @Autowired
     public GlossaryControllerImpl(GlossaryServiceImpl glossaryItemService) {

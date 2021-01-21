@@ -23,7 +23,8 @@ public class NoteColumn extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "noteColumn", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Note> notes;
 
-    public NoteColumn() {}
+    public NoteColumn() {
+    }
 
     public String getTitle() {
         return title;

@@ -1,16 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.people;
 
-import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.*;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleBiographiesModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleNameModel;
@@ -21,6 +19,7 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -30,17 +29,18 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class GooglePeopleCommunicationImpl extends LogUtilsBase implements GooglePeopleCommunication  {
-    private final GoogleaOAuthCommunicationImpl googleOAuthCommunication;
+    private final GoogleOAuthCommunicationImpl googleOAuthCommunication;
     private final GoogleScopeServiceImpl googleScopeService;
     private final GoogleOAuthServiceImpl googleAuthService;
 
     @Autowired
-    public GooglePeopleCommunicationImpl(GoogleaOAuthCommunicationImpl googleOAuthCommunication,
+    public GooglePeopleCommunicationImpl(GoogleOAuthCommunicationImpl googleOAuthCommunication,
                                          GoogleScopeServiceImpl googleScopeService,
                                          GoogleOAuthServiceImpl googleAuthService,
                                          LogAPIErrorServiceImpl logAPIErrorService) {
@@ -51,7 +51,36 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel getContact(User user, GoogleContact googleContact) {
+    public GooglePeopleModel getContact(User user, String resourceName) throws IOException, InterruptedException, URISyntaxException {
+        final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
+
+        if (googleAuth == null) return null;
+
+        final String accessToken = this.validateGrantAndGetAccessToken(googleAuth);
+
+        if (accessToken == null) return null;
+
+        if (resourceName == null) return null;
+
+        final HttpRequest request = this.createBaseRequest(accessToken)
+                .uri(new URI(
+                        GoogleAPIURLEnum.GET_CONTACT_BASE.getValue()
+                                + resourceName
+                                + "?personFields=names,phoneNumbers,biographies"))
+                .GET()
+                .build();
+
+        final HttpResponse<String> response = this.send(request);
+
+        if (response.statusCode() == HttpStatus.OK.value()) {
+            return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public GooglePeopleModel createContact(User user, String name, String description, List<String> phoneNumbers) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -61,31 +90,16 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
             if (accessToken == null) return null;
 
-            if (googleContact.getResourceName() == null) return null;
-
-            final HttpRequest request = this.createBaseRequest(accessToken)
-                    .uri(new URI(
-                            GoogleAPIURLEnum.GET_CONTACT_BASE.getValue()
-                                    + googleContact.getResourceName()
-                                    + "?personFields=names,phoneNumbers,biographies"))
-                    .GET()
-                    .build();
-
-            final HttpResponse<String> response = this.send(request);
-
-            if (response.statusCode() == HttpStatus.OK.value()) {
-                return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
-            }
-
+            return this.createNewGoogleContact(accessToken, name, description, phoneNumbers);
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
+            this.logAPIError(e);
         }
 
         return null;
     }
 
     @Override
-    public GooglePeopleModel createContact(User user, String name, String description) {
+    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, String resourceName) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -95,40 +109,11 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
             if (accessToken == null) return null;
 
-            final GooglePeopleModel googlePeopleModel = this.getGooglePeopleModel(name, description, new ArrayList<>());
+            final GooglePeopleModel currentPeopleModel = this.getContact(user, resourceName);
 
-            final String jsonModel = JsonUtils.convertToJson(googlePeopleModel);
-
-            final HttpRequest request = this.createBaseRequest(accessToken)
-                    .uri(new URI(GoogleAPIURLEnum.CREATE_CONTACT.getValue()))
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonModel))
-                    .build();
-
-            final HttpResponse<String> response = this.send(request);
-
-            if (response.statusCode() == HttpStatus.OK.value()) {
-                return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
+            if (currentPeopleModel == null) {
+                return this.createNewGoogleContact(accessToken, name, description, phoneNumbers);
             }
-
-        } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
-        }
-
-        return null;
-    }
-
-    @Override
-    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, GoogleContact googleContact) {
-        try {
-            final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
-
-            if (googleAuth == null) return null;
-
-            final String accessToken = this.validateGrantAndGetAccessToken(googleAuth);
-
-            if (accessToken == null) return null;
-
-            final GooglePeopleModel currentPeopleModel = this.getContact(user, googleContact);
 
             final GooglePeopleModel newGooglePeopleModel = this.getGooglePeopleModel(name, description, phoneNumbers);
             newGooglePeopleModel.setEtag(currentPeopleModel.getEtag());
@@ -138,8 +123,8 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             final HttpRequest request = this.createBaseRequest(accessToken)
                     .uri(new URI(
                     GoogleAPIURLEnum.UPDATE_CONTACT_BASE.getValue()
-                            + googleContact.getResourceName()
-                            + "/:updateContact?updatePersonFields=names,phoneNumbers,biographies"))
+                            + resourceName
+                            + ":updateContact?updatePersonFields=names,phoneNumbers,biographies"))
                     .method("PATCH", HttpRequest.BodyPublishers.ofString(jsonModel))
                     .build();
 
@@ -150,35 +135,57 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             }
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
+            this.logAPIError(e);
         }
 
         return null;
     }
 
     @Override
-    public void deleteContact(User user, GoogleContact googleContact) {
+    public boolean deleteContact(User user, GoogleContact googleContact) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
-            if (googleAuth == null) return;
+            if (googleAuth == null) return false;
 
             final String accessToken = this.validateGrantAndGetAccessToken(googleAuth);
 
-            if (accessToken == null) return;
+            if (accessToken == null) return false;
 
             final HttpRequest request = this.createBaseRequest(accessToken)
                     .uri(new URI(
                             GoogleAPIURLEnum.DELETE_CONTACT_BASE.getValue()
                                     + googleContact.getResourceName()
-                                    + "/:deleteContact"))
+                                    + ":deleteContact"))
                     .DELETE()
                     .build();
 
             this.send(request);
+
+            return true;
         } catch (URISyntaxException | IOException | InterruptedException e) {
-            this.logAPIError(e.getMessage());
+            this.logAPIError(e);
         }
+        return false;
+    }
+
+    private GooglePeopleModel createNewGoogleContact(String accessToken, String name, String description, List<String> phoneNumbers) throws IOException, InterruptedException, URISyntaxException {
+        final GooglePeopleModel googlePeopleModel = this.getGooglePeopleModel(name, description, phoneNumbers);
+
+        final String jsonModel = JsonUtils.convertToJson(googlePeopleModel);
+
+        final HttpRequest request = this.createBaseRequest(accessToken)
+                .uri(new URI(GoogleAPIURLEnum.CREATE_CONTACT.getValue()))
+                .POST(HttpRequest.BodyPublishers.ofString(jsonModel))
+                .build();
+
+        final HttpResponse<String> response = this.send(request);
+
+        if (response.statusCode() == HttpStatus.OK.value()) {
+            return JsonUtils.convertJsonToObj(response.body(), GooglePeopleModel.class);
+        }
+
+        return null;
     }
 
     private HttpRequest.Builder createBaseRequest(String accessToken) {
@@ -222,16 +229,26 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     private String validateGrantAndGetAccessToken(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
-        final GoogleTokenResponse googleTokenResponse =
-                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth.getRefreshToken());
+        if (googleAuth.getAccessToken() == null || LocalDateTime.now().isAfter(googleAuth.getAccessTokenExpiresDate())) {
+            final GoogleTokenResponse googleTokenResponse =
+                    googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
 
-        final String accessToken = googleTokenResponse.getAccessToken();
+            if (googleTokenResponse == null) return null;
 
-        final boolean stillHasContactGrant = this.saveAllScopes(googleTokenResponse, googleAuth.getUser());
+            final String accessToken = googleTokenResponse.getAccessToken();
+            final LocalDateTime expiresDate = googleAuthService.getExpiresDateFromToken(googleTokenResponse);
+            googleAuth.setAccessToken(accessToken);
+            googleAuth.setAccessTokenExpiresDate(expiresDate);
+            googleAuthService.save(googleAuth);
 
-        if (!stillHasContactGrant) return null;
+            final boolean stillHasContactGrant = this.saveAllScopes(googleTokenResponse, googleAuth.getUser());
 
-        return accessToken;
+            if (!stillHasContactGrant) return null;
+
+            return accessToken;
+        }
+
+        return googleAuth.getAccessToken();
     }
 
     private GoogleAuth validateGrantsAndGetGoogleAuth(User user) {
