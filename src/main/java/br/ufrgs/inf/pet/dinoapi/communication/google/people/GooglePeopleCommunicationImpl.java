@@ -19,6 +19,7 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import java.net.URISyntaxException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -227,18 +229,26 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     private String validateGrantAndGetAccessToken(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
-        final GoogleTokenResponse googleTokenResponse =
-                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
+        if (googleAuth.getAccessToken() == null || LocalDateTime.now().isAfter(googleAuth.getAccessTokenExpiresDate())) {
+            final GoogleTokenResponse googleTokenResponse =
+                    googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
 
-        if (googleTokenResponse == null) return null;
+            if (googleTokenResponse == null) return null;
 
-        final String accessToken = googleTokenResponse.getAccessToken();
+            final String accessToken = googleTokenResponse.getAccessToken();
+            final LocalDateTime expiresDate = googleAuthService.getExpiresDateFromToken(googleTokenResponse);
+            googleAuth.setAccessToken(accessToken);
+            googleAuth.setAccessTokenExpiresDate(expiresDate);
+            googleAuthService.save(googleAuth);
 
-        final boolean stillHasContactGrant = this.saveAllScopes(googleTokenResponse, googleAuth.getUser());
+            final boolean stillHasContactGrant = this.saveAllScopes(googleTokenResponse, googleAuth.getUser());
 
-        if (!stillHasContactGrant) return null;
+            if (!stillHasContactGrant) return null;
 
-        return accessToken;
+            return accessToken;
+        }
+
+        return googleAuth.getAccessToken();
     }
 
     private GoogleAuth validateGrantsAndGetGoogleAuth(User user) {
