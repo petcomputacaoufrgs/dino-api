@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.people;
 
-import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
@@ -33,12 +33,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class GooglePeopleCommunicationImpl extends LogUtilsBase implements GooglePeopleCommunication  {
-    private final GoogleaOAuthCommunicationImpl googleOAuthCommunication;
+    private final GoogleOAuthCommunicationImpl googleOAuthCommunication;
     private final GoogleScopeServiceImpl googleScopeService;
     private final GoogleOAuthServiceImpl googleAuthService;
 
     @Autowired
-    public GooglePeopleCommunicationImpl(GoogleaOAuthCommunicationImpl googleOAuthCommunication,
+    public GooglePeopleCommunicationImpl(GoogleOAuthCommunicationImpl googleOAuthCommunication,
                                          GoogleScopeServiceImpl googleScopeService,
                                          GoogleOAuthServiceImpl googleAuthService,
                                          LogAPIErrorServiceImpl logAPIErrorService) {
@@ -228,7 +228,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
     private String validateGrantAndGetAccessToken(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
         final GoogleTokenResponse googleTokenResponse =
-                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth.getRefreshToken());
+                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
+
+        if (googleTokenResponse == null) return null;
 
         final String accessToken = googleTokenResponse.getAccessToken();
 

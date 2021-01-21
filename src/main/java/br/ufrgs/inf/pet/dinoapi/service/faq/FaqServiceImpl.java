@@ -14,7 +14,7 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,7 +29,7 @@ public class FaqServiceImpl extends SynchronizableServiceImpl<Faq, Long, FaqData
     @Autowired
     public FaqServiceImpl(FaqRepository repository, OAuthServiceImpl authService, TreatmentServiceImpl treatmentService,
                           ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                          SynchronizableTopicMessageServiceImpl<Long, FaqDataModel> synchronizableTopicMessageService) {
+                          SynchronizableTopicMessageService<Long, FaqDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;
     }

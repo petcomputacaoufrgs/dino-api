@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.google;
 
-import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleaOAuthCommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAccessToken;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
@@ -16,12 +16,12 @@ import java.util.Optional;
 @Service
 public class GoogleAccessTokenServiceImpl implements GoogleAccessTokenService {
     private final GoogleAccessTokenRepository googleAccessTokenRepository;
-    private final GoogleaOAuthCommunicationImpl googleOAuthCommunication;
+    private final GoogleOAuthCommunicationImpl googleOAuthCommunication;
     private final GoogleOAuthServiceImpl googleOAuthService;
 
     @Autowired
     public GoogleAccessTokenServiceImpl(GoogleAccessTokenRepository googleAccessTokenRepository,
-                                        GoogleaOAuthCommunicationImpl googleOAuthCommunication,
+                                        GoogleOAuthCommunicationImpl googleOAuthCommunication,
                                         GoogleOAuthServiceImpl googleOAuthService) {
         this.googleAccessTokenRepository = googleAccessTokenRepository;
         this.googleOAuthCommunication = googleOAuthCommunication;
@@ -52,7 +52,9 @@ public class GoogleAccessTokenServiceImpl implements GoogleAccessTokenService {
 
     private String updateGoogleAccessToken(GoogleAccessToken googleAccessToken, GoogleAuth googleAuth) {
         final GoogleTokenResponse googleTokenResponse =
-                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth.getRefreshToken());
+                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
+
+        if (googleTokenResponse == null) return null;
 
         final String accessToken = googleTokenResponse.getAccessToken();
 
@@ -65,7 +67,9 @@ public class GoogleAccessTokenServiceImpl implements GoogleAccessTokenService {
 
     private String createGoogleAccessToken(GoogleAuth googleAuth) {
         final GoogleTokenResponse googleTokenResponse =
-                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth.getRefreshToken());
+                googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
+
+        if (googleTokenResponse == null) return null;
 
         final String accessToken = googleTokenResponse.getAccessToken();
         final LocalDateTime expiration = googleOAuthService.getExpiresDateFromToken(googleTokenResponse);

@@ -15,7 +15,7 @@ import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     @Autowired
     public GoogleContactServiceImpl(GoogleContactRepository repository, OAuthServiceImpl authService, ContactServiceImpl contactService,
-                                    SynchronizableQueueMessageServiceImpl<Long, GoogleContactDataModel> synchronizableQueueMessageService,
+                                    SynchronizableQueueMessageService<Long, GoogleContactDataModel> synchronizableQueueMessageService,
                                     ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                     AsyncGoogleContactImpl asyncGoogleContact) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);

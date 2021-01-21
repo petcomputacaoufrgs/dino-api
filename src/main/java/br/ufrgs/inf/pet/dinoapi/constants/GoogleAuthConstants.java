@@ -7,13 +7,13 @@ public class GoogleAuthConstants {
 
     public final static String INVALID_GOOGLE_AUTH_DATA = "Google auth data error.";
 
-    public final static String TOKEN_ERROR = "Error generating tokens.";
-
     public final static String GOOGLE_AUTH_NOT_FOUND = "Google auth not found.";
 
     public final static String GOOGLE_AUTH_ERROR = "Google auth error.";
 
     public final static String GOOGLE_AUTH_FAIL = "Google auth fail.";
+
+    public final static String GOOGLE_LOGOUT_REQUEST = "Logout from Google account.";
 
     public final static String UNKNOWN_EXCEPTION = "Unknown server exception.";
 
