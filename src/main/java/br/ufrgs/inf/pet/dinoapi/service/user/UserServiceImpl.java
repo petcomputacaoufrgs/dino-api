@@ -146,7 +146,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
 
     private int getUserPermission(String email) {
         if(email.equals("petcompufrgs@gmail.com")) {
-            return AuthEnum.ADMIN.getValue();
+            return AuthEnum.STAFF.getValue();
         }
         return AuthEnum.USER.getValue();
     }
@@ -160,6 +160,17 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     public User findUserByEmail(String email) {
         if (email != null) {
             final Optional<User> queryResult = this.repository.findByEmail(email);
+            if (queryResult.isPresent()) {
+                return queryResult.get();
+            }
+        }
+
+        return null;
+    }
+
+    public User findUserById(Long id) {
+        if (id != null) {
+            final Optional<User> queryResult = this.repository.findById(id);
             if (queryResult.isPresent()) {
                 return queryResult.get();
             }

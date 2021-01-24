@@ -2,8 +2,9 @@ package br.ufrgs.inf.pet.dinoapi.enumerable;
 
 public enum AuthEnum {
 
-    ADMIN(1),
-    USER(2);
+    STAFF(1),
+    ADMIN(2),
+    USER(3);
 
     private int value;
 
