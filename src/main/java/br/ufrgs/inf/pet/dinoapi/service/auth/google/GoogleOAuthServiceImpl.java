@@ -121,6 +121,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
                     user = this.createUser(payload);
 
+
                     googleAuth = new GoogleAuth(googleId, refreshToken, user);
                     user.setGoogleAuth(googleAuthRepository.save(googleAuth));
 
@@ -144,19 +145,9 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
                 final Claims claims = authService.decodeAccessToken(auth.getAccessToken());
 
-                final UserDataModel userData = new UserDataModel();
-
                 final List<GoogleScopeDataModel> savedScopes = this.saveAllScopes(currentScopes, auth);
 
-                userData.setEmail(user.getEmail());
-
-                userData.setName(user.getName());
-
-                userData.setPictureURL(user.getPictureURL());
-
-                userData.setLastUpdate(clockService.getUTCZonedDateTime());
-
-                userData.setId(user.getId());
+                UserDataModel userData = userService.convertEntityToModel(user);
 
                 final String accessToken = tokenResponse.getAccessToken();
 
