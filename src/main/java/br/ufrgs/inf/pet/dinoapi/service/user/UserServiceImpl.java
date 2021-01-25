@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
+import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.AuthEnum;
@@ -9,12 +11,14 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDelet
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.StaffServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,11 +29,16 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> {
 
+    StaffServiceImpl staffService;
+
     @Autowired
     public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                           @Lazy StaffServiceImpl staffService,
                            SynchronizableQueueMessageService<Long, UserDataModel> synchronizableQueueMessageService) {
         super(userRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
+
+        this.staffService = staffService;
     }
 
     @Override
@@ -132,23 +141,33 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
             user = new User();
         }
 
-        return this.saveUser(name, email, pictureUrl, user);
+        return this.saveUserPermission(this.saveUser(name, email, pictureUrl, user));
     }
 
     private User saveUser(String name, String email, String pictureUrl, User user) {
         user.setPictureURL(pictureUrl);
         user.setEmail(email);
         user.setName(name);
-        user.setPermission(this.getUserPermission(email));
 
         return this.repository.save(user);
     }
 
-    private int getUserPermission(String email) {
-        if(email.equals("petcompufrgs@gmail.com")) {
-            return AuthEnum.STAFF.getValue();
+    private User saveUserPermission(User user) {
+
+        Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
+
+        boolean isPatrão = user.getEmail().equals(AuthConstants.PRIMARY_EMAIL);
+
+        if(staffSearch != null || isPatrão) {
+            if(staffSearch != null) {
+                staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
+            }
+            user.setPermission(AuthEnum.STAFF.getValue());
+        } else {
+            user.setPermission(AuthEnum.USER.getValue());
         }
-        return AuthEnum.USER.getValue();
+
+        return this.repository.save(user);
     }
 
     private void sendUpdateMessage(User user, Auth auth) {
@@ -164,7 +183,6 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
                 return queryResult.get();
             }
         }
-
         return null;
     }
 

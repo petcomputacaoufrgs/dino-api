@@ -56,7 +56,7 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
     }
 
     @Override
-    public void updateEntity(Staff entity, StaffDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public void updateEntity(Staff entity, StaffDataModel model, Auth auth) {
         entity.setEmail(model.getEmail());
         entity.setSentInvitationDate(model.getSentInvitationDate().toLocalDateTime());
 
@@ -94,5 +94,21 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.STAFF;
+    }
+
+    public Staff findStaffByEmail(String email) {
+        if (email != null) {
+            final Optional<Staff> queryResult = this.repository.findByEmail(email);
+            if (queryResult.isPresent()) {
+                return queryResult.get();
+            }
+        }
+
+        return null;
+    }
+
+    public void updateStaffUser(Staff staff, User user, Auth auth) {
+        staff.setUser(user);
+        this.updateEntity(staff, this.convertEntityToModel(staff), auth);
     }
 }
