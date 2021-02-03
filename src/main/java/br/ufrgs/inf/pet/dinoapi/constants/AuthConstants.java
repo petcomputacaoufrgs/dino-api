@@ -15,6 +15,6 @@ public final class AuthConstants {
 
     public final static String ERROR_READING_CONFIG_FILES = "Internal server error";
 
-    public final static String PRIMARY_EMAIL = "petcompufrgs@gmail.com";
+    public final static String CLIENT = "petcompufrgs@gmail.com";
 
 }

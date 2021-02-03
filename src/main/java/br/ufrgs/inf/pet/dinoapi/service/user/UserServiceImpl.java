@@ -156,13 +156,13 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
 
         Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
 
-        boolean isProductOwner = user.getEmail().equals(AuthConstants.PRIMARY_EMAIL);
-
-        if(staffSearch != null || isProductOwner) {
-            if(staffSearch != null) {
-                staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
-            }
+        if(staffSearch != null) {
+            staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
             user.setPermission(AuthEnum.STAFF.getValue());
+
+        } else if (user.getEmail().equals(AuthConstants.CLIENT)) {
+            user.setPermission(AuthEnum.CLIENT.getValue());
+
         } else {
             user.setPermission(AuthEnum.USER.getValue());
         }
