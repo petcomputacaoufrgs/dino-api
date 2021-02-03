@@ -9,21 +9,21 @@ import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.*;
 
 public class FaqUserQuestionDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = ID_NULL_MESSAGE)
-    private Long faqId;
+    private Long treatmentId;
 
     @NotNull(message = QUESTION_NULL_MESSAGE)
-    @Size(min = 1, max = USER_QUESTION_MAX, message = QUESTION_SIZE_MESSAGE)
+    @Size(min = 1, max = TREATMENT_QUESTION_MAX, message = QUESTION_SIZE_MESSAGE)
     private String question;
 
     public FaqUserQuestionDataModel() {
     }
 
-    public Long getFaqId() {
-        return faqId;
+    public Long getTreatmentId() {
+        return treatmentId;
     }
 
-    public void setFaqId(Long faqId) {
-        this.faqId = faqId;
+    public void setTreatmentId(Long treatmentId) {
+        this.treatmentId = treatmentId;
     }
 
     public String getQuestion() {

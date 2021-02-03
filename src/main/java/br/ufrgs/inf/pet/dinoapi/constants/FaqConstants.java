@@ -15,18 +15,14 @@ public final class FaqConstants {
     public final static String QUESTION_SIZE_MESSAGE = "question should be between " + QUESTION_MIN + " and " + QUESTION_MAX;
     public final static String QUESTION_NULL_MESSAGE = "question should not be null.";
 
-    public final static int USER_QUESTION_MAX = 200;
+    public final static int TREATMENT_QUESTION_MAX = 200;
 
     public final static int ANSWER_MIN = 1;
     public final static int ANSWER_MAX = 1000;
     public final static String ANSWER_MESSAGE = "answer should be between " + ANSWER_MIN + " and " + ANSWER_MAX;
     public final static String ANSWER_NULL_MESSAGE = "answer should not be null.";
 
-    public final static String FAQ_ID_NULL_MESSAGE = "faqId should not be null.";
-
-    public final static String FAQ_USER_QUESTION_SUCCESS = "success";
-
-    public final static String INVALID_FAQ = "invalid FAQ";
+    public final static String INVALID_TREATMENT = "invalid treatment";
 
 
 }

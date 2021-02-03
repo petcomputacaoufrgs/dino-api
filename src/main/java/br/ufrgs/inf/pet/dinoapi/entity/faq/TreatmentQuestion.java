@@ -1,35 +1,36 @@
 package br.ufrgs.inf.pet.dinoapi.entity.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.USER_QUESTION_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.TREATMENT_QUESTION_MAX;
 
 @Entity
-@Table(name = "faq_user_question")
-public class FaqUserQuestion extends SynchronizableEntity<Long> {
-    @Column(name = "question", length = USER_QUESTION_MAX, nullable = false)
+@Table(name = "treatment_question")
+public class TreatmentQuestion extends SynchronizableEntity<Long> {
+    @Column(name = "question", length = TREATMENT_QUESTION_MAX, nullable = false)
     private String question;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "faq_id", nullable = false)
-    private Faq faq;
+    @JoinColumn(name = "treatment_id", nullable = false)
+    private Treatment treatment;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-    public FaqUserQuestion() {
+    public TreatmentQuestion() {
     }
 
-    public Faq getFaq() {
-        return faq;
+    public Treatment getTreatment() {
+        return treatment;
     }
 
-    public void setFaq(Faq faq) {
-        this.faq = faq;
+    public void setTreatment(Treatment treatment) {
+        this.treatment = treatment;
     }
 
     public User getUser() {

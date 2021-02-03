@@ -2,8 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.service.faq;
 
 import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.faq.TreatmentQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqUserQuestionDataModel;
@@ -12,6 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,41 +22,41 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUserQuestion, Long, FaqUserQuestionDataModel, FaqUserQuestionRepository> {
+public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<TreatmentQuestion, Long, FaqUserQuestionDataModel, FaqUserQuestionRepository> {
 
-    private final FaqServiceImpl faqService;
+    private final TreatmentServiceImpl treatmentService;
 
     @Autowired
     public FaqUserQuestionServiceImpl(FaqUserQuestionRepository repository, OAuthServiceImpl authService,
-                                      FaqServiceImpl faqService, ClockServiceImpl clockService,
+                                      TreatmentServiceImpl treatmentService, ClockServiceImpl clockService,
                                       LogAPIErrorServiceImpl logAPIErrorService,
                                       SynchronizableQueueMessageService<Long, FaqUserQuestionDataModel> synchronizableQueueMessageService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
-        this.faqService = faqService;
+        this.treatmentService = treatmentService;
     }
 
     @Override
-    public FaqUserQuestionDataModel convertEntityToModel(FaqUserQuestion entity) {
+    public FaqUserQuestionDataModel convertEntityToModel(TreatmentQuestion entity) {
         final FaqUserQuestionDataModel model = new FaqUserQuestionDataModel();
         model.setQuestion(entity.getQuestion());
-        model.setFaqId(entity.getFaq().getId());
+        model.setTreatmentId(entity.getTreatment().getId());
 
         return model;
     }
 
     @Override
-    public FaqUserQuestion convertModelToEntity(FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public TreatmentQuestion convertModelToEntity(FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
-            final Optional<Faq> faq = faqService.findEntityByIdThatUserCanRead(model.getFaqId(), auth);
+            final Optional<Treatment> faq = treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
 
             if (faq.isEmpty()) {
-                throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+                throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
             }
 
-            final FaqUserQuestion entity = new FaqUserQuestion();
+            final TreatmentQuestion entity = new TreatmentQuestion();
 
             entity.setQuestion(model.getQuestion());
-            entity.setFaq(faq.get());
+            entity.setTreatment(faq.get());
             entity.setUser(auth.getUser());
 
             return entity;
@@ -65,16 +66,16 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public void updateEntity(FaqUserQuestion entity, FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public void updateEntity(TreatmentQuestion entity, FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
-            if (!entity.getFaq().getId().equals(model.getFaqId())) {
-                final Optional<Faq> faq = faqService.findEntityByIdThatUserCanRead(model.getFaqId(), auth);
+            if (!entity.getTreatment().getId().equals(model.getTreatmentId())) {
+                final Optional<Treatment> faq = treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
 
                 if (faq.isEmpty()) {
-                    throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+                    throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
                 }
 
-                entity.setFaq(faq.get());
+                entity.setTreatment(faq.get());
             }
 
             entity.setQuestion(model.getQuestion());
@@ -84,16 +85,16 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public Optional<FaqUserQuestion> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+    public Optional<TreatmentQuestion> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
         return this.findByIdAndUser(id, auth);
     }
 
     @Override
-    public Optional<FaqUserQuestion> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+    public Optional<TreatmentQuestion> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
         return this.findByIdAndUser(id, auth);
     }
 
-    private Optional<FaqUserQuestion> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
+    private Optional<TreatmentQuestion> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -101,7 +102,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+    public List<TreatmentQuestion> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -109,7 +110,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
+    public List<TreatmentQuestion> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -117,7 +118,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<FaqUse
     }
 
     @Override
-    public List<FaqUserQuestion> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+    public List<TreatmentQuestion> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
