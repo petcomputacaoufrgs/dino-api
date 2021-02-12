@@ -21,8 +21,7 @@ public class GoogleContact extends SynchronizableEntity<Long> {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public GoogleContact() {
-    }
+    public GoogleContact() { }
 
     public Long getId() {
         return id;

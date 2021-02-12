@@ -26,10 +26,7 @@ public class Faq extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<FaqUserQuestion> faqUserQuestions;
 
-    public Faq() {
-        this.items = new ArrayList<>();
-        this.faqUserQuestions = new ArrayList<>();
-    }
+    public Faq() { }
 
     public String getTitle() {
         return title;
@@ -37,22 +34,6 @@ public class Faq extends SynchronizableEntity<Long> {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public List<FaqItem> getItems() {
-        return items;
-    }
-
-    public void setItems(List<FaqItem> items) {
-        this.items = items;
-    }
-
-    public List<FaqUserQuestion> getFaqUserQuestions() {
-        return faqUserQuestions;
-    }
-
-    public void setFaqUserQuestions(List<FaqUserQuestion> faqFaqUserQuestions) {
-        this.faqUserQuestions = faqFaqUserQuestions;
     }
 
     public Treatment getTreatment() {

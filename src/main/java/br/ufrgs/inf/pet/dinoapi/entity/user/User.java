@@ -6,10 +6,11 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.UserConstants.*;
@@ -33,31 +34,28 @@ public class User extends SynchronizableEntity<Long> {
     private UserSettings userSettings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private final List<Auth> auths;
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Auth> auths;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<NoteColumn> noteColumns;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Contact> contacts;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<FaqUserQuestion> faqUserQuestions;
 
-    public User() {
-        this.auths = new ArrayList<>();
-        this.contacts = new ArrayList<>();
-        this.noteColumns = new ArrayList<>();
-    }
+    public User() { }
 
     public User(String name, String email, String pictureURL) {
         this.name = name;
         this.email = email;
         this.pictureURL = pictureURL;
         this.lastUpdate = LocalDateTime.now();
-        this.auths = new ArrayList<>();
-        this.contacts = new ArrayList<>();
-        this.noteColumns = new ArrayList<>();
     }
 
     public boolean hasGoogleAuth() {
@@ -102,21 +100,5 @@ public class User extends SynchronizableEntity<Long> {
 
     public void setUserAppSettings(UserSettings userSettings) {
         this.userSettings = userSettings;
-    }
-
-    public List<NoteColumn> getNoteColumns() {
-        return noteColumns;
-    }
-
-    public void setNoteColumns(List<NoteColumn> noteColumns) {
-        this.noteColumns = noteColumns;
-    }
-
-    public void setContacts(List<Contact> contacts) {
-        this.contacts = contacts;
-    }
-
-    public List<Contact> getContacts() {
-        return contacts;
     }
 }

@@ -33,8 +33,7 @@ public class EssentialContact extends SynchronizableEntity<Long> {
             inverseJoinColumns = {@JoinColumn(name = "treatment_id")})
     private List<Treatment> treatments;
 
-    public EssentialContact() {
-    }
+    public EssentialContact() { }
 
     public List<Treatment> getTreatments() {
         return treatments;
@@ -66,21 +65,5 @@ public class EssentialContact extends SynchronizableEntity<Long> {
 
     public void setColor(Byte color) {
         this.color = color;
-    }
-
-    public List<Phone> getPhones() {
-        return phones;
-    }
-
-    public void setPhones(List<Phone> phones) {
-        this.phones = phones;
-    }
-
-    public List<Contact> getContacts() {
-        return contacts;
-    }
-
-    public void setContacts(List<Contact> contacts) {
-        this.contacts = contacts;
     }
 }

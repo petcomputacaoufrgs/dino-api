@@ -21,7 +21,7 @@ public class GoogleAccessToken {
     @Column(name = "expiration", length = GoogleAuthConstants.ACCESS_TOKEN_MAX, unique = true, nullable = false)
     private LocalDateTime expiration;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "google_auth_id", nullable = false)
     private GoogleAuth googleAuth;
 

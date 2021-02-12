@@ -3,6 +3,8 @@ package br.ufrgs.inf.pet.dinoapi.entity.note;
 import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.util.List;
@@ -18,13 +20,14 @@ public class NoteColumn extends SynchronizableEntity<Long> {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @OneToMany(mappedBy = "noteColumn", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Note> notes;
 
-    public NoteColumn() {
-    }
+    public NoteColumn() { }
 
     public String getTitle() {
         return title;
@@ -48,13 +51,5 @@ public class NoteColumn extends SynchronizableEntity<Long> {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public List<Note> getNotes() {
-        return notes;
-    }
-
-    public void setNotes(List<Note> notes) {
-        this.notes = notes;
     }
 }
