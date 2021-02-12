@@ -57,7 +57,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     /**
-     * Override it to do something when an new entity is created
+     * Override it to do something after a new entity is created
      *
      * @param model base model
      */
@@ -65,7 +65,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     /**
-     * Override it to do something when an entity is updated
+     * Override it to do something after an entity is updated
      *
      * @param model  base model
      * @param entity updated entity

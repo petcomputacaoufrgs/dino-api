@@ -7,4 +7,6 @@ public class GoogleContactConstants {
     public final static String CONTACT_ID_NULL_MESSAGE = "Contact id cannot be null";
 
     public final static String INVALID_CONTACT_ERROR = "Related contact not exists";
+
+    public final static String SAVED_ON_GOOGLE_API = "savedOnGoogleAPI cannot be null";
 }

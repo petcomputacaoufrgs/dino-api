@@ -13,6 +13,9 @@ public class GoogleContactDataModel extends SynchronizableDataLocalIdModel<Long>
     @NotNull(message = GoogleContactConstants.CONTACT_ID_NULL_MESSAGE)
     private Long contactId;
 
+    @NotNull(message = GoogleContactConstants.SAVED_ON_GOOGLE_API)
+    private Boolean savedOnGoogleAPI;
+
     public String getResourceName() {
         return resourceName;
     }
@@ -27,5 +30,13 @@ public class GoogleContactDataModel extends SynchronizableDataLocalIdModel<Long>
 
     public void setContactId(Long contactId) {
         this.contactId = contactId;
+    }
+
+    public Boolean getSavedOnGoogleAPI() {
+        return savedOnGoogleAPI;
+    }
+
+    public void setSavedOnGoogleAPI(Boolean savedOnGoogleAPI) {
+        this.savedOnGoogleAPI = savedOnGoogleAPI;
     }
 }
