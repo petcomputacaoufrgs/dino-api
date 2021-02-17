@@ -1,16 +1,11 @@
 package br.ufrgs.inf.pet.dinoapi.controller.synchronizable;
 
-import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.SynchronizableException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
-import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
@@ -32,12 +27,11 @@ public abstract class SynchronizableControllerImpl<
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID>,
         REPOSITORY extends CrudRepository<ENTITY, ID>,
         SERVICE extends SynchronizableServiceImpl<ENTITY, ID, DATA_MODEL, REPOSITORY>>
-        extends LogUtilsBase implements SynchronizableController<ID, DATA_MODEL> {
+        implements SynchronizableController<ID, DATA_MODEL> {
 
     protected final SERVICE service;
 
-    protected SynchronizableControllerImpl(SERVICE service, LogAPIErrorServiceImpl logAPIErrorService) {
-        super(logAPIErrorService);
+    protected SynchronizableControllerImpl(SERVICE service) {
         this.service = service;
     }
 
@@ -87,24 +81,5 @@ public abstract class SynchronizableControllerImpl<
     public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>>
     sync(@Valid @RequestBody SynchronizableSaveSyncModel<ID, DATA_MODEL> model){
         return service.saveSync(model);
-    }
-
-    private <T> ResponseEntity<T> createResponse(T response) {
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    private <T extends SynchronizableGenericResponseModel> ResponseEntity<T>
-    createSynchronizableExceptionResponse(SynchronizableException e, T response) {
-        response.setSuccess(false);
-        response.setError(e.getMessage());
-        return this.createResponse(response);
-    }
-
-    private <T extends SynchronizableGenericResponseModel> ResponseEntity<T>
-    createUnknownExceptionResponse(Exception e, T response) {
-        this.logAPIError(e);
-        response.setSuccess(false);
-        response.setError(SynchronizableConstants.UNKNOWN_ERROR);
-        return this.createResponse(response);
     }
 }

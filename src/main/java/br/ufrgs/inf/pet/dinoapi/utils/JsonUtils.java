@@ -10,9 +10,17 @@ public class JsonUtils {
         return objectMapper.writeValueAsString(obj);
     }
 
+    public static <T> String convertToJson(T obj, ObjectMapper mapper) throws JsonProcessingException {
+        return mapper.writeValueAsString(obj);
+    }
+
     public static <T> T convertJsonToObj(String json, Class<T> valueType) throws JsonProcessingException {
         final ObjectMapper objectMapper = new ObjectMapper();
 
         return objectMapper.readValue(json, valueType);
+    }
+
+    public static <T> T convertJsonToObj(String json, Class<T> valueType, ObjectMapper mapper) throws JsonProcessingException {
+        return mapper.readValue(json, valueType);
     }
 }

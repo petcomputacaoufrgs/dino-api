@@ -20,15 +20,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @TestPropertySource(locations="classpath:integration-test.properties")
 @AutoConfigureMockMvc
-public class TestConnectionController {
+public class TestConnectionControllerTest {
     @Autowired
     private MockMvc mvc;
-
-    public TestConnectionController() { }
 
     @Test
     @WithUserDetails("basicuser@dinoapp.com")
     public void isApplicationConnected() throws Exception {
-        mvc.perform(get("/public/test_connection/")).andExpect(status().isOk());
+        mvc.perform(
+                get("/public/test_connection/")
+        ).andExpect(status().isOk());
     }
 }

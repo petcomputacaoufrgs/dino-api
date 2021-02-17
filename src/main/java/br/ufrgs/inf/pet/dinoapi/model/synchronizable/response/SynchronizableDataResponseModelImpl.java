@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.synchronizable.response;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
-
 import java.io.Serializable;
 
 /**

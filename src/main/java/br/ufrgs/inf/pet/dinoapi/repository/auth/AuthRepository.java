@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.repository.auth;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.projection.auth.AuthWebSocketToken;
+import br.ufrgs.inf.pet.dinoapi.projection.AuthWebSocketToken;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

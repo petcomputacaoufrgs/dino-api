@@ -522,7 +522,6 @@ public abstract class SynchronizableServiceImpl<
 
     private DATA_MODEL create(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         ENTITY entity = this.completeConvertModelToEntity(model, auth);
-        entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
         entity = repository.save(entity);
         return this.completeConvertEntityToModel(entity);
     }
@@ -554,7 +553,6 @@ public abstract class SynchronizableServiceImpl<
         final List<DATA_MODEL> modelsInSaveList = new ArrayList<>();
         for (DATA_MODEL item : items) {
             final ENTITY entity = this.completeConvertModelToEntity(item, auth);
-            entity.setLastUpdate(item.getLastUpdate().toLocalDateTime());
             entitiesToSave.add(entity);
             modelsInSaveList.add(item);
         }

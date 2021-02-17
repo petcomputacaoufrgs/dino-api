@@ -8,7 +8,7 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.projection.auth.AuthWebSocketToken;
+import br.ufrgs.inf.pet.dinoapi.projection.AuthWebSocketToken;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.AuthRepository;
 import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
 import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
