@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,12 +15,9 @@ public class DinoUserDetailsService implements UserDetailsService {
 
     private final UserServiceImpl userService;
 
-    private final OAuthServiceImpl authService;
-
     @Autowired
-    public DinoUserDetailsService(UserServiceImpl userService, OAuthServiceImpl authService) {
+    public DinoUserDetailsService(UserServiceImpl userService) {
         this.userService = userService;
-        this.authService = authService;
     }
 
     public DinoAuthenticationToken loadDinoUserByAuth(Auth auth) throws UsernameNotFoundException {
