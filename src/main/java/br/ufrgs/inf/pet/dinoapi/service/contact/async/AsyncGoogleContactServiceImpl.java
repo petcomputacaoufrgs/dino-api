@@ -7,10 +7,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.ContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,34 +19,32 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 
 @Service
-public class AsyncGoogleContactImpl {
+public class AsyncGoogleContactServiceImpl implements AsyncGoogleContactService {
     private final GooglePeopleCommunicationImpl googlePeopleCommunication;
-    private final ClockServiceImpl clockService;
     private final ContactServiceImpl contactService;
     private final PhoneRepository phoneRepository;
     private final GoogleScopeServiceImpl googleScopeService;
     private final UserSettingsServiceImpl userSettingsService;
-    private final AsyncSaveGoogleContact asyncSaveGoogleContact;
+    private final AsyncSaveGoogleContactImpl asyncSaveGoogleContactImpl;
 
     @Autowired
-    public AsyncGoogleContactImpl(GooglePeopleCommunicationImpl googlePeopleCommunication,
-                                  ClockServiceImpl clockService,
-                                  ContactServiceImpl contactService,
-                                  PhoneRepository phoneRepository,
-                                  GoogleScopeServiceImpl googleScopeService,
-                                  AsyncSaveGoogleContact asyncSaveGoogleContact,
-                                  UserSettingsServiceImpl userSettingsService) {
+    public AsyncGoogleContactServiceImpl(GooglePeopleCommunicationImpl googlePeopleCommunication,
+                                         ContactServiceImpl contactService,
+                                         PhoneRepository phoneRepository,
+                                         GoogleScopeServiceImpl googleScopeService,
+                                         AsyncSaveGoogleContactImpl asyncSaveGoogleContactImpl,
+                                         UserSettingsServiceImpl userSettingsService) {
         this.googlePeopleCommunication = googlePeopleCommunication;
-        this.clockService = clockService;
         this.contactService = contactService;
         this.phoneRepository = phoneRepository;
         this.googleScopeService = googleScopeService;
         this.userSettingsService = userSettingsService;
-        this.asyncSaveGoogleContact = asyncSaveGoogleContact;
+        this.asyncSaveGoogleContactImpl = asyncSaveGoogleContactImpl;
     }
 
+    @Override
     @Async("defaultThreadPoolTaskExecutor")
-    public void createContactOnGoogleAPI(GoogleContactDataModel model, BiFunction<GoogleContactDataModel, Auth, GoogleContactDataModel> save) {
+    public void createContactOnGoogleAPI(GoogleContactDataModel model, BiFunction<GoogleContactDataModel, Auth, Void> save) {
         final Optional<Contact> contactSearch = contactService.findById(model.getContactId());
 
         if (contactSearch.isPresent()) {
@@ -68,9 +64,9 @@ public class AsyncGoogleContactImpl {
         }
     }
 
+    @Override
     @Async("defaultThreadPoolTaskExecutor")
-    public void updateContactOnGoogleAPI(GoogleContact entity,
-                                         BiFunction<GoogleContactDataModel, Auth, GoogleContactDataModel> save) {
+    public void updateContactOnGoogleAPI(GoogleContact entity, BiFunction<GoogleContactDataModel, Auth, Void> save) {
         final Contact contact = entity.getContact();
 
         final User user = contact.getUser();
@@ -95,9 +91,9 @@ public class AsyncGoogleContactImpl {
         }
     }
 
+    @Override
     @Async("defaultThreadPoolTaskExecutor")
-    public void deleteContactOnGoogleAPI(GoogleContact entity,
-                                         BiFunction<SynchronizableDeleteModel<Long>, Auth, Void> delete) {
+    public void deleteContactOnGoogleAPI(GoogleContact entity) {
         if (entity.getResourceName() != null) {
             final Contact contact = entity.getContact();
             final User user = contact.getUser();
@@ -106,25 +102,13 @@ public class AsyncGoogleContactImpl {
                     && userSettingsService.saveContactsOnGoogleAPI(user);
 
             if (syncWithGoogleAPI) {
-                final boolean success = googlePeopleCommunication.deleteContact(user, entity);
-
-                if (success) {
-                    final Auth fakeAuth = new Auth();
-                    fakeAuth.setUser(user);
-
-                    entity.setResourceName(null);
-
-                    final SynchronizableDeleteModel<Long> model = new SynchronizableDeleteModel<>();
-                    model.setLastUpdate(clockService.getUTCZonedDateTime());
-                    model.setId(contact.getId());
-                    delete.apply(model, fakeAuth);
-                }
+                googlePeopleCommunication.deleteContact(user, entity);
             }
         }
     }
 
     private void saveGoogleContact(User user, Long id, GooglePeopleModel googlePeopleModel, Long contactId,
-                                   BiFunction<GoogleContactDataModel, Auth, GoogleContactDataModel> save) {
-        this.asyncSaveGoogleContact.saveGoogleContact(user, id, contactId, googlePeopleModel, save);
+                                   BiFunction<GoogleContactDataModel, Auth, Void> save) {
+        this.asyncSaveGoogleContactImpl.saveGoogleContact(user, id, contactId, googlePeopleModel, save);
     }
 }
