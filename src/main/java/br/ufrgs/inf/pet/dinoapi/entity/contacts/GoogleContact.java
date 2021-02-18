@@ -21,6 +21,8 @@ public class GoogleContact extends SynchronizableEntity<Long> {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    private Boolean savedOnGoogleAPI;
+
     public GoogleContact() { }
 
     public Long getId() {
@@ -53,5 +55,13 @@ public class GoogleContact extends SynchronizableEntity<Long> {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public Boolean getSavedOnGoogleAPI() {
+        return savedOnGoogleAPI;
+    }
+
+    public void setSavedOnGoogleAPI(Boolean savedOnGoogleAPI) {
+        this.savedOnGoogleAPI = savedOnGoogleAPI;
     }
 }
