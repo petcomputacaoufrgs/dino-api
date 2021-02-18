@@ -163,7 +163,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     public ResponseEntity<Boolean> deleteAccount() {
         try {
             final User user = authService.getPrincipal().getUser();
-            this.repository.deleteUser(user.getId());
+            this.repository.delete(user);
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (Exception e) {
             this.logAPIError(e);
