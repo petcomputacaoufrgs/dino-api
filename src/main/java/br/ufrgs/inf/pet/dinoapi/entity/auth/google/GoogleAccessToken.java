@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.entity.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -21,8 +23,9 @@ public class GoogleAccessToken {
     @Column(name = "expiration", length = GoogleAuthConstants.ACCESS_TOKEN_MAX, unique = true, nullable = false)
     private LocalDateTime expiration;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne
     @JoinColumn(name = "google_auth_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private GoogleAuth googleAuth;
 
     public Long getId() {

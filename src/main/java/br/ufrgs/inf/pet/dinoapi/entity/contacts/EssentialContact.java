@@ -21,10 +21,10 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     @Column(name = "color")
     private Byte color;
 
-    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
     private List<Phone> phones;
 
-    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
     private List<Contact> contacts;
 
     @ManyToMany
