@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.configuration.application_properties;
+package br.ufrgs.inf.pet.dinoapi.configuration.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
@@ -6,22 +6,22 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "log")
 public class LogConfig {
-    private Integer appLogDurationInDays;
-    private Integer apiLogDurationInDays;
+    private Long appLogDurationInMilliseconds;
+    private Long apiLogDurationInMilliseconds;
 
-    public Integer getAppLogDurationInDays() {
-        return appLogDurationInDays;
+    public Long getAppLogDurationInMilliseconds() {
+        return appLogDurationInMilliseconds;
     }
 
-    public void setAppLogDurationInDays(Integer appLogDurationInDays) {
-        this.appLogDurationInDays = appLogDurationInDays;
+    public void setAppLogDurationInMilliseconds(Long appLogDurationInMilliseconds) {
+        this.appLogDurationInMilliseconds = appLogDurationInMilliseconds;
     }
 
-    public Integer getApiLogDurationInDays() {
-        return apiLogDurationInDays;
+    public Long getApiLogDurationInMilliseconds() {
+        return apiLogDurationInMilliseconds;
     }
 
-    public void setApiLogDurationInDays(Integer apiLogDurationInDays) {
-        this.apiLogDurationInDays = apiLogDurationInDays;
+    public void setApiLogDurationInMilliseconds(Long apiLogDurationInMilliseconds) {
+        this.apiLogDurationInMilliseconds = apiLogDurationInMilliseconds;
     }
 }
