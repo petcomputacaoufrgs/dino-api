@@ -1,6 +1,6 @@
 # DinoAPI
-### O DinoAPI é uma RESTful API de serviços para o projeto `DinoApp`.
-### O DinoApp é um aplicativo feito em parceria com o Hospítal de Clínicas de Porto Alegre que tem como objetivo incentivar as crianças do hospital a seguirem a rotina de tratamento médico.
+#### O DinoAPI é uma RESTful API de serviços para o projeto `DinoApp`.
+#### O DinoApp é um aplicativo feito em parceria com o Hospítal de Clínicas de Porto Alegre que tem como objetivo incentivar as crianças do hospital a seguirem a rotina de tratamento médico.
 
 ### Spring
 #### O Spring é um framework Java que torna o processo de desenvolvimento mais simples, rápido e seguro.
