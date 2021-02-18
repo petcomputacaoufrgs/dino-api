@@ -37,10 +37,10 @@ public class GlossaryControllerTest {
     public void saveBasicItem() throws Exception {
         final ObjectMapper mapper = JsonMapperUtils.clientObjectMapper();
         final GlossaryItemDataModel model = new GlossaryItemDataModel();
+        model.setTitle("Mock title");
         model.setFullText("Mock full text");
         model.setSubtitle("Mock subtitle");
         model.setText("Mock text");
-        model.setTitle("Mock title");
         model.setLastUpdate(clockService.getUTCZonedDateTime());
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(model, mapper))
