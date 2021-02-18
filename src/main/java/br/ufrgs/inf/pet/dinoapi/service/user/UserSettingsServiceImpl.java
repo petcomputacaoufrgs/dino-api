@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
@@ -166,6 +167,11 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
 
     public UserSettingsDataModel createUserSettingsDataModel(UserSettings userSettings) {
         return this.completeConvertEntityToModel(userSettings);
+    }
+
+    public boolean saveContactsOnGoogleAPI(User user) {
+        final UserSettings settings = user.getUserAppSettings();
+        return !settings.getDeclineGoogleContacts();
     }
 
     private void validSettings(UserSettingsDataModel model) throws ConvertModelToEntityException {

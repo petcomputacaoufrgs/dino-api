@@ -18,7 +18,6 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -44,6 +43,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         final GoogleContactDataModel model = new GoogleContactDataModel();
         model.setResourceName(entity.getResourceName());
         model.setContactId(entity.getContact().getId());
+        model.setSavedOnGoogleAPI(entity.getSavedOnGoogleAPI());
         return model;
     }
 
@@ -57,6 +57,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
                 GoogleContact googleContact = new GoogleContact();
                 googleContact.setContact(contactSearch.get());
                 googleContact.setUser(user);
+                googleContact.setSavedOnGoogleAPI(model.getSavedOnGoogleAPI());
                 if (model.getResourceName() != null) {
                     googleContact.setResourceName(model.getResourceName());
                 }
@@ -74,6 +75,8 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         if (model.getResourceName() != null) {
             entity.setResourceName(model.getResourceName());
         }
+
+        entity.setSavedOnGoogleAPI(model.getSavedOnGoogleAPI());
     }
 
     @Override
