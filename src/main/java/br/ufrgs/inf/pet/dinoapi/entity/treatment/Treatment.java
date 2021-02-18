@@ -7,6 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -21,7 +22,7 @@ public class Treatment extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "treatment", fetch = FetchType.LAZY)
     private List<UserSettings> userSettings;
 
-    @ManyToMany(mappedBy = "treatments", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "treatments",fetch = FetchType.LAZY)
     private List<EssentialContact> essentialContacts;
 
     public Treatment() { }
@@ -32,13 +33,5 @@ public class Treatment extends SynchronizableEntity<Long> {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<UserSettings> getUserSettings() {
-        return userSettings;
-    }
-
-    public void setUserSettings(List<UserSettings> userSettings) {
-        this.userSettings = userSettings;
     }
 }

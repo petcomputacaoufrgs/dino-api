@@ -14,6 +14,8 @@ import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> {
+public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> implements  UserService {
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
@@ -155,6 +157,19 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         }
 
         return null;
+    }
+
+    @Override
+    public ResponseEntity<Boolean> deleteAccount() {
+        try {
+            final User user = authService.getPrincipal().getUser();
+            this.repository.delete(user);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } catch (Exception e) {
+            this.logAPIError(e);
+        }
+
+        return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
     public List<User> findUserBySaveEssentialContacts() {

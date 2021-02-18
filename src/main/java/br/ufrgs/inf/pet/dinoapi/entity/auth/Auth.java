@@ -2,6 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.entity.auth;
 
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -33,6 +35,7 @@ public class Auth {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     public Long getId() {

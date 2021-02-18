@@ -21,8 +21,7 @@ public class FaqUserQuestion extends SynchronizableEntity<Long> {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-    public FaqUserQuestion() {
-    }
+    public FaqUserQuestion() { }
 
     public Faq getFaq() {
         return faq;

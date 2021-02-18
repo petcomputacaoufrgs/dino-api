@@ -2,13 +2,14 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "user_settings")
 public class UserSettings extends SynchronizableEntity<Long> {
-
     @Column(name = "language")
     private Integer language;
 
@@ -32,14 +33,14 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "treatment_id")
     private Treatment treatment;
 
-    public UserSettings() {
-    }
+    public UserSettings() { }
 
     public Integer getLanguage() {
         return language;
