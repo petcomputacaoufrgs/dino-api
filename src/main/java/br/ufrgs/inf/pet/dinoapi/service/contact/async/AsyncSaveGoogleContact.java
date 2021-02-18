@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.function.BiFunction;
 

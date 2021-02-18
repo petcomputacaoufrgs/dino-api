@@ -41,7 +41,7 @@ public class AsyncEssentialContactServiceImpl extends LogUtilsBase implements As
     private final GoogleContactServiceImpl googleContactService;
     private final GooglePeopleCommunicationImpl googlePeopleCommunication;
     private final GoogleScopeServiceImpl googleScopeService;
-    private final AsyncSaveGoogleContactImpl asyncSaveGoogleContactImpl;
+    private final AsyncSaveGoogleContact asyncSaveGoogleContact;
 
     @Autowired
     public AsyncEssentialContactServiceImpl(TreatmentServiceImpl treatmentService, UserServiceImpl userService,
@@ -50,7 +50,7 @@ public class AsyncEssentialContactServiceImpl extends LogUtilsBase implements As
                                             GooglePeopleCommunicationImpl googlePeopleCommunication,
                                             GoogleScopeServiceImpl googleScopeService,
                                             LogAPIErrorServiceImpl logAPIErrorService,
-                                            AsyncSaveGoogleContactImpl asyncSaveGoogleContactImpl,
+                                            AsyncSaveGoogleContactImpl asyncSaveGoogleContact,
                                             UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
         this.treatmentService = treatmentService;
@@ -61,7 +61,7 @@ public class AsyncEssentialContactServiceImpl extends LogUtilsBase implements As
         this.googleContactService = googleContactService;
         this.googlePeopleCommunication = googlePeopleCommunication;
         this.googleScopeService = googleScopeService;
-        this.asyncSaveGoogleContactImpl = asyncSaveGoogleContactImpl;
+        this.asyncSaveGoogleContact = asyncSaveGoogleContact;
         this.userSettingsService = userSettingsService;
     }
 
@@ -168,7 +168,7 @@ public class AsyncEssentialContactServiceImpl extends LogUtilsBase implements As
     }
 
     private void saveGoogleContact(User user, Long id, Long contactId, GooglePeopleModel googlePeopleModel) {
-        this.asyncSaveGoogleContactImpl.saveGoogleContact(user, id, contactId, googlePeopleModel, (model, auth) -> {
+        this.asyncSaveGoogleContact.saveGoogleContact(user, id, contactId, googlePeopleModel, (model, auth) -> {
             try {
                 this.googleContactService.saveByUser(model, user);
             } catch (Exception e) {

@@ -25,21 +25,21 @@ public class AsyncGoogleContactServiceImpl implements AsyncGoogleContactService 
     private final PhoneRepository phoneRepository;
     private final GoogleScopeServiceImpl googleScopeService;
     private final UserSettingsServiceImpl userSettingsService;
-    private final AsyncSaveGoogleContactImpl asyncSaveGoogleContactImpl;
+    private final AsyncSaveGoogleContact asyncSaveGoogleContact;
 
     @Autowired
     public AsyncGoogleContactServiceImpl(GooglePeopleCommunicationImpl googlePeopleCommunication,
                                          ContactServiceImpl contactService,
                                          PhoneRepository phoneRepository,
                                          GoogleScopeServiceImpl googleScopeService,
-                                         AsyncSaveGoogleContactImpl asyncSaveGoogleContactImpl,
+                                         AsyncSaveGoogleContactImpl asyncSaveGoogleContact,
                                          UserSettingsServiceImpl userSettingsService) {
         this.googlePeopleCommunication = googlePeopleCommunication;
         this.contactService = contactService;
         this.phoneRepository = phoneRepository;
         this.googleScopeService = googleScopeService;
         this.userSettingsService = userSettingsService;
-        this.asyncSaveGoogleContactImpl = asyncSaveGoogleContactImpl;
+        this.asyncSaveGoogleContact = asyncSaveGoogleContact;
     }
 
     @Override
@@ -109,6 +109,6 @@ public class AsyncGoogleContactServiceImpl implements AsyncGoogleContactService 
 
     private void saveGoogleContact(User user, Long id, GooglePeopleModel googlePeopleModel, Long contactId,
                                    BiFunction<GoogleContactDataModel, Auth, Void> save) {
-        this.asyncSaveGoogleContactImpl.saveGoogleContact(user, id, contactId, googlePeopleModel, save);
+        this.asyncSaveGoogleContact.saveGoogleContact(user, id, contactId, googlePeopleModel, save);
     }
 }
