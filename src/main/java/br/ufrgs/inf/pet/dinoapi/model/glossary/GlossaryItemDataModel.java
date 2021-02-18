@@ -11,6 +11,7 @@ public class GlossaryItemDataModel extends SynchronizableDataLocalIdModel<Long> 
     @Size(min = GlossaryConstants.TITLE_MIN, max = GlossaryConstants.TITLE_MAX, message = GlossaryConstants.TITLE_MESSAGE)
     private String title;
 
+    @NotNull(message = GlossaryConstants.TEXT_NULL_MESSAGE)
     @Size(max = GlossaryConstants.TEXT_MAX, message = GlossaryConstants.TEXT_MESSAGE)
     private String text;
 
