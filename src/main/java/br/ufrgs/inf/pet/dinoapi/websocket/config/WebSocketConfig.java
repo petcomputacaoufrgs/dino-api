@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.config;
 
-import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.AppConfig;
 import br.ufrgs.inf.pet.dinoapi.websocket.interceptor.WebSocketUserInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
