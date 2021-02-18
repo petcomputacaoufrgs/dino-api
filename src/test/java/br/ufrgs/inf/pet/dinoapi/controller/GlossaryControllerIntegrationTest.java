@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @TestPropertySource(locations="classpath:test.properties")
 @AutoConfigureMockMvc
-public class GlossaryControllerTest {
+public class GlossaryControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
 

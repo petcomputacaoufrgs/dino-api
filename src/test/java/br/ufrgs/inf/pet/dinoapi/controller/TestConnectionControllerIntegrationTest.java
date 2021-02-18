@@ -18,9 +18,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = SpringTestConfig.class
 )
-@TestPropertySource(locations="classpath:integration-test.properties")
+@TestPropertySource(locations= "classpath:test.properties")
 @AutoConfigureMockMvc
-public class TestConnectionControllerTest {
+public class TestConnectionControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
 
