@@ -22,9 +22,4 @@ public interface UserRepository extends CrudRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.userSettings.includeEssentialContact = true AND u.userSettings.treatment IN :treatments")
     List<User> findUserBySaveEssentialContactsAndTreatments(@Param("treatments") List<Treatment> treatments);
-
-    @Modifying
-    @Transactional
-    @Query("DELETE FROM User u WHERE u.id = :id")
-    void deleteUser(@Param("id") Long id);
 }
