@@ -11,7 +11,7 @@ import static br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants.*;
 @Entity
 @Table(name = "glossary_item")
 public class GlossaryItem extends SynchronizableEntity<Long> {
-    @Column(name = "title", length = TITLE_MAX, nullable = false, unique = true)
+    @Column(name = "title", length = TITLE_MAX_ENTITY, nullable = false, unique = true)
     private String title;
 
     @Column(name = "text", length = TEXT_MAX, nullable = false)

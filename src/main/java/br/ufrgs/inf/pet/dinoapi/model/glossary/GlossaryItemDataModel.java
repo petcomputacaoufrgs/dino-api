@@ -6,7 +6,11 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
+
 public class GlossaryItemDataModel extends SynchronizableDataLocalIdModel<Long> {
+    private static String REPEAT_SEPARATOR_START = "[[";
+    private static String REPEAT_SEPARATOR_END = "]]R";
+
     @NotNull(message = GlossaryConstants.TITLE_NULL_MESSAGE)
     @Size(min = GlossaryConstants.TITLE_MIN, max = GlossaryConstants.TITLE_MAX, message = GlossaryConstants.TITLE_MESSAGE)
     private String title;
@@ -26,7 +30,18 @@ public class GlossaryItemDataModel extends SynchronizableDataLocalIdModel<Long> 
     }
 
     public void setTitle(String title) {
+        if (title.endsWith(REPEAT_SEPARATOR_END)) {
+            title = title.substring(0, title.length() - 1);
+        }
         this.title = title;
+    }
+
+    public void directSetTitle(String title) {
+        this.title = title;
+    }
+
+    public void changeRepeatedTitle(Long id) {
+        this.title = title + " " + REPEAT_SEPARATOR_START + id.toString() + REPEAT_SEPARATOR_END;
     }
 
     public String getText() {

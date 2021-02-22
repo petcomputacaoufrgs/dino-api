@@ -13,8 +13,8 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository> {
@@ -26,12 +26,29 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     }
 
     @Override
+    protected List<GlossaryItemDataModel> treatBeforeSaveAll(List<GlossaryItemDataModel> models) {
+        models = this.removeRepeatedTitlesInModels(models);
+
+        this.treatRepeatedTitles(models);
+
+        return models;
+    }
+
+    @Override
+    protected void treatBeforeSave(GlossaryItemDataModel model) {
+        final Optional<GlossaryItem> entitySearch = this.repository.findByTitle(model.getTitle());
+        entitySearch.ifPresent(entity -> {
+            model.setId(entity.getId());
+        });
+    }
+
+    @Override
     public GlossaryItemDataModel convertEntityToModel(GlossaryItem entity) {
         final GlossaryItemDataModel model = new GlossaryItemDataModel();
         model.setText(entity.getText());
         model.setSubtitle(entity.getSubtitle());
         model.setFullText(entity.getFullText());
-        model.setTitle(entity.getTitle());
+        model.directSetTitle(entity.getTitle());
 
         return model;
     }
@@ -83,5 +100,39 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.GLOSSARY;
+    }
+
+    private List<GlossaryItemDataModel> removeRepeatedTitlesInModels(List<GlossaryItemDataModel> models) {
+        final HashMap<String, GlossaryItemDataModel> titleHashMap = new HashMap<>();
+        for(GlossaryItemDataModel model : models) {
+            GlossaryItemDataModel existentItem = titleHashMap.get(model.getTitle());
+            if (existentItem == null || existentItem.getLastUpdate().isBefore(model.getLastUpdate())) {
+                titleHashMap.put(model.getTitle(), model);
+            }
+        }
+
+        return new ArrayList<>(titleHashMap.values());
+    }
+
+    private void treatRepeatedTitles(List<GlossaryItemDataModel> models) {
+        final List<String> titles = models.stream().map(GlossaryItemDataModel::getTitle).collect(Collectors.toList());
+        final List<GlossaryItem> entities = this.repository.findAllByTitlesOrderedByTitle(titles);
+        if (entities.size() > 0) {
+            final List<GlossaryItemDataModel> orderedModels = models.stream().sorted(Comparator.comparing(GlossaryItemDataModel::getTitle)).collect(Collectors.toList());
+            int count = 0;
+            GlossaryItem entity;
+            for (GlossaryItemDataModel model : orderedModels) {
+                if (count >= entities.size()) break;
+                entity = entities.get(count);
+                if (model.getTitle().equals(entity.getTitle())) {
+                    if (model.getId() == null) {
+                        model.setId(entity.getId());
+                    } else if (!entity.getId().equals(model.getId())) {
+                        model.changeRepeatedTitle(model.getId());
+                    }
+                }
+                count++;
+            }
+        }
     }
 }

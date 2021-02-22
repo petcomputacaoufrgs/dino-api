@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.constants;
 
 public final class GlossaryConstants {
     public final static int TITLE_MAX = 50;
+    public final static int TITLE_MAX_ENTITY = 70;
     public final static int TITLE_MIN = 1;
     public final static String TITLE_MESSAGE = "title should be between " + TITLE_MIN + " and " + TITLE_MAX + " characters.";
     public final static String TITLE_NULL_MESSAGE = "title should not be null..";

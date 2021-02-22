@@ -19,6 +19,12 @@ public interface GlossaryItemRepository extends CrudRepository<GlossaryItem, Lon
     @Query("SELECT gi FROM GlossaryItem gi WHERE gi.id IN :ids")
     List<GlossaryItem> findByIds(@Param("ids") List<Long> ids);
 
-    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.id IN :ids")
+    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.id NOT IN :ids")
     List<GlossaryItem> findAllExcludingIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.title = :title")
+    Optional<GlossaryItem> findByTitle(@Param("title") String title);
+
+    @Query("SELECT gi FROM GlossaryItem gi WHERE gi.title IN :titles ORDER BY gi.title")
+    List<GlossaryItem> findAllByTitlesOrderedByTitle(@Param("titles") List<String> titles);
 }
