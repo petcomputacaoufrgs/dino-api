@@ -12,7 +12,7 @@ public class FaqUserQuestionDataModel extends SynchronizableDataLocalIdModel<Lon
     private Long treatmentId;
 
     @NotNull(message = QUESTION_NULL_MESSAGE)
-    @Size(min = 1, max = TREATMENT_QUESTION_MAX, message = QUESTION_SIZE_MESSAGE)
+    @Size(min = 1, max = TREATMENT_USER_QUESTION_MAX, message = QUESTION_SIZE_MESSAGE)
     private String question;
 
     public FaqUserQuestionDataModel() {

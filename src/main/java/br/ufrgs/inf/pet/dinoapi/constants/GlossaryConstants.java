@@ -1,13 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
 public final class GlossaryConstants {
-    public final static String ITEM_ID_NULL_MESSAGE = "id from item should not be null..";
-
-    public final static String ITEM_LIST_NULL_MESSAGE = "itemList should not be null..";
-
-    public final static String VERSION_NULL_MESSAGE = "version should not be null..";
-
-    public final static String EXISTS_NULL_MESSAGE = "exists should not be null..";
 
     public final static int TITLE_MAX = 50;
     public final static int TITLE_MIN = 1;

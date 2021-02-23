@@ -6,12 +6,12 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.TREATMENT_QUESTION_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.FaqConstants.TREATMENT_USER_QUESTION_MAX;
 
 @Entity
 @Table(name = "treatment_question")
 public class TreatmentQuestion extends SynchronizableEntity<Long> {
-    @Column(name = "question", length = TREATMENT_QUESTION_MAX, nullable = false)
+    @Column(name = "question", length = TREATMENT_USER_QUESTION_MAX, nullable = false)
     private String question;
 
     @ManyToOne(fetch = FetchType.LAZY)
