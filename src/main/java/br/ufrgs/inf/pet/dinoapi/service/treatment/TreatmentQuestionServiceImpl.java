@@ -1,20 +1,19 @@
-package br.ufrgs.inf.pet.dinoapi.service.faq;
+package br.ufrgs.inf.pet.dinoapi.service.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.faq.FaqUserQuestionDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentQuestionDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserQuestionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,22 +21,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<TreatmentQuestion, Long, FaqUserQuestionDataModel, FaqUserQuestionRepository> {
+public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<TreatmentQuestion, Long, TreatmentQuestionDataModel, FaqUserQuestionRepository> {
 
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
-    public FaqUserQuestionServiceImpl(FaqUserQuestionRepository repository, OAuthServiceImpl authService,
-                                      TreatmentServiceImpl treatmentService, ClockServiceImpl clockService,
-                                      LogAPIErrorServiceImpl logAPIErrorService,
-                                      SynchronizableQueueMessageService<Long, FaqUserQuestionDataModel> synchronizableQueueMessageService) {
-        super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
+    public TreatmentQuestionServiceImpl(FaqUserQuestionRepository repository, OAuthServiceImpl authService,
+                                        TreatmentServiceImpl treatmentService, ClockServiceImpl clockService,
+                                        LogAPIErrorServiceImpl logAPIErrorService,
+                                        SynchronizableTopicMessageService<Long, TreatmentQuestionDataModel> synchronizableTopicMessageService) {
+        super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;
     }
 
     @Override
-    public FaqUserQuestionDataModel convertEntityToModel(TreatmentQuestion entity) {
-        final FaqUserQuestionDataModel model = new FaqUserQuestionDataModel();
+    public TreatmentQuestionDataModel convertEntityToModel(TreatmentQuestion entity) {
+        final TreatmentQuestionDataModel model = new TreatmentQuestionDataModel();
         model.setQuestion(entity.getQuestion());
         model.setTreatmentId(entity.getTreatment().getId());
 
@@ -45,7 +44,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<Treatm
     }
 
     @Override
-    public TreatmentQuestion convertModelToEntity(FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public TreatmentQuestion convertModelToEntity(TreatmentQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
             final Optional<Treatment> faq = treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
 
@@ -66,7 +65,7 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<Treatm
     }
 
     @Override
-    public void updateEntity(TreatmentQuestion entity, FaqUserQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public void updateEntity(TreatmentQuestion entity, TreatmentQuestionDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
             if (!entity.getTreatment().getId().equals(model.getTreatmentId())) {
                 final Optional<Treatment> faq = treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
@@ -127,6 +126,6 @@ public class FaqUserQuestionServiceImpl extends SynchronizableServiceImpl<Treatm
 
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
-        return WebSocketDestinationsEnum.FAQ_USER_QUESTION;
+        return WebSocketDestinationsEnum.TREATMENT_QUESTION;
     }
 }

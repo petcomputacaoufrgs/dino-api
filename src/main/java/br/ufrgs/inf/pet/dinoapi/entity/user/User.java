@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.TreatmentQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 

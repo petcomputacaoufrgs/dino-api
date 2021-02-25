@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.repository.faq;
 
-import br.ufrgs.inf.pet.dinoapi.entity.faq.TreatmentQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

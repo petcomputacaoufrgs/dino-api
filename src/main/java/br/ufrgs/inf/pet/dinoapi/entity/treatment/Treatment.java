@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.treatment;
 import br.ufrgs.inf.pet.dinoapi.constants.TreatmentConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 

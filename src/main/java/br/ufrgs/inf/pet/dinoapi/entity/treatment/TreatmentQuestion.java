@@ -1,7 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.entity.faq;
+package br.ufrgs.inf.pet.dinoapi.entity.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
-import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;

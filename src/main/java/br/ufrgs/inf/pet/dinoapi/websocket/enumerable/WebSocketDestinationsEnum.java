@@ -13,8 +13,7 @@ public enum WebSocketDestinationsEnum {
     USER_SETTINGS("user_settings"),
     TREATMENT("treatment"),
     FAQ_ITEM("faq_item"),
-    FAQ("faq"),
-    FAQ_USER_QUESTION("faq_user_question"),
+    TREATMENT_QUESTION("treatment_question"),
     LOGOUT_REQUEST("logout_request"),
     STAFF("staff");
 
