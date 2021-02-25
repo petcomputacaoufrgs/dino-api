@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.repository.faq;
+package br.ufrgs.inf.pet.dinoapi.repository.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface FaqUserQuestionRepository extends CrudRepository<TreatmentQuestion, Long> {
+public interface TreatmentQuestionRepository extends CrudRepository<TreatmentQuestion, Long> {
     @Query("SELECT n FROM TreatmentQuestion n WHERE n.id = :id AND n.user.id = :userId")
     Optional<TreatmentQuestion> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 

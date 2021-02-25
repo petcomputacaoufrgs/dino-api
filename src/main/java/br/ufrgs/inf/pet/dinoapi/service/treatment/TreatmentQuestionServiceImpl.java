@@ -7,7 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentQuestionDataModel;
-import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqUserQuestionRepository;
+import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentQuestionRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -21,12 +21,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<TreatmentQuestion, Long, TreatmentQuestionDataModel, FaqUserQuestionRepository> {
+public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<TreatmentQuestion, Long, TreatmentQuestionDataModel, TreatmentQuestionRepository> {
 
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
-    public TreatmentQuestionServiceImpl(FaqUserQuestionRepository repository, OAuthServiceImpl authService,
+    public TreatmentQuestionServiceImpl(TreatmentQuestionRepository repository, OAuthServiceImpl authService,
                                         TreatmentServiceImpl treatmentService, ClockServiceImpl clockService,
                                         LogAPIErrorServiceImpl logAPIErrorService,
                                         SynchronizableTopicMessageService<Long, TreatmentQuestionDataModel> synchronizableTopicMessageService) {
