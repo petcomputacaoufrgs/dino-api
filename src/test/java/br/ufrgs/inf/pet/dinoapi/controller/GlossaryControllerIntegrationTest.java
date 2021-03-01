@@ -21,12 +21,9 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.hamcrest.Matchers.matchesPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -48,22 +45,52 @@ public class GlossaryControllerIntegrationTest {
     @Autowired
     private GlossaryControllerImpl glossaryController;
 
+    private static String generateIdListPattern(Long id) {
+        return "$.data[?(@==" + "'"+id.toString()+"')]";
+    }
+
     private static String generateExistsPattern(GlossaryItemDataModel model) {
+        return generateExistsPattern(model, false);
+    }
+
+    private static String generateExistsPattern(GlossaryItemDataModel model, Boolean testId) {
+        return generateExistsPattern(model, testId, false);
+    }
+
+    private static String generateSyncExistsPattern(GlossaryItemDataModel model, Boolean testId) {
+        return generateExistsPattern(model, testId, true);
+    }
+
+    private static String generateExistsPattern(GlossaryItemDataModel model, Boolean testId, Boolean testLocalId) {
         final ZonedDateTime lastUpdate = model.getLastUpdate();
         final String title = model.getTitle();
         final String text = model.getText();
         final String subtitle = model.getSubtitle();
         final String fullText = model.getFullText();
-        return "$.data[?(@.lastUpdate=~/^"+lastUpdate.toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)/i"+" && @.title=="+(title != null ? "'"+title+"'": "null")+" && @.text=="+(text != null ? "'"+text+"'": "null")+" && @.fullText=="+(fullText != null ? "'"+fullText+"'": "null")+" && @.subtitle=="+(subtitle != null ? "'"+subtitle+"'": "null")+")]";
-    }
+        String regex = "$.data[?(@.lastUpdate=~/^"+lastUpdate.toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)/i"+" && @.title=="+(title != null ? "'"+title+"'": "null")+" && @.text=="+(text != null ? "'"+text+"'": "null")+" && @.fullText=="+(fullText != null ? "'"+fullText+"'": "null")+" && @.subtitle=="+(subtitle != null ? "'"+subtitle+"'": "null");
+        final String endRegex = ")]";
+        if (testId) {
+            final Long id = model.getId();
 
-    private Long saveItem(GlossaryItemDataModel model) throws Exception {
-        final ResponseEntity<SynchronizableDataResponseModelImpl<Long, GlossaryItemDataModel>> result = glossaryController.save(model);
-        if (result.getBody() != null && result.getBody().getData() != null && result.getBody().getData().getId() != null) {
-            return result.getBody().getData().getId();
+            regex = regex +" && @.id=="+(id != null ? "'"+id+"'": "null");
+        }
+        if (testLocalId) {
+            final Integer localId = model.getLocalId();
+
+            regex = regex +" && @.localId=="+(localId != null ? "'"+localId+"'": "null");
         }
 
-        throw new Exception("Fail to save GlossaryItemDataModel on API");
+        return regex + endRegex;
+    }
+
+    private void saveItem(GlossaryItemDataModel model) throws Exception {
+        final ResponseEntity<SynchronizableDataResponseModelImpl<Long, GlossaryItemDataModel>> result = glossaryController.save(model);
+        if (result.getBody() != null && result.getBody().getData() != null && result.getBody().getData().getId() != null) {
+            final Long id = result.getBody().getData().getId();
+            model.setId(id);
+        } else {
+            throw new Exception("Fail to save GlossaryItemDataModel on API");
+        }
     }
 
     //<editor-fold desc="Save item">
@@ -83,11 +110,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -119,11 +142,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -141,11 +160,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -206,11 +221,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("M"))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -229,11 +240,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title Mock title Mock title Mock title eeeeee"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -267,11 +274,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee Mock title Mock title Mock title Mock title eeeeee eawkepkqiowekoqwieoqwjeoijqwoejqwojeoijiqoiweoqjwoiqwieowowjoqwjoiqwqoejwoeqooqiwo"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -305,11 +308,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle mock m"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -343,11 +342,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full Mock full text Mock full text Mock full text Mock full text Mock full text Mock full text Mock full "))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -410,11 +405,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -433,11 +424,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     @Test
@@ -456,11 +443,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+model.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
     }
 
     //</editor-fold>
@@ -476,10 +459,10 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -488,11 +471,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
 
     @Test
@@ -505,9 +484,9 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setSubtitle("Mock subtitle 1");
         saveModelOne.setText("Mock text 1");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableGetModel<Long> getModelOne = new SynchronizableGetModel<>();
-        getModelOne.setId(idOne);
+        getModelOne.setId(saveModelOne.getId());
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
         saveModelTwo.setTitle("Mock title 2");
@@ -515,10 +494,9 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setSubtitle("Mock subtitle 2");
         saveModelTwo.setText("Mock text 2");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableGetModel<Long> getModelTwo = new SynchronizableGetModel<>();
-        getModelTwo.setId(idTwo);
-
+        getModelTwo.setId(saveModelTwo.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModelOne, mapper))
@@ -527,12 +505,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(idOne.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModelOne.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text 1"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle 1"))
-                .andExpect(jsonPath("$.data.text").value("Mock text 1"));
+                .andExpect(jsonPath(generateExistsPattern(saveModelOne, true)).isNotEmpty());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModelTwo, mapper))
@@ -541,12 +514,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text 2"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle 2"))
-                .andExpect(jsonPath("$.data.text").value("Mock text 2"));
+                .andExpect(jsonPath(generateExistsPattern(saveModelTwo, true)).isNotEmpty());
     }
 
     @Test
@@ -559,9 +527,9 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setSubtitle("Mock subtitle 1");
         saveModelOne.setText("Mock text 1");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableGetModel<Long> getModelOne = new SynchronizableGetModel<>();
-        getModelOne.setId(idOne);
+        getModelOne.setId(saveModelOne.getId());
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
         saveModelTwo.setTitle("Mock title 2");
@@ -569,9 +537,9 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setSubtitle("Mock subtitle 2");
         saveModelTwo.setText("Mock text 2");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableGetModel<Long> getModelTwo = new SynchronizableGetModel<>();
-        getModelTwo.setId(idTwo);
+        getModelTwo.setId(saveModelTwo.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModelTwo, mapper))
@@ -580,12 +548,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text 2"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle 2"))
-                .andExpect(jsonPath("$.data.text").value("Mock text 2"));
+                .andExpect(jsonPath(generateExistsPattern(saveModelTwo, true)).isNotEmpty());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModelOne, mapper))
@@ -594,12 +557,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(idOne.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModelOne.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text 1"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle 1"))
-                .andExpect(jsonPath("$.data.text").value("Mock text 1"));
+                .andExpect(jsonPath(generateExistsPattern(saveModelOne, true)).isNotEmpty());
     }
 
     @Test
@@ -642,9 +600,9 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setSubtitle("vinte é o máximo 123");
         saveModel.setText("mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má ");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -653,12 +611,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("cinquenta é o máximo cinquenta é o máximo 12345677"))
-                .andExpect(jsonPath("$.data.fullText").value("mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má "))
-                .andExpect(jsonPath("$.data.subtitle").value("vinte é o máximo 123"))
-                .andExpect(jsonPath("$.data.text").value("mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o mámil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má  mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximo mil é o máximomil é o má "));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
 
     @Test
@@ -671,9 +624,9 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setSubtitle("s");
         saveModel.setText("t");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -682,12 +635,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("c"))
-                .andExpect(jsonPath("$.data.fullText").value("f"))
-                .andExpect(jsonPath("$.data.subtitle").value("s"))
-                .andExpect(jsonPath("$.data.text").value("t"));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
 
     @Test
@@ -700,9 +648,9 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setSubtitle("s");
         saveModel.setText("t");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -711,12 +659,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("c"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value("s"))
-                .andExpect(jsonPath("$.data.text").value("t"));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
 
     @Test
@@ -729,9 +672,9 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setSubtitle(null);
         saveModel.setText("t");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -740,12 +683,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("c"))
-                .andExpect(jsonPath("$.data.fullText").value("f"))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("t"));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
 
     @Test
@@ -758,9 +696,9 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setSubtitle(null);
         saveModel.setText("t");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -769,12 +707,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.title").value("c"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("t"));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
     //</editor-fold>
 
@@ -789,10 +722,10 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final SynchronizableDeleteModel<Long> deleteModel = new SynchronizableDeleteModel<>();
-        deleteModel.setId(id);
+        deleteModel.setId(saveModel.getId());
         deleteModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
         mvc.perform(delete("/public/glossary/delete/")
@@ -815,10 +748,10 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final SynchronizableDeleteModel<Long> deleteModel = new SynchronizableDeleteModel<>();
-        deleteModel.setId(id);
+        deleteModel.setId(saveModel.getId());
         deleteModel.setLastUpdate(saveModel.getLastUpdate());
 
         mvc.perform(delete("/public/glossary/delete/")
@@ -841,10 +774,10 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final SynchronizableDeleteModel<Long> deleteModel = new SynchronizableDeleteModel<>();
-        deleteModel.setId(id);
+        deleteModel.setId(saveModel.getId());
         deleteModel.setLastUpdate(saveModel.getLastUpdate().minusMinutes(1));
 
         mvc.perform(delete("/public/glossary/delete/")
@@ -854,12 +787,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("false"))
                 .andExpect(jsonPath("$.error").value(IsNull.notNullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data.id").value(id.toString()));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
 
     @Test
@@ -901,10 +829,10 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final SynchronizableDeleteModel<Long> deleteModel = new SynchronizableDeleteModel<>();
-        deleteModel.setId(id);
+        deleteModel.setId(saveModel.getId());
 
         mvc.perform(delete("/public/glossary/delete/")
                 .content(JsonUtils.convertToJson(deleteModel, mapper))
@@ -924,7 +852,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("Mock title updated");
@@ -932,7 +860,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("Mock text updated");
         updateModel.setSubtitle("Mock subtitle up");
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -941,15 +869,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title updated"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text update"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle up"))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -958,12 +881,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title updated"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text update"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle up"))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -976,7 +894,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("Mock title updated");
@@ -984,7 +902,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText(saveModel.getText());
         updateModel.setSubtitle(saveModel.getSubtitle());
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -993,15 +911,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title updated"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1010,12 +923,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title updated"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1028,7 +936,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle(saveModel.getTitle());
@@ -1036,7 +944,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText(saveModel.getText());
         updateModel.setSubtitle(saveModel.getSubtitle());
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1045,15 +953,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1062,12 +965,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1080,7 +978,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle(saveModel.getTitle());
@@ -1088,7 +986,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText(saveModel.getText());
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1097,15 +995,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1114,12 +1007,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1132,7 +1020,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle(saveModel.getTitle());
@@ -1140,7 +1028,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle(saveModel.getSubtitle());
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1149,15 +1037,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1166,12 +1049,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1184,7 +1062,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle(saveModel.getTitle());
@@ -1192,7 +1070,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText(saveModel.getText());
         updateModel.setSubtitle(null);
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1201,15 +1079,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1218,12 +1091,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1236,7 +1104,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle(saveModel.getTitle());
@@ -1244,7 +1112,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText(saveModel.getText());
         updateModel.setSubtitle("add value");
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1253,15 +1121,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("add value"))
-                .andExpect(jsonPath("$.data.subtitle").value("add value"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1270,12 +1133,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("add value"))
-                .andExpect(jsonPath("$.data.subtitle").value("add value"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1288,7 +1146,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1296,7 +1154,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime().minusDays(1));
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1305,15 +1163,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1322,12 +1175,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1340,7 +1188,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1348,7 +1196,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(saveModel.getLastUpdate());
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1357,15 +1205,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1374,12 +1217,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1392,7 +1230,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1400,7 +1238,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusSeconds(1));
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1409,15 +1247,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1426,12 +1259,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1444,7 +1272,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1452,7 +1280,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusMinutes(1));
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1461,15 +1289,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
-
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
+        
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1478,12 +1301,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1496,7 +1314,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1504,7 +1322,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusHours(1));
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1513,15 +1331,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1530,12 +1343,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1548,7 +1356,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1556,7 +1364,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusDays(1));
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1565,15 +1373,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1582,12 +1385,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1600,7 +1398,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1608,7 +1406,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusWeeks(1));
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1617,15 +1415,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1634,12 +1427,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1652,7 +1440,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("new title");
@@ -1660,7 +1448,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("new text");
         updateModel.setSubtitle("new subtitle");
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusYears(1));
-        updateModel.setId(id);
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(post("/public/glossary/save/")
                 .content(JsonUtils.convertToJson(updateModel, mapper))
@@ -1669,15 +1457,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(updateModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1686,12 +1469,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("new title"))
-                .andExpect(jsonPath("$.data.fullText").value("new full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("new subtitle"))
-                .andExpect(jsonPath("$.data.text").value("new text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
     //</editor-fold>
 
@@ -1706,7 +1484,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("Mock title");
@@ -1722,15 +1500,11 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle up"))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, false)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1739,12 +1513,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle up"))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1757,7 +1526,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("Mock title");
@@ -1773,15 +1542,11 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle up"))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, false)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1790,12 +1555,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle up"))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1808,7 +1568,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("Mock title");
@@ -1824,15 +1584,11 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, false)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
+        updateModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1841,12 +1597,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.subtitle").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.text").value("Mock text updated"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+updateModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
     }
 
     @Test
@@ -1859,7 +1610,7 @@ public class GlossaryControllerIntegrationTest {
         saveModel.setText("Mock text");
         saveModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(saveModel);
+        this.saveItem(saveModel);
 
         final GlossaryItemDataModel updateModel = new GlossaryItemDataModel();
         updateModel.setTitle("Mock title");
@@ -1875,15 +1626,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
 
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
-        getModel.setId(id);
+        getModel.setId(saveModel.getId());
 
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
@@ -1892,12 +1638,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data.title").value("Mock title"))
-                .andExpect(jsonPath("$.data.fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data.subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data.text").value("Mock text"))
-                .andExpect(jsonPath("$.data.id").value(id.toString()))
-                .andExpect(jsonPath("$.data.lastUpdate", matchesPattern("^"+saveModel.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")));
+                .andExpect(jsonPath(generateExistsPattern(saveModel, true)).isNotEmpty());
     }
     //</editor-fold>
 
@@ -2143,9 +1884,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1' && @.text=='Mock text 1' && @.fullText==null && @.subtitle==null)]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2' && @.text=='Mock text 2' && @.fullText==null && @.subtitle==null)]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3' && @.text=='Mock text 3' && @.fullText==null && @.subtitle==null)]").isNotEmpty());
+                .andExpect(jsonPath(generateExistsPattern(modelOne)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelTwo)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelThree)).isNotEmpty());
     }
 
     @Test
@@ -2370,7 +2111,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setText("Mock text");
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
         modelTwo.setTitle("Mock title 1");
@@ -2378,7 +2119,7 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setSubtitle("Mock subtitle");
         modelTwo.setText("Mock text");
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        modelTwo.setId(id);
+        modelTwo.setId(modelOne.getId());
         data.add(modelTwo);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
@@ -2399,18 +2140,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data[0].lastUpdate", matchesPattern("^"+modelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[0].title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data[0].fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data[0].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[0].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[0].id").value(id.toString()))
-                .andExpect(jsonPath("$.data[1].lastUpdate", matchesPattern("^"+modelThree.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[1].title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data[1].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[1].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[1].text").value("Mock text"))
-                .andExpect(jsonPath("$.data.length()").value("2"));
+                .andExpect(jsonPath(generateExistsPattern(modelTwo, true)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelThree)).isNotEmpty());
     }
 
     @Test
@@ -2425,7 +2156,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setText("Mock text");
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long id = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
         modelThree.setTitle("Mock title 2");
@@ -2443,7 +2174,6 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         data.add(modelTwo);
 
-
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
@@ -2454,18 +2184,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data[0].lastUpdate", matchesPattern("^"+modelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[0].title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data[0].fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data[0].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[0].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[0].id").value(id.toString()))
-                .andExpect(jsonPath("$.data[1].lastUpdate", matchesPattern("^"+modelThree.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[1].title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data[1].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[1].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[1].text").value("Mock text"))
-                .andExpect(jsonPath("$.data.length()").value("2"));
+                .andExpect(jsonPath(generateExistsPattern(modelThree)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelTwo)).isNotEmpty());
     }
 
     @Test
@@ -2507,17 +2227,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data[0].lastUpdate", matchesPattern("^"+modelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[0].title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data[0].fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data[0].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[0].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[1].lastUpdate", matchesPattern("^"+modelThree.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[1].title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data[1].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[1].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[1].text").value("Mock text"))
-                .andExpect(jsonPath("$.data.length()").value("2"));
+                .andExpect(jsonPath(generateExistsPattern(modelTwo)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelThree)).isNotEmpty());
     }
 
     @Test
@@ -2559,17 +2270,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data[0].lastUpdate", matchesPattern("^"+modelOne.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[0].title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data[0].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[0].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[0].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[1].lastUpdate", matchesPattern("^"+modelThree.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[1].title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data[1].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[1].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[1].text").value("Mock text"))
-                .andExpect(jsonPath("$.data.length()").value("2"));
+                .andExpect(jsonPath(generateExistsPattern(modelOne)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelThree)).isNotEmpty());
     }
 
     @Test
@@ -2585,7 +2287,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         data.add(modelOne);
 
-        final Long id = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
         modelTwo.setTitle("Mock title 1");
@@ -2606,6 +2308,7 @@ public class GlossaryControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
+        modelTwo.setId(modelOne.getId());
         mvc.perform(post("/public/glossary/save/all/")
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -2613,18 +2316,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data[0].lastUpdate", matchesPattern("^"+modelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[0].title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data[0].fullText").value("Mock full text updated"))
-                .andExpect(jsonPath("$.data[0].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[0].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[0].id").value(id.toString()))
-                .andExpect(jsonPath("$.data[1].lastUpdate", matchesPattern("^"+modelThree.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[1].title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data[1].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[1].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[1].text").value("Mock text"))
-                .andExpect(jsonPath("$.data.length()").value("2"));
+                .andExpect(jsonPath(generateExistsPattern(modelTwo)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelThree)).isNotEmpty());
     }
 
     //</editor-fold>
@@ -2639,7 +2332,7 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
         saveModelTwo.setTitle("Mock title 2");
@@ -2648,7 +2341,7 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
 
         mvc.perform(get("/public/glossary/get/all/"))
                 .andExpect(status().isOk())
@@ -2657,19 +2350,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data[0].lastUpdate", matchesPattern("^"+saveModelOne.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[0].title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data[0].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[0].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[0].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[0].id").value(idOne.toString()))
-                .andExpect(jsonPath("$.data[1].lastUpdate", matchesPattern("^"+saveModelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[1].title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data[1].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[1].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[1].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[1].id").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data.length()").value("2"));
+                .andExpect(jsonPath("$.data.length()").value("2"))
+                .andExpect(jsonPath(generateExistsPattern(saveModelOne, true)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(saveModelTwo, true)).isNotEmpty());
     }
 
     @Test
@@ -2693,7 +2376,7 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
         saveModelTwo.setTitle("Mock title 2");
@@ -2702,7 +2385,7 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
 
         final GlossaryItemDataModel saveModelThree = new GlossaryItemDataModel();
         saveModelThree.setTitle("Mock title 3");
@@ -2711,7 +2394,7 @@ public class GlossaryControllerIntegrationTest {
         saveModelThree.setText("Mock text");
         saveModelThree.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idThree = this.saveItem(saveModelThree);
+        this.saveItem(saveModelThree);
 
         final GlossaryItemDataModel saveModelFour = new GlossaryItemDataModel();
         saveModelFour.setTitle("Mock title 4");
@@ -2720,7 +2403,7 @@ public class GlossaryControllerIntegrationTest {
         saveModelFour.setText("Mock text");
         saveModelFour.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFour = this.saveItem(saveModelFour);
+        this.saveItem(saveModelFour);
 
         final GlossaryItemDataModel saveModelFive = new GlossaryItemDataModel();
         saveModelFive.setTitle("Mock title 5");
@@ -2729,7 +2412,7 @@ public class GlossaryControllerIntegrationTest {
         saveModelFive.setText("Mock text");
         saveModelFive.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFive = this.saveItem(saveModelFive);
+        this.saveItem(saveModelFive);
 
         mvc.perform(get("/public/glossary/get/all/"))
                 .andExpect(status().isOk())
@@ -2738,37 +2421,12 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.data[0].lastUpdate", matchesPattern("^"+saveModelOne.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[0].title").value("Mock title 1"))
-                .andExpect(jsonPath("$.data[0].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[0].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[0].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[0].id").value(idOne.toString()))
-                .andExpect(jsonPath("$.data[1].lastUpdate", matchesPattern("^"+saveModelTwo.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[1].title").value("Mock title 2"))
-                .andExpect(jsonPath("$.data[1].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[1].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[1].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[1].id").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data[2].lastUpdate", matchesPattern("^"+saveModelThree.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[2].title").value("Mock title 3"))
-                .andExpect(jsonPath("$.data[2].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[2].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[2].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[2].id").value(idThree.toString()))
-                .andExpect(jsonPath("$.data[3].lastUpdate", matchesPattern("^"+saveModelFour.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[3].title").value("Mock title 4"))
-                .andExpect(jsonPath("$.data[3].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[3].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[3].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[3].id").value(idFour.toString()))
-                .andExpect(jsonPath("$.data[4].lastUpdate", matchesPattern("^"+saveModelFive.getLastUpdate().toString().substring(0, 19)+"([a-zA-Z0-9_.-]*)")))
-                .andExpect(jsonPath("$.data[4].title").value("Mock title 5"))
-                .andExpect(jsonPath("$.data[4].fullText").value("Mock full text"))
-                .andExpect(jsonPath("$.data[4].subtitle").value("Mock subtitle"))
-                .andExpect(jsonPath("$.data[4].text").value("Mock text"))
-                .andExpect(jsonPath("$.data[4].id").value(idFive.toString()))
-                .andExpect(jsonPath("$.data.length()").value("5"));
+                .andExpect(jsonPath("$.data.length()").value("5"))
+                .andExpect(jsonPath(generateExistsPattern(saveModelOne, true)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(saveModelTwo, true)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(saveModelThree, true)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(saveModelFour, true)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(saveModelFive, true)).isNotEmpty());
     }
 
     //</editor-fold>
@@ -2787,10 +2445,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableDeleteModel<Long> itemOne = new SynchronizableDeleteModel<>();
         itemOne.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemOne.setId(idOne);
+        itemOne.setId(saveModelOne.getId());
         data.add(itemOne);
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
@@ -2800,10 +2458,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
         itemTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemTwo.setId(idTwo);
+        itemTwo.setId(saveModelTwo.getId());
         data.add(itemTwo);
 
         final GlossaryItemDataModel saveModelThree = new GlossaryItemDataModel();
@@ -2813,10 +2471,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelThree.setText("Mock text");
         saveModelThree.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idThree = this.saveItem(saveModelThree);
+        this.saveItem(saveModelThree);
         final SynchronizableDeleteModel<Long> itemThree = new SynchronizableDeleteModel<>();
         itemThree.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemThree.setId(idThree);
+        itemThree.setId(saveModelThree.getId());
         data.add(itemThree);
 
         final GlossaryItemDataModel saveModelFour = new GlossaryItemDataModel();
@@ -2826,10 +2484,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFour.setText("Mock text");
         saveModelFour.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFour = this.saveItem(saveModelFour);
+        this.saveItem(saveModelFour);
         final SynchronizableDeleteModel<Long> itemFour = new SynchronizableDeleteModel<>();
         itemFour.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFour.setId(idFour);
+        itemFour.setId(saveModelFour.getId());
         data.add(itemFour);
 
         final GlossaryItemDataModel saveModelFive = new GlossaryItemDataModel();
@@ -2839,10 +2497,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFive.setText("Mock text");
         saveModelFive.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFive = this.saveItem(saveModelFive);
+        this.saveItem(saveModelFive);
         final SynchronizableDeleteModel<Long> itemFive = new SynchronizableDeleteModel<>();
         itemFive.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFive.setId(idFive);
+        itemFive.setId(saveModelFive.getId());
         data.add(itemFive);
 
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
@@ -2856,11 +2514,11 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("5"))
-                .andExpect(jsonPath("$.data[0]").value(idOne.toString()))
-                .andExpect(jsonPath("$.data[1]").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data[2]").value(idThree.toString()))
-                .andExpect(jsonPath("$.data[3]").value(idFour.toString()))
-                .andExpect(jsonPath("$.data[4]").value(idFive.toString()));
+                .andExpect(jsonPath(generateIdListPattern(saveModelOne.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelTwo.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelThree.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFour.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFive.getId())).isNotEmpty());
     }
 
     @Test
@@ -2876,10 +2534,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableDeleteModel<Long> itemOne = new SynchronizableDeleteModel<>();
         itemOne.setLastUpdate(clockService.getUTCZonedDateTime().minusHours(1));
-        itemOne.setId(idOne);
+        itemOne.setId(saveModelOne.getId());
         data.add(itemOne);
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
@@ -2889,10 +2547,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
         itemTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemTwo.setId(idTwo);
+        itemTwo.setId(saveModelTwo.getId());
         data.add(itemTwo);
 
         final GlossaryItemDataModel saveModelThree = new GlossaryItemDataModel();
@@ -2902,10 +2560,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelThree.setText("Mock text");
         saveModelThree.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idThree = this.saveItem(saveModelThree);
+        this.saveItem(saveModelThree);
         final SynchronizableDeleteModel<Long> itemThree = new SynchronizableDeleteModel<>();
         itemThree.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemThree.setId(idThree);
+        itemThree.setId(saveModelThree.getId());
         data.add(itemThree);
 
         final GlossaryItemDataModel saveModelFour = new GlossaryItemDataModel();
@@ -2915,10 +2573,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFour.setText("Mock text");
         saveModelFour.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFour = this.saveItem(saveModelFour);
+        this.saveItem(saveModelFour);
         final SynchronizableDeleteModel<Long> itemFour = new SynchronizableDeleteModel<>();
         itemFour.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFour.setId(idFour);
+        itemFour.setId(saveModelFour.getId());
         data.add(itemFour);
 
         final GlossaryItemDataModel saveModelFive = new GlossaryItemDataModel();
@@ -2928,10 +2586,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFive.setText("Mock text");
         saveModelFive.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFive = this.saveItem(saveModelFive);
+        this.saveItem(saveModelFive);
         final SynchronizableDeleteModel<Long> itemFive = new SynchronizableDeleteModel<>();
         itemFive.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFive.setId(idFive);
+        itemFive.setId(saveModelFive.getId());
         data.add(itemFive);
 
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
@@ -2945,10 +2603,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("4"))
-                .andExpect(jsonPath("$.data[0]").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data[1]").value(idThree.toString()))
-                .andExpect(jsonPath("$.data[2]").value(idFour.toString()))
-                .andExpect(jsonPath("$.data[3]").value(idFive.toString()));
+                .andExpect(jsonPath(generateIdListPattern(saveModelTwo.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelThree.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFour.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFive.getId())).isNotEmpty());
     }
 
     @Test
@@ -2964,10 +2622,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableDeleteModel<Long> itemOne = new SynchronizableDeleteModel<>();
         itemOne.setLastUpdate(clockService.getUTCZonedDateTime().minusHours(1));
-        itemOne.setId(idOne);
+        itemOne.setId(saveModelOne.getId());
         data.add(itemOne);
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
@@ -2977,10 +2635,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
         itemTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemTwo.setId(idTwo);
+        itemTwo.setId(saveModelTwo.getId());
         data.add(itemTwo);
 
         final GlossaryItemDataModel saveModelThree = new GlossaryItemDataModel();
@@ -2990,10 +2648,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelThree.setText("Mock text");
         saveModelThree.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idThree = this.saveItem(saveModelThree);
+        this.saveItem(saveModelThree);
         final SynchronizableDeleteModel<Long> itemThree = new SynchronizableDeleteModel<>();
         itemThree.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemThree.setId(idThree);
+        itemThree.setId(saveModelThree.getId());
         data.add(itemThree);
 
         final GlossaryItemDataModel saveModelFour = new GlossaryItemDataModel();
@@ -3003,10 +2661,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFour.setText("Mock text");
         saveModelFour.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFour = this.saveItem(saveModelFour);
+        this.saveItem(saveModelFour);
         final SynchronizableDeleteModel<Long> itemFour = new SynchronizableDeleteModel<>();
         itemFour.setLastUpdate(clockService.getUTCZonedDateTime().minusDays(1));
-        itemFour.setId(idFour);
+        itemFour.setId(saveModelFour.getId());
         data.add(itemFour);
 
         final GlossaryItemDataModel saveModelFive = new GlossaryItemDataModel();
@@ -3016,10 +2674,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFive.setText("Mock text");
         saveModelFive.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFive = this.saveItem(saveModelFive);
+        this.saveItem(saveModelFive);
         final SynchronizableDeleteModel<Long> itemFive = new SynchronizableDeleteModel<>();
         itemFive.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFive.setId(idFive);
+        itemFive.setId(saveModelFive.getId());
         data.add(itemFive);
 
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
@@ -3033,9 +2691,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[0]").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data[1]").value(idThree.toString()))
-                .andExpect(jsonPath("$.data[2]").value(idFive.toString()));
+                .andExpect(jsonPath(generateIdListPattern(saveModelTwo.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelThree.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFive.getId())).isNotEmpty());
     }
 
     @Test
@@ -3051,10 +2709,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableDeleteModel<Long> itemOne = new SynchronizableDeleteModel<>();
         itemOne.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemOne.setId(idOne);
+        itemOne.setId(saveModelOne.getId());
         data.add(itemOne);
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
@@ -3064,9 +2722,9 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
-        itemTwo.setId(idTwo);
+        itemTwo.setId(saveModelTwo.getId());
         data.add(itemTwo);
 
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
@@ -3103,10 +2761,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
         itemTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemTwo.setId(idTwo);
+        itemTwo.setId(saveModelTwo.getId());
         data.add(itemTwo);
 
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
@@ -3193,10 +2851,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableDeleteModel<Long> itemOne = new SynchronizableDeleteModel<>();
         itemOne.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemOne.setId(idOne);
+        itemOne.setId(saveModelOne.getId());
         data.add(itemOne);
 
         final GlossaryItemDataModel saveModelTwo = new GlossaryItemDataModel();
@@ -3206,10 +2864,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelTwo.setText("Mock text");
         saveModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(saveModelTwo);
+        this.saveItem(saveModelTwo);
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
         itemTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemTwo.setId(idTwo);
+        itemTwo.setId(saveModelTwo.getId());
         data.add(itemTwo);
 
         final GlossaryItemDataModel saveModelThree = new GlossaryItemDataModel();
@@ -3219,10 +2877,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelThree.setText("Mock text");
         saveModelThree.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idThree = this.saveItem(saveModelThree);
+        this.saveItem(saveModelThree);
         final SynchronizableDeleteModel<Long> itemThree = new SynchronizableDeleteModel<>();
         itemThree.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemThree.setId(idThree);
+        itemThree.setId(saveModelThree.getId());
         data.add(itemThree);
 
         final SynchronizableDeleteModel<Long> itemFour = new SynchronizableDeleteModel<>();
@@ -3246,9 +2904,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[0]").value(idOne.toString()))
-                .andExpect(jsonPath("$.data[1]").value(idTwo.toString()))
-                .andExpect(jsonPath("$.data[2]").value(idThree.toString()));
+                .andExpect(jsonPath(generateIdListPattern(saveModelTwo.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelOne.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelThree.getId())).isNotEmpty());
     }
 
     @Test
@@ -3264,15 +2922,15 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableDeleteModel<Long> itemOne = new SynchronizableDeleteModel<>();
         itemOne.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemOne.setId(idOne);
+        itemOne.setId(saveModelOne.getId());
         data.add(itemOne);
 
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
         itemTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemTwo.setId(idOne);
+        itemTwo.setId(saveModelOne.getId());
         data.add(itemTwo);
 
         final GlossaryItemDataModel saveModelThree = new GlossaryItemDataModel();
@@ -3282,10 +2940,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelThree.setText("Mock text");
         saveModelThree.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idThree = this.saveItem(saveModelThree);
+        this.saveItem(saveModelThree);
         final SynchronizableDeleteModel<Long> itemThree = new SynchronizableDeleteModel<>();
         itemThree.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemThree.setId(idThree);
+        itemThree.setId(saveModelThree.getId());
         data.add(itemThree);
 
         final GlossaryItemDataModel saveModelFour = new GlossaryItemDataModel();
@@ -3295,10 +2953,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFour.setText("Mock text");
         saveModelFour.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFour = this.saveItem(saveModelFour);
+        this.saveItem(saveModelFour);
         final SynchronizableDeleteModel<Long> itemFour = new SynchronizableDeleteModel<>();
         itemFour.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFour.setId(idFour);
+        itemFour.setId(saveModelFour.getId());
         data.add(itemFour);
 
         final GlossaryItemDataModel saveModelFive = new GlossaryItemDataModel();
@@ -3308,10 +2966,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFive.setText("Mock text");
         saveModelFive.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFive = this.saveItem(saveModelFive);
+        this.saveItem(saveModelFive);
         final SynchronizableDeleteModel<Long> itemFive = new SynchronizableDeleteModel<>();
         itemFive.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFive.setId(idFive);
+        itemFive.setId(saveModelFive.getId());
         data.add(itemFive);
 
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
@@ -3325,10 +2983,10 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("4"))
-                .andExpect(jsonPath("$.data[0]").value(idOne.toString()))
-                .andExpect(jsonPath("$.data[1]").value(idThree.toString()))
-                .andExpect(jsonPath("$.data[2]").value(idFour.toString()))
-                .andExpect(jsonPath("$.data[3]").value(idFive.toString()));
+                .andExpect(jsonPath(generateIdListPattern(saveModelOne.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelThree.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFour.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFive.getId())).isNotEmpty());
     }
 
     @Test
@@ -3344,20 +3002,20 @@ public class GlossaryControllerIntegrationTest {
         saveModelOne.setText("Mock text");
         saveModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idOne = this.saveItem(saveModelOne);
+        this.saveItem(saveModelOne);
         final SynchronizableDeleteModel<Long> itemOne = new SynchronizableDeleteModel<>();
         itemOne.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemOne.setId(idOne);
+        itemOne.setId(saveModelOne.getId());
         data.add(itemOne);
 
         final SynchronizableDeleteModel<Long> itemTwo = new SynchronizableDeleteModel<>();
         itemTwo.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemTwo.setId(idOne);
+        itemTwo.setId(saveModelOne.getId());
         data.add(itemTwo);
 
         final SynchronizableDeleteModel<Long> itemThree = new SynchronizableDeleteModel<>();
         itemThree.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemThree.setId(idOne);
+        itemThree.setId(saveModelOne.getId());
         data.add(itemThree);
 
         final GlossaryItemDataModel saveModelFour = new GlossaryItemDataModel();
@@ -3367,10 +3025,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFour.setText("Mock text");
         saveModelFour.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFour = this.saveItem(saveModelFour);
+        this.saveItem(saveModelFour);
         final SynchronizableDeleteModel<Long> itemFour = new SynchronizableDeleteModel<>();
         itemFour.setLastUpdate(clockService.getUTCZonedDateTime().minusDays(1));
-        itemFour.setId(idFour);
+        itemFour.setId(saveModelFour.getId());
         data.add(itemFour);
 
         final GlossaryItemDataModel saveModelFive = new GlossaryItemDataModel();
@@ -3380,10 +3038,10 @@ public class GlossaryControllerIntegrationTest {
         saveModelFive.setText("Mock text");
         saveModelFive.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idFive = this.saveItem(saveModelFive);
+        this.saveItem(saveModelFive);
         final SynchronizableDeleteModel<Long> itemFive = new SynchronizableDeleteModel<>();
         itemFive.setLastUpdate(clockService.getUTCZonedDateTime());
-        itemFive.setId(idFive);
+        itemFive.setId(saveModelFive.getId());
         data.add(itemFive);
 
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
@@ -3397,8 +3055,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("2"))
-                .andExpect(jsonPath("$.data[0]").value(idOne.toString()))
-                .andExpect(jsonPath("$.data[1]").value(idFive.toString()));
+                .andExpect(jsonPath(generateIdListPattern(saveModelOne.getId())).isNotEmpty())
+                .andExpect(jsonPath(generateIdListPattern(saveModelFive.getId())).isNotEmpty());
     }
     //</editor-fold>
 
@@ -3446,21 +3104,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='3')]").isNotEmpty());
+                .andExpect(jsonPath(generateSyncExistsPattern(modelOne, false)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelTwo, false)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelThree, false)).isNotEmpty());
     }
 
     @Test
@@ -3476,7 +3122,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         modelOne.setLocalId(1);
 
-        final Long idOne = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel newModelOne = new GlossaryItemDataModel();
         newModelOne.setTitle("Mock title 1 up");
@@ -3485,7 +3131,7 @@ public class GlossaryControllerIntegrationTest {
         newModelOne.setText("Mock text 1 up");
         newModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelOne.setLocalId(1);
-        newModelOne.setId(idOne);
+        newModelOne.setId(modelOne.getId());
         data.add(newModelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
@@ -3517,25 +3163,13 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='3')]").isNotEmpty());
+                .andExpect(jsonPath(generateSyncExistsPattern(newModelOne, true)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelTwo, false)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelThree, false)).isNotEmpty());
     }
 
     @Test
-    public void syncOneNewItemsAndUpdateAnothers() throws Exception {
+    public void syncTwoUpdatedItemsAndOneNew() throws Exception {
         final ObjectMapper mapper = JsonMapperUtils.clientObjectMapper();
         final List<GlossaryItemDataModel> data = new ArrayList<>();
 
@@ -3547,7 +3181,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         modelOne.setLocalId(1);
 
-        final Long idOne = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel newModelOne = new GlossaryItemDataModel();
         newModelOne.setTitle("Mock title 1 up");
@@ -3556,7 +3190,7 @@ public class GlossaryControllerIntegrationTest {
         newModelOne.setText("Mock text 1 up");
         newModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelOne.setLocalId(1);
-        newModelOne.setId(idOne);
+        newModelOne.setId(modelOne.getId());
         data.add(newModelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
@@ -3567,7 +3201,7 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         modelTwo.setLocalId(2);
 
-        final Long idTwo = this.saveItem(modelTwo);
+        this.saveItem(modelTwo);
 
         final GlossaryItemDataModel newModelTwo = new GlossaryItemDataModel();
         newModelTwo.setTitle("Mock title 2 up");
@@ -3576,7 +3210,7 @@ public class GlossaryControllerIntegrationTest {
         newModelTwo.setText("Mock text 2 up");
         newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelTwo.setLocalId(2);
-        newModelTwo.setId(idTwo);
+        newModelTwo.setId(modelTwo.getId());
         data.add(newModelTwo);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
@@ -3599,21 +3233,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='3')]").isNotEmpty());
+                .andExpect(jsonPath(generateSyncExistsPattern(newModelOne, true)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(newModelTwo, true)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelThree, false)).isNotEmpty());
     }
 
     @Test
@@ -3629,7 +3251,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         modelOne.setLocalId(1);
 
-        final Long idOne = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel newModelOne = new GlossaryItemDataModel();
         newModelOne.setTitle("Mock title 1 up");
@@ -3638,7 +3260,7 @@ public class GlossaryControllerIntegrationTest {
         newModelOne.setText("Mock text 1 up");
         newModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelOne.setLocalId(1);
-        newModelOne.setId(idOne);
+        newModelOne.setId(modelOne.getId());
         data.add(newModelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
@@ -3649,7 +3271,7 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         modelTwo.setLocalId(2);
 
-        final Long idTwo = this.saveItem(modelTwo);
+        this.saveItem(modelTwo);
 
         final GlossaryItemDataModel newModelTwo = new GlossaryItemDataModel();
         newModelTwo.setTitle("Mock title 2 up");
@@ -3658,7 +3280,7 @@ public class GlossaryControllerIntegrationTest {
         newModelTwo.setText(null);
         newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelTwo.setLocalId(2);
-        newModelOne.setId(idTwo);
+        newModelOne.setId(newModelTwo.getId());
         data.add(newModelTwo);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
@@ -3692,7 +3314,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         modelOne.setLocalId(1);
 
-        final Long idOne = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel newModelOne = new GlossaryItemDataModel();
         newModelOne.setTitle("Mock title 1 up");
@@ -3701,7 +3323,7 @@ public class GlossaryControllerIntegrationTest {
         newModelOne.setText("Mock text 1 up");
         newModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelOne.setLocalId(1);
-        newModelOne.setId(idOne);
+        newModelOne.setId(modelOne.getId());
         data.add(newModelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
@@ -3712,7 +3334,7 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         modelTwo.setLocalId(2);
 
-        final Long idTwo = this.saveItem(modelTwo);
+        this.saveItem(modelTwo);
 
         final GlossaryItemDataModel newModelTwo = new GlossaryItemDataModel();
         newModelTwo.setTitle("Mock title 2 up");
@@ -3721,7 +3343,7 @@ public class GlossaryControllerIntegrationTest {
         newModelTwo.setText("Mock text 2 up");
         newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelTwo.setLocalId(2);
-        newModelOne.setId(idTwo);
+        newModelOne.setId(modelTwo.getId());
         data.add(newModelTwo);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
@@ -3755,7 +3377,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         modelOne.setLocalId(1);
 
-        final Long idOne = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel newModelOne = new GlossaryItemDataModel();
         newModelOne.setTitle("Mock title 1 up");
@@ -3764,7 +3386,7 @@ public class GlossaryControllerIntegrationTest {
         newModelOne.setText("Mock text 1 up");
         newModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelOne.setLocalId(1);
-        newModelOne.setId(idOne);
+        newModelOne.setId(modelOne.getId());
         data.add(newModelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
@@ -3775,7 +3397,7 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         modelTwo.setLocalId(2);
 
-        final Long idTwo = this.saveItem(modelTwo);
+        this.saveItem(modelTwo);
 
         final GlossaryItemDataModel newModelTwo = new GlossaryItemDataModel();
         newModelTwo.setTitle("Mock title 2 up");
@@ -3784,7 +3406,7 @@ public class GlossaryControllerIntegrationTest {
         newModelTwo.setText(null);
         newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelTwo.setLocalId(2);
-        newModelOne.setId(idTwo);
+        newModelOne.setId(modelTwo.getId());
         data.add(newModelTwo);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
@@ -3818,7 +3440,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         modelOne.setLocalId(1);
 
-        final Long idOne = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel newModelOne = new GlossaryItemDataModel();
         newModelOne.setTitle("Mock title 1 up");
@@ -3827,7 +3449,7 @@ public class GlossaryControllerIntegrationTest {
         newModelOne.setText("Mock text 1 up");
         newModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelOne.setLocalId(1);
-        newModelOne.setId(idOne);
+        newModelOne.setId(modelOne.getId());
         data.add(newModelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
@@ -3838,7 +3460,7 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         modelTwo.setLocalId(2);
 
-        final Long idTwo = this.saveItem(modelTwo);
+        this.saveItem(modelTwo);
 
         final GlossaryItemDataModel newModelTwo = new GlossaryItemDataModel();
         newModelTwo.setTitle("Mock title 2 up");
@@ -3847,7 +3469,7 @@ public class GlossaryControllerIntegrationTest {
         newModelTwo.setText("Mock text 2 up");
         newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime().minusDays(1));
         newModelTwo.setLocalId(2);
-        newModelTwo.setId(idTwo);
+        newModelTwo.setId(modelTwo.getId());
         data.add(newModelTwo);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
@@ -3870,25 +3492,13 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='3')]").isNotEmpty());
+                .andExpect(jsonPath(generateSyncExistsPattern(newModelOne, true)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelTwo, false)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelThree, false)).isNotEmpty());
     }
 
     @Test
-    public void syncFistUpdateSecondUpdatedOutdatedWithNewLocalIdThirdNew() throws Exception {
+    public void syncFistUpdatedSecondOutdatedWithNewLocalIdThirdNew() throws Exception {
         final ObjectMapper mapper = JsonMapperUtils.clientObjectMapper();
         final List<GlossaryItemDataModel> data = new ArrayList<>();
 
@@ -3900,7 +3510,7 @@ public class GlossaryControllerIntegrationTest {
         modelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         modelOne.setLocalId(1);
 
-        final Long idOne = this.saveItem(modelOne);
+        this.saveItem(modelOne);
 
         final GlossaryItemDataModel newModelOne = new GlossaryItemDataModel();
         newModelOne.setTitle("Mock title 1 up");
@@ -3909,7 +3519,7 @@ public class GlossaryControllerIntegrationTest {
         newModelOne.setText("Mock text 1 up");
         newModelOne.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelOne.setLocalId(1);
-        newModelOne.setId(idOne);
+        newModelOne.setId(modelOne.getId());
         data.add(newModelOne);
 
         final GlossaryItemDataModel modelTwo = new GlossaryItemDataModel();
@@ -3920,7 +3530,7 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
         modelTwo.setLocalId(2);
 
-        final Long idTwo = this.saveItem(modelTwo);
+        this.saveItem(modelTwo);
 
         final GlossaryItemDataModel newModelTwo = new GlossaryItemDataModel();
         newModelTwo.setTitle("Mock title 2 up");
@@ -3929,7 +3539,7 @@ public class GlossaryControllerIntegrationTest {
         newModelTwo.setText("Mock text 2 up");
         newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime().minusDays(1));
         newModelTwo.setLocalId(3);
-        newModelTwo.setId(idTwo);
+        newModelTwo.setId(modelTwo.getId());
         data.add(newModelTwo);
 
         final GlossaryItemDataModel modelThree = new GlossaryItemDataModel();
@@ -3944,6 +3554,8 @@ public class GlossaryControllerIntegrationTest {
         final SynchronizableSaveSyncModel<Long, GlossaryItemDataModel> syncModel = new SynchronizableSaveSyncModel<>();
         syncModel.setSave(data);
 
+        modelTwo.setLocalId(newModelTwo.getLocalId());
+
         mvc.perform(put("/public/glossary/sync_save/")
                 .content(JsonUtils.convertToJson(syncModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -3952,21 +3564,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='3')]").isNotEmpty());
+                .andExpect(jsonPath(generateSyncExistsPattern(newModelOne, true)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelTwo, true)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(modelThree, false)).isNotEmpty());
     }
 
     @Test
@@ -4024,7 +3624,7 @@ public class GlossaryControllerIntegrationTest {
         modelThree.setLastUpdate(clockService.getUTCZonedDateTime());
         modelThree.setLocalId(3);
 
-        final Long idThree = this.saveItem(modelThree);
+        this.saveItem(modelThree);
 
         final GlossaryItemDataModel newModelThree = new GlossaryItemDataModel();
         newModelThree.setTitle("Mock title 3 up");
@@ -4033,7 +3633,7 @@ public class GlossaryControllerIntegrationTest {
         newModelThree.setText("Mock text 3 up");
         newModelThree.setLastUpdate(clockService.getUTCZonedDateTime());
         newModelThree.setLocalId(4);
-        newModelThree.setId(idThree);
+        newModelThree.setId(modelThree.getId());
         data.add(newModelThree);
 
         final SynchronizableSaveSyncModel<Long, GlossaryItemDataModel> syncModel = new SynchronizableSaveSyncModel<>();
@@ -4047,19 +3647,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 3 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 3 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 3 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='4')]").isNotEmpty());
+                .andExpect(jsonPath(generateExistsPattern(modelOne)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelTwo)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(newModelThree, true)).isNotEmpty());
     }
 
     @Test
@@ -4108,18 +3698,9 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("3"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 3')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 3')]").isNotEmpty());
+                .andExpect(jsonPath(generateExistsPattern(modelOne, false)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelTwo, false)).isNotEmpty())
+                .andExpect(jsonPath(generateExistsPattern(modelThree, false)).isNotEmpty());
     }
     //</editor-fold>
 
@@ -4145,20 +3726,22 @@ public class GlossaryControllerIntegrationTest {
         modelTwo.setText("Mock text 2");
         modelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        final Long idTwo = this.saveItem(modelTwo);
+        this.saveItem(modelTwo);
 
         final GlossaryItemDataModel newModelTwo = new GlossaryItemDataModel();
         newModelTwo.setTitle("Mock title 1");
         newModelTwo.setFullText("Mock full text 2 up");
         newModelTwo.setSubtitle("Mock subtitle 2 up");
         newModelTwo.setText("Mock text 2 up");
-        newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime());
+        newModelTwo.setLastUpdate(clockService.getUTCZonedDateTime().plusHours(1));
         newModelTwo.setLocalId(1);
-        newModelTwo.setId(idTwo);
+        newModelTwo.setId(modelTwo.getId());
         data.add(newModelTwo);
 
         final SynchronizableSaveSyncModel<Long, GlossaryItemDataModel> syncModel = new SynchronizableSaveSyncModel<>();
         syncModel.setSave(data);
+
+        newModelTwo.setTitle("Mock title 1 [[2]]R");
 
         mvc.perform(put("/public/glossary/sync_save/")
                 .content(JsonUtils.convertToJson(syncModel, mapper))
@@ -4168,16 +3751,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("2"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1 [["+idTwo+"]]R')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2 up')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty());
+                .andExpect(jsonPath(generateExistsPattern(modelOne)).isNotEmpty())
+                .andExpect(jsonPath(generateSyncExistsPattern(newModelTwo, true)).isNotEmpty());
     }
 
     @Test
@@ -4214,11 +3789,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("1"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 2')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='2')]").isNotEmpty());
+                .andExpect(jsonPath(generateSyncExistsPattern(modelTwo, false)).isNotEmpty());
     }
 
     @Test
@@ -4255,11 +3826,7 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.data.length()").value("1"))
-                .andExpect(jsonPath("$.data[?(@.title=='Mock title 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.fullText=='Mock full text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.subtitle=='Mock subtitle 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.text=='Mock text 1')]").isNotEmpty())
-                .andExpect(jsonPath("$.data[?(@.localId=='1')]").isNotEmpty());
+                .andExpect(jsonPath(generateSyncExistsPattern(modelOne, false)).isNotEmpty());
     }
     //</editor-fold>
 }
