@@ -2,8 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.model.user;
 
 import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = UserSettingsConstants.LANGUAGE_NULL_MESSAGE)
@@ -28,6 +28,10 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> 
 
     @NotNull(message = UserSettingsConstants.SETTINGS_STEP_NULL_MESSAGE)
     private Integer settingsStep;
+
+    @NotNull(message = UserSettingsConstants.PASSWORD_NULL_MESSAGE)
+    @Size(min = UserSettingsConstants.PASSWORD_MIN, max = UserSettingsConstants.PASSWORD_MAX, message = UserSettingsConstants.PASSWORD_SIZE_MESSAGE)
+    private String parentsAreaPassword;
 
     public Integer getLanguage() {
         return language;
@@ -91,5 +95,13 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> 
 
     public void setSettingsStep(Integer settingsStep) {
         this.settingsStep = settingsStep;
+    }
+
+    public String getParentsAreaPassword() {
+        return parentsAreaPassword;
+    }
+
+    public void setParentsAreaPassword(String parentsAreaPassword) {
+        this.parentsAreaPassword = parentsAreaPassword;
     }
 }
