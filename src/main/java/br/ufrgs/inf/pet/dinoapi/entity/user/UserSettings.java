@@ -31,7 +31,7 @@ public class UserSettings extends SynchronizableEntity<Long> {
     @Column(name = "settings_step", nullable = false)
     private Integer settingsStep;
 
-    @Column(name = "parents_area_password", length = PASSWORD_MAX, nullable = false)
+    @Column(name = "parents_area_password", length = PASSWORD_MAX)
     private String parentsAreaPassword;
 
     @OneToOne

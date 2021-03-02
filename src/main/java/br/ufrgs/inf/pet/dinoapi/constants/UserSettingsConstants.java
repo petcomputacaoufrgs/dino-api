@@ -25,8 +25,6 @@ public class UserSettingsConstants {
     public final static int PASSWORD_MAX = 24;
     public final static int PASSWORD_MIN = 8;
 
-    public final static String PASSWORD_NULL_MESSAGE = "password can not be null";
-
     public final static String PASSWORD_SIZE_MESSAGE = "password should be between "+ PASSWORD_MIN + " and " + PASSWORD_MAX + " characters";
 
 }
