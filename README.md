@@ -29,7 +29,7 @@ spring.jpa.show-sql=true
 spring.jpa.generate-ddl=true
 spring.jpa.hibernate.ddl-auto=update
 
-#Configuração do cliente 
+#Configuração do cliente
 app.origin={Endereço onde está o DinoApp}
 
 #Configurações do Google
@@ -44,10 +44,13 @@ log.appLogDurationInMilliseconds=7776000000
 log.apiLogDurationInMilliseconds=7776000000
 
 #Email
-email.host={EMAIL HOST, example: smtp.gmail.com}
-email.port={HOST PORT}
-email.username={EMAIL}
-email.password={APPLICATION PASSWORD}
+email.host={Host de Email. Exemplo: smtp.gmail.com}
+email.port={Porta do Host}
+email.username={Email}
+email.password={Senha de Aplicação}
+
+#Tamanho do código (alfanumérico) para recuperação de senha
+recover.password.config.codeLength=5
 
 ```
 ## Configurar uma senha de aplicação com o Gmail
