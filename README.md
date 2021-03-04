@@ -38,7 +38,21 @@ googleoauth2.clientsecret={Google Cloud Client Secret}
 
 #Configuração de porta
 server.port=${PORT:5000}
+
+#Log
+log.appLogDurationInMilliseconds=7776000000
+log.apiLogDurationInMilliseconds=7776000000
+
+#Email
+email.host={EMAIL HOST, example: smtp.gmail.com}
+email.port={HOST PORT}
+email.username={EMAIL}
+email.password={APPLICATION PASSWORD}
+
 ```
+## Configurar uma senha de aplicação com o Gmail
+https://support.google.com/accounts/answer/185833
+
 ## Executar Projeto (Windows 10)
 ```java
 1) Instale o Java JDK 11:
