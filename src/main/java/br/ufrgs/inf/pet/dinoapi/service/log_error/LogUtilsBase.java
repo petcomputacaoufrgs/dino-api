@@ -22,4 +22,14 @@ public abstract class LogUtilsBase {
         log.setMessage(e.getMessage());
         logAPIErrorService.save(log);
     }
+
+    public void logAPIError(String msg) {
+        final LogAPIError log = new LogAPIError();
+        final String className = this.getClass().getSimpleName();
+        log.setDate(LocalDateTime.now());
+        log.setClassName(className);
+        log.setStackTract("");
+        log.setMessage(msg);
+        logAPIErrorService.save(log);
+    }
 }

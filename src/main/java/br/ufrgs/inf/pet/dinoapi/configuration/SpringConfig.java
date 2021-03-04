@@ -84,7 +84,7 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(Integer.MAX_VALUE);
-        executor.setThreadNamePrefix("DinoAPI-Google-Contact-");
+        executor.setThreadNamePrefix("DinoAPI-");
         executor.initialize();
         return executor;
     }
