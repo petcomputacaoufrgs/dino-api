@@ -24,7 +24,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class RecoverPasswordRequestServiceImpl extends LogUtilsBase implements RecoverPasswordRequestService {
+public class ResponsibleAuthServiceImpl extends LogUtilsBase implements ResponsibleAuthService {
     private static final Short MIN_DELAY_TO_REQUEST_CODE_MIN = 2;
     private static final Short MAX_DELAY_TO_RECOVER_PASSWORD_MIN = 60;
     private static final Short MAX_ATTEMPTS = 3;
@@ -37,10 +37,10 @@ public class RecoverPasswordRequestServiceImpl extends LogUtilsBase implements R
     private final UserSettingsServiceImpl userSettingsService;
 
     @Autowired
-    public RecoverPasswordRequestServiceImpl(OAuthServiceImpl authService, LanguageServiceImpl languageService,
-                                             RecoverPasswordConfig recoverPasswordConfig, EmailServiceImpl emailService,
-                                             LogAPIErrorServiceImpl logAPIErrorService, UserSettingsServiceImpl userSettingsService,
-                                             RecoverPasswordRequestRepository repository) {
+    public ResponsibleAuthServiceImpl(OAuthServiceImpl authService, LanguageServiceImpl languageService,
+                                      RecoverPasswordConfig recoverPasswordConfig, EmailServiceImpl emailService,
+                                      LogAPIErrorServiceImpl logAPIErrorService, UserSettingsServiceImpl userSettingsService,
+                                      RecoverPasswordRequestRepository repository) {
         super(logAPIErrorService);
         this.authService = authService;
         this.languageService = languageService;
@@ -50,7 +50,7 @@ public class RecoverPasswordRequestServiceImpl extends LogUtilsBase implements R
         this.userSettingsService = userSettingsService;
     }
 
-    public ResponseEntity<Void> requestCode() {
+    public ResponseEntity<Void> requestRecoverCode() {
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
             final BaseLanguage language = languageService.getUserLanguage();
@@ -58,7 +58,7 @@ public class RecoverPasswordRequestServiceImpl extends LogUtilsBase implements R
                 final LocalDateTime now = LocalDateTime.now();
                 final User user = auth.getUser();
                 final List<RecoverPasswordRequest> requests = this.repository.findAllByUserId(user.getId());
-                final String code = AlphaNumericCodeUtils.generateRandomCode(recoverPasswordConfig.getCodeLength());
+                final String code = AlphaNumericCodeUtils.generateRandomCode(recoverPasswordConfig.getCodeLength(), true);
 
                 if (requests.stream().anyMatch(request -> request.getDate().isAfter(now.minusMinutes(MIN_DELAY_TO_REQUEST_CODE_MIN)))) {
                     return new ResponseEntity<>(HttpStatus.OK);
@@ -88,7 +88,7 @@ public class RecoverPasswordRequestServiceImpl extends LogUtilsBase implements R
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
-    public ResponseEntity<Boolean> verifyCode(RecoverPasswordDataModel model) {
+    public ResponseEntity<Boolean> verifyRecoverCode(RecoverPasswordDataModel model) {
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
             if (this.validateRecoverCode(auth, model)) {
@@ -99,7 +99,7 @@ public class RecoverPasswordRequestServiceImpl extends LogUtilsBase implements R
         return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
     }
 
-    public ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changePassword(RecoverPasswordDataModel model) {
+    public ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(RecoverPasswordDataModel model) {
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
             final User user = auth.getUser();

@@ -5,10 +5,10 @@ import br.ufrgs.inf.pet.dinoapi.model.user.RecoverPasswordDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import org.springframework.http.ResponseEntity;
 
-public interface RecoverPasswordRequestService {
-    ResponseEntity<Void> requestCode();
+public interface ResponsibleAuthService {
+    ResponseEntity<Void> requestRecoverCode();
 
-    ResponseEntity<Boolean> verifyCode(RecoverPasswordDataModel model);
+    ResponseEntity<Boolean> verifyRecoverCode(RecoverPasswordDataModel model);
 
-    ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changePassword(RecoverPasswordDataModel model);
+    ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(RecoverPasswordDataModel model);
 }
