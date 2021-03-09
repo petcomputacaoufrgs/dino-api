@@ -4,8 +4,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
+import static br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants.PASSWORD_MAX;
 
 @Entity
 @Table(name = "user_settings")
@@ -30,6 +30,9 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     @Column(name = "settings_step", nullable = false)
     private Integer settingsStep;
+
+    @Column(name = "parents_area_password", length = PASSWORD_MAX)
+    private String parentsAreaPassword;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -112,5 +115,13 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     public void setSettingsStep(Integer settingsStep) {
         this.settingsStep = settingsStep;
+    }
+
+    public String getParentsAreaPassword() {
+        return parentsAreaPassword;
+    }
+
+    public void setParentsAreaPassword(String parentsAreaPassword) {
+        this.parentsAreaPassword = parentsAreaPassword;
     }
 }

@@ -22,14 +22,12 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, UserSettingsDataModel, UserSettingsRepository> {
-
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
@@ -50,6 +48,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
         model.setSettingsStep(entity.getSettingsStep());
+        model.setParentsAreaPassword(entity.getParentsAreaPassword());
 
         if (entity.getTreatment() != null) {
             model.setTreatmentId(entity.getTreatment().getId());
@@ -81,6 +80,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setUser(auth.getUser());
         userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
         userSettings.setSettingsStep(model.getSettingsStep());
+        userSettings.setParentsAreaPassword(model.getParentsAreaPassword());
 
         return userSettings;
     }
@@ -109,6 +109,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
         entity.setSettingsStep(model.getSettingsStep());
+        entity.setParentsAreaPassword(model.getParentsAreaPassword());
     }
 
     @Override
