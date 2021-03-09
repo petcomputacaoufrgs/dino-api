@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.oauth;
 
-import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
-import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.GoogleOAuth2Config;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.AppConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.GoogleOAuth2Config;
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
