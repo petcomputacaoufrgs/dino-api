@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 
@@ -45,7 +45,7 @@ public class User extends SynchronizableEntity<Long> {
     private List<Contact> contacts;
 
     @OneToMany(mappedBy = "user")
-    private List<FaqUserQuestion> faqUserQuestions;
+    private List<TreatmentQuestion> treatmentQuestions;
 
     public User() {
         this.auths = new ArrayList<>();

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/public/treatment/")
+@RequestMapping("/treatment/")
 public class TreatmentControllerImpl extends SynchronizableControllerImpl<
         Treatment, Long, TreatmentDataModel, TreatmentRepository, TreatmentServiceImpl> {
 

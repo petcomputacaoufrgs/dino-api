@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.entity.faq;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 
 import javax.persistence.*;
 
@@ -18,8 +19,8 @@ public class FaqItem extends SynchronizableEntity<Long> {
     private String answer;
 
     @ManyToOne
-    @JoinColumn(name = "faq_id", nullable = false)
-    private Faq faq;
+    @JoinColumn(name = "treatment_id", nullable = false)
+    private Treatment treatment;
 
     public FaqItem() {
     }
@@ -40,11 +41,11 @@ public class FaqItem extends SynchronizableEntity<Long> {
         this.answer = answer;
     }
 
-    public Faq getFaq() {
-        return faq;
+    public Treatment getTreatment() {
+        return treatment;
     }
 
-    public void setFaq(Faq faq) {
-        this.faq = faq;
+    public void setTreatment(Treatment treatment) {
+        this.treatment = treatment;
     }
 }
