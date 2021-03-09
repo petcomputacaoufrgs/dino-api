@@ -14,7 +14,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncPhoneService;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncPhoneServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -30,18 +30,18 @@ import java.util.Optional;
 public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, PhoneDataModel, PhoneRepository> {
     private final ContactServiceImpl contactService;
     private final EssentialContactRepository essentialContactRepository;
-    private final AsyncPhoneService asyncPhoneService;
+    private final AsyncPhoneServiceImpl asyncPhoneServiceImpl;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, OAuthServiceImpl authService,
                             SynchronizableQueueMessageService<Long, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                             ContactServiceImpl contactService, EssentialContactRepository essentialContactRepository,
-                            AsyncPhoneService asyncPhoneService) {
+                            AsyncPhoneServiceImpl asyncPhoneServiceImpl) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;
         this.essentialContactRepository = essentialContactRepository;
-        this.asyncPhoneService = asyncPhoneService;
+        this.asyncPhoneServiceImpl = asyncPhoneServiceImpl;
     }
 
     @Override
@@ -165,7 +165,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
 
     @Override
     protected void onDataCreated(PhoneDataModel model) {
-        asyncPhoneService.createPhoneOnGoogleAPI(model, (phoneDataModels, auth) -> {
+        asyncPhoneServiceImpl.createPhoneOnGoogleAPI(model, (phoneDataModels, auth) -> {
             try {
                 return this.internalSaveAll(phoneDataModels, auth);
             } catch (Exception e) {
@@ -177,7 +177,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
 
     @Override
     protected void onDataUpdated(PhoneDataModel model, Phone entity) {
-        asyncPhoneService.updatePhoneOnGoogleAPI(entity, (phoneDataModel, auth) -> {
+        asyncPhoneServiceImpl.updatePhoneOnGoogleAPI(entity, (phoneDataModel, auth) -> {
             try {
                 return this.internalSave(phoneDataModel, auth);
             } catch (Exception e) {
@@ -194,7 +194,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
         ePhones.forEach(phone -> phone.setOriginalEssentialPhone(null));
         this.repository.saveAll(ePhones);
 
-        asyncPhoneService.deletePhonesOnGoogleAPI(ePhones, (model, auth) -> {
+        asyncPhoneServiceImpl.deletePhonesOnGoogleAPI(ePhones, (model, auth) -> {
             try {
                 this.internalDelete(model, auth);
             } catch (Exception e) {
