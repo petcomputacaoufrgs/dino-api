@@ -7,10 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.service.user.ResponsibleAuthService;
 import br.ufrgs.inf.pet.dinoapi.service.user.ResponsibleAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
@@ -41,5 +38,11 @@ public class ResponsibleAuthControllerImpl implements ResponsibleAuthController 
     @PutMapping("change_auth/")
     public ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(@Valid @RequestBody RecoverPasswordDataModel model) {
         return recoverPasswordRequestService.changeAuth(model);
+    }
+
+    @Override
+    @PostMapping("create_auth/")
+    public ResponseEntity<String> createResponsibleAuth(String password) {
+        return recoverPasswordRequestService.createResponsibleAuth(password);
     }
 }

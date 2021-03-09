@@ -23,4 +23,6 @@ public interface ResponsibleAuthController {
      * @return if success return UserSettings otherwise return null
      */
     ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(RecoverPasswordDataModel model);
+
+    ResponseEntity<String> createResponsibleAuth(String password);
 }

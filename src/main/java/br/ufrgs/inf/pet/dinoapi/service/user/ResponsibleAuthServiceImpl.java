@@ -8,6 +8,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.language.BaseLanguage;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDataResponseModelImpl;
 import br.ufrgs.inf.pet.dinoapi.model.user.RecoverPasswordDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.ResponsiblePasswordModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.RecoverPasswordRequestRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
@@ -16,6 +17,9 @@ import br.ufrgs.inf.pet.dinoapi.service.language.LanguageServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.utils.AlphaNumericCodeUtils;
+import br.ufrgs.inf.pet.dinoapi.utils.JWTUtils;
+import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +54,7 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
         this.userSettingsService = userSettingsService;
     }
 
+    @Override
     public ResponseEntity<Void> requestRecoverCode() {
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
@@ -88,6 +93,7 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
+    @Override
     public ResponseEntity<Boolean> verifyRecoverCode(RecoverPasswordDataModel model) {
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
@@ -99,6 +105,7 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
         return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
     }
 
+    @Override
     public ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(RecoverPasswordDataModel model) {
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
@@ -117,6 +124,31 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
             }
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
+        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+    }
+
+    @Override
+    public ResponseEntity<String> createResponsibleAuth(String password) {
+        final Auth auth = this.authService.getCurrentAuth();
+
+        if(auth != null) {
+            final ResponsiblePasswordModel payload_model = new ResponsiblePasswordModel();
+            final String code = AlphaNumericCodeUtils.generateRandomCode(8, false);
+            final User user = auth.getUser();
+
+            payload_model.setCode(code);
+            final String payload;
+            try {
+                payload = JsonUtils.convertToJson(payload_model);
+                final String token = JWTUtils.generateUnlimited(password, payload);
+
+                return new ResponseEntity<>(token, HttpStatus.OK);
+            } catch (JsonProcessingException e) {
+                this.logAPIError(e);
+                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 

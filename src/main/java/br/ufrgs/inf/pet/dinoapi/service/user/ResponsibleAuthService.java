@@ -11,4 +11,6 @@ public interface ResponsibleAuthService {
     ResponseEntity<Boolean> verifyRecoverCode(RecoverPasswordDataModel model);
 
     ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(RecoverPasswordDataModel model);
+
+    ResponseEntity<String> createResponsibleAuth(String password);
 }
