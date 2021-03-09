@@ -24,7 +24,7 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableWebSecurity
-@EnableAsync
+@EnableAsync(proxyTargetClass=true)
 public class SpringConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService dinoUserDetailsService;
 

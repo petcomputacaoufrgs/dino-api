@@ -11,7 +11,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -26,13 +26,13 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     private final ContactServiceImpl contactService;
 
-    private final AsyncGoogleContactImpl asyncGoogleContact;
+    private final AsyncGoogleContactServiceImpl asyncGoogleContact;
 
     @Autowired
     public GoogleContactServiceImpl(GoogleContactRepository repository, OAuthServiceImpl authService, ContactServiceImpl contactService,
                                     SynchronizableQueueMessageService<Long, GoogleContactDataModel> synchronizableQueueMessageService,
                                     ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                    AsyncGoogleContactImpl asyncGoogleContact) {
+                                    AsyncGoogleContactServiceImpl asyncGoogleContact) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;
         this.asyncGoogleContact = asyncGoogleContact;
@@ -83,7 +83,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     protected void onDataCreated(GoogleContactDataModel model) {
         asyncGoogleContact.createContactOnGoogleAPI(model, (phoneDataModel, auth) -> {
             try {
-                return this.internalSave(phoneDataModel, auth, false);
+                this.internalSave(phoneDataModel, auth, false);
             } catch (Exception e) {
                 this.logAPIError(e);
             }
@@ -95,7 +95,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
     protected void onDataUpdated(GoogleContactDataModel model, GoogleContact entity) {
         asyncGoogleContact.updateContactOnGoogleAPI(entity, (phoneDataModel, auth) -> {
             try {
-                return this.internalSave(phoneDataModel, auth, false);
+                this.internalSave(phoneDataModel, auth, false);
             } catch (Exception e) {
                 this.logAPIError(e);
             }
@@ -105,14 +105,7 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
 
     @Override
     protected void onDataDeleted(GoogleContact entity) {
-        asyncGoogleContact.deleteContactOnGoogleAPI(entity, (model, auth) -> {
-            try {
-                this.internalDelete(model, auth, false);
-            } catch (Exception e) {
-                this.logAPIError(e);
-            }
-            return null;
-        });
+        asyncGoogleContact.deleteContactOnGoogleAPI(entity);
     }
 
     @Override
