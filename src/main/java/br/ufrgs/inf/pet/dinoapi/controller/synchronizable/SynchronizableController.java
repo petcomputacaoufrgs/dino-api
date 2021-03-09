@@ -33,7 +33,7 @@ public interface SynchronizableController<
      * Save a object on server, if exists update based in lastUpdate
      * @param model: object with new data
      * @return if server version exists:
-     *              - if server version is more updated return server version
+     *              - if server version is more updated return server version (ignore nano seconds while comparing dates)
      *              - otherwise save new version and return new server version
      *                  - can return error if conversion of model to entity fails
      *         otherwise:
@@ -47,7 +47,7 @@ public interface SynchronizableController<
      * Delete an element if exists
      * @param model: object with delete data
      * @return if server version exists:
-     *              - if server version is more updated return server version
+     *              - if server version is more updated return server version (ignore nano seconds while comparing dates)
      *              - otherwise delete server version and return success
      *         otherwise:
      *              - return error
@@ -67,7 +67,7 @@ public interface SynchronizableController<
      *
      * for each element:
      *      if server version exists:
-     *          - if server version is more updated do nothing
+     *          - if server version is more updated do nothing (ignore nano seconds while comparing dates)
      *          - otherwise update server version
      *              - if conversion of model to entity fail item is ignored
      *      otherwise:
@@ -85,7 +85,7 @@ public interface SynchronizableController<
      * @param model: model with ids and delete infos
      * for each element:
      *         if server version exists:
-     *             - if server version is more updated do nothing
+     *             - if server version is more updated do nothing (ignore nano seconds while comparing dates)
      *             - otherwise delete server version and return it's id
      *         otherwise:
      *             - do nothing
@@ -96,9 +96,9 @@ public interface SynchronizableController<
     ResponseEntity<SynchronizableGenericDataResponseModelImpl<List<ID>>> deleteAll(SynchronizableDeleteAllListModel<ID> model);
 
     /**
-     * Sync items (to delete and to save) respecting saveAll and deleteAll rules
-     *
+     * Sync items (only create and update) respecting saveAll rules and returning localId of received models
+     * If one outdated item was send the function return the updated version with the sent localId
      * @return model with all items
      */
-    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> syncSave(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
 }
