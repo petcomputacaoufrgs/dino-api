@@ -28,7 +28,7 @@ public class Phone extends SynchronizableEntity<Long> {
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
-    @OneToMany(mappedBy = "originalEssentialPhone", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "originalEssentialPhone", fetch = FetchType.LAZY)
     private List<Phone> derivativePhones;
 
     public Phone() { }
@@ -75,5 +75,13 @@ public class Phone extends SynchronizableEntity<Long> {
 
     public void setOriginalEssentialPhone(Phone originalEssentialPhone) {
         this.originalEssentialPhone = originalEssentialPhone;
+    }
+
+    public List<Phone> getDerivativePhones() {
+        return derivativePhones;
+    }
+
+    public void setDerivativePhones(List<Phone> derivativePhones) {
+        this.derivativePhones = derivativePhones;
     }
 }
