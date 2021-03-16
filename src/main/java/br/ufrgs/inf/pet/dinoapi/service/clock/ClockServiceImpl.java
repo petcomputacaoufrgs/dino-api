@@ -7,7 +7,10 @@ import java.util.Date;
 @Service
 public class ClockServiceImpl implements ClockService {
     public Date now() {
-        return new Date();
+        final LocalDateTime date = LocalDateTime.now();
+        final Instant instant = date.toInstant(ZoneOffset.UTC);
+        final ZonedDateTime zonedResult = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        return Date.from(zonedResult.toInstant());
     }
 
     public Date nowPlusMinutes(long minutes) {
