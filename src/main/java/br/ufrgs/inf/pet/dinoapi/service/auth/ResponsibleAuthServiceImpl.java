@@ -31,7 +31,7 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
     private static final Short MIN_DELAY_TO_REQUEST_CODE_MIN = 2;
     private static final Short MAX_DELAY_TO_RECOVER_PASSWORD_MIN = 60;
     private static final Short MAX_ATTEMPTS = 3;
-    private static final String ENCRYPT_ALGORITHM = "AES/ECB/PKCS5Padding";
+    private static final String ENCRYPT_ALGORITHM = "AES/CBC/PKCS5Padding";
 
     private final OAuthServiceImpl authService;
     private final LanguageServiceImpl languageService;
