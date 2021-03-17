@@ -1,6 +1,6 @@
-package br.ufrgs.inf.pet.dinoapi.model.user;
+package br.ufrgs.inf.pet.dinoapi.model.auth.responsible;
 
-public class CreateResponsibleAuthResponseModel {
+public class SetResponsibleAuthResponseModel {
     private Boolean success;
     private String token;
     private String iv;

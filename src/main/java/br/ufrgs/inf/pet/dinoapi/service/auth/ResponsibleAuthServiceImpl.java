@@ -6,8 +6,10 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.RecoverPasswordRequest;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
+import br.ufrgs.inf.pet.dinoapi.exception.ResponsibleRecoverRequestMaxAttemptsException;
+import br.ufrgs.inf.pet.dinoapi.exception.ResponsibleRecoverRequestNotFoundException;
 import br.ufrgs.inf.pet.dinoapi.language.BaseLanguage;
-import br.ufrgs.inf.pet.dinoapi.model.user.*;
+import br.ufrgs.inf.pet.dinoapi.model.auth.responsible.*;
 import br.ufrgs.inf.pet.dinoapi.repository.user.RecoverPasswordRequestRepository;
 import br.ufrgs.inf.pet.dinoapi.service.email.EmailServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.language.LanguageServiceImpl;
@@ -25,10 +27,6 @@ import java.util.List;
 
 @Service
 public class ResponsibleAuthServiceImpl extends LogUtilsBase implements ResponsibleAuthService {
-    private static final Short MIN_DELAY_TO_REQUEST_CODE_MIN = 2;
-    private static final Short MAX_DELAY_TO_RECOVER_PASSWORD_MIN = 60;
-    private static final Short MAX_ATTEMPTS = 3;
-
     private final OAuthServiceImpl authService;
     private final LanguageServiceImpl languageService;
     private final RecoverPasswordConfig recoverPasswordConfig;
@@ -48,8 +46,9 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
     }
 
     @Override
-    public ResponseEntity<Void> requestRecoverCode() {
+    public ResponseEntity<ResponsibleRequestRecoverResponseModel> requestRecoverCode() {
         final Auth auth = this.authService.getCurrentAuth();
+        final ResponsibleRequestRecoverResponseModel model = new ResponsibleRequestRecoverResponseModel();
         if (auth != null) {
             final BaseLanguage language = languageService.getUserLanguage();
             if (language != null) {
@@ -58,8 +57,9 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
                 final List<RecoverPasswordRequest> requests = this.repository.findAllByUserId(user.getId());
                 final String code = AlphaNumericCodeUtils.generateRandomCode(recoverPasswordConfig.getCodeLength(), true);
 
-                if (requests.stream().anyMatch(request -> request.getDate().isAfter(now.minusMinutes(MIN_DELAY_TO_REQUEST_CODE_MIN)))) {
-                    return new ResponseEntity<>(HttpStatus.OK);
+                if (requests.stream().anyMatch(request -> request.getDate().isAfter(now.minusMinutes(AuthConstants.MIN_DELAY_TO_REQUEST_CODE_MIN)))) {
+                    model.setSuccess(true);
+                    return new ResponseEntity<>(model, HttpStatus.OK);
                 }
 
                 this.repository.deleteAll(requests);
@@ -77,82 +77,78 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
 
                 emailService.sendEmail(userEmail, language.getRecoverPasswordSubject(), htmlMessage);
 
-                return new ResponseEntity<>(HttpStatus.OK);
+                model.setSuccess(true);
+                return new ResponseEntity<>(model, HttpStatus.OK);
             }
 
             this.logAPIError("User without language trying to send email.");
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            model.setSuccess(false);
+            return new ResponseEntity<>(model, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @Override
-    public ResponseEntity<Boolean> verifyRecoverCode(RecoverPasswordDataModel model) {
+    public ResponseEntity<ResponsibleVerityRecoverCodeResponseModel> verifyRecoverCode(VerifyResponsibleRecoverCodeModel model) {
+        final ResponsibleVerityRecoverCodeResponseModel responseModel =  new ResponsibleVerityRecoverCodeResponseModel();
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
-            if (this.validateRecoverCode(auth, model)) {
-                return new ResponseEntity<>(true, HttpStatus.OK);
+            try {
+                if (this.validateRecoverCode(auth, model.getCode())) {
+                    responseModel.setValid(true);
+                    return new ResponseEntity<>(responseModel, HttpStatus.OK);
+                }
+                responseModel.setValid(false);
+                return new ResponseEntity<>(responseModel, HttpStatus.OK);
+            } catch (ResponsibleRecoverRequestNotFoundException | ResponsibleRecoverRequestMaxAttemptsException e) {
+                responseModel.setRequestNotFound(true);
+                return new ResponseEntity<>(responseModel, HttpStatus.OK);
             }
-            return new ResponseEntity<>(false, HttpStatus.OK);
         }
-        return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
+        return new ResponseEntity<>(responseModel, HttpStatus.FORBIDDEN);
     }
 
     @Override
-    public ResponseEntity<CreateResponsibleAuthResponseModel> changeAuth(RecoverPasswordDataModel model) {
-        final CreateResponsibleAuthResponseModel responseModel = new CreateResponsibleAuthResponseModel();
+    public ResponseEntity<SetResponsibleAuthResponseModel> recoverAuth(ResponsibleRecoverPasswordModel model) {
+        final SetResponsibleAuthResponseModel responseModel = new SetResponsibleAuthResponseModel();
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
             final User user = auth.getUser();
             final List<RecoverPasswordRequest> requests = this.repository.findAllByUserIdOrderByDate(user.getId());
 
-            if (this.validateRecoverCode(auth, model)) {
-                //TO-DO Gerar novo token com a nova senha
-                auth.setResponsibleToken("TO-DO");
-                responseModel.setSuccess(true);
-                responseModel.setToken("TO-DO");
-
-                repository.deleteAll(requests);
-                return new ResponseEntity<>(responseModel, HttpStatus.OK);
-            }
+            try {
+                if (this.validateRecoverCode(auth, model.getCode())) {
+                    repository.deleteAll(requests);
+                    return this.setResponsibleAuth(responseModel, model, auth);
+                }
+            } catch (ResponsibleRecoverRequestNotFoundException | ResponsibleRecoverRequestMaxAttemptsException ignored) { }
             responseModel.setSuccess(false);
-            return new ResponseEntity<>(null, HttpStatus.OK);
+            return new ResponseEntity<>(responseModel, HttpStatus.OK);
+        }
+        responseModel.setSuccess(false);
+        return new ResponseEntity<>(responseModel, HttpStatus.FORBIDDEN);
+    }
+
+    @Override
+    public ResponseEntity<SetResponsibleAuthResponseModel> changeAuth(SetResponsibleAuthModel model) {
+        final SetResponsibleAuthResponseModel responseModel = new SetResponsibleAuthResponseModel();
+        final Auth auth = this.authService.getCurrentAuth();
+        if (auth != null) {
+            return this.setResponsibleAuth(responseModel, model, auth);
         }
         responseModel.setSuccess(false);
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 
     @Override
-    public ResponseEntity<CreateResponsibleAuthResponseModel> createResponsibleAuth(CreateResponsibleAuthModel model) {
-        final CreateResponsibleAuthResponseModel responseModel = new CreateResponsibleAuthResponseModel();
+    public ResponseEntity<SetResponsibleAuthResponseModel> createAuth(SetResponsibleAuthModel model) {
+        final SetResponsibleAuthResponseModel responseModel = new SetResponsibleAuthResponseModel();
         final Auth auth = this.authService.getCurrentAuth();
         if(auth != null) {
             final UserSettings settings = auth.getUser().getUserAppSettings();
 
             if (settings != null && !settings.getFirstSettingsDone()) {
-                try {
-                    final String key = model.getKey();
-
-                    final String code = AlphaNumericCodeUtils.generateRandomCode(AuthConstants.RESPONSIBLE_CODE_LENGTH, false);
-                    final String iv = AlphaNumericCodeUtils.generateRandomCode(16, false);
-
-                    final Key aesKey = AESUtils.generateAES32BytesKey(key);
-                    final String hash = AESUtils.encrypt(code, aesKey, iv);
-
-                    auth.setResponsibleIV(iv);
-                    auth.setResponsibleCode(code);
-                    auth.setResponsibleToken(hash);
-                    this.authService.save(auth);
-
-                    responseModel.setSuccess(true);
-                    responseModel.setToken(hash);
-                    responseModel.setIv(iv);
-                    return new ResponseEntity<>(responseModel, HttpStatus.OK);
-                } catch (Exception e) {
-                    this.logAPIError(e);
-                    responseModel.setSuccess(false);
-                    return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+                return this.setResponsibleAuth(responseModel, model, auth);
             }
         }
 
@@ -160,21 +156,51 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
         return new ResponseEntity<>(responseModel, HttpStatus.FORBIDDEN);
     }
 
-    private Boolean validateRecoverCode(Auth auth, RecoverPasswordDataModel model) {
+    private ResponseEntity<SetResponsibleAuthResponseModel> setResponsibleAuth(SetResponsibleAuthResponseModel responseModel, SetResponsibleAuthModel model, Auth auth) {
+        try {
+            final String key = model.getKey();
+            final String code = AlphaNumericCodeUtils.generateRandomCode(AuthConstants.RESPONSIBLE_CODE_LENGTH, false);
+            final String iv = AlphaNumericCodeUtils.generateRandomCode(16, false);
+
+            final Key aesKey = AESUtils.generateAESKey(key);
+            final String hash = AESUtils.encrypt(code, aesKey, iv);
+
+            auth.setResponsibleIV(iv);
+            auth.setResponsibleCode(code);
+            auth.setResponsibleToken(hash);
+            this.authService.save(auth);
+
+            responseModel.setSuccess(true);
+            responseModel.setToken(hash);
+            responseModel.setIv(iv);
+            return new ResponseEntity<>(responseModel, HttpStatus.OK);
+        } catch (Exception e) {
+            this.logAPIError(e);
+            responseModel.setSuccess(false);
+            return new ResponseEntity<>(responseModel, HttpStatus.OK);
+        }
+    }
+
+    private Boolean validateRecoverCode(Auth auth, String code) throws ResponsibleRecoverRequestNotFoundException, ResponsibleRecoverRequestMaxAttemptsException {
         final LocalDateTime now = LocalDateTime.now();
         final User user = auth.getUser();
         final List<RecoverPasswordRequest> requests = this.repository.findAllByUserIdOrderByDate(user.getId());
 
         if (requests.size() > 0) {
             final RecoverPasswordRequest request = requests.get(0);
-            if (request.getDate().plusMinutes(MAX_DELAY_TO_RECOVER_PASSWORD_MIN).isAfter(now)) {
-                if (request.getCode().equals(model.getCode())) {
+            if (request.getDate().plusMinutes(AuthConstants.MAX_DELAY_TO_RECOVER_PASSWORD_MIN).isAfter(now)) {
+                if (request.getCode().equals(code)) {
+                    request.setAttempts(AuthConstants.MAX_ATTEMPTS - 1);
+                    repository.save(request);
                     return true;
                 } else {
                     request.setAttempts(request.getAttempts() + 1);
 
-                    if (request.getAttempts() >= MAX_ATTEMPTS * 2) {
+                    if (request.getAttempts() >= AuthConstants.MAX_ATTEMPTS) {
                         repository.deleteAll(requests);
+                        throw new ResponsibleRecoverRequestMaxAttemptsException();
+                    } else {
+                        repository.save(request);
                     }
 
                     return false;
@@ -183,7 +209,7 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
             repository.deleteAll(requests);
         }
 
-        return false;
+        throw new ResponsibleRecoverRequestNotFoundException();
     }
 
     private String getHTMLRecoverMessage(String code) {

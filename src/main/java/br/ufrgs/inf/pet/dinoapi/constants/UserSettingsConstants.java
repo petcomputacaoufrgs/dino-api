@@ -24,8 +24,8 @@ public class UserSettingsConstants {
 
     public final static String KEY_NULL_MESSAGE = "password cannot be null";
 
-    public final static int KEY_MAX = 64;
-    public final static int KEY_MIN = 64;
+    public final static int KEY_MAX = 32;
+    public final static int KEY_MIN = 32;
 
     public final static String KEY_SIZE_MESSAGE = "password should be between "+ KEY_MIN + " and " + KEY_MAX + " characters";
 

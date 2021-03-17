@@ -1,8 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.user.CreateResponsibleAuthModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.CreateResponsibleAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.RecoverPasswordDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.responsible.*;
 import org.springframework.http.ResponseEntity;
 
 public interface ResponsibleAuthController {
@@ -10,24 +8,32 @@ public interface ResponsibleAuthController {
      * Send email to authenticated email with code to recover password
      * @return HttpStatus
      */
-    ResponseEntity<Void> requestRecoverCode();
+    ResponseEntity<ResponsibleRequestRecoverResponseModel> requestRecoverCode();
 
     /**
-     * Validate code
+     * Validate responsible recover code
      * @return return true if valid
      */
-    ResponseEntity<Boolean> verifyRecoverCode(RecoverPasswordDataModel model);
+    ResponseEntity<ResponsibleVerityRecoverCodeResponseModel> verifyRecoverCode(VerifyResponsibleRecoverCodeModel model);
 
     /**
-     * Change password
+     * Recover password
      * @return if success return JWT token with authentication code otherwise return success flag false
      */
-    ResponseEntity<CreateResponsibleAuthResponseModel> changeAuth(RecoverPasswordDataModel model);
+    ResponseEntity<SetResponsibleAuthResponseModel> recoverAuth(ResponsibleRecoverPasswordModel model);
+
+    /**
+     * Change responsible token
+     * Obs.: Should be protected with responsible code auth
+     * @param model model with new token
+     * @return if success return new token and iv with authentication code otherwise return success flag false
+     */
+    ResponseEntity<SetResponsibleAuthResponseModel> changeAuth(SetResponsibleAuthModel model);
 
     /**
      * Create responsible code with JWT token using user password
      * @param model model with user password
-     * @return if success return JWT token with authentication code otherwise return success flag false
+     * @return if success return token and iv with authentication code otherwise return success flag false
      */
-    ResponseEntity<CreateResponsibleAuthResponseModel> createResponsibleAuth(CreateResponsibleAuthModel model);
+    ResponseEntity<SetResponsibleAuthResponseModel> createAuth(SetResponsibleAuthModel model);
 }

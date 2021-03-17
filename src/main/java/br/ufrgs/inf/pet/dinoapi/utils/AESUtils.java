@@ -11,11 +11,18 @@ public class AESUtils {
     private static final String ENCRYPT_ALGORITHM = "AES/CBC/PKCS5Padding";
     private static final String SECRET_ALGORITHM = "AES";
 
-    public static Key generateAES32BytesKey(String key) {
+    public static Key generateAESKey(String key) {
         final String key32Bytes = key.substring(0, 32);
         return new SecretKeySpec(key32Bytes.getBytes(StandardCharsets.UTF_8), SECRET_ALGORITHM);
     }
 
+    /**
+     * Encrypt string with AES
+     * @param data string to be encrypted
+     * @param key string of 32 bytes to generate token
+     * @param iv string of 16 bytes to randomize token
+     * @return generated token
+     */
     public static String encrypt(String data, Key key, String iv) throws NoSuchPaddingException, NoSuchAlgorithmException,
             InvalidKeyException, BadPaddingException, IllegalBlockSizeException, InvalidAlgorithmParameterException {
         final Cipher cipher = Cipher.getInstance(ENCRYPT_ALGORITHM);

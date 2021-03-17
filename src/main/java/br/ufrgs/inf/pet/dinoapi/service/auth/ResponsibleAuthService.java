@@ -1,16 +1,16 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.user.CreateResponsibleAuthModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.CreateResponsibleAuthResponseModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.RecoverPasswordDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.auth.responsible.*;
 import org.springframework.http.ResponseEntity;
 
 public interface ResponsibleAuthService {
-    ResponseEntity<Void> requestRecoverCode();
+    ResponseEntity<ResponsibleRequestRecoverResponseModel> requestRecoverCode();
 
-    ResponseEntity<Boolean> verifyRecoverCode(RecoverPasswordDataModel model);
+    ResponseEntity<ResponsibleVerityRecoverCodeResponseModel> verifyRecoverCode(VerifyResponsibleRecoverCodeModel model);
 
-    ResponseEntity<CreateResponsibleAuthResponseModel> changeAuth(RecoverPasswordDataModel model);
+    ResponseEntity<SetResponsibleAuthResponseModel> recoverAuth(ResponsibleRecoverPasswordModel model);
 
-    ResponseEntity<CreateResponsibleAuthResponseModel> createResponsibleAuth(CreateResponsibleAuthModel model);
+    ResponseEntity<SetResponsibleAuthResponseModel> changeAuth(SetResponsibleAuthModel model);
+
+    ResponseEntity<SetResponsibleAuthResponseModel> createAuth(SetResponsibleAuthModel model);
 }
