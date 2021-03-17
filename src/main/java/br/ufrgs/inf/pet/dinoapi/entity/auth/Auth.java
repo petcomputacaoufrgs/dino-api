@@ -33,6 +33,15 @@ public class Auth {
     @Column(name = "last_token_refresh")
     private LocalDateTime lastTokenRefresh;
 
+    @Column(name = "responsible_token", length = AuthConstants.RESPONSIBLE_TOKEN_MAX)
+    private String responsibleHash;
+
+    @Column(name = "responsible_code", length = AuthConstants.RESPONSIBLE_CODE_LENGTH)
+    private String responsibleCode;
+
+    @Column(name = "responsible_salt", length = AuthConstants.RESPONSIBLE_CODE_LENGTH)
+    private String responsibleSalt;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -92,5 +101,29 @@ public class Auth {
 
     public void setLastTokenRefresh(LocalDateTime lastTokenRefresh) {
         this.lastTokenRefresh = lastTokenRefresh;
+    }
+
+    public String getResponsibleHash() {
+        return responsibleHash;
+    }
+
+    public void setResponsibleHash(String responsibleHash) {
+        this.responsibleHash = responsibleHash;
+    }
+
+    public String getResponsibleCode() {
+        return responsibleCode;
+    }
+
+    public void setResponsibleCode(String responsibleCode) {
+        this.responsibleCode = responsibleCode;
+    }
+
+    public String getResponsibleSalt() {
+        return responsibleSalt;
+    }
+
+    public void setResponsibleSalt(String responsibleSalt) {
+        this.responsibleSalt = responsibleSalt;
     }
 }

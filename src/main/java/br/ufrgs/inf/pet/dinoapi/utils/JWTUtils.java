@@ -24,16 +24,6 @@ public class JWTUtils {
                 .compact();
     }
 
-    public static String generateUnlimited(String key, String payload) {
-        final ClockServiceImpl clock = new ClockServiceImpl();
-
-        return Jwts.builder()
-                .setIssuedAt(clock.now())
-                .setPayload(payload)
-                .signWith(SignatureAlgorithm.HS256, key)
-                .compact();
-    }
-
     public static String generate(Claims claims, String id, String subject, Long duration, String key) {
         final ClockServiceImpl clock = new ClockServiceImpl();
         final Date expiresDate = clock.nowPlusMinutes(duration);

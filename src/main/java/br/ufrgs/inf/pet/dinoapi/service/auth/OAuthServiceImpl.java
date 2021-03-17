@@ -134,6 +134,8 @@ public class OAuthServiceImpl implements OAuthService {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+
+
     @Override
     public Auth findByAccessToken(String accessToken) {
         if (!accessToken.isBlank()) {
@@ -158,6 +160,11 @@ public class OAuthServiceImpl implements OAuthService {
         }
 
         return null;
+    }
+
+    @Override
+    public void save(Auth auth) {
+        this.authRepository.save(auth);
     }
 
     @Override

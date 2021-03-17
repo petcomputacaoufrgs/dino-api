@@ -24,6 +24,8 @@ public interface OAuthService {
 
     Auth findByWebSocketToken(String webSocketToken);
 
+    void save(Auth auth);
+
     boolean canConnectToWebSocket(Auth auth);
 
     Auth getCurrentAuth();

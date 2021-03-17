@@ -1,57 +1,54 @@
-package br.ufrgs.inf.pet.dinoapi.service.user;
+package br.ufrgs.inf.pet.dinoapi.service.auth;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.RecoverPasswordConfig;
+import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.RecoverPasswordRequest;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.language.BaseLanguage;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDataResponseModelImpl;
-import br.ufrgs.inf.pet.dinoapi.model.user.RecoverPasswordDataModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.ResponsiblePasswordModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.*;
 import br.ufrgs.inf.pet.dinoapi.repository.user.RecoverPasswordRequestRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.email.EmailServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.language.LanguageServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
+import br.ufrgs.inf.pet.dinoapi.utils.AESUtils;
 import br.ufrgs.inf.pet.dinoapi.utils.AlphaNumericCodeUtils;
-import br.ufrgs.inf.pet.dinoapi.utils.JWTUtils;
-import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import java.security.Key;
+import java.security.Provider;
+import java.security.Security;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ResponsibleAuthServiceImpl extends LogUtilsBase implements ResponsibleAuthService {
     private static final Short MIN_DELAY_TO_REQUEST_CODE_MIN = 2;
     private static final Short MAX_DELAY_TO_RECOVER_PASSWORD_MIN = 60;
     private static final Short MAX_ATTEMPTS = 3;
+    private static final String ENCRYPT_ALGORITHM = "AES/ECB/PKCS5Padding";
 
     private final OAuthServiceImpl authService;
     private final LanguageServiceImpl languageService;
     private final RecoverPasswordConfig recoverPasswordConfig;
     private final EmailServiceImpl emailService;
     private final RecoverPasswordRequestRepository repository;
-    private final UserSettingsServiceImpl userSettingsService;
 
     @Autowired
     public ResponsibleAuthServiceImpl(OAuthServiceImpl authService, LanguageServiceImpl languageService,
                                       RecoverPasswordConfig recoverPasswordConfig, EmailServiceImpl emailService,
-                                      LogAPIErrorServiceImpl logAPIErrorService, UserSettingsServiceImpl userSettingsService,
-                                      RecoverPasswordRequestRepository repository) {
+                                      LogAPIErrorServiceImpl logAPIErrorService, RecoverPasswordRequestRepository repository) {
         super(logAPIErrorService);
         this.authService = authService;
         this.languageService = languageService;
         this.recoverPasswordConfig = recoverPasswordConfig;
         this.emailService = emailService;
         this.repository = repository;
-        this.userSettingsService = userSettingsService;
     }
 
     @Override
@@ -106,50 +103,66 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
     }
 
     @Override
-    public ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(RecoverPasswordDataModel model) {
+    public ResponseEntity<CreateResponsibleAuthResponseModel> changeAuth(RecoverPasswordDataModel model) {
+        final CreateResponsibleAuthResponseModel responseModel = new CreateResponsibleAuthResponseModel();
         final Auth auth = this.authService.getCurrentAuth();
         if (auth != null) {
             final User user = auth.getUser();
             final List<RecoverPasswordRequest> requests = this.repository.findAllByUserIdOrderByDate(user.getId());
 
             if (this.validateRecoverCode(auth, model)) {
-                final UserSettings userSettings = user.getUserAppSettings();
-                final UserSettingsDataModel saveModel = userSettingsService.createUserSettingsDataModel(userSettings);
-                saveModel.setParentsAreaPassword(model.getNewPassword());
+                //TO-DO Gerar novo token com a nova senha
+                auth.setResponsibleHash("TO-DO");
+                responseModel.setSuccess(true);
+                responseModel.setHash("TO-DO");
 
-                final ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> response =
-                        userSettingsService.save(saveModel);
                 repository.deleteAll(requests);
-                return response;
+                return new ResponseEntity<>(responseModel, HttpStatus.OK);
             }
+            responseModel.setSuccess(false);
             return new ResponseEntity<>(null, HttpStatus.OK);
         }
+        responseModel.setSuccess(false);
         return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
     }
 
     @Override
-    public ResponseEntity<String> createResponsibleAuth(String password) {
+    public ResponseEntity<CreateResponsibleAuthResponseModel> createResponsibleAuth(CreateResponsibleAuthModel model) {
+        final CreateResponsibleAuthResponseModel responseModel = new CreateResponsibleAuthResponseModel();
         final Auth auth = this.authService.getCurrentAuth();
 
         if(auth != null) {
-            final ResponsiblePasswordModel payload_model = new ResponsiblePasswordModel();
-            final String code = AlphaNumericCodeUtils.generateRandomCode(8, false);
-            final User user = auth.getUser();
-
-            payload_model.setCode(code);
-            final String payload;
             try {
-                payload = JsonUtils.convertToJson(payload_model);
-                final String token = JWTUtils.generateUnlimited(password, payload);
+                final String password = model.getPassword();
+                final String code = AlphaNumericCodeUtils.generateRandomCode(AuthConstants.RESPONSIBLE_CODE_LENGTH, false);
+                final String salt = AlphaNumericCodeUtils.generateRandomCode(password.length(), false);
+                final Key key = AESUtils.generateAES32BytesKey(password);
 
-                return new ResponseEntity<>(token, HttpStatus.OK);
-            } catch (JsonProcessingException e) {
+                List<String> algorithms = Arrays.stream(Security.getProviders())
+                        .flatMap(provider -> provider.getServices().stream())
+                        .filter(service -> "Cipher".equals(service.getType()))
+                        .map(Provider.Service::getAlgorithm)
+                        .collect(Collectors.toList());
+
+                final String hash = AESUtils.encrypt(ENCRYPT_ALGORITHM, code, key);
+
+                auth.setResponsibleSalt(salt);
+                auth.setResponsibleCode(code);
+                auth.setResponsibleHash(hash);
+                this.authService.save(auth);
+                responseModel.setSuccess(true);
+                responseModel.setHash(hash);
+                responseModel.setSalt(salt);
+                return new ResponseEntity<>(responseModel, HttpStatus.OK);
+            } catch (Exception e) {
                 this.logAPIError(e);
-                return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+                responseModel.setSuccess(false);
+                return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         }
 
-        return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        responseModel.setSuccess(false);
+        return new ResponseEntity<>(responseModel, HttpStatus.FORBIDDEN);
     }
 
     private Boolean validateRecoverCode(Auth auth, RecoverPasswordDataModel model) {

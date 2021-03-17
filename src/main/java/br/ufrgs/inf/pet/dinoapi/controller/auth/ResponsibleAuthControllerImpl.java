@@ -1,10 +1,10 @@
-package br.ufrgs.inf.pet.dinoapi.controller.user;
+package br.ufrgs.inf.pet.dinoapi.controller.auth;
 
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableDataResponseModelImpl;
+import br.ufrgs.inf.pet.dinoapi.model.user.CreateResponsibleAuthModel;
+import br.ufrgs.inf.pet.dinoapi.model.user.CreateResponsibleAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.RecoverPasswordDataModel;
-import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
-import br.ufrgs.inf.pet.dinoapi.service.user.ResponsibleAuthService;
-import br.ufrgs.inf.pet.dinoapi.service.user.ResponsibleAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.ResponsibleAuthService;
+import br.ufrgs.inf.pet.dinoapi.service.auth.ResponsibleAuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,7 +13,8 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/responsible_auth/")
-public class ResponsibleAuthControllerImpl implements ResponsibleAuthController {
+public class
+ResponsibleAuthControllerImpl implements ResponsibleAuthController {
 
     private final ResponsibleAuthService recoverPasswordRequestService;
 
@@ -36,13 +37,13 @@ public class ResponsibleAuthControllerImpl implements ResponsibleAuthController 
 
     @Override
     @PutMapping("change_auth/")
-    public ResponseEntity<SynchronizableDataResponseModelImpl<Long, UserSettingsDataModel>> changeAuth(@Valid @RequestBody RecoverPasswordDataModel model) {
+    public ResponseEntity<CreateResponsibleAuthResponseModel> changeAuth(@Valid @RequestBody RecoverPasswordDataModel model) {
         return recoverPasswordRequestService.changeAuth(model);
     }
 
     @Override
     @PostMapping("create_auth/")
-    public ResponseEntity<String> createResponsibleAuth(String password) {
-        return recoverPasswordRequestService.createResponsibleAuth(password);
+    public ResponseEntity<CreateResponsibleAuthResponseModel> createResponsibleAuth(@Valid @RequestBody CreateResponsibleAuthModel model) {
+        return recoverPasswordRequestService.createResponsibleAuth(model);
     }
 }

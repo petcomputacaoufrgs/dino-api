@@ -9,6 +9,10 @@ public final class AuthConstants {
 
     public final static int NAME_MAX = 100;
 
+    public final static int RESPONSIBLE_TOKEN_MAX = 560;
+
+    public final static int RESPONSIBLE_CODE_LENGTH = 20;
+
     public final static String INVALID_AUTH = "Authentication error";
 
     public final static String UNKNOWN_ERROR = "Unknown server error";
