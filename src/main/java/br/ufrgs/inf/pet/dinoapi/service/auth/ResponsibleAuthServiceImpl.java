@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.RecoverPasswordRequest;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.language.BaseLanguage;
 import br.ufrgs.inf.pet.dinoapi.model.user.*;
 import br.ufrgs.inf.pet.dinoapi.repository.user.RecoverPasswordRequestRepository;
@@ -19,19 +20,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.security.Key;
-import java.security.Provider;
-import java.security.Security;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ResponsibleAuthServiceImpl extends LogUtilsBase implements ResponsibleAuthService {
     private static final Short MIN_DELAY_TO_REQUEST_CODE_MIN = 2;
     private static final Short MAX_DELAY_TO_RECOVER_PASSWORD_MIN = 60;
     private static final Short MAX_ATTEMPTS = 3;
-    private static final String ENCRYPT_ALGORITHM = "AES/CBC/PKCS5Padding";
 
     private final OAuthServiceImpl authService;
     private final LanguageServiceImpl languageService;
@@ -112,9 +108,9 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
 
             if (this.validateRecoverCode(auth, model)) {
                 //TO-DO Gerar novo token com a nova senha
-                auth.setResponsibleHash("TO-DO");
+                auth.setResponsibleToken("TO-DO");
                 responseModel.setSuccess(true);
-                responseModel.setHash("TO-DO");
+                responseModel.setToken("TO-DO");
 
                 repository.deleteAll(requests);
                 return new ResponseEntity<>(responseModel, HttpStatus.OK);
@@ -130,34 +126,33 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
     public ResponseEntity<CreateResponsibleAuthResponseModel> createResponsibleAuth(CreateResponsibleAuthModel model) {
         final CreateResponsibleAuthResponseModel responseModel = new CreateResponsibleAuthResponseModel();
         final Auth auth = this.authService.getCurrentAuth();
-
         if(auth != null) {
-            try {
-                final String password = model.getPassword();
-                final String code = AlphaNumericCodeUtils.generateRandomCode(AuthConstants.RESPONSIBLE_CODE_LENGTH, false);
-                final String salt = AlphaNumericCodeUtils.generateRandomCode(password.length(), false);
-                final Key key = AESUtils.generateAES32BytesKey(password);
+            final UserSettings settings = auth.getUser().getUserAppSettings();
 
-                List<String> algorithms = Arrays.stream(Security.getProviders())
-                        .flatMap(provider -> provider.getServices().stream())
-                        .filter(service -> "Cipher".equals(service.getType()))
-                        .map(Provider.Service::getAlgorithm)
-                        .collect(Collectors.toList());
+            if (settings != null && !settings.getFirstSettingsDone()) {
+                try {
+                    final String key = model.getKey();
 
-                final String hash = AESUtils.encrypt(ENCRYPT_ALGORITHM, code, key);
+                    final String code = AlphaNumericCodeUtils.generateRandomCode(AuthConstants.RESPONSIBLE_CODE_LENGTH, false);
+                    final String iv = AlphaNumericCodeUtils.generateRandomCode(16, false);
 
-                auth.setResponsibleSalt(salt);
-                auth.setResponsibleCode(code);
-                auth.setResponsibleHash(hash);
-                this.authService.save(auth);
-                responseModel.setSuccess(true);
-                responseModel.setHash(hash);
-                responseModel.setSalt(salt);
-                return new ResponseEntity<>(responseModel, HttpStatus.OK);
-            } catch (Exception e) {
-                this.logAPIError(e);
-                responseModel.setSuccess(false);
-                return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
+                    final Key aesKey = AESUtils.generateAES32BytesKey(key);
+                    final String hash = AESUtils.encrypt(code, aesKey, iv);
+
+                    auth.setResponsibleIV(iv);
+                    auth.setResponsibleCode(code);
+                    auth.setResponsibleToken(hash);
+                    this.authService.save(auth);
+
+                    responseModel.setSuccess(true);
+                    responseModel.setToken(hash);
+                    responseModel.setIv(iv);
+                    return new ResponseEntity<>(responseModel, HttpStatus.OK);
+                } catch (Exception e) {
+                    this.logAPIError(e);
+                    responseModel.setSuccess(false);
+                    return new ResponseEntity<>(responseModel, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             }
         }
 

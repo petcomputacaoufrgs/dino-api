@@ -6,15 +6,15 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 public class CreateResponsibleAuthModel {
-    @NotNull(message = UserSettingsConstants.PASSWORD_NULL_MESSAGE)
-    @Size(min = UserSettingsConstants.PASSWORD_MIN, max = UserSettingsConstants.PASSWORD_MAX, message = UserSettingsConstants.PASSWORD_SIZE_MESSAGE)
-    private String password;
+    @NotNull(message = UserSettingsConstants.KEY_NULL_MESSAGE)
+    @Size(min = UserSettingsConstants.KEY_MIN, max = UserSettingsConstants.KEY_MAX, message = UserSettingsConstants.KEY_SIZE_MESSAGE)
+    private String key;
 
-    public String getPassword() {
-        return password;
+    public String getKey() {
+        return key;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setKey(String key) {
+        this.key = key;
     }
 }

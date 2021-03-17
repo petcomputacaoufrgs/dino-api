@@ -34,13 +34,13 @@ public class Auth {
     private LocalDateTime lastTokenRefresh;
 
     @Column(name = "responsible_token", length = AuthConstants.RESPONSIBLE_TOKEN_MAX)
-    private String responsibleHash;
+    private String responsibleToken;
 
     @Column(name = "responsible_code", length = AuthConstants.RESPONSIBLE_CODE_LENGTH)
     private String responsibleCode;
 
-    @Column(name = "responsible_salt", length = AuthConstants.RESPONSIBLE_CODE_LENGTH)
-    private String responsibleSalt;
+    @Column(name = "responsible_iv", length = AuthConstants.RESPONSIBLE_CODE_LENGTH)
+    private String responsibleIV;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -103,12 +103,12 @@ public class Auth {
         this.lastTokenRefresh = lastTokenRefresh;
     }
 
-    public String getResponsibleHash() {
-        return responsibleHash;
+    public String getResponsibleToken() {
+        return responsibleToken;
     }
 
-    public void setResponsibleHash(String responsibleHash) {
-        this.responsibleHash = responsibleHash;
+    public void setResponsibleToken(String responsibleHash) {
+        this.responsibleToken = responsibleHash;
     }
 
     public String getResponsibleCode() {
@@ -119,11 +119,11 @@ public class Auth {
         this.responsibleCode = responsibleCode;
     }
 
-    public String getResponsibleSalt() {
-        return responsibleSalt;
+    public String getResponsibleIV() {
+        return responsibleIV;
     }
 
-    public void setResponsibleSalt(String responsibleSalt) {
-        this.responsibleSalt = responsibleSalt;
+    public void setResponsibleIV(String responsibleSalt) {
+        this.responsibleIV = responsibleSalt;
     }
 }

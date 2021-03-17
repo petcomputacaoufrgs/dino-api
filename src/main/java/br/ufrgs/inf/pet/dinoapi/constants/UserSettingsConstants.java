@@ -22,11 +22,11 @@ public class UserSettingsConstants {
 
     public final static String FIRST_SETTINGS_DONE_NULL_MESSAGE = "firstSettingsDone cannot be null";
 
-    public final static String PASSWORD_NULL_MESSAGE = "password cannot be null";
+    public final static String KEY_NULL_MESSAGE = "password cannot be null";
 
-    public final static int PASSWORD_MAX = 24;
-    public final static int PASSWORD_MIN = 8;
+    public final static int KEY_MAX = 64;
+    public final static int KEY_MIN = 64;
 
-    public final static String PASSWORD_SIZE_MESSAGE = "password should be between "+ PASSWORD_MIN + " and " + PASSWORD_MAX + " characters";
+    public final static String KEY_SIZE_MESSAGE = "password should be between "+ KEY_MIN + " and " + KEY_MAX + " characters";
 
 }

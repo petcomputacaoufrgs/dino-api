@@ -2,8 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.model.user;
 
 public class CreateResponsibleAuthResponseModel {
     private Boolean success;
-    private String hash;
-    private String salt;
+    private String token;
+    private String iv;
 
     public Boolean getSuccess() {
         return success;
@@ -13,19 +13,19 @@ public class CreateResponsibleAuthResponseModel {
         this.success = success;
     }
 
-    public String getHash() {
-        return hash;
+    public String getToken() {
+        return token;
     }
 
-    public void setHash(String hash) {
-        this.hash = hash;
+    public void setToken(String token) {
+        this.token = token;
     }
 
-    public String getSalt() {
-        return salt;
+    public String getIv() {
+        return iv;
     }
 
-    public void setSalt(String salt) {
-        this.salt = salt;
+    public void setIv(String iv) {
+        this.iv = iv;
     }
 }

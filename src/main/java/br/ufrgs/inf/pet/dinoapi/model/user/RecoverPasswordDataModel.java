@@ -9,7 +9,7 @@ public class RecoverPasswordDataModel {
     @NotNull(message = RecoverPasswordConstants.NULL_CODE_MESSAGE)
     private String code;
 
-    @Size(min = UserSettingsConstants.PASSWORD_MIN, max = UserSettingsConstants.PASSWORD_MAX, message = UserSettingsConstants.PASSWORD_SIZE_MESSAGE)
+    @Size(min = UserSettingsConstants.KEY_MIN, max = UserSettingsConstants.KEY_MAX, message = UserSettingsConstants.KEY_SIZE_MESSAGE)
     private String newPassword;
 
     public String getCode() {
