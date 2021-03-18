@@ -47,4 +47,5 @@ public class GoogleAuthResponseDataModel extends AuthResponseDataModel {
     public void setSettings(UserSettingsDataModel settings) {
         this.settings = settings;
     }
+
 }

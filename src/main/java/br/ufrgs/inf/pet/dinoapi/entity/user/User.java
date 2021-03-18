@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.user;
 
+import br.ufrgs.inf.pet.dinoapi.constants.ResponsibleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
@@ -32,6 +33,15 @@ public class User extends SynchronizableEntity<Long> {
 
     @OneToOne(mappedBy = "user")
     private UserSettings userSettings;
+
+    @Column(name = "responsible_token", length = ResponsibleAuthConstants.RESPONSIBLE_TOKEN_MAX)
+    private String responsibleToken;
+
+    @Column(name = "responsible_code", length = ResponsibleAuthConstants.RESPONSIBLE_CODE_LENGTH)
+    private String responsibleCode;
+
+    @Column(name = "responsible_iv", length = ResponsibleAuthConstants.RESPONSIBLE_CODE_LENGTH)
+    private String responsibleIV;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
@@ -100,5 +110,29 @@ public class User extends SynchronizableEntity<Long> {
 
     public void setUserAppSettings(UserSettings userSettings) {
         this.userSettings = userSettings;
+    }
+
+    public String getResponsibleToken() {
+        return responsibleToken;
+    }
+
+    public void setResponsibleToken(String responsibleToken) {
+        this.responsibleToken = responsibleToken;
+    }
+
+    public String getResponsibleCode() {
+        return responsibleCode;
+    }
+
+    public void setResponsibleCode(String responsibleCode) {
+        this.responsibleCode = responsibleCode;
+    }
+
+    public String getResponsibleIV() {
+        return responsibleIV;
+    }
+
+    public void setResponsibleIV(String responsibleIV) {
+        this.responsibleIV = responsibleIV;
     }
 }

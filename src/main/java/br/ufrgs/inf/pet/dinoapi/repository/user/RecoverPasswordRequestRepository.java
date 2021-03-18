@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.repository.user;
 
-import br.ufrgs.inf.pet.dinoapi.entity.user.RecoverPasswordRequest;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.responsible.RecoverPasswordRequest;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;

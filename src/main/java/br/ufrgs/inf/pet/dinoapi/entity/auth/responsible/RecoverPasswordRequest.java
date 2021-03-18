@@ -1,6 +1,7 @@
-package br.ufrgs.inf.pet.dinoapi.entity.user;
+package br.ufrgs.inf.pet.dinoapi.entity.auth.responsible;
 
 import br.ufrgs.inf.pet.dinoapi.constants.RecoverPasswordConstants;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 

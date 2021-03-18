@@ -4,6 +4,8 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
@@ -18,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -39,6 +42,8 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         userDataModel.setEmail(entity.getEmail());
         userDataModel.setName(entity.getName());
         userDataModel.setPictureURL(entity.getPictureURL());
+        userDataModel.setResponsibleIV(entity.getResponsibleIV());
+        userDataModel.setResponsibleToken(entity.getResponsibleToken());
 
         return userDataModel;
     }
@@ -117,11 +122,18 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     }
 
     public User save(String name, String email, String pictureUrl, Auth auth) {
-        final User savedUser = this.saveUser(name, email, pictureUrl, auth.getUser());
+        final User savedUser = this.saveOnDatabase(name, email, pictureUrl, auth.getUser());
 
         this.sendUpdateMessage(savedUser, auth);
 
         return savedUser;
+    }
+
+    public UserDataModel saveByAuth(User user, Auth auth) throws AuthNullException, ConvertModelToEntityException {
+        final UserDataModel model = this.convertEntityToModel(user);
+        model.setLastUpdate(clock.getUTCZonedDateTime());
+        model.setId(user.getId());
+        return this.internalSave(model, auth);
     }
 
     public User saveNew(String name, String email, String pictureUrl) {
@@ -131,10 +143,10 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
             user = new User();
         }
 
-        return this.saveUser(name, email, pictureUrl, user);
+        return this.saveOnDatabase(name, email, pictureUrl, user);
     }
 
-    private User saveUser(String name, String email, String pictureUrl, User user) {
+    private User saveOnDatabase(String name, String email, String pictureUrl, User user) {
         user.setPictureURL(pictureUrl);
         user.setEmail(email);
         user.setName(name);

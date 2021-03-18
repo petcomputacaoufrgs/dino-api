@@ -1,9 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.RecoverPasswordConfig;
-import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
+import br.ufrgs.inf.pet.dinoapi.constants.ResponsibleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.user.RecoverPasswordRequest;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.responsible.RecoverPasswordRequest;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.exception.ResponsibleRecoverRequestMaxAttemptsException;
@@ -15,6 +15,7 @@ import br.ufrgs.inf.pet.dinoapi.service.email.EmailServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.language.LanguageServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
+import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.AESUtils;
 import br.ufrgs.inf.pet.dinoapi.utils.AlphaNumericCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,17 +33,20 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
     private final RecoverPasswordConfig recoverPasswordConfig;
     private final EmailServiceImpl emailService;
     private final RecoverPasswordRequestRepository repository;
+    private final UserServiceImpl userService;
 
     @Autowired
     public ResponsibleAuthServiceImpl(OAuthServiceImpl authService, LanguageServiceImpl languageService,
                                       RecoverPasswordConfig recoverPasswordConfig, EmailServiceImpl emailService,
-                                      LogAPIErrorServiceImpl logAPIErrorService, RecoverPasswordRequestRepository repository) {
+                                      LogAPIErrorServiceImpl logAPIErrorService, RecoverPasswordRequestRepository repository,
+                                      UserServiceImpl userService) {
         super(logAPIErrorService);
         this.authService = authService;
         this.languageService = languageService;
         this.recoverPasswordConfig = recoverPasswordConfig;
         this.emailService = emailService;
         this.repository = repository;
+        this.userService = userService;
     }
 
     @Override
@@ -57,7 +61,7 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
                 final List<RecoverPasswordRequest> requests = this.repository.findAllByUserId(user.getId());
                 final String code = AlphaNumericCodeUtils.generateRandomCode(recoverPasswordConfig.getCodeLength(), true);
 
-                if (requests.stream().anyMatch(request -> request.getDate().isAfter(now.minusMinutes(AuthConstants.MIN_DELAY_TO_REQUEST_CODE_MIN)))) {
+                if (requests.stream().anyMatch(request -> request.getDate().isAfter(now.minusMinutes(ResponsibleAuthConstants.MIN_DELAY_TO_REQUEST_CODE_MIN)))) {
                     model.setSuccess(true);
                     return new ResponseEntity<>(model, HttpStatus.OK);
                 }
@@ -158,17 +162,19 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
 
     private ResponseEntity<SetResponsibleAuthResponseModel> setResponsibleAuth(SetResponsibleAuthResponseModel responseModel, SetResponsibleAuthModel model, Auth auth) {
         try {
+            final User user = auth.getUser();
             final String key = model.getKey();
-            final String code = AlphaNumericCodeUtils.generateRandomCode(AuthConstants.RESPONSIBLE_CODE_LENGTH, false);
+            final String code = AlphaNumericCodeUtils.generateRandomCode(ResponsibleAuthConstants.RESPONSIBLE_CODE_LENGTH, false);
             final String iv = AlphaNumericCodeUtils.generateRandomCode(16, false);
 
             final Key aesKey = AESUtils.generateAESKey(key);
             final String hash = AESUtils.encrypt(code, aesKey, iv);
 
-            auth.setResponsibleIV(iv);
-            auth.setResponsibleCode(code);
-            auth.setResponsibleToken(hash);
-            this.authService.save(auth);
+            user.setResponsibleIV(iv);
+            user.setResponsibleCode(code);
+            user.setResponsibleToken(hash);
+
+            this.userService.saveByAuth(user, auth);
 
             responseModel.setSuccess(true);
             responseModel.setToken(hash);
@@ -188,15 +194,15 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
 
         if (requests.size() > 0) {
             final RecoverPasswordRequest request = requests.get(0);
-            if (request.getDate().plusMinutes(AuthConstants.MAX_DELAY_TO_RECOVER_PASSWORD_MIN).isAfter(now)) {
+            if (request.getDate().plusMinutes(ResponsibleAuthConstants.MAX_DELAY_TO_RECOVER_PASSWORD_MIN).isAfter(now)) {
                 if (request.getCode().equals(code)) {
-                    request.setAttempts(AuthConstants.MAX_ATTEMPTS - 1);
+                    request.setAttempts(ResponsibleAuthConstants.MAX_ATTEMPTS - 1);
                     repository.save(request);
                     return true;
                 } else {
                     request.setAttempts(request.getAttempts() + 1);
 
-                    if (request.getAttempts() >= AuthConstants.MAX_ATTEMPTS) {
+                    if (request.getAttempts() >= ResponsibleAuthConstants.MAX_ATTEMPTS) {
                         repository.deleteAll(requests);
                         throw new ResponsibleRecoverRequestMaxAttemptsException();
                     } else {

@@ -99,6 +99,8 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
                 final GoogleAuthResponseDataModel dataResponse = this.generateGoogleAuthResponseData(tokenResponse);
 
+                boolean isNewUser = false;
+
                 GoogleAuth googleAuth = this.getGoogleAuthByGoogleId(googleId);
                 User user;
                 Auth auth;
@@ -138,6 +140,8 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                     userSettings = userSettingsService.saveOnDatabase(userSettings);
 
                     dataResponse.setSettings(userSettingsService.createUserSettingsDataModel(userSettings));
+
+                    isNewUser = true;
                 }
 
                 final ClockServiceImpl clock = new ClockServiceImpl();
@@ -157,6 +161,11 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                 userData.setLastUpdate(clockService.getUTCZonedDateTime());
 
                 userData.setId(user.getId());
+
+                if (!isNewUser) {
+                    userData.setResponsibleIV(user.getResponsibleIV());
+                    userData.setResponsibleToken(user.getResponsibleToken());
+                }
 
                 final String accessToken = tokenResponse.getAccessToken();
 
