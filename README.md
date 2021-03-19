@@ -29,7 +29,7 @@ spring.jpa.show-sql=true
 spring.jpa.generate-ddl=true
 spring.jpa.hibernate.ddl-auto=update
 
-#Configuração do cliente 
+#Configuração do cliente
 app.origin={Endereço onde está o DinoApp}
 
 #Configurações do Google
@@ -38,7 +38,24 @@ googleoauth2.clientsecret={Google Cloud Client Secret}
 
 #Configuração de porta
 server.port=${PORT:5000}
+
+#Log
+log.appLogDurationInMilliseconds=7776000000
+log.apiLogDurationInMilliseconds=7776000000
+
+#Email
+email.host={Host de Email. Exemplo: smtp.gmail.com}
+email.port={Porta do Host}
+email.username={Email}
+email.password={Senha de Aplicação}
+
+#Tamanho do código (alfanumérico) para recuperação de senha
+recover.password.config.codeLength=5
+
 ```
+## Configurar uma senha de aplicação com o Gmail
+https://support.google.com/accounts/answer/185833
+
 ## Executar Projeto (Windows 10)
 ```java
 1) Instale o Java JDK 11:

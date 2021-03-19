@@ -37,6 +37,9 @@ public class GoogleAuth {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @OneToOne(mappedBy = "googleAuth")
+    private GoogleAccessToken googleAccessToken;
+
     @OneToMany(mappedBy = "googleAuth", fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<GoogleScope> googleScopes;

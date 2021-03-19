@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.configuration.application_properties;
+package br.ufrgs.inf.pet.dinoapi.configuration.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;

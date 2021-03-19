@@ -1,12 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.configuration;
 
-import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.AppConfig;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -24,7 +25,8 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableWebSecurity
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
+@EnableScheduling
 public class SpringConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService dinoUserDetailsService;
 
@@ -84,7 +86,7 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         executor.setCorePoolSize(4);
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(Integer.MAX_VALUE);
-        executor.setThreadNamePrefix("DinoAPI-");
+        executor.setThreadNamePrefix("dino-api-thread-");
         executor.initialize();
         return executor;
     }

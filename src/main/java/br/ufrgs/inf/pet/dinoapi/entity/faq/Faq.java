@@ -20,7 +20,7 @@ public class Faq extends SynchronizableEntity<Long> {
     @JoinColumn(name = "treatment_id", referencedColumnName = "id", nullable = false)
     private Treatment treatment;
 
-    @OneToMany(mappedBy = "faq", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "faq", fetch = FetchType.LAZY)
     private List<FaqItem> items;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
@@ -42,5 +42,21 @@ public class Faq extends SynchronizableEntity<Long> {
 
     public void setTreatment(Treatment treatment) {
         this.treatment = treatment;
+    }
+
+    public List<FaqItem> getItems() {
+        return items;
+    }
+
+    public void setItems(List<FaqItem> items) {
+        this.items = items;
+    }
+
+    public List<FaqUserQuestion> getFaqUserQuestions() {
+        return faqUserQuestions;
+    }
+
+    public void setFaqUserQuestions(List<FaqUserQuestion> faqUserQuestions) {
+        this.faqUserQuestions = faqUserQuestions;
     }
 }

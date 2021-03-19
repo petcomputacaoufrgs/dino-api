@@ -48,18 +48,14 @@ public abstract class SynchronizableEntity<ID extends Comparable<ID> & Serializa
     }
 
     public boolean isOlderOrEqualThan(SynchronizableModel<ID> model) {
-        final LocalDateTime thisLastUpdate = this.getLastUpdate();
-        if (thisLastUpdate != null) {
-            final ZonedDateTime zonedModelLastUpdate = model.getLastUpdate();
-            if (zonedModelLastUpdate != null) {
-                final LocalDateTime modelLastUpdate = zonedModelLastUpdate.toLocalDateTime();
-                return this.getLastUpdate().isBefore(modelLastUpdate)
-                        || this.getLastUpdate().isEqual(modelLastUpdate);
-            }
-
-            return false;
+        final LocalDateTime thisLastUpdateWithoutNano = this.lastUpdate.withNano(0);
+        final ZonedDateTime zonedModelLastUpdate = model.getLastUpdate();
+        if (zonedModelLastUpdate != null) {
+            final LocalDateTime modelLastUpdate = zonedModelLastUpdate.toLocalDateTime();
+            return thisLastUpdateWithoutNano.isBefore(modelLastUpdate)
+                    || thisLastUpdateWithoutNano.isEqual(modelLastUpdate);
         }
 
-        return true;
+        return false;
     }
 }
