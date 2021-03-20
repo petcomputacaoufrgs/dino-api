@@ -4,7 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-
 import javax.xml.bind.DatatypeConverter;
 import java.util.Date;
 
@@ -39,7 +38,10 @@ public class JWTUtils {
     }
 
     public static Claims decode(String jwt, String key) {
+        final ClockServiceImpl clock = new ClockServiceImpl();
+
         return Jwts.parser()
+                .setClock(clock)
                 .setAllowedClockSkewSeconds(ALLOWED_CLOCK_SKEW_SECONDS)
                 .setSigningKey(DatatypeConverter.parseBase64Binary(key))
                 .parseClaimsJws(jwt).getBody();

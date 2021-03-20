@@ -17,6 +17,8 @@ public class GoogleAuthConstants {
 
     public final static String UNKNOWN_EXCEPTION = "Unknown server exception.";
 
+    public final static String EXPIRED_TOKEN_EXCEPTION = "Google auth token is expired.";
+
     public final static int GOOGLE_ID_MAX = 100;
 
     public final static int REFRESH_TOKEN_MAX = 200;

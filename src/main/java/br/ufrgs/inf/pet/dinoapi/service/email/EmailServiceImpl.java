@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.email;
 
-import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.EmailConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.EmailConfig;
 import org.apache.commons.mail.DefaultAuthenticator;
 import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.HtmlEmail;

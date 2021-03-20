@@ -6,22 +6,22 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "googleoauth2")
 public class GoogleOAuth2Config {
-    private String clientid;
-    private String clientsecret;
+    private String clientId;
+    private String clientSecret;
 
-    public String getClientsecret() {
-        return clientsecret;
+    public String getClientSecret() {
+        return clientSecret;
     }
 
-    public void setClientsecret(String clientsecret) {
-        this.clientsecret = clientsecret;
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
     }
 
-    public String getClientid() {
-        return clientid;
+    public String getClientId() {
+        return clientId;
     }
 
-    public void setClientid(String clientid) {
-        this.clientid = clientid;
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
     }
 }

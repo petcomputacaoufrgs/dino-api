@@ -1,8 +1,9 @@
-package br.ufrgs.inf.pet.dinoapi.task;
+package br.ufrgs.inf.pet.dinoapi.task.log;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.properties.LogConfig;
-import br.ufrgs.inf.pet.dinoapi.repository.log_error.LogApiErrorRepository;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAppErrorService;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAppErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -11,22 +12,25 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDateTime;
 
 @Component
-public class LogAPIErrorTaskImpl extends LogUtilsBase implements LogAPIErrorTask {
+public class LogAppErrorTaskImpl extends LogUtilsBase implements LogAppErrorTask {
     private final LogConfig logConfig;
+    private final LogAppErrorService logAppErrorService;
 
     @Autowired
-    public LogAPIErrorTaskImpl(LogAPIErrorServiceImpl logAPIErrorService, LogConfig logConfig) {
+    public LogAppErrorTaskImpl(LogAPIErrorServiceImpl logAPIErrorService, LogConfig logConfig, LogAppErrorServiceImpl logAppErrorService) {
         super(logAPIErrorService);
         this.logConfig = logConfig;
+        this.logAppErrorService = logAppErrorService;
     }
 
     @Override
     @Async("defaultThreadPoolTaskExecutor")
-    @Scheduled(fixedRateString  = "${log.apiLogDurationInMilliseconds}", initialDelayString = "${log.appLogDurationInMilliseconds}")
+    @Scheduled(fixedRateString = "${log.app-log-duration-in-milliseconds}",
+            initialDelayString = "${log.app-log-duration-in-milliseconds}")
     public void deleteOldData() {
         try {
             final LocalDateTime deadline = LocalDateTime.now().minusSeconds(logConfig.getAppLogDurationInMilliseconds() / 1000);
-            this.logAPIErrorService.deleteOldItems(deadline);
+            this.logAppErrorService.deleteOldItems(deadline);
         } catch (Exception e) {
             this.logAPIError(e);
         }

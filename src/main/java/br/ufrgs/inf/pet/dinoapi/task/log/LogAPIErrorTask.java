@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.task;
+package br.ufrgs.inf.pet.dinoapi.task.log;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.properties.LogConfig;
 

@@ -53,8 +53,8 @@ public class GoogleOAuthCommunicationImpl extends LogUtilsBase implements Google
                     new NetHttpTransport(),
                     JacksonFactory.getDefaultInstance(),
                     GoogleAPIURLEnum.TOKEN_REQUEST.getValue(),
-                    googleOAuth2Config.getClientid(),
-                    googleOAuth2Config.getClientsecret(),
+                    googleOAuth2Config.getClientId(),
+                    googleOAuth2Config.getClientSecret(),
                     token,
                     redirect_uri)
                     .setScopes(scopes)
@@ -74,8 +74,8 @@ public class GoogleOAuthCommunicationImpl extends LogUtilsBase implements Google
                     new NetHttpTransport(),
                     JacksonFactory.getDefaultInstance(),
                     googleAuth.getRefreshToken(),
-                    googleOAuth2Config.getClientid(),
-                    googleOAuth2Config.getClientsecret())
+                    googleOAuth2Config.getClientId(),
+                    googleOAuth2Config.getClientSecret())
                     .setScopes(scopes)
                     .setGrantType("refresh_token")
                     .execute();

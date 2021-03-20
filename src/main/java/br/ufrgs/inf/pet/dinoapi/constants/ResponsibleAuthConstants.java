@@ -11,7 +11,5 @@ public class ResponsibleAuthConstants {
 
     public final static  Short MIN_DELAY_TO_REQUEST_CODE_MIN = 2;
 
-    public final static Short MAX_DELAY_TO_RECOVER_PASSWORD_MIN = 60;
-
     public final static Short MAX_ATTEMPTS = 3;
 }

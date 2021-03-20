@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.auth;
 
-import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.RecoverPasswordConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.ResponsibleAuthConfig;
 import br.ufrgs.inf.pet.dinoapi.constants.ResponsibleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.responsible.RecoverPasswordRequest;
@@ -30,20 +30,20 @@ import java.util.List;
 public class ResponsibleAuthServiceImpl extends LogUtilsBase implements ResponsibleAuthService {
     private final OAuthServiceImpl authService;
     private final LanguageServiceImpl languageService;
-    private final RecoverPasswordConfig recoverPasswordConfig;
+    private final ResponsibleAuthConfig responsibleAuthConfig;
     private final EmailServiceImpl emailService;
     private final RecoverPasswordRequestRepository repository;
     private final UserServiceImpl userService;
 
     @Autowired
     public ResponsibleAuthServiceImpl(OAuthServiceImpl authService, LanguageServiceImpl languageService,
-                                      RecoverPasswordConfig recoverPasswordConfig, EmailServiceImpl emailService,
+                                      ResponsibleAuthConfig responsibleAuthConfig, EmailServiceImpl emailService,
                                       LogAPIErrorServiceImpl logAPIErrorService, RecoverPasswordRequestRepository repository,
                                       UserServiceImpl userService) {
         super(logAPIErrorService);
         this.authService = authService;
         this.languageService = languageService;
-        this.recoverPasswordConfig = recoverPasswordConfig;
+        this.responsibleAuthConfig = responsibleAuthConfig;
         this.emailService = emailService;
         this.repository = repository;
         this.userService = userService;
@@ -59,7 +59,7 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
                 final LocalDateTime now = LocalDateTime.now();
                 final User user = auth.getUser();
                 final List<RecoverPasswordRequest> requests = this.repository.findAllByUserId(user.getId());
-                final String code = AlphaNumericCodeUtils.generateRandomCode(recoverPasswordConfig.getCodeLength(), true);
+                final String code = AlphaNumericCodeUtils.generateRandomCode(responsibleAuthConfig.getRecoverCodeLength(), true);
 
                 if (requests.stream().anyMatch(request -> request.getDate().isAfter(now.minusMinutes(ResponsibleAuthConstants.MIN_DELAY_TO_REQUEST_CODE_MIN)))) {
                     model.setSuccess(true);
@@ -160,6 +160,11 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
         return new ResponseEntity<>(responseModel, HttpStatus.FORBIDDEN);
     }
 
+    @Override
+    public void deleteOldData(LocalDateTime deadline) {
+        this.repository.deleteAllByDate(deadline);
+    }
+
     private ResponseEntity<SetResponsibleAuthResponseModel> setResponsibleAuth(SetResponsibleAuthResponseModel responseModel, SetResponsibleAuthModel model, Auth auth) {
         try {
             final User user = auth.getUser();
@@ -194,7 +199,8 @@ public class ResponsibleAuthServiceImpl extends LogUtilsBase implements Responsi
 
         if (requests.size() > 0) {
             final RecoverPasswordRequest request = requests.get(0);
-            if (request.getDate().plusMinutes(ResponsibleAuthConstants.MAX_DELAY_TO_RECOVER_PASSWORD_MIN).isAfter(now)) {
+            final Integer maxDelayToRecover = this.responsibleAuthConfig.getMaxDelayToRecoverPasswordInMin();
+            if (request.getDate().plusMinutes(maxDelayToRecover).isAfter(now)) {
                 if (request.getCode().equals(code)) {
                     request.setAttempts(ResponsibleAuthConstants.MAX_ATTEMPTS - 1);
                     repository.save(request);

@@ -32,6 +32,7 @@ import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -192,6 +193,10 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
                 return new ResponseEntity<>(response, HttpStatus.OK);
             }
+        } catch (ExpiredJwtException e) {
+            response.setError(GoogleAuthConstants.EXPIRED_TOKEN_EXCEPTION);
+            this.setExceptionError(response, e);
+            return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (GoogleClientSecretIOException e) {
             response.setError(GoogleAuthConstants.INTERNAL_AUTH_ERROR);
             this.setExceptionError(response, e);
