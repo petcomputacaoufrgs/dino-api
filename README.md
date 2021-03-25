@@ -58,7 +58,7 @@ https://support.google.com/accounts/answer/185833
 
 ## Executar Projeto (Windows 10)
 ```java
-1) Instale o Java JDK 11:
+1) Instale o Java 11:
 	1.1) Vá para https://www.oracle.com/java/technologies/javase-jdk11-downloads.html, selecione "Windows x64 Installer" e faça o donwload.
 	1.2) Complete a instalação.
 	1.3) Vá para o diretório da instalação. Exemplo: C:\Program Files\Java\jdk-11.0.10.
@@ -82,6 +82,20 @@ https://support.google.com/accounts/answer/185833
 4) Execute
 	4.1) Abra o diretório target e copie o nome do arquivo com a extensão ".jar". 
 	4.2) Volte ao terminal e execute "java -jar target/{nome do arquivo}". Exemplo: "java -jar target/dinoapi-0.0.1-SNAPSHOT.jar".
+```
+
+## Executar Projeto (Debian)
+```java
+1) Instale o Java 11:
+	1.1) mkdir -p /usr/share/man/man1mkdir -p /usr/share/man/man1
+	1.2) apt-get install openjdk-11-jdk -y 
+	1.3) apt-get install openjdk-11-jre -y
+2) Instale o Maven:
+	2.1) apt-get install maven -y
+3) Compile a aplicação
+	3.1) mvn package -Dmaven.test.skip=true 
+4) Execute
+	4.1) java -jar ./target/*.jar
 ```
 
 ## Deploy PETServer [branch staging]
