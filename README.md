@@ -84,6 +84,20 @@ https://support.google.com/accounts/answer/185833
 	4.2) Volte ao terminal e execute "java -jar target/{nome do arquivo}". Exemplo: "java -jar target/dinoapi-0.0.1-SNAPSHOT.jar".
 ```
 
+## Executar Projeto (Debian)
+```java
+1) Instale o Java 11:
+	1.1) mkdir -p /usr/share/man/man1mkdir -p /usr/share/man/man1
+	1.2) apt-get update -y
+	1.3) apt-get install openjdk-11-jdk -y 
+2) Instale o Maven:
+	2.1) apt-get install maven -y
+3) Compile a aplicação
+	3.1) mvn package -Dmaven.test.skip=true 
+4) Execute
+	4.1) java -jar ./target/*.jar
+```
+
 ## Deploy PETServer [branch staging]
 O PET possui um servidor Kubernetes para teste de aplicações construído sobre máquinas ARM.
 O arquivo Dockerfile possui as configurações necessárias para gerar a imagem de produção.
