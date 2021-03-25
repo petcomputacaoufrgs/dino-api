@@ -13,6 +13,7 @@ FROM debian:stable-slim
 COPY --from=build /app/app.jar /app.jar
 RUN apt-get update -y && \
     apt-get upgrade -y && \
+    apt-get clean && \
     mkdir -p /usr/share/man/man1mkdir -p /usr/share/man/man1 && \
     apt-get install openjdk-11-jre -y
 ENTRYPOINT ["java","-jar","/app.jar"]
