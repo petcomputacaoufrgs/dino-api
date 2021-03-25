@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dinoapi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dinoapi-deployment
+  namespace: dinoapi
+  labels:
+    app: dinoapi
+spec:
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: dinoapi
+  template:
+    metadata:
+      labels:
+        app: dinoapi
+    spec:
+      containers:
+        - name: dinoapi
+          image: petcompufrgs/dinoapi:staging
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dinoapi-service
+  namespace: dinoapi
+spec:
+  selector:
+    app: dinoapi
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: dinoapi-ingress
+  namespace: dinoapi
+  annotations:
+    kubernetes.io/ingress.class: "traefik"
+    cert-manager.io/cluster-issuer: letsencrypt-production
+spec:
+  rules:
+    - host: api.queridino.tk
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dinoapi-service
+                port: 
+                  number: 80
+  tls:
+    - hosts:
+      - api.queridino.tk
+      secretName: dinoapi-tls
