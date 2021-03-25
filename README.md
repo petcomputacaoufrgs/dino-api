@@ -88,8 +88,8 @@ https://support.google.com/accounts/answer/185833
 ```java
 1) Instale o Java 11:
 	1.1) mkdir -p /usr/share/man/man1mkdir -p /usr/share/man/man1
-	1.2) apt-get install openjdk-11-jdk -y 
-	1.3) apt-get install openjdk-11-jre -y
+	1.2) apt-get update -y
+	1.3) apt-get install openjdk-11-jdk -y 
 2) Instale o Maven:
 	2.1) apt-get install maven -y
 3) Compile a aplicação
