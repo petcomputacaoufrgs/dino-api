@@ -13,6 +13,7 @@ import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -34,7 +35,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @TestPropertySource(locations="classpath:test.properties")
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
 public class GlossaryControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
@@ -874,6 +876,7 @@ public class GlossaryControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
+
         mvc.perform(get("/public/glossary/get/")
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
@@ -966,6 +969,8 @@ public class GlossaryControllerIntegrationTest {
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath(generateExistsPattern(updateModel, true)).isNotEmpty());
+
+
     }
 
     @Test
