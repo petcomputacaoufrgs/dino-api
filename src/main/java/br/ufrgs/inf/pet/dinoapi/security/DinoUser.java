@@ -1,19 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class DinoUser implements UserDetails {
-    private List<DinoGrantedAuthority> authorityList;
+    private final List<GrantedAuthority> authorities;
 
     private final User user;
 
-    public DinoUser(User user) {
+    public DinoUser(User user, List<GrantedAuthority> authorities) {
         this.user = user;
-        this.authorityList = new ArrayList<>();
+        this.authorities = authorities;
     }
 
     public User getUser() {
@@ -21,12 +20,8 @@ public class DinoUser implements UserDetails {
     }
 
     @Override
-    public List<DinoGrantedAuthority> getAuthorities() {
-        return this.authorityList;
-    }
-
-    public void setAuthorityList(List<DinoGrantedAuthority> authorityList) {
-        this.authorityList = authorityList;
+    public List<GrantedAuthority> getAuthorities() {
+        return this.authorities;
     }
 
     @Override
@@ -58,4 +53,6 @@ public class DinoUser implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

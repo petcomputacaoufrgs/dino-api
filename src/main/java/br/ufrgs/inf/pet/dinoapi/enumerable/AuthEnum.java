@@ -1,19 +1,18 @@
 package br.ufrgs.inf.pet.dinoapi.enumerable;
 
 public enum AuthEnum {
+    STAFF("STAFF"),
+    ADMIN("ADMIN"),
+    USER("USER");
 
-    CLIENT(1),
-    STAFF(2),
-    ADMIN(3),
-    USER(4);
+    private final String value;
 
-    private int value;
-
-    AuthEnum(int value) {
+    AuthEnum(String value)
+    {
         this.value = value;
     }
 
-    public int getValue() {
-        return this.value;
+    public String getValue() {
+        return value;
     }
 }

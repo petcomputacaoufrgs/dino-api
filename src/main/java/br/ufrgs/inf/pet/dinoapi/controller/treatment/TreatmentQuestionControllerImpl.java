@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/treatment_question/")
+@RequestMapping("/user/treatment_question/")
 public class TreatmentQuestionControllerImpl extends SynchronizableControllerImpl<
         TreatmentQuestion, Long, TreatmentQuestionDataModel, TreatmentQuestionRepository, TreatmentQuestionServiceImpl> {
     @Autowired

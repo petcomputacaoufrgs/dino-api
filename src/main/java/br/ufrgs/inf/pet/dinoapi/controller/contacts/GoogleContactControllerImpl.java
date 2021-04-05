@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/google_contact/")
+@RequestMapping("/user/google_contact/")
 public class GoogleContactControllerImpl extends SynchronizableControllerImpl<
         GoogleContact, Long, GoogleContactDataModel, GoogleContactRepository, GoogleContactServiceImpl> {
 

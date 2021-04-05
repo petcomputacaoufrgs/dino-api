@@ -15,6 +15,9 @@ public final class AuthConstants {
 
     public final static String ERROR_READING_CONFIG_FILES = "Internal server error";
 
-    public final static String CLIENT = "petcompufrgs@gmail.com";
+    public final static String ADMIN = "petcompufrgs@gmail.com";
 
+    public final static String EMPTY_AUTH = "Empty authentication";
+
+    public final static String INVALID_EMAIL = "Invalid email";
 }

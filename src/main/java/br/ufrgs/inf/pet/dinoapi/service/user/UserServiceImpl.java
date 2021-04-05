@@ -20,7 +20,6 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -141,7 +140,8 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
             user = new User();
         }
 
-        return this.saveUserPermission(this.saveUser(name, email, pictureUrl, user));
+        this.setUserPermission(user, email);
+        return this.saveUser(name, email, pictureUrl, user);
     }
 
     private User saveUser(String name, String email, String pictureUrl, User user) {
@@ -152,22 +152,17 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return this.repository.save(user);
     }
 
-    private User saveUserPermission(User user) {
-
-        Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
+    private void setUserPermission(User user, String email) {
+        final Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
 
         if(staffSearch != null) {
             staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
             user.setPermission(AuthEnum.STAFF.getValue());
-
-        } else if (user.getEmail().equals(AuthConstants.CLIENT)) {
-            user.setPermission(AuthEnum.CLIENT.getValue());
-
+        } else if (email.equals(AuthConstants.ADMIN)) {
+            user.setPermission(AuthEnum.ADMIN.getValue());
         } else {
             user.setPermission(AuthEnum.USER.getValue());
         }
-
-        return this.repository.save(user);
     }
 
     private void sendUpdateMessage(User user, Auth auth) {

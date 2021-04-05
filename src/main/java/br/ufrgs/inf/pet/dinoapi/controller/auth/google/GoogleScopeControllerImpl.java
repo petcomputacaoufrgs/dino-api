@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/auth/google/scope/")
+@RequestMapping("/private/auth/google/scope/")
 public class GoogleScopeControllerImpl extends SynchronizableControllerImpl<
         GoogleScope, Long, GoogleScopeDataModel, GoogleScopeRepository, GoogleScopeServiceImpl> {
 

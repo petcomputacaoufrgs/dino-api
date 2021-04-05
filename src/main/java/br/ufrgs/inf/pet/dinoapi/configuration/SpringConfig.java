@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.configuration;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
+import br.ufrgs.inf.pet.dinoapi.enumerable.AuthEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -25,6 +27,7 @@ import java.util.concurrent.Executor;
 @Configuration
 @EnableWebSecurity
 @EnableAsync
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SpringConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService dinoUserDetailsService;
 
@@ -48,10 +51,16 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
+        final String adminAuthority = AuthEnum.ADMIN.getValue();
+        final String staffAuthority = AuthEnum.STAFF.getValue();
+        final String userAuthority = AuthEnum.USER.getValue();
         httpSecurity.authorizeRequests()
-                .antMatchers("/public/**").permitAll()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
-                .anyRequest().authenticated()
+                .antMatchers("/admin/**").hasAnyRole(adminAuthority)
+                .antMatchers("/staff/**").hasAnyAuthority(staffAuthority, adminAuthority)
+                .antMatchers("/user/**").hasAnyAuthority(userAuthority)
+                .antMatchers("/private/**").authenticated()
+                .antMatchers("/public/**").permitAll()
                 .and().cors().and().csrf().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         httpSecurity.addFilterBefore(this.authFilter, UsernamePasswordAuthenticationFilter.class);

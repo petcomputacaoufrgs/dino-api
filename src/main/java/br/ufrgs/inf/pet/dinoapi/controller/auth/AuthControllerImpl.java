@@ -34,19 +34,19 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    @PostMapping("/auth/google/grant/")
+    @PostMapping("/private/auth/google/grant/")
     public ResponseEntity<GoogleAuthResponseModel> googleGrantRequest(@Valid @RequestBody GoogleGrantRequestModel googleGrantRequestModel) {
         return googleAuthService.googleGrantRequest(googleGrantRequestModel);
     }
 
     @Override
-    @GetMapping("/auth/google/")
+    @GetMapping("/private/auth/google/")
     public ResponseEntity<GoogleRefreshAuthResponseModel> googleRefreshAuth() {
         return googleAuthService.googleRefreshAuth();
     }
 
     @Override
-    @GetMapping("/auth/web_socket/")
+    @GetMapping("/private/auth/web_socket/")
     public ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest() {
         return authService.webSocketAuthRequest();
     }
