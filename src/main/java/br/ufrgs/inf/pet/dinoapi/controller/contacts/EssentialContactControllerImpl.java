@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/user/essential_contact/")
+@RequestMapping("/private/essential_contact/")
 public class EssentialContactControllerImpl extends SynchronizableControllerImpl<
         EssentialContact, Long, EssentialContactDataModel, EssentialContactRepository, EssentialContactServiceImpl> {
 

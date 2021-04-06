@@ -34,6 +34,12 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
+    @PutMapping("/public/auth/refresh/")
+    public ResponseEntity<AuthRefreshResponseModel> refreshAuth(@Valid @RequestBody AuthRefreshRequestModel authRefreshRequestModel) {
+        return authService.refreshAuth(authRefreshRequestModel);
+    }
+
+    @Override
     @PostMapping("/private/auth/google/grant/")
     public ResponseEntity<GoogleAuthResponseModel> googleGrantRequest(@Valid @RequestBody GoogleGrantRequestModel googleGrantRequestModel) {
         return googleAuthService.googleGrantRequest(googleGrantRequestModel);
@@ -49,11 +55,5 @@ public class AuthControllerImpl implements AuthController {
     @GetMapping("/private/auth/web_socket/")
     public ResponseEntity<WebSocketAuthResponseModel> webSocketAuthRequest() {
         return authService.webSocketAuthRequest();
-    }
-
-    @Override
-    @PutMapping("/public/auth/refresh/")
-    public ResponseEntity<AuthRefreshResponseModel> refreshAuth(@Valid @RequestBody AuthRefreshRequestModel authRefreshRequestModel) {
-        return authService.refreshAuth(authRefreshRequestModel);
     }
 }
