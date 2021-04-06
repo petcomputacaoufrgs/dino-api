@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.configuration;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
-import br.ufrgs.inf.pet.dinoapi.enumerable.AuthEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,9 +51,9 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
-        final String adminAuthority = AuthEnum.ADMIN.getValue();
-        final String staffAuthority = AuthEnum.STAFF.getValue();
-        final String userAuthority = AuthEnum.USER.getValue();
+        final String adminAuthority = PermissionEnum.ADMIN.getValue();
+        final String staffAuthority = PermissionEnum.STAFF.getValue();
+        final String userAuthority = PermissionEnum.USER.getValue();
         httpSecurity.authorizeRequests()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
                 .antMatchers("/admin/**").hasAnyRole(adminAuthority)

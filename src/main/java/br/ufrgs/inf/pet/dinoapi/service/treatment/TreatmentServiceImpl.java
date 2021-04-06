@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
@@ -14,6 +15,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +27,14 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                 SynchronizableTopicMessageService<Long, TreatmentDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
+    }
+
+    @Override
+    public List<PermissionEnum> getNecessaryPermissionsToEdit() {
+        final List<PermissionEnum> authorities = new ArrayList<>();
+        authorities.add(PermissionEnum.ADMIN);
+        authorities.add(PermissionEnum.STAFF);
+        return authorities;
     }
 
     @Override

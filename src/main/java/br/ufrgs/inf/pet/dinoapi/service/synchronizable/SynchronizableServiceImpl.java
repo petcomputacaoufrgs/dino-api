@@ -3,9 +3,11 @@ package br.ufrgs.inf.pet.dinoapi.service.synchronizable;
 import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.SynchronizableException;
+import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.UserWithoutPermissionException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
@@ -22,7 +24,6 @@ import com.google.api.client.util.Lists;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -90,6 +91,15 @@ public abstract class SynchronizableServiceImpl<
         return true;
     }
 
+    /**
+     * Define a list of authorities, to edit entity user mus have one of them.
+     * Default is empty list without restrictions
+     * @return List of authorities
+     */
+    protected List<PermissionEnum> getNecessaryPermissionsToEdit() {
+        return new ArrayList<>();
+    }
+
     @Override
     public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> get(SynchronizableGetModel<ID> model) {
         final SynchronizableDataResponseModelImpl<ID, DATA_MODEL> response = new SynchronizableDataResponseModelImpl<>();
@@ -121,6 +131,7 @@ public abstract class SynchronizableServiceImpl<
         try {
             if (model != null) {
                 final Auth auth = authService.getCurrentAuth();
+                this.validateEditPermission(auth);
                 final DATA_MODEL data = this.internalSave(model, auth);
                 response.setSuccess(true);
                 response.setData(data);
@@ -130,6 +141,8 @@ public abstract class SynchronizableServiceImpl<
             }
 
             return this.createResponse(response);
+        } catch (UserWithoutPermissionException e)  {
+            return this.createUserWithoutPermissionExceptionResponse(e, response);
         } catch (SynchronizableException e) {
             return this.createSynchronizableExceptionResponse(e, response);
         } catch (Exception e) {
@@ -142,15 +155,14 @@ public abstract class SynchronizableServiceImpl<
     delete(SynchronizableDeleteModel<ID> model) {
         try {
             final Auth auth = authService.getCurrentAuth();
+            this.validateEditPermission(auth);
             return this.internalDelete(model, auth);
+        } catch (UserWithoutPermissionException e)  {
+            return this.createUserWithoutPermissionExceptionResponse(e, new SynchronizableDataResponseModelImpl<>());
         } catch (SynchronizableException e) {
-            final SynchronizableDataResponseModelImpl<ID, DATA_MODEL> response = new SynchronizableDataResponseModelImpl<>();
-
-            return this.createSynchronizableExceptionResponse(e, response);
+            return this.createSynchronizableExceptionResponse(e, new SynchronizableDataResponseModelImpl<>());
         } catch (Exception e) {
-            final SynchronizableDataResponseModelImpl<ID, DATA_MODEL> response = new SynchronizableDataResponseModelImpl<>();
-
-            return this.createUnknownExceptionResponse(e, response);
+            return this.createUnknownExceptionResponse(e, new SynchronizableDataResponseModelImpl<>());
         }
     }
 
@@ -162,7 +174,6 @@ public abstract class SynchronizableServiceImpl<
             final Auth auth = authService.getCurrentAuth();
             final List<ENTITY> entities = this.getAllEntities(auth);
             final List<DATA_MODEL> data = entities.stream().map(this::completeConvertEntityToModel).collect(Collectors.toList());
-
             response.setSuccess(true);
             response.setData(data);
             return this.createResponse(response);
@@ -177,15 +188,15 @@ public abstract class SynchronizableServiceImpl<
     public ResponseEntity<SynchronizableSaveAllResponseModel<ID, DATA_MODEL>>
     saveAll(SynchronizableSaveAllModel<ID, DATA_MODEL> model) {
         final SynchronizableSaveAllResponseModel<ID, DATA_MODEL> response = new SynchronizableSaveAllResponseModel<>();
-
         try {
             final Auth auth = authService.getCurrentAuth();
+            this.validateEditPermission(auth);
             final List<DATA_MODEL> savedModels = this.internalSaveAll(model.getData(), auth);
-
             response.setSuccess(true);
             response.setData(savedModels);
-
             return this.createResponse(response);
+        } catch (UserWithoutPermissionException e)  {
+            return this.createUserWithoutPermissionExceptionResponse(e, response);
         } catch (SynchronizableException e) {
             return this.createSynchronizableExceptionResponse(e, response);
         } catch (Exception e) {
@@ -200,12 +211,13 @@ public abstract class SynchronizableServiceImpl<
 
         try {
             final Auth auth = authService.getCurrentAuth();
+            this.validateEditPermission(auth);
             final List<ID> deletedIds = this.internalDeleteAll(model.getData(), auth);
-
             response.setSuccess(true);
             response.setData(deletedIds);
-
             return this.createResponse(response);
+        } catch (UserWithoutPermissionException e)  {
+            return this.createUserWithoutPermissionExceptionResponse(e, response);
         } catch (SynchronizableException e) {
             return this.createSynchronizableExceptionResponse(e, response);
         } catch (Exception e) {
@@ -214,24 +226,14 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> saveSync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model) {
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model) {
         final SynchronizableSyncResponseModel<ID, DATA_MODEL> response = new SynchronizableSyncResponseModel<>();
 
         try {
             final Auth auth = authService.getCurrentAuth();
-
-            final List<DATA_MODEL> itemsToSave = model.getSave();
-
-            final List<DATA_MODEL> savedModels = this.internalSaveAll(itemsToSave, auth);
-
-            final List<ID> savedIds = savedModels.stream().map(SynchronizableDataModel::getId).collect(Collectors.toList());
-
-            final List<ENTITY> entities = this.internalGetEntitiesByUserIdExcludingIds(savedIds, auth);
-
-            final List<DATA_MODEL> updatedModels = this.completeConvertEntitiesToModels(entities);
-
-            updatedModels.addAll(savedModels);
-            response.setData(updatedModels);
+            final boolean hasEditPermission = this.hasEditPermission(auth);
+            final List<DATA_MODEL> data = hasEditPermission ? this.syncWithEdit(auth, model) : this.syncWithoutEdit(auth);
+            response.setData(data);
             response.setSuccess(true);
             return this.createResponse(response);
         } catch (SynchronizableException e) {
@@ -267,10 +269,6 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected List<DATA_MODEL> internalSaveAll(List<DATA_MODEL> models, Auth auth) throws AuthNullException, ConvertModelToEntityException {
-        return this.internalSaveAll(models, auth, true);
-    }
-
-    protected List<DATA_MODEL> internalSaveAll(List<DATA_MODEL> models, Auth auth, boolean useOnCreateAndUpdate) throws AuthNullException, ConvertModelToEntityException {
         if (models.size() == 0) {
             return new ArrayList<>();
         }
@@ -295,19 +293,17 @@ public abstract class SynchronizableServiceImpl<
         saveData.addAll(createdData);
         this.sendUpdateMessage(saveData, auth);
 
-        if (useOnCreateAndUpdate) {
-            for (DATA_MODEL data : createdData) {
-                this.onDataCreated(data);
-            }
-            for (DATA_MODEL data : updateResult.getFirst()) {
-                this.onDataCreated(data);
-            }
+        for (DATA_MODEL data : createdData) {
+            this.onDataCreated(data);
+        }
+        for (DATA_MODEL data : updateResult.getFirst()) {
+            this.onDataCreated(data);
+        }
 
-            int count = 0;
-            for (DATA_MODEL data : updateResult.getSecond().getFirst()) {
-                this.onDataUpdated(data, updateResult.getSecond().getSecond().get(count));
-                count++;
-            }
+        int count = 0;
+        for (DATA_MODEL data : updateResult.getSecond().getFirst()) {
+            this.onDataUpdated(data, updateResult.getSecond().getSecond().get(count));
+            count++;
         }
 
         return saveData;
@@ -343,10 +339,6 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected List<ID> internalDeleteAll(List<SynchronizableDeleteModel<ID>> models, Auth auth) throws AuthNullException {
-        return this.internalDeleteAll(models, auth, true);
-    }
-
-    protected List<ID> internalDeleteAll(List<SynchronizableDeleteModel<ID>> models, Auth auth, boolean useOnDelete) throws AuthNullException {
         if (models.size() == 0) {
             return new ArrayList<>();
         }
@@ -386,10 +378,8 @@ public abstract class SynchronizableServiceImpl<
             count++;
         }
 
-        if (useOnDelete) {
-            for (ENTITY entityToDelete : entitiesToDelete) {
-                this.onDataDeleted(entityToDelete);
-            }
+        for (ENTITY entityToDelete : entitiesToDelete) {
+            this.onDataDeleted(entityToDelete);
         }
 
         repository.deleteAll(entitiesToDelete);
@@ -430,7 +420,7 @@ public abstract class SynchronizableServiceImpl<
             return this.findEntitiesThatUserCanReadExcludingIds(auth, ids);
         }
 
-        return this.findEntitiesThatUserCanRead(auth);
+        return this.getAllEntities(auth);
     }
 
     private boolean canChange(ENTITY entity, SynchronizableModel<ID> model) {
@@ -520,6 +510,21 @@ public abstract class SynchronizableServiceImpl<
         return result;
     }
 
+    private List<DATA_MODEL> syncWithEdit(Auth auth, SynchronizableSaveSyncModel<ID, DATA_MODEL> model) throws AuthNullException, ConvertModelToEntityException {
+        final List<DATA_MODEL> itemsToSave = model.getSave();
+        final List<DATA_MODEL> savedModels = this.internalSaveAll(itemsToSave, auth);
+        final List<ID> savedIds = savedModels.stream().map(SynchronizableDataModel::getId).collect(Collectors.toList());
+        final List<ENTITY> entities = this.internalGetEntitiesByUserIdExcludingIds(savedIds, auth);
+        final List<DATA_MODEL> data = this.completeConvertEntitiesToModels(entities);
+        data.addAll(savedModels);
+        return data;
+    }
+
+    private List<DATA_MODEL> syncWithoutEdit(Auth auth) throws AuthNullException {
+        final List<ENTITY> entities  = this.getAllEntities(auth);
+        return this.completeConvertEntitiesToModels(entities);
+    }
+
     private DATA_MODEL create(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         ENTITY entity = this.completeConvertModelToEntity(model, auth);
         entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
@@ -605,9 +610,35 @@ public abstract class SynchronizableServiceImpl<
         synchronizableMessageService.sendDeleteMessage(data, this.getWebSocketDestination(), auth);
     }
 
+    private boolean hasEditPermission(Auth auth) {
+        final List<PermissionEnum> necessaryPermissions = this.getNecessaryPermissionsToEdit();
+        if (necessaryPermissions.isEmpty()) return true;
+
+        final String userPermission = auth.getUser().getPermission();
+        return necessaryPermissions.stream().anyMatch(permission -> permission.getValue().equals(userPermission));
+    }
+
+    private void validateEditPermission(Auth auth) throws UserWithoutPermissionException {
+        if (this.hasEditPermission(auth)) return;
+
+        throw new UserWithoutPermissionException();
+    }
+
     private <T> ResponseEntity<T> createResponse(T response) {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    private <T> ResponseEntity<T> createForbiddenResponse(T response) {
+        return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    private <T extends SynchronizableGenericResponseModel> ResponseEntity<T>
+    createUserWithoutPermissionExceptionResponse(UserWithoutPermissionException e, T response) {
+        response.setSuccess(false);
+        response.setError(e.getMessage());
+        return this.createForbiddenResponse(response);
+    }
+
 
     private <T extends SynchronizableGenericResponseModel> ResponseEntity<T>
     createSynchronizableExceptionResponse(SynchronizableException e, T response) {

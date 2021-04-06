@@ -33,7 +33,6 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, NoteD
         this.noteColumnService = noteColumnService;
     }
 
-
     @Override
     public NoteDataModel convertEntityToModel(Note entity) {
         final NoteDataModel noteDataModel = new NoteDataModel();

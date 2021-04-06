@@ -20,4 +20,6 @@ public final class AuthConstants {
     public final static String EMPTY_AUTH = "Empty authentication";
 
     public final static String INVALID_EMAIL = "Invalid email";
+
+    public final static String WITHOUT_PERMISSION = "User without permission";
 }

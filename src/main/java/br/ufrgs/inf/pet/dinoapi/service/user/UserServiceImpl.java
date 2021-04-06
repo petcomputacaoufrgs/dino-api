@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.enumerable.AuthEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
@@ -157,11 +157,11 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
 
         if(staffSearch != null) {
             staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
-            user.setPermission(AuthEnum.STAFF.getValue());
+            user.setPermission(PermissionEnum.STAFF.getValue());
         } else if (email.equals(AuthConstants.ADMIN)) {
-            user.setPermission(AuthEnum.ADMIN.getValue());
+            user.setPermission(PermissionEnum.ADMIN.getValue());
         } else {
-            user.setPermission(AuthEnum.USER.getValue());
+            user.setPermission(PermissionEnum.USER.getValue());
         }
     }
 
