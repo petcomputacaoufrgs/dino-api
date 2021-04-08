@@ -2,10 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
-
 import javax.persistence.*;
 import java.util.List;
-
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
@@ -21,11 +19,11 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     @Column(name = "color")
     private Byte color;
 
-    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Phone> phones;
-
-    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
     private List<Contact> contacts;
+
+    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
+    private List<EssentialPhone> essentialPhones;
 
     @ManyToMany
     @JoinTable(name = "essential_contact__treatment",
@@ -38,10 +36,6 @@ public class EssentialContact extends SynchronizableEntity<Long> {
 
     public List<Treatment> getTreatments() {
         return treatments;
-    }
-
-    public void setTreatments(List<Treatment> treatments) {
-        this.treatments = treatments;
     }
 
     public String getName() {
@@ -68,19 +62,15 @@ public class EssentialContact extends SynchronizableEntity<Long> {
         this.color = color;
     }
 
-    public List<Phone> getPhones() {
-        return phones;
-    }
-
-    public void setPhones(List<Phone> phones) {
-        this.phones = phones;
-    }
-
     public List<Contact> getContacts() {
         return contacts;
     }
 
-    public void setContacts(List<Contact> contacts) {
-        this.contacts = contacts;
+    public List<EssentialPhone> getEssentialPhones() {
+        return essentialPhones;
+    }
+
+    public void setTreatments(List<Treatment> treatments) {
+        this.treatments = treatments;
     }
 }

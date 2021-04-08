@@ -1,13 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
-
 import javax.persistence.*;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NUMBER_MAX;
 
 @Entity
-@Table(name = "phone")
-public class Phone extends SynchronizableEntity<Long> {
+@Table(name = "essential_phone")
+public class EssentialPhone extends SynchronizableEntity<Long> {
     @Column(name = "type", nullable = false)
     private short type;
 
@@ -15,21 +14,15 @@ public class Phone extends SynchronizableEntity<Long> {
     private String number;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "contact_id")
-    private Contact contact;
+    @JoinColumn(name = "essential_contact_id")
+    private EssentialContact essentialContact;
 
-    public Phone() { }
-
-    public Long getId() {
-        return id;
+    public short getType() {
+        return type;
     }
 
-    public Contact getContact() {
-        return contact;
-    }
-
-    public void setContact(Contact contact) {
-        this.contact = contact;
+    public void setType(short type) {
+        this.type = type;
     }
 
     public String getNumber() {
@@ -40,11 +33,11 @@ public class Phone extends SynchronizableEntity<Long> {
         this.number = number;
     }
 
-    public short getType() {
-        return type;
+    public EssentialContact getEssentialContact() {
+        return essentialContact;
     }
 
-    public void setType(short type) {
-        this.type = type;
+    public void setEssentialContact(EssentialContact essentialContact) {
+        this.essentialContact = essentialContact;
     }
 }

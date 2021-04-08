@@ -1,10 +1,9 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.people;
 
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -34,16 +33,16 @@ public interface GooglePeopleCommunication {
      * @param name contact name
      * @param description contact description
      * @param phoneNumbers list of contact's phone numbers
-     * @param resourceName resourceName of saved Google Contact
+     * @param googleContact entity with saved Google People API data
      * @return saved GooglePeopleModel or null
      */
-    GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, String resourceName);
+    GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, GoogleContact googleContact);
 
     /**
      * Delete a contact on Google People API
      * @param user dino user that owns the contact
-     * @param googleContact saved GoogleContact
+     * @param resourceName identifier of google contact
      * @return
      */
-    boolean deleteContact(User user, GoogleContact googleContact);
+    boolean deleteContact(User user, String resourceName);
 }

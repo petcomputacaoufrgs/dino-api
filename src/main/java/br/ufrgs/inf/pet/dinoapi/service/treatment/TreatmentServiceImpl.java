@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -93,5 +94,9 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
 
     public List<Treatment> getEntitiesByIds(List<Long> ids) {
         return this.repository.findAllByIds(ids);
+    }
+
+    public List<Treatment> getEntitiesByEssentialContact(EssentialContact essentialContact) {
+        return this.repository.findAllByEssentialContact(essentialContact);
     }
 }

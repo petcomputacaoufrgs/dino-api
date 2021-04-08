@@ -3,9 +3,9 @@ package br.ufrgs.inf.pet.dinoapi.websocket.enumerable;
 public enum WebSocketDestinationsEnum {
     GOOGLE_SCOPE("google_scope"),
     PHONE("phone"),
-    GOOGLE_CONTACT("google_contact"),
     CONTACT("contact"),
     ESSENTIAL_CONTACT("essential_contact"),
+    ESSENTIAL_PHONE("essential_phone"),
     GLOSSARY("glossary"),
     NOTE("note"),
     NOTE_COLUMN("note_column"),

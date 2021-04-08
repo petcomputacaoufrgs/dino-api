@@ -5,8 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
-
+public class EssentialPhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = ContactsConstants.TYPE_NULL_MESSAGE)
     private short type;
 
@@ -14,7 +13,8 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
     @Size(max = ContactsConstants.NUMBER_MAX, message = ContactsConstants.NUMBER_MAX_MESSAGE)
     private String number;
 
-    private Long contactId;
+    @NotNull(message = ContactsConstants.ESSENTIAL_CONTACT_ID_NULL_MESSAGE)
+    private Long essentialContactId;
 
     public short getType() {
         return type;
@@ -32,11 +32,11 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
         this.number = number;
     }
 
-    public Long getContactId() {
-        return contactId;
+    public Long getEssentialContactId() {
+        return essentialContactId;
     }
 
-    public void setContactId(Long contactId) {
-        this.contactId = contactId;
+    public void setEssentialContactId(Long essentialContactId) {
+        this.essentialContactId = essentialContactId;
     }
 }

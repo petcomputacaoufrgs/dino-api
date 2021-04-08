@@ -1,123 +1,103 @@
 package br.ufrgs.inf.pet.dinoapi.service.contact;
 
-import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
+import br.ufrgs.inf.pet.dinoapi.communication.google.people.GooglePeopleCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.contacts.GoogleContactDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactImpl;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleContact, Long, GoogleContactDataModel, GoogleContactRepository> {
+public class GoogleContactServiceImpl extends LogUtilsBase {
 
-    private final ContactServiceImpl contactService;
-
-    private final AsyncGoogleContactImpl asyncGoogleContact;
+    private final GoogleContactRepository repository;
+    private final GoogleScopeServiceImpl googleScopeService;
+    private final PhoneRepository phoneRepository;
+    private final GooglePeopleCommunicationImpl googlePeopleCommunication;
+    private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
-    public GoogleContactServiceImpl(GoogleContactRepository repository, OAuthServiceImpl authService, ContactServiceImpl contactService,
-                                    SynchronizableQueueMessageService<Long, GoogleContactDataModel> synchronizableQueueMessageService,
-                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                    AsyncGoogleContactImpl asyncGoogleContact) {
-        super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
-        this.contactService = contactService;
-        this.asyncGoogleContact = asyncGoogleContact;
+    public GoogleContactServiceImpl(GoogleContactRepository repository, LogAPIErrorServiceImpl logAPIErrorService,
+                                    GoogleScopeServiceImpl googleScopeService, PhoneRepository phoneRepository,
+                                    GooglePeopleCommunicationImpl googlePeopleCommunication,
+                                    GoogleContactServiceImpl googleContactService) {
+        super(logAPIErrorService);
+        this.repository = repository;
+        this.googleScopeService = googleScopeService;
+        this.phoneRepository = phoneRepository;
+        this.googlePeopleCommunication = googlePeopleCommunication;
+        this.googleContactService = googleContactService;
     }
 
-    @Override
-    public GoogleContactDataModel convertEntityToModel(GoogleContact entity) {
-        final GoogleContactDataModel model = new GoogleContactDataModel();
-        model.setResourceName(entity.getResourceName());
-        model.setContactId(entity.getContact().getId());
-        return model;
-    }
+    public void createNewGoogleContact(Contact entity, User user) {
+        if (googleScopeService.hasGoogleContactScope(user)) {
+            final List<String> phoneNumbers = phoneRepository.findAllPhoneNumbersByContactId(entity.getId());
 
-    @Override
-    public GoogleContact convertModelToEntity(GoogleContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        if (auth != null) {
-            final User user = auth.getUser();
-            final Optional<Contact> contactSearch = contactService.findContactByIdAndUser(model.getContactId(), user);
+            final GooglePeopleModel googlePeopleModel =
+                    googlePeopleCommunication.createContact(user, entity.getName(), entity.getDescription(), phoneNumbers);
 
-            if (contactSearch.isPresent()) {
-                GoogleContact googleContact = new GoogleContact();
-                googleContact.setContact(contactSearch.get());
+            if (googlePeopleModel != null) {
+                final GoogleContact googleContact = new GoogleContact();
+                googleContact.setContact(entity);
                 googleContact.setUser(user);
-                if (model.getResourceName() != null) {
-                    googleContact.setResourceName(model.getResourceName());
-                }
-                return googleContact;
+                googleContact.setResourceName(googlePeopleModel.getResourceName());
+                googleContactService.save(googleContact);
             }
-
-            throw new ConvertModelToEntityException(GoogleContactConstants.INVALID_CONTACT_ERROR);
-        }
-
-        throw new AuthNullException();
-    }
-
-    @Override
-    public void updateEntity(GoogleContact entity, GoogleContactDataModel model, Auth auth) throws ConvertModelToEntityException {
-        if (model.getResourceName() != null) {
-            entity.setResourceName(model.getResourceName());
         }
     }
 
-    @Override
-    protected void onDataCreated(GoogleContactDataModel model) {
-        asyncGoogleContact.createContactOnGoogleAPI(model, (phoneDataModel, auth) -> {
-            try {
-                return this.internalSave(phoneDataModel, auth, false);
-            } catch (Exception e) {
-                this.logAPIError(e);
+    public void updateGoogleContact(Contact contact, GoogleContact googleContact) {
+        final User user = contact.getUser();
+
+        if (googleScopeService.hasGoogleContactScope(user)) {
+            final List<String> phoneNumbers = phoneRepository.findAllPhoneNumbersByContactId(contact.getId());
+
+            final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.
+                    updateContact(user, contact.getName(), contact.getDescription(), phoneNumbers, googleContact);
+
+            if (googlePeopleModel != null) {
+                googleContact.setResourceName(googleContact.getResourceName());
+                googleContactService.save(googleContact);
             }
-            return null;
-        });
+        }
     }
 
-    @Override
-    protected void onDataUpdated(GoogleContactDataModel model, GoogleContact entity) {
-        asyncGoogleContact.updateContactOnGoogleAPI(entity, (phoneDataModel, auth) -> {
-            try {
-                return this.internalSave(phoneDataModel, auth, false);
-            } catch (Exception e) {
-                this.logAPIError(e);
-            }
-            return null;
-        });
+    public void deleteGoogleContact(String resourceName, User user) {
+        if (googleScopeService.hasGoogleContactScope(user)) {
+            googlePeopleCommunication.deleteContact(user, resourceName);
+        }
     }
 
-    @Override
-    protected void onDataDeleted(GoogleContact entity) {
-        asyncGoogleContact.deleteContactOnGoogleAPI(entity, (model, auth) -> {
-            try {
-                this.internalDelete(model, auth, false);
-            } catch (Exception e) {
-                this.logAPIError(e);
-            }
-            return null;
-        });
+    public void save(GoogleContact entity) {
+        try {
+            this.repository.save(entity);
+        } catch (Exception e) {
+            this.logAPIError(e);
+        }
     }
 
-    @Override
+    public void delete(GoogleContact entity) {
+        try {
+            this.repository.delete(entity);
+        } catch (Exception e) {
+            this.logAPIError(e);
+        }
+    }
+
     public Optional<GoogleContact> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
         return this.findByIdAndUser(id, auth);
     }
 
-    @Override
     public Optional<GoogleContact> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
         return this.findByIdAndUser(id, auth);
     }
@@ -129,7 +109,6 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         return repository.findByIdAndUserId(id, auth.getUser().getId());
     }
 
-    @Override
     public List<GoogleContact> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
@@ -137,7 +116,6 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         return repository.findAllByUserId(auth.getUser().getId());
     }
 
-    @Override
     public List<GoogleContact> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
@@ -145,24 +123,11 @@ public class GoogleContactServiceImpl extends SynchronizableServiceImpl<GoogleCo
         return repository.findAllByIdAndUserId(ids, auth.getUser().getId());
     }
 
-    @Override
     public List<GoogleContact> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
         return repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
-    }
-
-    @Override
-    public WebSocketDestinationsEnum getWebSocketDestination() {
-        return WebSocketDestinationsEnum.GOOGLE_CONTACT;
-    }
-
-    public void saveByUser(GoogleContactDataModel googleContactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
-        final Auth fakeAuth = new Auth();
-        fakeAuth.setUser(user);
-
-        this.internalSave(googleContactDataModel, fakeAuth, false);
     }
 
     public Optional<GoogleContact> findByContactId(Long contactId) {

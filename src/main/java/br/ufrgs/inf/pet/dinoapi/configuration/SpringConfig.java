@@ -56,9 +56,9 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         final String userAuthority = PermissionEnum.USER.getValue();
         httpSecurity.authorizeRequests()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
-                .antMatchers("/admin/**").hasAnyRole(adminAuthority)
+                .antMatchers("/admin/**").hasAuthority(adminAuthority)
                 .antMatchers("/staff/**").hasAnyAuthority(staffAuthority, adminAuthority)
-                .antMatchers("/user/**").hasAnyAuthority(userAuthority)
+                .antMatchers("/user/**").hasAuthority(userAuthority)
                 .antMatchers("/private/**").authenticated()
                 .antMatchers("/public/**").permitAll()
                 .and().cors().and().csrf().disable()
@@ -87,27 +87,16 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    @Bean(name = "googleContactThreadPoolTaskExecutor")
-    public Executor threadPoolTaskExecutor() {
-        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(4);
-        executor.setMaxPoolSize(8);
-        executor.setQueueCapacity(Integer.MAX_VALUE);
-        executor.setThreadNamePrefix("DinoAPI-Google-Contact-");
-        executor.initialize();
-        return executor;
-    }
-
     /**
-     * Single thread pool for essential contacts creation
+     * Single thread pool for contacts
      */
-    @Bean(name = "essentialContactsThreadPoolTaskExecutor")
+    @Bean(name = "contactsThreadPool")
     public Executor essentialContactsThreadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(1);
         executor.setMaxPoolSize(1);
         executor.setQueueCapacity(Integer.MAX_VALUE);
-        executor.setThreadNamePrefix("DinoAPI-EssentialContacts-");
+        executor.setThreadNamePrefix("DinoAPI-Contacts-");
         executor.initialize();
         return executor;
     }

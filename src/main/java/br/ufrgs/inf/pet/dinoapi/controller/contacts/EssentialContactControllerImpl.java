@@ -18,5 +18,4 @@ public class EssentialContactControllerImpl extends SynchronizableControllerImpl
     public EssentialContactControllerImpl(EssentialContactServiceImpl service) {
         super(service);
     }
-
 }

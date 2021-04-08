@@ -18,20 +18,11 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
     @Query("SELECT p FROM Phone p WHERE p.contact.user.id = :userId AND p.id NOT IN :ids")
     List<Phone> findAllByIdAndUserIdExcludingIds(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
-    @Query("SELECT p FROM Phone p WHERE p.essentialContact IS NOT NULL AND p.id NOT IN :ids")
-    List<Phone> findAllEssentialPhonesExcludingIds(@Param("ids") List<Long> ids);
-
     @Query("SELECT p FROM Phone p WHERE p.contact.user.id = :userId")
     List<Phone> findAllByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT p FROM Phone p WHERE p.essentialContact IS NOT NULL")
-    List<Phone> findAllEssentialPhones();
-
-    @Query("SELECT p FROM Phone p WHERE p.essentialContact.id = :essentialContactId")
+    @Query("SELECT p FROM Phone p WHERE p.contact.essentialContact.id = :essentialContactId")
     List<Phone> findAllByEssentialContactId(@Param("essentialContactId") Long essentialContactId);
-
-    @Query("SELECT p FROM Phone p WHERE p.originalEssentialPhone.id = :originalEssentialPhoneId")
-    List<Phone> findAllByOriginalEssentialPhone(@Param("originalEssentialPhoneId") Long originalEssentialPhoneId);
 
     @Query("SELECT p FROM Phone p WHERE p.contact.id = :contactId")
     List<Phone> findAllByContactId(@Param("contactId") Long contactId);
@@ -41,9 +32,6 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
 
     @Query("SELECT p FROM Phone p WHERE p.id = :id AND p.contact.user.id = :userId")
     Optional<Phone> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
-
-    @Query("SELECT p FROM Phone p WHERE p.id = :id AND p.essentialContact IS NOT NULL")
-    Optional<Phone> findEssentialById(@Param("id") Long id);
 
     @Query("SELECT COUNT(p) FROM Phone p WHERE p.contact.id = :contactId AND p.lastUpdate >= :lastUpdate")
     Integer countByNoteColumnAndLastUpdateGreaterOrEqual(@Param("contactId") Long contactId, @Param("lastUpdate") LocalDateTime lastUpdate);

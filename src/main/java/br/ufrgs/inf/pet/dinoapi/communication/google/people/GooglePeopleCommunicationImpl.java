@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.communication.google.people;
 import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
@@ -99,8 +100,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, String resourceName) {
+    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, GoogleContact googleContact) {
         try {
+            final String resourceName = googleContact.getResourceName();
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
             if (googleAuth == null) return null;
@@ -142,7 +144,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public boolean deleteContact(User user, GoogleContact googleContact) {
+    public boolean deleteContact(User user, String resourceName) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -155,7 +157,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             final HttpRequest request = this.createBaseRequest(accessToken)
                     .uri(new URI(
                             GoogleAPIURLEnum.DELETE_CONTACT_BASE.getValue()
-                                    + googleContact.getResourceName()
+                                    + resourceName
                                     + ":deleteContact"))
                     .DELETE()
                     .build();

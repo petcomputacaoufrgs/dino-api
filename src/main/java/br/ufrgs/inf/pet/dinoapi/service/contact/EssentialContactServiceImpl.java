@@ -21,7 +21,6 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -71,12 +70,10 @@ public class EssentialContactServiceImpl extends
     @Override
     public EssentialContact convertModelToEntity(EssentialContactDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         final EssentialContact entity = new EssentialContact();
-
         entity.setName(model.getName());
         entity.setDescription(model.getDescription());
         entity.setColor(model.getColor());
         searchTreatments(entity, model.getTreatmentIds());
-
         return entity;
     }
 
@@ -119,24 +116,28 @@ public class EssentialContactServiceImpl extends
     }
 
     @Override
-    protected void onDataCreated(EssentialContactDataModel model) throws AuthNullException, ConvertModelToEntityException {
-        asyncEssentialContactService.createContactsOnGoogleAPI(model);
+    protected void afterDataCreated(EssentialContact entity, Auth auth) {
+        asyncEssentialContactService.createUsersContacts(entity);
     }
 
     @Override
-    protected void onDataUpdated(EssentialContactDataModel model, EssentialContact entity) throws AuthNullException, ConvertModelToEntityException {
-        asyncEssentialContactService.updateContactsOnGoogleAPI(model);
+    protected void afterDataUpdated(EssentialContact entity, Auth auth) {
+        asyncEssentialContactService.updateUsersContacts(entity);
     }
 
     @Override
-    protected void onDataDeleted(EssentialContact entity) throws AuthNullException {
+    protected void beforeDataDeleted(EssentialContact entity, Auth auth) {
         final List<Contact> contacts = contactRepository.findAllByEssentialContactId(entity.getId());
 
         contacts.forEach(contact -> contact.setEssentialContact(null));
 
         contactRepository.saveAll(contacts);
 
-        asyncEssentialContactService.deleteContactsOnGoogleAPI(contacts);
+        asyncEssentialContactService.deleteContacts(contacts);
+    }
+
+    public Optional<EssentialContact> findById(Long id) {
+        return this.repository.findById(id);
     }
 
     private void searchTreatments(EssentialContact entity, List<Long> treatmentIds) {
