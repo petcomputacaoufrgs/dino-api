@@ -18,6 +18,8 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,7 +46,7 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
     @Async("contactsThreadPool")
     public void createUsersPhones(EssentialPhone entity) {
         try {
-            final Optional<EssentialContact> essentialContactSearch = essentialContactService.findById(entity.getId());
+            final Optional<EssentialContact> essentialContactSearch = essentialContactService.findById(entity.getEssentialContact().getId());
 
             essentialContactSearch.ifPresent(essentialContact -> this.createPhones(entity, essentialContact));
         } catch (Exception e) {
@@ -54,20 +56,13 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
 
     @Async("contactsThreadPool")
     public void updateUsersPhones(EssentialPhone entity) {
-        final List<Phone> phones = phoneService.findAllByEssentialContact(entity.getEssentialContact());
+        final List<Phone> phones = phoneService.findAllByEssentialPhone(entity);
         for (Phone phone : phones) {
             try {
                 final Contact contact = phone.getContact();
                 final User user = phone.getContact().getUser();
 
-                final PhoneDataModel phoneDataModel = new PhoneDataModel();
-                phoneDataModel.setNumber(entity.getNumber());
-                phoneDataModel.setContactId(contact.getId());
-                phoneDataModel.setType(entity.getType());
-                phoneDataModel.setLastUpdate(clockService.getUTCZonedDateTime());
-                phoneDataModel.setId(phone.getId());
-
-                phoneService.saveByUser(phoneDataModel, user);
+                save(entity, contact, user, phone);
             } catch (ConvertModelToEntityException | AuthNullException e) {
                 this.logAPIError(e);
             }
@@ -76,7 +71,7 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
 
     @Async("contactsThreadPool")
     public void deleteUsersPhones(EssentialPhone entity) {
-        final List<Phone> phones = phoneService.findAllByEssentialContact(entity.getEssentialContact());
+        final List<Phone> phones = phoneService.findAllByEssentialPhone(entity);
 
         for (Phone phone : phones) {
             try {
@@ -101,17 +96,30 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
             try {
                 final User user = contact.getUser();
                 if (user.getUserAppSettings().getIncludeEssentialContact()) {
-                    final PhoneDataModel phoneDataModel = new PhoneDataModel();
-                    phoneDataModel.setNumber(essentialPhone.getNumber());
-                    phoneDataModel.setContactId(contact.getId());
-                    phoneDataModel.setType(essentialPhone.getType());
-                    phoneDataModel.setLastUpdate(clockService.getUTCZonedDateTime());
+                    final Phone phone = new Phone();
+                    phone.setType(essentialPhone.getType());
+                    phone.setNumber(essentialPhone.getNumber());
+                    phone.setContact(contact);
+                    phone.setLastUpdate(LocalDateTime.now());
+                    phone.setEssentialPhone(essentialPhone);
+                    final Phone savedPhone = phoneService.saveDirectly(phone);
 
-                    phoneService.saveByUser(phoneDataModel, user);
+                    save(essentialPhone, contact, user, savedPhone);
                 }
             } catch (AuthNullException | ConvertModelToEntityException e) {
                 this.logAPIError(e);
             }
         }
+    }
+
+    private void save(EssentialPhone essentialPhone, Contact contact, User user, Phone savedPhone) throws AuthNullException, ConvertModelToEntityException {
+        final PhoneDataModel phoneDataModel = new PhoneDataModel();
+        phoneDataModel.setNumber(essentialPhone.getNumber());
+        phoneDataModel.setContactId(contact.getId());
+        phoneDataModel.setType(essentialPhone.getType());
+        phoneDataModel.setLastUpdate(clockService.getUTCZonedDateTime());
+        phoneDataModel.setId(savedPhone.getId());
+
+        phoneService.saveByUser(phoneDataModel, user);
     }
 }

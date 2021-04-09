@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
@@ -55,7 +56,7 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
             entity.setType(model.getType());
             final Long contactId = model.getContactId();
 
-            if (contactId != null) throw new ConvertModelToEntityException(ContactsConstants.PHONE_WITHOUT_CONTACT);
+            if (contactId == null) throw new ConvertModelToEntityException(ContactsConstants.PHONE_WITHOUT_CONTACT);
 
             searchContact(entity, contactId, auth);
 
@@ -126,14 +127,18 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
         asyncPhoneService.updateGoogleContactPhones(auth.getUser(), entity);
     }
 
-    public List<Phone> findAllByEssentialContact(EssentialContact essentialContact) {
-        return this.repository.findAllByEssentialContactId(essentialContact.getId());
+    public List<Phone> findAllByEssentialPhone(EssentialPhone essentialPhone) {
+        return this.repository.findAllByEssentialPhoneId(essentialPhone.getId());
     }
 
     public void saveByUser(PhoneDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
         final Auth fakeAuth = this.getFakeAuth(user);
 
         this.internalSave(contactDataModel, fakeAuth);
+    }
+
+    public Phone saveDirectly(Phone phone) {
+        return this.repository.save(phone);
     }
 
     public void deleteByUser(SynchronizableDeleteModel<Long> model, User user) throws AuthNullException {

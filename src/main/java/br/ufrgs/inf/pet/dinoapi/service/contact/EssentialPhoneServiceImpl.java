@@ -4,12 +4,10 @@ import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialPhoneDataModel;
-import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialPhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
@@ -62,7 +60,8 @@ public class EssentialPhoneServiceImpl
     @Override
     public EssentialPhone convertModelToEntity(EssentialPhoneDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
-            final Optional<EssentialContact> essentialContactSearch = this.essentialContactService.findEntityByIdThatUserCanRead(model.getId(), auth);
+            final Optional<EssentialContact> essentialContactSearch =
+                    this.essentialContactService.findEntityByIdThatUserCanRead(model.getEssentialContactId(), auth);
             if (essentialContactSearch.isPresent()) {
                 final EssentialContact essentialContact = essentialContactSearch.get();
                 final EssentialPhone entity = new EssentialPhone();

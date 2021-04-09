@@ -67,15 +67,6 @@ public abstract class SynchronizableServiceImpl<
     }
 
     /**
-     * Override it to do something before a new entity is created
-     *
-     * @param entity new entity
-     * @param auth authentication of user that fire the event
-     */
-    protected void beforeDataCreated(ENTITY entity, Auth auth) {
-    }
-
-    /**
      * Override it to do something after a entity is updated
      *
      * @param entity updated entity
@@ -525,8 +516,6 @@ public abstract class SynchronizableServiceImpl<
         ENTITY entity = this.completeConvertModelToEntity(model, auth);
         entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
 
-        beforeDataCreated(entity, auth);
-
         entity = repository.save(entity);
 
         afterDataCreated(entity, auth);
@@ -577,12 +566,6 @@ public abstract class SynchronizableServiceImpl<
         final List<DATA_MODEL> updatedModels = new ArrayList<>();
 
         int count = 0;
-
-        if (create) {
-            for (ENTITY entity : entitiesToSave) {
-                this.beforeDataCreated(entity, auth);
-            }
-        }
 
         final List<ENTITY> entities = Lists.newArrayList(repository.saveAll(entitiesToSave));
 

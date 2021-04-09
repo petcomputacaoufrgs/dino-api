@@ -11,7 +11,6 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.ContactServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.GoogleContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.PhoneServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
@@ -20,8 +19,9 @@ import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AsyncEssentialContactService extends LogUtilsBase {
@@ -29,20 +29,17 @@ public class AsyncEssentialContactService extends LogUtilsBase {
     private final UserServiceImpl userService;
     private final ClockServiceImpl clockService;
     private final ContactServiceImpl contactService;
-    private final GoogleContactServiceImpl googleContactService;
     private final PhoneServiceImpl phoneService;
 
     @Autowired
     public AsyncEssentialContactService(TreatmentServiceImpl treatmentService, UserServiceImpl userService,
                                         ClockServiceImpl clockService, ContactServiceImpl contactService,
-                                        LogAPIErrorServiceImpl logAPIErrorService,
-                                        GoogleContactServiceImpl googleContactService, PhoneServiceImpl phoneService) {
+                                        LogAPIErrorServiceImpl logAPIErrorService, PhoneServiceImpl phoneService) {
         super(logAPIErrorService);
         this.treatmentService = treatmentService;
         this.userService = userService;
         this.clockService = clockService;
         this.contactService = contactService;
-        this.googleContactService = googleContactService;
         this.phoneService = phoneService;
     }
 
@@ -52,26 +49,29 @@ public class AsyncEssentialContactService extends LogUtilsBase {
 
         List<User> users;
         if (treatments.size() > 0) {
-            users = userService.findUserBySaveEssentialContactsAndTreatments(treatments);
+            users = userService.findUsersThatCanHaveEssentialContactsByTreatments(treatments);
         } else {
-            users = userService.findUserBySaveEssentialContacts();
+            users = userService.findUsersThatCanHaveEssentialContacts();
         }
 
         for (User user : users) {
             try {
-                ContactDataModel contactDataModel = new ContactDataModel();
-                contactDataModel.setEssentialContactId(entity.getId());
+                final Contact contact = new Contact();
+                contact.setEssentialContact(entity);
+                contact.setLastUpdate(LocalDateTime.now());
+                contact.setUser(user);
+                contact.setName(entity.getName());
+
+                final Contact savedContact = contactService.saveDirectly(contact);
+
+                final ContactDataModel contactDataModel = new ContactDataModel();
                 contactDataModel.setColor(entity.getColor());
                 contactDataModel.setDescription(entity.getDescription());
                 contactDataModel.setName(entity.getName());
                 contactDataModel.setLastUpdate(clockService.getUTCZonedDateTime());
+                contactDataModel.setId(savedContact.getId());
 
-                contactDataModel = contactService.saveByUser(contactDataModel, user);
-
-                if (contactDataModel.getId() != null) {
-                    final Optional<Contact> contact = contactService.findById(contactDataModel.getId());
-                    contact.ifPresent(value -> this.googleContactService.createNewGoogleContact(value, user));
-                }
+                contactService.saveByUser(contactDataModel, user);
             } catch (AuthNullException | ConvertModelToEntityException e) {
                 this.logAPIError(e);
             }

@@ -92,11 +92,7 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
         return this.repository.findById(id);
     }
 
-    public List<Treatment> getEntitiesByIds(List<Long> ids) {
-        return this.repository.findAllByIds(ids);
-    }
-
     public List<Treatment> getEntitiesByEssentialContact(EssentialContact essentialContact) {
-        return this.repository.findAllByEssentialContact(essentialContact);
+        return this.repository.findAllByEssentialContact(essentialContact.getId());
     }
 }

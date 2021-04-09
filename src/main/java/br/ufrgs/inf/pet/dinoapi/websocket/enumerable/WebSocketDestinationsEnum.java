@@ -10,7 +10,7 @@ public enum WebSocketDestinationsEnum {
     NOTE("note"),
     NOTE_COLUMN("note_column"),
     USER("user"),
-    USER_SETTINGS("user_settings"),
+    USER_SETTINGS("settings"),
     TREATMENT("treatment"),
     FAQ_ITEM("faq_item"),
     TREATMENT_QUESTION("treatment_question"),

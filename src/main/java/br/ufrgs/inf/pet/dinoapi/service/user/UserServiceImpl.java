@@ -192,11 +192,11 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return null;
     }
 
-    public List<User> findUserBySaveEssentialContacts() {
-        return this.repository.findUserBySaveEssentialContacts();
+    public List<User> findUsersThatCanHaveEssentialContacts() {
+        return this.repository.findBySaveEssentialContactsAndPermission(PermissionEnum.USER.getValue());
     }
 
-    public List<User> findUserBySaveEssentialContactsAndTreatments(List<Treatment> treatments) {
-        return this.repository.findUserBySaveEssentialContactsAndTreatments(treatments);
+    public List<User> findUsersThatCanHaveEssentialContactsByTreatments(List<Treatment> treatments) {
+        return this.repository.findBySaveEssentialContactsAndTreatmentsAndPermission(treatments, PermissionEnum.USER.getValue());
     }
 }

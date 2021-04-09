@@ -4,10 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
-import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
-import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
-import br.ufrgs.inf.pet.dinoapi.enumerable.IntEnumInterface;
-import br.ufrgs.inf.pet.dinoapi.enumerable.LanguageEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.*;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
@@ -21,7 +18,6 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -76,10 +72,8 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setColorTheme(model.getColorTheme());
         userSettings.setFontSize(model.getFontSize());
         userSettings.setIncludeEssentialContact(model.getIncludeEssentialContact());
-        userSettings.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
         userSettings.setUser(auth.getUser());
-        userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
-        userSettings.setStep(model.getStep());
+        modelToEntity(userSettings, model);
 
         return userSettings;
     }
@@ -105,9 +99,20 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setFontSize(model.getFontSize());
         entity.setLanguage(model.getLanguage());
         entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
-        entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+        modelToEntity(entity, model);
+    }
+
+    private void modelToEntity(UserSettings entity, UserSettingsDataModel model) {
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
         entity.setStep(model.getStep());
+
+        final String permission = authService.getCurrentPermission();
+        final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
+        if (hasUserPermission) {
+            entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+        } else {
+            entity.setDeclineGoogleContacts(true);
+        }
     }
 
     @Override

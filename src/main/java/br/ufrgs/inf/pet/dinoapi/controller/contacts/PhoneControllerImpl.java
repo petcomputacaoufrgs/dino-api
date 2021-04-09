@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/private/phone/")
+@RequestMapping("/user/phone/")
 public class PhoneControllerImpl extends SynchronizableControllerImpl<
         Phone, Long, PhoneDataModel, PhoneRepository, PhoneServiceImpl> {
 

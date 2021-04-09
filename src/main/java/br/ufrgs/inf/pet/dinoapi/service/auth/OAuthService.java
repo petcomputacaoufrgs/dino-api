@@ -28,15 +28,11 @@ public interface OAuthService {
 
     Auth getCurrentAuth();
 
-    DinoUser getPrincipal();
-
     DinoCredentials getCredentials();
 
     boolean isValidAccessToken(String token);
 
-    boolean isValidRefreshToken(String token);
-
-    boolean isValidWebSocketToken(String token);
+    String getCurrentPermission();
 
     Claims decodeAccessToken(String accessToken);
 

@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.service.contact.GoogleContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
@@ -24,17 +25,19 @@ public class AsyncContactService extends LogUtilsBase {
     @Async("contactsThreadPool")
     public void createContactOnGoogleAPI(Contact entity, Auth auth) {
         final User user = auth.getUser();
+
         googleContactService.createNewGoogleContact(entity, user);
     }
 
     @Async("contactsThreadPool")
     public void updateContactOnGoogleAPI(Contact entity, Auth auth) {
+        final User user = auth.getUser();
+
         final Optional<GoogleContact> googleContactSearch = this.googleContactService.findByContactId(entity.getId());
 
         if (googleContactSearch.isPresent()) {
             googleContactService.updateGoogleContact(entity, googleContactSearch.get());
         } else {
-            final User user = auth.getUser();
             googleContactService.createNewGoogleContact(entity, user);
         }
     }
@@ -42,6 +45,10 @@ public class AsyncContactService extends LogUtilsBase {
     @Async("contactsThreadPool")
     public void deleteContactOnGoogleAPI(String resourceName, Auth auth) {
         final User user = auth.getUser();
-        googleContactService.deleteGoogleContact(resourceName, user);
+        final boolean hasUserPermission = user.getPermission().equals(PermissionEnum.USER.getValue());
+
+        if (hasUserPermission) {
+            googleContactService.deleteGoogleContact(resourceName, user);
+        }
     }
 }

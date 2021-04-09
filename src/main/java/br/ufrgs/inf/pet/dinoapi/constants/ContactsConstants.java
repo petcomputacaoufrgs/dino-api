@@ -18,8 +18,6 @@ public final class ContactsConstants {
 
     public final static String PHONE_INVALID_CONTACT = "invalid contact";
 
-    public final static String PHONE_INVALID_ECONTACT = "invalid essential contact";
-
     public final static String ESSENTIAL_CONTACT_ID_NULL_MESSAGE = "contact id cannot be null";
 
     public final static String ESSENTIAL_CONTACT_NOT_FOUND = "essential contact not found";

@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
@@ -24,19 +25,16 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
     private final GoogleScopeServiceImpl googleScopeService;
     private final PhoneRepository phoneRepository;
     private final GooglePeopleCommunicationImpl googlePeopleCommunication;
-    private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
     public GoogleContactServiceImpl(GoogleContactRepository repository, LogAPIErrorServiceImpl logAPIErrorService,
                                     GoogleScopeServiceImpl googleScopeService, PhoneRepository phoneRepository,
-                                    GooglePeopleCommunicationImpl googlePeopleCommunication,
-                                    GoogleContactServiceImpl googleContactService) {
+                                    GooglePeopleCommunicationImpl googlePeopleCommunication) {
         super(logAPIErrorService);
         this.repository = repository;
         this.googleScopeService = googleScopeService;
         this.phoneRepository = phoneRepository;
         this.googlePeopleCommunication = googlePeopleCommunication;
-        this.googleContactService = googleContactService;
     }
 
     public void createNewGoogleContact(Contact entity, User user) {
@@ -51,14 +49,13 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
                 googleContact.setContact(entity);
                 googleContact.setUser(user);
                 googleContact.setResourceName(googlePeopleModel.getResourceName());
-                googleContactService.save(googleContact);
+                this.save(googleContact);
             }
         }
     }
 
     public void updateGoogleContact(Contact contact, GoogleContact googleContact) {
         final User user = contact.getUser();
-
         if (googleScopeService.hasGoogleContactScope(user)) {
             final List<String> phoneNumbers = phoneRepository.findAllPhoneNumbersByContactId(contact.getId());
 
@@ -67,7 +64,7 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
 
             if (googlePeopleModel != null) {
                 googleContact.setResourceName(googleContact.getResourceName());
-                googleContactService.save(googleContact);
+                this.save(googleContact);
             }
         }
     }
