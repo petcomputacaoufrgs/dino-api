@@ -16,6 +16,8 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     private Long contactId;
 
+    private Long essentialPhoneId;
+
     public short getType() {
         return type;
     }
@@ -38,5 +40,13 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     public void setContactId(Long contactId) {
         this.contactId = contactId;
+    }
+
+    public Long getEssentialPhoneId() {
+        return essentialPhoneId;
+    }
+
+    public void setEssentialPhoneId(Long essentialPhoneId) {
+        this.essentialPhoneId = essentialPhoneId;
     }
 }

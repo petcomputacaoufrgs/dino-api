@@ -10,6 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAuthErrorCodeEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -36,7 +37,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -120,7 +120,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                     }
 
                     user = this.createUser(payload);
-
+                    final boolean hasUserPermission = user.getPermission().equals(PermissionEnum.USER.getValue());
 
                     googleAuth = new GoogleAuth(googleId, refreshToken, user);
                     user.setGoogleAuth(googleAuthRepository.save(googleAuth));
@@ -132,7 +132,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                     userSettings.setFirstSettingsDone(false);
                     userSettings.setUser(user);
                     userSettings.setDeclineGoogleContacts(false);
-                    userSettings.setIncludeEssentialContact(true);
+                    userSettings.setIncludeEssentialContact(hasUserPermission);
                     userSettings.setColorTheme(ColorThemeEnum.DEVICE.getValue());
                     userSettings.setFontSize(FontSizeEnum.DEFAULT.getValue());
 

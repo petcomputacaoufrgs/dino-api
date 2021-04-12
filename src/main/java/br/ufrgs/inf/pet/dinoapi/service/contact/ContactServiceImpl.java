@@ -68,6 +68,11 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
             entity.setDescription(model.getDescription());
             entity.setColor(model.getColor());
             entity.setUser(auth.getUser());
+
+            if (model.getEssentialContactId() != null) {
+                final Optional<EssentialContact> eContactSearch = essentialContactRepository.findById(model.getEssentialContactId());
+                eContactSearch.ifPresent(entity::setEssentialContact);
+            }
             return entity;
         } else {
             throw new AuthNullException();
@@ -162,10 +167,10 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         return this.repository.save(contact);
     }
 
-    public ContactDataModel saveByUser(ContactDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
+    public void saveByUser(ContactDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
         final Auth fakeAuth = this.getFakeAuth(user);
 
-        return this.internalSave(contactDataModel, fakeAuth);
+        this.internalSave(contactDataModel, fakeAuth);
     }
 
     public void deleteByUser(SynchronizableDeleteModel<Long> model, User user) throws AuthNullException {

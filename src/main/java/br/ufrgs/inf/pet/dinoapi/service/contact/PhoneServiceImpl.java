@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
@@ -11,6 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.PhoneDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
+import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialPhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
@@ -19,6 +19,7 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
+import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -28,15 +29,18 @@ import java.util.Optional;
 public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, PhoneDataModel, PhoneRepository> {
     private final ContactServiceImpl contactService;
     private final AsyncPhoneService asyncPhoneService;
+    private final EssentialPhoneRepository essentialPhoneRepository;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, OAuthServiceImpl authService,
                             SynchronizableQueueMessageService<Long, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                            ContactServiceImpl contactService, AsyncPhoneService asyncPhoneService) {
+                            ContactServiceImpl contactService, AsyncPhoneService asyncPhoneService,
+                            EssentialPhoneRepository essentialPhoneRepository) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;
         this.asyncPhoneService = asyncPhoneService;
+        this.essentialPhoneRepository = essentialPhoneRepository;
     }
 
     @Override
@@ -45,18 +49,31 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
         model.setNumber(entity.getNumber());
         model.setType(entity.getType());
         model.setContactId(entity.getContact().getId());
+        final EssentialPhone ePhone = entity.getEssentialPhone();
+        if (ePhone != null) {
+            model.setEssentialPhoneId(ePhone.getId());
+        }
+
         return model;
     }
 
     @Override
     public Phone convertModelToEntity(PhoneDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (auth != null) {
-            final Phone entity = new Phone();
-            entity.setNumber(model.getNumber());
-            entity.setType(model.getType());
             final Long contactId = model.getContactId();
 
             if (contactId == null) throw new ConvertModelToEntityException(ContactsConstants.PHONE_WITHOUT_CONTACT);
+
+            final Phone entity = new Phone();
+            entity.setNumber(model.getNumber());
+            entity.setType(model.getType());
+
+            final Long essentialContactId = model.getEssentialPhoneId();
+
+            if (essentialContactId != null) {
+                final Optional<EssentialPhone> ePhoneSearch = essentialPhoneRepository.findById(essentialContactId);
+                ePhoneSearch.ifPresent(entity::setEssentialPhone);
+            }
 
             searchContact(entity, contactId, auth);
 
@@ -139,6 +156,10 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
 
     public Phone saveDirectly(Phone phone) {
         return this.repository.save(phone);
+    }
+
+    public List<Phone> saveDirectly(List<Phone> phones) {
+        return Lists.newArrayList(this.repository.saveAll(phones));
     }
 
     public void deleteByUser(SynchronizableDeleteModel<Long> model, User user) throws AuthNullException {

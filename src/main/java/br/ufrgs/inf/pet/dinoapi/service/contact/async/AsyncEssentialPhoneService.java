@@ -18,7 +18,6 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -29,7 +28,6 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
     private final EssentialContactServiceImpl essentialContactService;
     private final ClockServiceImpl clockService;
     private final PhoneServiceImpl phoneService;
-
 
     @Autowired
     public AsyncEssentialPhoneService(LogAPIErrorServiceImpl logAPIErrorService,
@@ -70,9 +68,7 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
     }
 
     @Async("contactsThreadPool")
-    public void deleteUsersPhones(EssentialPhone entity) {
-        final List<Phone> phones = phoneService.findAllByEssentialPhone(entity);
-
+    public void deleteUsersPhones(List<Phone> phones) {
         for (Phone phone : phones) {
             try {
                 final Contact contact = phone.getContact();

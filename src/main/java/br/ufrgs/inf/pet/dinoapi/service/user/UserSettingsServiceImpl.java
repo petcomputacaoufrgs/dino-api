@@ -71,7 +71,11 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setLanguage(model.getLanguage());
         userSettings.setColorTheme(model.getColorTheme());
         userSettings.setFontSize(model.getFontSize());
-        userSettings.setIncludeEssentialContact(model.getIncludeEssentialContact());
+
+        final String permission = authService.getCurrentPermission();
+        final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
+        if(hasUserPermission) userSettings.setIncludeEssentialContact(model.getIncludeEssentialContact());
+
         userSettings.setUser(auth.getUser());
         modelToEntity(userSettings, model);
 
@@ -98,6 +102,9 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setColorTheme(model.getColorTheme());
         entity.setFontSize(model.getFontSize());
         entity.setLanguage(model.getLanguage());
+        final String permission = authService.getCurrentPermission();
+        final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
+        if(hasUserPermission) entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
         entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         modelToEntity(entity, model);
     }

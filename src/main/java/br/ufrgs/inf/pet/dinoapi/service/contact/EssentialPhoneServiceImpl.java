@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -28,15 +29,18 @@ public class EssentialPhoneServiceImpl
 
     private final EssentialContactServiceImpl essentialContactService;
     private final AsyncEssentialPhoneService asyncEssentialPhoneService;
+    private final PhoneServiceImpl phoneService;
 
     @Autowired
     public EssentialPhoneServiceImpl(EssentialPhoneRepository repository, OAuthServiceImpl authService,
                                      ClockServiceImpl clock, EssentialContactServiceImpl essentialContactService,
                                      SynchronizableTopicMessageService<Long, EssentialPhoneDataModel> synchronizableTopicMessageService,
-                                     LogAPIErrorServiceImpl logAPIErrorService, AsyncEssentialPhoneService asyncEssentialPhoneService) {
+                                     LogAPIErrorServiceImpl logAPIErrorService, AsyncEssentialPhoneService asyncEssentialPhoneService,
+                                     PhoneServiceImpl phoneService) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.essentialContactService = essentialContactService;
         this.asyncEssentialPhoneService = asyncEssentialPhoneService;
+        this.phoneService = phoneService;
     }
 
     @Override
@@ -130,6 +134,12 @@ public class EssentialPhoneServiceImpl
 
     @Override
     protected void beforeDataDeleted(EssentialPhone entity, Auth auth) {
-        asyncEssentialPhoneService.deleteUsersPhones(entity);
+        List<Phone> phones = phoneService.findAllByEssentialPhone(entity);
+
+        phones.forEach(phone -> phone.setEssentialPhone(null));
+
+        phones = phoneService.saveDirectly(phones);
+
+        asyncEssentialPhoneService.deleteUsersPhones(phones);
     }
 }
