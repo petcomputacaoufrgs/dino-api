@@ -469,7 +469,7 @@ public abstract class SynchronizableServiceImpl<
                 final ENTITY entity = orderedEntities.get(count);
                 final ID entityId = entity.getId();
 
-                if (model.getId() == entityId) {
+                if (model.getId().equals(entityId)) {
                     if (this.canChange(entity, model)) {
                         this.internalUpdateEntity(entity, model, auth);
                         entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());

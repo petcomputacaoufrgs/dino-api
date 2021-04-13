@@ -199,6 +199,6 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
             return false;
         }
 
-        return Arrays.stream(enumerables).noneMatch(enumerable -> selected == enumerable.getValue());
+        return Arrays.stream(enumerables).noneMatch(enumerable -> selected.equals(enumerable.getValue()));
     }
 }
