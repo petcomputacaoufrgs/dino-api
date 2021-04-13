@@ -8,7 +8,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.note.NoteDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.note.NoteRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -26,7 +26,7 @@ public class NoteServiceImpl extends SynchronizableServiceImpl<Note, Long, NoteD
     private final NoteColumnServiceImpl noteColumnService;
 
     @Autowired
-    public NoteServiceImpl(NoteRepository noteRepository, OAuthServiceImpl authService, NoteColumnServiceImpl noteColumnService,
+    public NoteServiceImpl(NoteRepository noteRepository, AuthServiceImpl authService, NoteColumnServiceImpl noteColumnService,
                            SynchronizableQueueMessageService<Long, NoteDataModel> synchronizableQueueMessageService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(noteRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);

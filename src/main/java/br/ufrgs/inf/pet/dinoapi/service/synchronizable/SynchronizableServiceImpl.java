@@ -13,7 +13,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.*;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
@@ -43,11 +43,11 @@ public abstract class SynchronizableServiceImpl<
         REPOSITORY extends CrudRepository<ENTITY, ID>> extends LogUtilsBase implements SynchronizableService<ENTITY, ID, DATA_MODEL> {
 
     protected final REPOSITORY repository;
-    protected final OAuthServiceImpl authService;
+    protected final AuthServiceImpl authService;
     protected final SynchronizableMessageService<ID, DATA_MODEL> synchronizableMessageService;
     protected final ClockServiceImpl clock;
 
-    public SynchronizableServiceImpl(REPOSITORY repository, OAuthServiceImpl authService, ClockServiceImpl clock,
+    public SynchronizableServiceImpl(REPOSITORY repository, AuthServiceImpl authService, ClockServiceImpl clock,
                                      SynchronizableMessageService<ID, DATA_MODEL> synchronizableMessageService,
                                      LogAPIErrorServiceImpl logAPIErrorService) {
         super(logAPIErrorService);
@@ -58,12 +58,30 @@ public abstract class SynchronizableServiceImpl<
     }
 
     /**
+     * Override it to do something before a entity be deleted
+     *
+     * @param entity deleted entity
+     * @param auth authentication of user that fire the event
+     */
+    protected void beforeDataCreated(ENTITY entity, Auth auth) {
+    }
+
+    /**
      * Override it to do something after a new entity is created
      *
      * @param entity created entity
      * @param auth authentication of user that fire the event
      */
     protected void afterDataCreated(ENTITY entity, Auth auth) {
+    }
+
+    /**
+     * Override it to do something before a entity be deleted
+     *
+     * @param entity deleted entity
+     * @param auth authentication of user that fire the event
+     */
+    protected void beforeDataUpdated(ENTITY entity, Auth auth) {
     }
 
     /**
@@ -525,6 +543,7 @@ public abstract class SynchronizableServiceImpl<
 
     private DATA_MODEL update(ENTITY entity, DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (this.canChange(entity, model)) {
+
             this.internalUpdateEntity(entity, model, auth);
             entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
             entity = repository.save(entity);

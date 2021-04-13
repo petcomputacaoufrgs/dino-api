@@ -12,7 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -36,7 +36,7 @@ public class EssentialContactServiceImpl extends
 
     @Autowired
     public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository,
-                                       OAuthServiceImpl authService, ClockServiceImpl clock, LogAPIErrorServiceImpl logAPIErrorService,
+                                       AuthServiceImpl authService, ClockServiceImpl clock, LogAPIErrorServiceImpl logAPIErrorService,
                                        SynchronizableTopicMessageService<Long, EssentialContactDataModel> synchronizableTopicMessageService,
                                        AsyncEssentialContactService asyncEssentialContactService,
                                        ContactRepository contactRepository) {

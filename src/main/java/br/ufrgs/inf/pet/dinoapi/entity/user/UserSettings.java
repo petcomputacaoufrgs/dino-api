@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
-
 import javax.persistence.*;
 
 @Entity
@@ -29,6 +28,9 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     @Column(name = "settings_step", nullable = false)
     private Integer step;
+
+    @Column(name = "sync_google_contacts", nullable = false)
+    private Boolean shouldSyncGoogleContacts;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -111,5 +113,13 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     public void setStep(Integer step) {
         this.step = step;
+    }
+
+    public boolean shouldSyncGoogleContacts() {
+        return shouldSyncGoogleContacts;
+    }
+
+    public void setShouldSyncGoogleContacts(boolean syncGoogleContacts) {
+        this.shouldSyncGoogleContacts = syncGoogleContacts;
     }
 }

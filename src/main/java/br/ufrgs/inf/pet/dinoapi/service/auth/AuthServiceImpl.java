@@ -30,7 +30,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class OAuthServiceImpl implements OAuthService {
+public class AuthServiceImpl implements AuthService {
 
     private static final String ACCESS_TOKEN_KEY = "ie!>[é1roh]f!7RmdPâpzõJ?sAQ(55+ç#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>pó[@t/ãSX]ÊTD}504T)ç5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
@@ -55,7 +55,7 @@ public class OAuthServiceImpl implements OAuthService {
     private final ClockServiceImpl clockService;
 
     @Autowired
-    public OAuthServiceImpl(AuthRepository authRepository, ClockServiceImpl clockService) {
+    public AuthServiceImpl(AuthRepository authRepository, ClockServiceImpl clockService) {
         this.authRepository = authRepository;
         this.clockService = clockService;
     }
@@ -310,7 +310,7 @@ public class OAuthServiceImpl implements OAuthService {
         Clock clock = new ClockServiceImpl();
         return Jwts.parser().setClock(clock)
                 .setAllowedClockSkewSeconds(ALLOWED_CLOCK_SKEW_SECONDS)
-                .setSigningKey(DatatypeConverter.parseBase64Binary(OAuthServiceImpl.ACCESS_TOKEN_ENCODED_KEY))
+                .setSigningKey(DatatypeConverter.parseBase64Binary(AuthServiceImpl.ACCESS_TOKEN_ENCODED_KEY))
                 .parseClaimsJws(jwt).getBody();
     }
 }

@@ -26,4 +26,7 @@ public interface ContactRepository extends CrudRepository<Contact, Long> {
 
     @Query("SELECT c FROM Contact c WHERE c.essentialContact.id = :essentialContactId")
     List<Contact> findAllByEssentialContactId(@Param("essentialContactId") Long essentialContactId);
+
+    @Query("SELECT c FROM Contact c WHERE c.user.id = :userId ORDER BY c.id")
+    List<Contact> findAllByUserOrderById(@Param("userId") Long userId);
 }

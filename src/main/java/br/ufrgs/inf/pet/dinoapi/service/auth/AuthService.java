@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-public interface OAuthService {
+public interface AuthService {
 
     Auth generateAuth(User user) throws JsonProcessingException;
 

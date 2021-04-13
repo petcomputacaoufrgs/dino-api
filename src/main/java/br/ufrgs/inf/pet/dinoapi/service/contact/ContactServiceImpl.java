@@ -12,7 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDelet
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -33,7 +33,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
     private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository repository, OAuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
+    public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService, PhoneRepository phoneRepository,
                               SynchronizableQueueMessageService<Long, ContactDataModel> synchronizableQueueMessageService,
                               AsyncContactService asyncContactService, GoogleContactServiceImpl googleContactService) {

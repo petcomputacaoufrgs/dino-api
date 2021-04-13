@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.StaffServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -31,7 +31,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     StaffServiceImpl staffService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                            @Lazy StaffServiceImpl staffService,
                            SynchronizableQueueMessageService<Long, UserDataModel> synchronizableQueueMessageService) {

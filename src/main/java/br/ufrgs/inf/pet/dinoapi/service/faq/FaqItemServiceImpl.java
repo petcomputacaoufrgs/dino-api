@@ -8,7 +8,7 @@ import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -28,7 +28,7 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
-    public FaqItemServiceImpl(FaqItemRepository repository, OAuthServiceImpl authService, TreatmentServiceImpl treatmentService,
+    public FaqItemServiceImpl(FaqItemRepository repository, AuthServiceImpl authService, TreatmentServiceImpl treatmentService,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                               SynchronizableTopicMessageService<Long, FaqItemDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);

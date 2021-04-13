@@ -5,7 +5,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
@@ -48,7 +47,10 @@ public class AsyncPhoneService extends LogUtilsBase {
                 final List<Phone> contactPhones = phoneRepository.findAllByContactId(contact.getId());
                 final List<String> phoneNumbers = contactPhones.stream().map(Phone::getNumber).collect(Collectors.toList());
 
-                final GooglePeopleModel model = googlePeopleCommunication.updateContact(user, contact.getName(), contact.getDescription(), phoneNumbers, googleContact);
+                final GooglePeopleModel model = googlePeopleCommunication.updateContact(
+                        user, contact.getName(), contact.getDescription(),
+                        phoneNumbers, googleContact
+                );
 
                 if (model != null && !model.getResourceName().equals(googleContact.getResourceName())) {
                     googleContact.setResourceName(model.getResourceName());

@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.websocket.interceptor;
 import br.ufrgs.inf.pet.dinoapi.configuration.context.SpringContext;
 import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
 import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class WebSocketAuthenticationToken extends AbstractAuthenticationToken {
@@ -29,11 +29,11 @@ public class WebSocketAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     private void setWebSocketConnected() {
-        OAuthServiceImpl authService = this.getAuthService();
+        AuthServiceImpl authService = this.getAuthService();
         authService.setWebSocketConnected();
     }
 
-    private OAuthServiceImpl getAuthService() {
-        return SpringContext.getBean(OAuthServiceImpl.class);
+    private AuthServiceImpl getAuthService() {
+        return SpringContext.getBean(AuthServiceImpl.class);
     }
 }

@@ -5,7 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAccessToken;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.repository.google.GoogleAccessTokenRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,12 +17,12 @@ import java.util.Optional;
 public class GoogleAccessTokenServiceImpl implements GoogleAccessTokenService {
     private final GoogleAccessTokenRepository googleAccessTokenRepository;
     private final GoogleOAuthCommunicationImpl googleOAuthCommunication;
-    private final GoogleOAuthServiceImpl googleOAuthService;
+    private final GoogleAuthServiceImpl googleOAuthService;
 
     @Autowired
     public GoogleAccessTokenServiceImpl(GoogleAccessTokenRepository googleAccessTokenRepository,
                                         GoogleOAuthCommunicationImpl googleOAuthCommunication,
-                                        GoogleOAuthServiceImpl googleOAuthService) {
+                                        GoogleAuthServiceImpl googleOAuthService) {
         this.googleAccessTokenRepository = googleAccessTokenRepository;
         this.googleOAuthCommunication = googleOAuthCommunication;
         this.googleOAuthService = googleOAuthService;

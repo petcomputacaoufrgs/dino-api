@@ -3,14 +3,16 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.*;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
@@ -24,15 +26,17 @@ import java.util.Optional;
 
 @Service
 public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, UserSettingsDataModel, UserSettingsRepository> {
-
     private final TreatmentServiceImpl treatmentService;
+    private final AsyncGoogleContactService asyncGoogleContactService;
 
     @Autowired
-    public UserSettingsServiceImpl(UserSettingsRepository repository, OAuthServiceImpl authService, TreatmentServiceImpl treatmentService,
+    public UserSettingsServiceImpl(UserSettingsRepository repository, AuthServiceImpl authService, TreatmentServiceImpl treatmentService,
                                    SynchronizableQueueMessageService<Long, UserSettingsDataModel> synchronizableQueueMessageService,
-                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                                   AsyncGoogleContactService asyncGoogleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;
+        this.asyncGoogleContactService = asyncGoogleContactService;
     }
 
     @Override
@@ -104,7 +108,11 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setLanguage(model.getLanguage());
         final String permission = authService.getCurrentPermission();
         final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
-        if(hasUserPermission) entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+        if(hasUserPermission) {
+            final boolean acceptedGoogleContacts = entity.getDeclineGoogleContacts() &&  !model.getDeclineGoogleContacts();
+            entity.setShouldSyncGoogleContacts(acceptedGoogleContacts);
+            entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+        }
         entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         modelToEntity(entity, model);
     }
@@ -170,6 +178,17 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.USER_SETTINGS;
+    }
+
+    @Override
+    protected void afterDataUpdated(UserSettings entity, Auth auth) {
+        if (entity.shouldSyncGoogleContacts()) {
+            final User user = auth.getUser();
+            user.setUserAppSettings(entity);
+            entity.setShouldSyncGoogleContacts(false);
+            this.repository.save(entity);
+            asyncGoogleContactService.updateUserGoogleContacts(user);
+        }
     }
 
     public UserSettings saveOnDatabase(UserSettings userSettings) {

@@ -25,7 +25,7 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
 
     private final UserServiceImpl userService;
 
-    public StaffServiceImpl(StaffRepository repository, OAuthServiceImpl authService, ClockServiceImpl clock,
+    public StaffServiceImpl(StaffRepository repository, AuthServiceImpl authService, ClockServiceImpl clock,
                             SynchronizableTopicMessageService<Long, StaffDataModel> synchronizableTopicMessageService,
                             LogAPIErrorServiceImpl logAPIErrorService, UserServiceImpl userService) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);

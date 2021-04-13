@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialPhoneDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialPhoneRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialPhoneService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -32,7 +32,7 @@ public class EssentialPhoneServiceImpl
     private final PhoneServiceImpl phoneService;
 
     @Autowired
-    public EssentialPhoneServiceImpl(EssentialPhoneRepository repository, OAuthServiceImpl authService,
+    public EssentialPhoneServiceImpl(EssentialPhoneRepository repository, AuthServiceImpl authService,
                                      ClockServiceImpl clock, EssentialContactServiceImpl essentialContactService,
                                      SynchronizableTopicMessageService<Long, EssentialPhoneDataModel> synchronizableTopicMessageService,
                                      LogAPIErrorServiceImpl logAPIErrorService, AsyncEssentialPhoneService asyncEssentialPhoneService,
