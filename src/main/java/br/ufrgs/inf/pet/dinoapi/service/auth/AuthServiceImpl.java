@@ -231,6 +231,21 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    public List<String> getAllWebSocketTokenExceptByAuth(Auth auth) {
+        if (auth != null) {
+            List<AuthWebSocketToken> results;
+            if (auth.getWebSocketToken() != null) {
+                results = authRepository.findAllExceptOneWebSocketToken(auth.getWebSocketToken());
+            } else {
+                results = authRepository.findAllTokens();
+            }
+            return results.stream().map(AuthWebSocketToken::getWebSocketToken).collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
+    @Override
     public List<String> getAllUserWebSocketToken(User user) {
         if (user != null) {
             List<AuthWebSocketToken> results = authRepository.findAllByUser(user);

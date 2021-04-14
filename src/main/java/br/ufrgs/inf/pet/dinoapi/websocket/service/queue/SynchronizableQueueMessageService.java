@@ -29,22 +29,4 @@ public class SynchronizableQueueMessageService<
         final List<String> webSocketTokens = authService.getAllUserWebSocketTokenExceptByAuth(auth);
         this.send(data, url, webSocketTokens);
     }
-
-
-    @Override
-    protected <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, User user) {
-        final List<String> webSocketTokens = authService.getAllUserWebSocketToken(user);
-        this.send(data, url, webSocketTokens);
-    }
-
-    private <TYPE> void send(SynchronizableWSGenericModel<TYPE> data, String url, List<String> webSocketTokens) {
-        final String dest = this.generateQueueDest(url);
-        for (String webSocketToken : webSocketTokens) {
-            this.simpMessagingTemplate.convertAndSendToUser(webSocketToken, dest, data);
-        }
-    }
-
-    private String generateQueueDest(String url) {
-        return "/queue/" + url;
-    }
 }

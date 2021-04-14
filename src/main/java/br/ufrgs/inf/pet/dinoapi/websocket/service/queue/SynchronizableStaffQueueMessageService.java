@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.websocket.service.topic;
+package br.ufrgs.inf.pet.dinoapi.websocket.service.queue;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
@@ -10,28 +10,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import java.io.Serializable;
+import java.util.List;
 
 @Service
-public class SynchronizableTopicMessageService<
+public class SynchronizableStaffQueueMessageService<
         ID extends Comparable<ID> & Serializable,
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> extends SynchronizableMessageService<ID, DATA_MODEL> {
 
     @Autowired
-    public SynchronizableTopicMessageService(SimpMessagingTemplate simpMessagingTemplate,
-                                             AuthServiceImpl authService) {
+    public SynchronizableStaffQueueMessageService(SimpMessagingTemplate simpMessagingTemplate,
+                                                  AuthServiceImpl authService) {
         super(simpMessagingTemplate, authService);
     }
 
     @Override
     protected <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth) {
-        this.simpMessagingTemplate.convertAndSend(this.generateTopicDest(url), data);
-    }
-    @Override
-    protected <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, User user) {
-        this.simpMessagingTemplate.convertAndSend(this.generateTopicDest(url), data);
-    }
-
-    private String generateTopicDest(String url) {
-        return "/topic/" + url;
+        final List<String> webSocketTokens = authService.getAllWebSocketTokenExceptByAuth(auth);
+        this.send(data, url, webSocketTokens);
     }
 }

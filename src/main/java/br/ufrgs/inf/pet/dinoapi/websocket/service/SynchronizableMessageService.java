@@ -57,5 +57,14 @@ public abstract class SynchronizableMessageService<
 
     protected abstract <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth);
 
-    protected abstract <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, User user);
+    protected <TYPE> void send(SynchronizableWSGenericModel<TYPE> data, String url, List<String> webSocketTokens) {
+        final String dest = this.generateQueueDest(url);
+        webSocketTokens.forEach(token ->
+                this.simpMessagingTemplate.convertAndSendToUser(token, dest, data)
+        );
+    }
+
+    protected String generateQueueDest(String url) {
+        return "/queue/" + url;
+    }
 }

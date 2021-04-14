@@ -13,7 +13,7 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -26,9 +26,9 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
     private final UserServiceImpl userService;
 
     public StaffServiceImpl(StaffRepository repository, AuthServiceImpl authService, ClockServiceImpl clock,
-                            SynchronizableTopicMessageService<Long, StaffDataModel> synchronizableTopicMessageService,
+                            SynchronizableStaffQueueMessageService<Long, StaffDataModel> synchronizableStaffQueueMessageService,
                             LogAPIErrorServiceImpl logAPIErrorService, UserServiceImpl userService) {
-        super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
+        super(repository, authService, clock, synchronizableStaffQueueMessageService, logAPIErrorService);
 
         this.userService = userService;
     }
