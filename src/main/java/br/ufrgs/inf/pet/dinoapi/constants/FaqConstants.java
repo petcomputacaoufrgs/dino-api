@@ -19,5 +19,4 @@ public final class FaqConstants {
 
     public final static String INVALID_TREATMENT = "invalid treatment";
 
-
 }

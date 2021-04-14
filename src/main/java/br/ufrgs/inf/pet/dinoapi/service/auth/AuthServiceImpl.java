@@ -11,7 +11,6 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel
 import br.ufrgs.inf.pet.dinoapi.projection.auth.AuthWebSocketToken;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.AuthRepository;
 import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Clock;
@@ -25,14 +24,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-
 import javax.xml.bind.DatatypeConverter;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class OAuthServiceImpl implements OAuthService {
+public class AuthServiceImpl implements AuthService {
 
     private static final String ACCESS_TOKEN_KEY = "ie!>[é1roh]f!7RmdPâpzõJ?sAQ(55+ç#E(RG@LXG*k[CPU4S^35ALLhÇF071[v>pó[@t/ãSX]ÊTD}504T)ç5|3:iAg2jE/I[yUKN5}N[_iyxç";
 
@@ -57,7 +55,7 @@ public class OAuthServiceImpl implements OAuthService {
     private final ClockServiceImpl clockService;
 
     @Autowired
-    public OAuthServiceImpl(AuthRepository authRepository, ClockServiceImpl clockService) {
+    public AuthServiceImpl(AuthRepository authRepository, ClockServiceImpl clockService) {
         this.authRepository = authRepository;
         this.clockService = clockService;
     }
@@ -181,24 +179,15 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     @Override
-    public DinoUser getPrincipal() {
-        final SecurityContext context = SecurityContextHolder.getContext();
+    public String getCurrentPermission() {
+        final Auth auth = this.getCurrentAuth();
 
-        if (context == null) {
-            return null;
+        if (auth != null) {
+            final User user = auth.getUser();
+            return user.getPermission();
         }
 
-        final Authentication auth = context.getAuthentication();
-
-        if (auth == null) {
-            return null;
-        }
-
-        if (auth.getPrincipal().equals("anonymousUser")) {
-            return null;
-        }
-
-        return (DinoUser) auth.getPrincipal();
+        return null;
     }
 
     @Override
@@ -223,15 +212,7 @@ public class OAuthServiceImpl implements OAuthService {
     }
 
     public Claims decodeAccessToken(String token) {
-        return this.decodeJWT(token, ACCESS_TOKEN_ENCODED_KEY);
-    }
-
-    public Claims decodeRefreshToken(String token) {
-        return this.decodeJWT(token, REFRESH_TOKEN_ENCODED_KEY);
-    }
-
-    public Claims decodeWebSocketToken(String token) {
-        return this.decodeJWT(token, WEB_SOCKET_TOKEN_ENCODED_KEY);
+        return this.decodeJWT(token);
     }
 
     @Override
@@ -242,6 +223,21 @@ public class OAuthServiceImpl implements OAuthService {
                 results = authRepository.findAllByUserExceptWithThisWebSocketToken(auth.getUser(), auth.getWebSocketToken());
             } else {
                 results = authRepository.findAllByUser(auth.getUser());
+            }
+            return results.stream().map(AuthWebSocketToken::getWebSocketToken).collect(Collectors.toList());
+        }
+
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<String> getAllWebSocketTokenExceptByAuth(Auth auth) {
+        if (auth != null) {
+            List<AuthWebSocketToken> results;
+            if (auth.getWebSocketToken() != null) {
+                results = authRepository.findAllExceptOneWebSocketToken(auth.getWebSocketToken());
+            } else {
+                results = authRepository.findAllTokens();
             }
             return results.stream().map(AuthWebSocketToken::getWebSocketToken).collect(Collectors.toList());
         }
@@ -270,20 +266,6 @@ public class OAuthServiceImpl implements OAuthService {
 
     public boolean isValidAccessToken(String token) {
         final Claims claims = this.decodeAccessToken(token);
-        final ClockServiceImpl clock = new ClockServiceImpl();
-
-        return claims.getExpiration().getTime() >= clock.now().getTime();
-    }
-
-    public boolean isValidRefreshToken(String token) {
-        final Claims claims = this.decodeRefreshToken(token);
-        final ClockServiceImpl clock = new ClockServiceImpl();
-
-        return claims.getExpiration().getTime() >= clock.now().getTime();
-    }
-
-    public boolean isValidWebSocketToken(String token) {
-        final Claims claims = this.decodeWebSocketToken(token);
         final ClockServiceImpl clock = new ClockServiceImpl();
 
         return claims.getExpiration().getTime() >= clock.now().getTime();
@@ -339,11 +321,11 @@ public class OAuthServiceImpl implements OAuthService {
         auth.setRefreshToken(refreshToken);
     }
 
-    private Claims decodeJWT(String jwt, String key) {
+    private Claims decodeJWT(String jwt) {
         Clock clock = new ClockServiceImpl();
         return Jwts.parser().setClock(clock)
                 .setAllowedClockSkewSeconds(ALLOWED_CLOCK_SKEW_SECONDS)
-                .setSigningKey(DatatypeConverter.parseBase64Binary(key))
+                .setSigningKey(DatatypeConverter.parseBase64Binary(AuthServiceImpl.ACCESS_TOKEN_ENCODED_KEY))
                 .parseClaimsJws(jwt).getBody();
     }
 }

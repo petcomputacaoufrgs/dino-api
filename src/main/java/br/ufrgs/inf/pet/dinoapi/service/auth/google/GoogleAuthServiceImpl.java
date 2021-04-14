@@ -7,9 +7,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
-import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
-import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
-import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAuthErrorCodeEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.*;
 import br.ufrgs.inf.pet.dinoapi.exception.GoogleClientSecretIOException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -23,7 +21,7 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuth
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableGenericResponseModelImpl;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
@@ -36,35 +34,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
-public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthService {
-
+public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthService {
     private final UserServiceImpl userService;
-
-    private final OAuthServiceImpl authService;
-
+    private final AuthServiceImpl authService;
     private final UserSettingsServiceImpl userSettingsService;
-
     private final GoogleAuthRepository googleAuthRepository;
-
     private final GoogleScopeServiceImpl googleScopeService;
-
     private final GoogleOAuthCommunicationImpl googleAPICommunicationImpl;
-
     private final ClockServiceImpl clockService;
 
     @Autowired
-    public GoogleOAuthServiceImpl(UserServiceImpl userService, OAuthServiceImpl authService,
-                                  GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
-                                  GoogleOAuthCommunicationImpl googleAPICommunicationImpl,
-                                  ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                  UserSettingsServiceImpl userSettingsService) {
+    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService,
+                                 GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
+                                 GoogleOAuthCommunicationImpl googleAPICommunicationImpl,
+                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                                 UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
         this.userService = userService;
         this.authService = authService;
@@ -120,7 +110,7 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                     }
 
                     user = this.createUser(payload);
-
+                    final boolean hasUserPermission = user.getPermission().equals(PermissionEnum.USER.getValue());
 
                     googleAuth = new GoogleAuth(googleId, refreshToken, user);
                     user.setGoogleAuth(googleAuthRepository.save(googleAuth));
@@ -132,7 +122,8 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
                     userSettings.setFirstSettingsDone(false);
                     userSettings.setUser(user);
                     userSettings.setDeclineGoogleContacts(false);
-                    userSettings.setIncludeEssentialContact(true);
+                    userSettings.setShouldSyncGoogleContacts(false);
+                    userSettings.setIncludeEssentialContact(hasUserPermission);
                     userSettings.setColorTheme(ColorThemeEnum.DEVICE.getValue());
                     userSettings.setFontSize(FontSizeEnum.DEFAULT.getValue());
 
@@ -318,7 +309,9 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
     }
 
     @Override
-    public List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException {
+    public List<GoogleScopeDataModel> saveAllScopes(
+            List<String> currentScopes, Auth auth
+    ) throws AuthNullException, ConvertModelToEntityException {
         final List<String> scopes = new LinkedList<>(currentScopes);
 
         List<GoogleScope> databaseScopes = googleScopeService.findEntitiesThatUserCanRead(auth);

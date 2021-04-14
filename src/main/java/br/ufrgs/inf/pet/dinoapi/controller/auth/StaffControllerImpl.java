@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/staff/")
+@RequestMapping("/admin/staff/")
 public class StaffControllerImpl extends SynchronizableControllerImpl<
         Staff, Long, StaffDataModel, StaffRepository, StaffServiceImpl> {
 

@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
-public interface OAuthService {
+public interface AuthService {
 
     Auth generateAuth(User user) throws JsonProcessingException;
 
@@ -28,19 +28,17 @@ public interface OAuthService {
 
     Auth getCurrentAuth();
 
-    DinoUser getPrincipal();
-
     DinoCredentials getCredentials();
 
     boolean isValidAccessToken(String token);
 
-    boolean isValidRefreshToken(String token);
-
-    boolean isValidWebSocketToken(String token);
+    String getCurrentPermission();
 
     Claims decodeAccessToken(String accessToken);
 
     List<String> getAllUserWebSocketTokenExceptByAuth(Auth auth);
+
+    List<String> getAllWebSocketTokenExceptByAuth(Auth auth);
 
     List<String> getAllUserWebSocketToken(User user);
 

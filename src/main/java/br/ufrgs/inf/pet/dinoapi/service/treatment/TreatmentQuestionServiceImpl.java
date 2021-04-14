@@ -8,12 +8,12 @@ import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentQuestionDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentQuestionRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +26,11 @@ public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<Trea
     private final TreatmentServiceImpl treatmentService;
 
     @Autowired
-    public TreatmentQuestionServiceImpl(TreatmentQuestionRepository repository, OAuthServiceImpl authService,
+    public TreatmentQuestionServiceImpl(TreatmentQuestionRepository repository, AuthServiceImpl authService,
                                         TreatmentServiceImpl treatmentService, ClockServiceImpl clockService,
                                         LogAPIErrorServiceImpl logAPIErrorService,
-                                        SynchronizableTopicMessageService<Long, TreatmentQuestionDataModel> synchronizableTopicMessageService) {
-        super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
+                                        SynchronizableStaffQueueMessageService<Long, TreatmentQuestionDataModel> synchronizableStaffQueueMessageService) {
+        super(repository, authService, clockService, synchronizableStaffQueueMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;
     }
 

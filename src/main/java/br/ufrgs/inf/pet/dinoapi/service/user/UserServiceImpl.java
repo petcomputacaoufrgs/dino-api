@@ -5,12 +5,12 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.enumerable.AuthEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.StaffServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -20,7 +20,6 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessa
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +31,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     StaffServiceImpl staffService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                            @Lazy StaffServiceImpl staffService,
                            SynchronizableQueueMessageService<Long, UserDataModel> synchronizableQueueMessageService) {
@@ -141,7 +140,8 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
             user = new User();
         }
 
-        return this.saveUserPermission(this.saveUser(name, email, pictureUrl, user));
+        this.setUserPermission(user, email);
+        return this.saveUser(name, email, pictureUrl, user);
     }
 
     private User saveUser(String name, String email, String pictureUrl, User user) {
@@ -152,22 +152,17 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return this.repository.save(user);
     }
 
-    private User saveUserPermission(User user) {
-
-        Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
+    private void setUserPermission(User user, String email) {
+        final Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
 
         if(staffSearch != null) {
             staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
-            user.setPermission(AuthEnum.STAFF.getValue());
-
-        } else if (user.getEmail().equals(AuthConstants.CLIENT)) {
-            user.setPermission(AuthEnum.CLIENT.getValue());
-
+            user.setPermission(PermissionEnum.STAFF.getValue());
+        } else if (email.equals(AuthConstants.ADMIN)) {
+            user.setPermission(PermissionEnum.ADMIN.getValue());
         } else {
-            user.setPermission(AuthEnum.USER.getValue());
+            user.setPermission(PermissionEnum.USER.getValue());
         }
-
-        return this.repository.save(user);
     }
 
     private void sendUpdateMessage(User user, Auth auth) {
@@ -197,11 +192,11 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return null;
     }
 
-    public List<User> findUserBySaveEssentialContacts() {
-        return this.repository.findUserBySaveEssentialContacts();
+    public List<User> findUsersThatCanHaveEssentialContacts() {
+        return this.repository.findBySaveEssentialContactsAndPermission(PermissionEnum.USER.getValue());
     }
 
-    public List<User> findUserBySaveEssentialContactsAndTreatments(List<Treatment> treatments) {
-        return this.repository.findUserBySaveEssentialContactsAndTreatments(treatments);
+    public List<User> findUsersThatCanHaveEssentialContactsByTreatments(List<Treatment> treatments) {
+        return this.repository.findBySaveEssentialContactsAndTreatmentsAndPermission(treatments, PermissionEnum.USER.getValue());
     }
 }

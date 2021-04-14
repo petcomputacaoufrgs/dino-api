@@ -6,7 +6,6 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.*;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSUpdateModel;
 import org.springframework.http.ResponseEntity;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -96,7 +95,7 @@ public interface SynchronizableController<
     ResponseEntity<SynchronizableGenericDataResponseModelImpl<List<ID>>> deleteAll(SynchronizableDeleteAllListModel<ID> model);
 
     /**
-     * Sync items (to delete and to save) respecting saveAll and deleteAll rules
+     * Sync items: Save and update items based on last update date and return result data
      *
      * @return model with all items
      */

@@ -1,19 +1,22 @@
 package br.ufrgs.inf.pet.dinoapi.service.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,10 +24,18 @@ import java.util.Optional;
 public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, Long, TreatmentDataModel, TreatmentRepository> {
 
     @Autowired
-    public TreatmentServiceImpl(TreatmentRepository repository, OAuthServiceImpl authService,
+    public TreatmentServiceImpl(TreatmentRepository repository, AuthServiceImpl authService,
                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                SynchronizableTopicMessageService<Long, TreatmentDataModel> synchronizableTopicMessageService) {
-        super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
+                                SynchronizableStaffQueueMessageService<Long, TreatmentDataModel> synchronizableStaffQueueMessageService) {
+        super(repository, authService, clockService, synchronizableStaffQueueMessageService, logAPIErrorService);
+    }
+
+    @Override
+    public List<PermissionEnum> getNecessaryPermissionsToEdit() {
+        final List<PermissionEnum> authorities = new ArrayList<>();
+        authorities.add(PermissionEnum.ADMIN);
+        authorities.add(PermissionEnum.STAFF);
+        return authorities;
     }
 
     @Override
@@ -81,7 +92,7 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
         return this.repository.findById(id);
     }
 
-    public List<Treatment> getEntitiesByIds(List<Long> ids) {
-        return this.repository.findAllByIds(ids);
+    public List<Treatment> getEntitiesByEssentialContact(EssentialContact essentialContact) {
+        return this.repository.findAllByEssentialContact(essentialContact.getId());
     }
 }

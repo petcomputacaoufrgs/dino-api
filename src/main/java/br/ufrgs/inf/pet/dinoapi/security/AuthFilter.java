@@ -2,8 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.security;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,14 +25,14 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private UserServiceImpl userService;
 
-    private OAuthServiceImpl authService;
+    private AuthServiceImpl authService;
 
-    private GoogleOAuthServiceImpl googleAuthService;
+    private GoogleAuthServiceImpl googleAuthService;
 
     private DinoUserDetailsService dinoUserDetailsService;
 
     @Autowired
-    public AuthFilter(UserServiceImpl userService, OAuthServiceImpl authService, GoogleOAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
+    public AuthFilter(UserServiceImpl userService, AuthServiceImpl authService, GoogleAuthServiceImpl googleAuthService, DinoUserDetailsService dinoUserDetailsService) {
         super();
         this.userService = userService;
         this.authService = authService;
@@ -96,11 +96,11 @@ public class AuthFilter extends OncePerRequestFilter {
             }
 
             if (this.authService == null) {
-                this.authService = webApplicationContext.getBean(OAuthServiceImpl.class);
+                this.authService = webApplicationContext.getBean(AuthServiceImpl.class);
             }
 
             if (this.googleAuthService == null) {
-                this.googleAuthService = webApplicationContext.getBean(GoogleOAuthServiceImpl.class);
+                this.googleAuthService = webApplicationContext.getBean(GoogleAuthServiceImpl.class);
             }
 
             if (this.dinoUserDetailsService == null) {

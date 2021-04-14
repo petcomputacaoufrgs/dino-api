@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/user/")
+@RequestMapping("private/user/")
 public class UserControllerImpl extends SynchronizableControllerImpl<User, Long, UserDataModel,
         UserRepository, UserServiceImpl> {
     @Autowired

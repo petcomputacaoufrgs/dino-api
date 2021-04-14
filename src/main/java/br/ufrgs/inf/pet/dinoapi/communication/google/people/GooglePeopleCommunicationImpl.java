@@ -13,13 +13,12 @@ import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleBiographiesModel
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleNameModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeoplePhoneNumberModel;
-import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleOAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
-import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -37,13 +36,13 @@ import java.util.stream.Collectors;
 public class GooglePeopleCommunicationImpl extends LogUtilsBase implements GooglePeopleCommunication  {
     private final GoogleOAuthCommunicationImpl googleOAuthCommunication;
     private final GoogleScopeServiceImpl googleScopeService;
-    private final GoogleOAuthServiceImpl googleAuthService;
+    private final GoogleAuthServiceImpl googleAuthService;
 
     @Autowired
     public GooglePeopleCommunicationImpl(GoogleOAuthCommunicationImpl googleOAuthCommunication,
                                          GoogleScopeServiceImpl googleScopeService,
-                                         GoogleOAuthServiceImpl googleAuthService,
-                                         LogAPIErrorServiceImpl logAPIErrorService) {
+                                         LogAPIErrorServiceImpl logAPIErrorService,
+                                         GoogleAuthServiceImpl googleAuthService) {
         super(logAPIErrorService);
         this.googleOAuthCommunication = googleOAuthCommunication;
         this.googleScopeService = googleScopeService;
@@ -51,7 +50,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel getContact(User user, String resourceName) throws IOException, InterruptedException, URISyntaxException {
+    public GooglePeopleModel getContact(
+            User user, String resourceName
+    ) throws IOException, InterruptedException, URISyntaxException {
         final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
         if (googleAuth == null) return null;
@@ -80,7 +81,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel createContact(User user, String name, String description, List<String> phoneNumbers) {
+    public GooglePeopleModel createContact(
+            User user, String name, String description, List<String> phoneNumbers
+    ) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -99,8 +102,11 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public GooglePeopleModel updateContact(User user, String name, String description, List<String> phoneNumbers, String resourceName) {
+    public GooglePeopleModel updateContact(
+            User user, String name, String description, List<String> phoneNumbers, GoogleContact googleContact
+    ) {
         try {
+            final String resourceName = googleContact.getResourceName();
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
             if (googleAuth == null) return null;
@@ -142,7 +148,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     }
 
     @Override
-    public boolean deleteContact(User user, GoogleContact googleContact) {
+    public boolean deleteContact(User user, String resourceName) {
         try {
             final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
 
@@ -155,7 +161,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             final HttpRequest request = this.createBaseRequest(accessToken)
                     .uri(new URI(
                             GoogleAPIURLEnum.DELETE_CONTACT_BASE.getValue()
-                                    + googleContact.getResourceName()
+                                    + resourceName
                                     + ":deleteContact"))
                     .DELETE()
                     .build();
@@ -169,7 +175,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return false;
     }
 
-    private GooglePeopleModel createNewGoogleContact(String accessToken, String name, String description, List<String> phoneNumbers) throws IOException, InterruptedException, URISyntaxException {
+    private GooglePeopleModel createNewGoogleContact(
+            String accessToken, String name, String description, List<String> phoneNumbers
+    ) throws IOException, InterruptedException, URISyntaxException {
         final GooglePeopleModel googlePeopleModel = this.getGooglePeopleModel(name, description, phoneNumbers);
 
         final String jsonModel = JsonUtils.convertToJson(googlePeopleModel);
@@ -228,8 +236,11 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return model;
     }
 
-    private String validateGrantAndGetAccessToken(GoogleAuth googleAuth) throws AuthNullException, ConvertModelToEntityException {
-        if (googleAuth.getAccessToken() == null || LocalDateTime.now().isAfter(googleAuth.getAccessTokenExpiresDate())) {
+    private String validateGrantAndGetAccessToken(
+            GoogleAuth googleAuth
+    ) throws AuthNullException, ConvertModelToEntityException {
+        if (googleAuth.getAccessToken() == null
+                || LocalDateTime.now().isAfter(googleAuth.getAccessTokenExpiresDate())) {
             final GoogleTokenResponse googleTokenResponse =
                     googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
 
@@ -241,7 +252,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             googleAuth.setAccessTokenExpiresDate(expiresDate);
             googleAuthService.save(googleAuth);
 
-            final boolean stillHasContactGrant = this.saveAllScopes(googleTokenResponse, googleAuth.getUser());
+            final boolean stillHasContactGrant = this.saveAllScopes(
+                    googleTokenResponse, googleAuth.getUser()
+            );
 
             if (!stillHasContactGrant) return null;
 
@@ -269,7 +282,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return googleAuth;
     }
 
-    private boolean saveAllScopes(GoogleTokenResponse googleTokenResponse, User user) throws AuthNullException, ConvertModelToEntityException {
+    private boolean saveAllScopes(
+            GoogleTokenResponse googleTokenResponse, User user
+    ) throws AuthNullException, ConvertModelToEntityException {
         final List<String> currentScopes = Arrays.asList(googleTokenResponse.getScope().split(" "));
 
         final Auth fakeAuth = new Auth();
@@ -277,7 +292,9 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
 
         googleAuthService.saveAllScopes(currentScopes, fakeAuth);
 
-        final Optional<String> googleContactScope = currentScopes.stream().filter(scope -> scope.equals(GoogleScopeURLEnum.SCOPE_CONTACT.getValue())).findFirst();
+        final Optional<String> googleContactScope = currentScopes.stream().filter(
+                scope -> scope.equals(GoogleScopeURLEnum.SCOPE_CONTACT.getValue())
+        ).findFirst();
 
         return googleContactScope.isPresent();
     }

@@ -14,9 +14,9 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("SELECT u FROM User u WHERE u.email = :email")
     Optional<User> findByEmail(@Param("email") String email);
 
-    @Query("SELECT u FROM User u WHERE u.userSettings.includeEssentialContact = true")
-    List<User> findUserBySaveEssentialContacts();
+    @Query("SELECT u FROM User u WHERE u.userSettings.includeEssentialContact = true AND u.permission = :permission")
+    List<User> findBySaveEssentialContactsAndPermission(@Param("permission") String permission);
 
-    @Query("SELECT u FROM User u WHERE u.userSettings.includeEssentialContact = true AND u.userSettings.treatment IN :treatments")
-    List<User> findUserBySaveEssentialContactsAndTreatments(@Param("treatments") List<Treatment> treatments);
+    @Query("SELECT u FROM User u WHERE u.userSettings.includeEssentialContact = true AND u.userSettings.treatment IN :treatments AND u.permission = :permission")
+    List<User> findBySaveEssentialContactsAndTreatmentsAndPermission(@Param("treatments") List<Treatment> treatments, @Param("permission") String permission);
 }

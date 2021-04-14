@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/glossary/")
+@RequestMapping("/private/glossary/")
 public class GlossaryControllerImpl extends SynchronizableControllerImpl<
         GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository, GlossaryServiceImpl> {
 

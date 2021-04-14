@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.auth.staff.StaffDataModel;
@@ -12,9 +13,10 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,12 +25,17 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
 
     private final UserServiceImpl userService;
 
-    public StaffServiceImpl(StaffRepository repository, OAuthServiceImpl authService, ClockServiceImpl clock,
-                            SynchronizableTopicMessageService<Long, StaffDataModel> synchronizableTopicMessageService,
+    public StaffServiceImpl(StaffRepository repository, AuthServiceImpl authService, ClockServiceImpl clock,
+                            SynchronizableStaffQueueMessageService<Long, StaffDataModel> synchronizableStaffQueueMessageService,
                             LogAPIErrorServiceImpl logAPIErrorService, UserServiceImpl userService) {
-        super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
+        super(repository, authService, clock, synchronizableStaffQueueMessageService, logAPIErrorService);
 
         this.userService = userService;
+    }
+
+    @Override
+    public List<PermissionEnum> getNecessaryPermissionsToEdit() {
+        return Collections.singletonList(PermissionEnum.ADMIN);
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/note_column/")
+@RequestMapping("/user/note_column/")
 public class NoteColumnControllerImpl extends SynchronizableControllerImpl<
         NoteColumn, Long, NoteColumnDataModel, NoteColumnRepository, NoteColumnServiceImpl>  {
 

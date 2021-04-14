@@ -77,9 +77,9 @@ public abstract class SynchronizableControllerImpl<
     }
 
     @Override
-    @PutMapping("sync_save/")
+    @PutMapping("sync/")
     public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>>
     sync(@Valid @RequestBody SynchronizableSaveSyncModel<ID, DATA_MODEL> model){
-        return service.saveSync(model);
+        return service.sync(model);
     }
 }

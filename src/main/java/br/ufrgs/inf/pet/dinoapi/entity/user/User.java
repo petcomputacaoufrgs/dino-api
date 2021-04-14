@@ -26,8 +26,8 @@ public class User extends SynchronizableEntity<Long> {
     @Column(name = "picture_url", length = PICTURE_URL_MAX, nullable = false)
     private String pictureURL;
 
-    @Column(name = "permission", nullable = false)
-    private int permission;
+    @Column(name = "permission", length = PERMISSION_MAX, nullable = false)
+    private String permission;
 
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
@@ -121,11 +121,11 @@ public class User extends SynchronizableEntity<Long> {
 
     public List<Contact> getContacts() { return contacts; }
 
-    public int getPermission() {
+    public String getPermission() {
         return permission;
     }
 
-    public void setPermission(int permission) {
+    public void setPermission(String permission) {
         this.permission = permission;
     }
 }

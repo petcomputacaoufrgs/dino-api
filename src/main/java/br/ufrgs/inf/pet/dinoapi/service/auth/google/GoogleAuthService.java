@@ -11,11 +11,10 @@ import br.ufrgs.inf.pet.dinoapi.model.auth.google.auth.GoogleGrantRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.refresh_auth.GoogleRefreshAuthResponseModel;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import org.springframework.http.ResponseEntity;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface GoogleOAuthService {
+public interface GoogleAuthService {
     ResponseEntity<GoogleAuthResponseModel> googleAuthRequest(GoogleAuthRequestModel googleAuthRequestDataModel);
 
     ResponseEntity<GoogleAuthResponseModel> googleGrantRequest(GoogleGrantRequestModel googleGrantRequestModel);
@@ -35,7 +34,9 @@ public interface GoogleOAuthService {
      * @throws AuthNullException             throw when auth is null
      * @throws ConvertModelToEntityException throw when an error occur in model to entity conversion
      */
-    List<GoogleScopeDataModel> saveAllScopes(List<String> currentScopes, Auth auth) throws AuthNullException, ConvertModelToEntityException;
+    List<GoogleScopeDataModel> saveAllScopes(
+            List<String> currentScopes, Auth auth
+    ) throws AuthNullException, ConvertModelToEntityException;
 
     /**
      * Get Expires data in GoogleTokenResponse

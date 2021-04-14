@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/faq_item/")
+@RequestMapping("/private/faq_item/")
 public class FaqItemControllerImpl extends SynchronizableControllerImpl<
         FaqItem, Long, FaqItemDataModel, FaqItemRepository, FaqItemServiceImpl> {
 
