@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.synchronizable;
 import br.ufrgs.inf.pet.dinoapi.constants.SynchronizableConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -270,6 +271,18 @@ public abstract class SynchronizableServiceImpl<
         } catch (Exception e) {
             return this.createUnknownExceptionResponse(e, response);
         }
+    }
+
+    public void saveByUser(DATA_MODEL dataModel, User user) throws AuthNullException, ConvertModelToEntityException {
+        final Auth fakeAuth = this.getFakeAuth(user);
+
+        this.internalSave(dataModel, fakeAuth);
+    }
+
+    public void deleteByUser(SynchronizableDeleteModel<ID> model, User user) throws AuthNullException {
+        final Auth fakeAuth = this.getFakeAuth(user);
+
+        this.internalDelete(model, fakeAuth);
     }
 
     protected DATA_MODEL internalSave(DATA_MODEL model, Auth auth) throws AuthNullException, ConvertModelToEntityException {
@@ -543,7 +556,6 @@ public abstract class SynchronizableServiceImpl<
 
     private DATA_MODEL update(ENTITY entity, DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         if (this.canChange(entity, model)) {
-
             this.internalUpdateEntity(entity, model, auth);
             entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
             entity = repository.save(entity);
@@ -649,6 +661,13 @@ public abstract class SynchronizableServiceImpl<
 
     private <T> ResponseEntity<T> createForbiddenResponse(T response) {
         return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+    }
+
+    private Auth getFakeAuth(User user) {
+        final Auth fakeAuth = new Auth();
+        fakeAuth.setUser(user);
+
+        return fakeAuth;
     }
 
     private <T extends SynchronizableGenericResponseModel> ResponseEntity<T>

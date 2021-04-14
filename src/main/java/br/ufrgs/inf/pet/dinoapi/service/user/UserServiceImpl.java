@@ -144,33 +144,6 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return this.saveUser(name, email, pictureUrl, user);
     }
 
-    private User saveUser(String name, String email, String pictureUrl, User user) {
-        user.setPictureURL(pictureUrl);
-        user.setEmail(email);
-        user.setName(name);
-
-        return this.repository.save(user);
-    }
-
-    private void setUserPermission(User user, String email) {
-        final Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
-
-        if(staffSearch != null) {
-            staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
-            user.setPermission(PermissionEnum.STAFF.getValue());
-        } else if (email.equals(AuthConstants.ADMIN)) {
-            user.setPermission(PermissionEnum.ADMIN.getValue());
-        } else {
-            user.setPermission(PermissionEnum.USER.getValue());
-        }
-    }
-
-    private void sendUpdateMessage(User user, Auth auth) {
-        final UserDataModel model = this.completeConvertEntityToModel(user);
-
-        this.sendUpdateMessage(model, auth);
-    }
-
     public User findUserByEmail(String email) {
         if (email != null) {
             final Optional<User> queryResult = this.repository.findByEmail(email);
@@ -198,5 +171,32 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
 
     public List<User> findUsersThatCanHaveEssentialContactsByTreatments(List<Treatment> treatments) {
         return this.repository.findBySaveEssentialContactsAndTreatmentsAndPermission(treatments, PermissionEnum.USER.getValue());
+    }
+
+    private User saveUser(String name, String email, String pictureUrl, User user) {
+        user.setPictureURL(pictureUrl);
+        user.setEmail(email);
+        user.setName(name);
+
+        return this.repository.save(user);
+    }
+
+    private void setUserPermission(User user, String email) {
+        final Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
+
+        if(staffSearch != null) {
+            staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
+            user.setPermission(PermissionEnum.STAFF.getValue());
+        } else if (email.equals(AuthConstants.ADMIN)) {
+            user.setPermission(PermissionEnum.ADMIN.getValue());
+        } else {
+            user.setPermission(PermissionEnum.USER.getValue());
+        }
+    }
+
+    private void sendUpdateMessage(User user, Auth auth) {
+        final UserDataModel model = this.completeConvertEntityToModel(user);
+
+        this.sendUpdateMessage(model, auth);
     }
 }

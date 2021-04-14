@@ -6,7 +6,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
@@ -167,26 +166,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         return this.repository.save(contact);
     }
 
-    public void saveByUser(ContactDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
-        final Auth fakeAuth = this.getFakeAuth(user);
-
-        this.internalSave(contactDataModel, fakeAuth);
-    }
-
-    public void deleteByUser(SynchronizableDeleteModel<Long> model, User user) throws AuthNullException {
-        final Auth fakeAuth = this.getFakeAuth(user);
-
-        this.internalDelete(model, fakeAuth);
-    }
-
     public List<Contact> findAllByEssentialContact(EssentialContact essentialContact) {
         return this.repository.findAllByEssentialContactId(essentialContact.getId());
-    }
-
-    private Auth getFakeAuth(User user) {
-        final Auth fakeAuth = new Auth();
-        fakeAuth.setUser(user);
-
-        return fakeAuth;
     }
 }

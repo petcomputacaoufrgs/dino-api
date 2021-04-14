@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentDataModel;
@@ -11,23 +12,29 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.user.async.AsyncUserSettingsService;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, Long, TreatmentDataModel, TreatmentRepository> {
+    private final UserSettingsServiceImpl userSettingsService;
+    private final AsyncUserSettingsService asyncUserSettingsService;
 
     @Autowired
     public TreatmentServiceImpl(TreatmentRepository repository, AuthServiceImpl authService,
                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                SynchronizableStaffQueueMessageService<Long, TreatmentDataModel> synchronizableStaffQueueMessageService) {
+                                SynchronizableStaffQueueMessageService<Long, TreatmentDataModel> synchronizableStaffQueueMessageService,
+                                UserSettingsServiceImpl userSettingsService, AsyncUserSettingsService asyncUserSettingsService) {
         super(repository, authService, clockService, synchronizableStaffQueueMessageService, logAPIErrorService);
+        this.userSettingsService = userSettingsService;
+        this.asyncUserSettingsService = asyncUserSettingsService;
     }
 
     @Override
@@ -86,6 +93,14 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.TREATMENT;
+    }
+
+    @Override
+    protected void beforeDataDeleted(Treatment entity, Auth auth) {
+        final List<UserSettings> userSettings = userSettingsService.findAllByTreatment(entity);
+        userSettings.forEach(settings -> settings.setTreatment(null));
+        userSettingsService.saveAllDirectly(userSettings);
+        asyncUserSettingsService.removeUserSettingsTreatments(userSettings);
     }
 
     public Optional<Treatment> getEntityById(Long id) {

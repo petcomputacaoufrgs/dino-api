@@ -90,6 +90,20 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
     }
 
     /**
+     * Generic thread pool
+     */
+    @Bean(name = "threadPool")
+    public Executor threadPoolTaskExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(8);
+        executor.setMaxPoolSize(8);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
+        executor.setThreadNamePrefix("DinoAPI-Thread-");
+        executor.initialize();
+        return executor;
+    }
+
+    /**
      * Single thread pool for contacts
      */
     @Bean(name = "contactsThreadPool")
