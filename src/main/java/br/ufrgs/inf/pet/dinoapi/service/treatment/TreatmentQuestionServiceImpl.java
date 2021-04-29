@@ -85,19 +85,14 @@ public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<Trea
 
     @Override
     public Optional<TreatmentQuestion> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
-        return this.findByIdAndUser(id, auth);
+        return authService.isStaffOrAdmin()
+                ? this.findById(id)
+                : this.findByIdAndUser(id, auth);
     }
 
     @Override
     public Optional<TreatmentQuestion> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
-        return this.findByIdAndUser(id, auth);
-    }
-
-    private Optional<TreatmentQuestion> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
-        if (auth == null) {
-            throw new AuthNullException();
-        }
-        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
+        return findEntityByIdThatUserCanRead(id, auth);
     }
 
     @Override
@@ -105,7 +100,9 @@ public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<Trea
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserId(auth.getUser().getId());
+        return authService.isStaffOrAdmin()
+                ? this.findAll()
+                : this.repository.findAllByUserId(auth.getUser().getId());
     }
 
     @Override
@@ -113,7 +110,9 @@ public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<Trea
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByIdsAndUserId(ids, auth.getUser().getId());
+        return authService.isStaffOrAdmin()
+                ? this.repository.findAllByIds(ids)
+                : this.repository.findAllByIdsAndUserId(ids, auth.getUser().getId());
     }
 
     @Override
@@ -121,11 +120,28 @@ public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<Trea
         if (auth == null) {
             throw new AuthNullException();
         }
-        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
+        return authService.isStaffOrAdmin()
+                ? this.repository.findAllExcludingIds(ids)
+                : this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
         return WebSocketDestinationsEnum.TREATMENT_QUESTION;
+    }
+
+    private Optional<TreatmentQuestion> findById(Long id)  {
+        return this.repository.findById(id);
+    }
+
+    private List<TreatmentQuestion> findAll()  {
+        return (List<TreatmentQuestion>) this.repository.findAll();
+    }
+
+    private Optional<TreatmentQuestion> findByIdAndUser(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
     }
 }

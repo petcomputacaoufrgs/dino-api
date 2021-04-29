@@ -14,11 +14,17 @@ public interface TreatmentQuestionRepository extends CrudRepository<TreatmentQue
     @Query("SELECT n FROM TreatmentQuestion n WHERE n.id = :id AND n.user.id = :userId")
     Optional<TreatmentQuestion> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
+    @Query("SELECT n FROM TreatmentQuestion n WHERE n.id IN :ids")
+    List<TreatmentQuestion> findAllByIds(@Param("ids") List<Long> ids);
+
     @Query("SELECT n FROM TreatmentQuestion n WHERE n.id IN :ids AND n.user.id = :userId")
     List<TreatmentQuestion> findAllByIdsAndUserId(@Param("ids") List<Long> ids, @Param("userId") Long userId);
 
     @Query("SELECT n FROM TreatmentQuestion n WHERE n.id NOT IN :ids AND n.user.id = :userId")
     List<TreatmentQuestion> findAllByUserIdExcludingIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
+
+    @Query("SELECT n FROM TreatmentQuestion n WHERE n.id NOT IN :ids")
+    List<TreatmentQuestion> findAllExcludingIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT n FROM TreatmentQuestion n WHERE n.user.id = :userId")
     List<TreatmentQuestion> findAllByUserId(@Param("userId")  Long userId);

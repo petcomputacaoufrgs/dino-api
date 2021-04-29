@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.auth;
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshResponseModel;
@@ -188,6 +189,17 @@ public class AuthServiceImpl implements AuthService {
         }
 
         return null;
+    }
+
+    public boolean isStaffOrAdmin() {
+        final String permission = this.getCurrentPermission();
+
+        if (permission != null) {
+            return permission.equals(PermissionEnum.STAFF.getValue()) ||
+                    permission.equals(PermissionEnum.ADMIN.getValue());
+        }
+
+        return false;
     }
 
     @Override
