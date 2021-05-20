@@ -4,7 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableControll
 import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
 import br.ufrgs.inf.pet.dinoapi.model.kids_space.KidsSpaceSettingsModel;
 import br.ufrgs.inf.pet.dinoapi.repository.kids_space.KidsSpaceSettingsRepository;
-import br.ufrgs.inf.pet.dinoapi.service.kids_space.KidsSpaceSettingsService;
+import br.ufrgs.inf.pet.dinoapi.service.kids_space.KidsSpaceSettingsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,10 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/kids_space_settings/")
 public class KidsSpaceSettingsController extends SynchronizableControllerImpl<KidsSpaceSettings, Long,
-        KidsSpaceSettingsModel, KidsSpaceSettingsRepository, KidsSpaceSettingsService> {
+        KidsSpaceSettingsModel, KidsSpaceSettingsRepository, KidsSpaceSettingsServiceImpl> {
 
     @Autowired
-    protected KidsSpaceSettingsController(KidsSpaceSettingsService service) {
+    protected KidsSpaceSettingsController(KidsSpaceSettingsServiceImpl service) {
         super(service);
     }
 }

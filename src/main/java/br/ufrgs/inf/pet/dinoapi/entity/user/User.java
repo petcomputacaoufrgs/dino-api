@@ -105,4 +105,12 @@ public class User extends SynchronizableEntity<Long> {
     public void setUserAppSettings(UserSettings userSettings) {
         this.userSettings = userSettings;
     }
+
+    public KidsSpaceSettings getKidsSpaceSettings() {
+        return kidsSpaceSettings;
+    }
+
+    public void setKidsSpaceSettings(KidsSpaceSettings kidsSpaceSettings) {
+        this.kidsSpaceSettings = kidsSpaceSettings;
+    }
 }
