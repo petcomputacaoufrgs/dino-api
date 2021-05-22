@@ -42,5 +42,7 @@ public interface AuthService {
 
     List<String> getAllUserWebSocketToken(User user);
 
+    List<String> getAllAdminsWebSocketToken(Auth auth);
+
     void setWebSocketConnected();
 }

@@ -1,11 +1,9 @@
-package br.ufrgs.inf.pet.dinoapi.websocket.service.queue;
+package br.ufrgs.inf.pet.dinoapi.websocket.service;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSGenericModel;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -13,13 +11,13 @@ import java.io.Serializable;
 import java.util.List;
 
 @Service
-public class SynchronizableStaffQueueMessageService<
+public class SynchronizableTopicMessageService<
         ID extends Comparable<ID> & Serializable,
         DATA_MODEL extends SynchronizableDataLocalIdModel<ID>> extends SynchronizableMessageService<ID, DATA_MODEL> {
 
     @Autowired
-    public SynchronizableStaffQueueMessageService(SimpMessagingTemplate simpMessagingTemplate,
-                                                  AuthServiceImpl authService) {
+    public SynchronizableTopicMessageService(SimpMessagingTemplate simpMessagingTemplate,
+                                             AuthServiceImpl authService) {
         super(simpMessagingTemplate, authService);
     }
 

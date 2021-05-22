@@ -13,9 +13,10 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableAdminMessageService;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,10 +27,9 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
     private final UserServiceImpl userService;
 
     public StaffServiceImpl(StaffRepository repository, AuthServiceImpl authService, ClockServiceImpl clock,
-                            SynchronizableStaffQueueMessageService<Long, StaffDataModel> synchronizableStaffQueueMessageService,
+                            SynchronizableAdminMessageService<Long, StaffDataModel> synchronizableAdminMessageService,
                             LogAPIErrorServiceImpl logAPIErrorService, UserServiceImpl userService) {
-        super(repository, authService, clock, synchronizableStaffQueueMessageService, logAPIErrorService);
-
+        super(repository, authService, clock, synchronizableAdminMessageService, logAPIErrorService);
         this.userService = userService;
     }
 
@@ -114,8 +114,15 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
         return null;
     }
 
-    public void updateStaffUser(Staff staff, User user, Auth auth) {
+    public void updateStaffUser(Staff staff, User user) {
+        final Auth fakeAuth = new Auth();
+        fakeAuth.setUser(user);
         staff.setUser(user);
-        this.updateEntity(staff, this.convertEntityToModel(staff), auth);
+        staff.setLastUpdate(LocalDateTime.now());
+        try {
+            this.internalSave(this.completeConvertEntityToModel(staff), fakeAuth);
+        } catch (AuthNullException | ConvertModelToEntityException e) {
+            this.logAPIError(e);
+        }
     }
 }

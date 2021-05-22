@@ -13,7 +13,7 @@ import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,8 +29,8 @@ public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<Trea
     public TreatmentQuestionServiceImpl(TreatmentQuestionRepository repository, AuthServiceImpl authService,
                                         TreatmentServiceImpl treatmentService, ClockServiceImpl clockService,
                                         LogAPIErrorServiceImpl logAPIErrorService,
-                                        SynchronizableStaffQueueMessageService<Long, TreatmentQuestionDataModel> synchronizableStaffQueueMessageService) {
-        super(repository, authService, clockService, synchronizableStaffQueueMessageService, logAPIErrorService);
+                                        SynchronizableTopicMessageService<Long, TreatmentQuestionDataModel> synchronizableTopicMessageService) {
+        super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentService = treatmentService;
     }
 

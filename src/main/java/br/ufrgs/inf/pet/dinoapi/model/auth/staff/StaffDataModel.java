@@ -17,8 +17,7 @@ public class StaffDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     private Long userId;
 
-    public StaffDataModel() {
-    }
+    public StaffDataModel() { }
 
     public String getEmail() {
         return email;

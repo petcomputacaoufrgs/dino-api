@@ -13,7 +13,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.GenericQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.GenericMessageService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleRefreshTokenRequest;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
@@ -29,18 +29,18 @@ import java.util.List;
 public class GoogleOAuthCommunicationImpl extends LogUtilsBase implements GoogleaOAuthCommunication {
     private final GoogleOAuth2Config googleOAuth2Config;
     private final AppConfig appConfig;
-    private final GenericQueueMessageService genericQueueMessageService;
+    private final GenericMessageService genericMessageService;
     private final GoogleAuthRepository googleAuthRepository;
 
     @Autowired
     public GoogleOAuthCommunicationImpl(GoogleOAuth2Config googleOAuth2Config, AppConfig appConfig,
                                         LogAPIErrorServiceImpl logAPIErrorService,
-                                        GenericQueueMessageService genericQueueMessageService,
+                                        GenericMessageService genericMessageService,
                                         GoogleAuthRepository googleAuthRepository) {
         super(logAPIErrorService);
         this.googleOAuth2Config = googleOAuth2Config;
         this.appConfig = appConfig;
-        this.genericQueueMessageService = genericQueueMessageService;
+        this.genericMessageService = genericMessageService;
         this.googleAuthRepository = googleAuthRepository;
     }
 
@@ -100,6 +100,6 @@ public class GoogleOAuthCommunicationImpl extends LogUtilsBase implements Google
         final LogoutMessage logoutMessage = new LogoutMessage();
         logoutMessage.setMessage(GoogleAuthConstants.GOOGLE_LOGOUT_REQUEST);
 
-        genericQueueMessageService.send(logoutMessage, WebSocketDestinationsEnum.LOGOUT_REQUEST.getValue(), user);
+        genericMessageService.send(logoutMessage, WebSocketDestinationsEnum.LOGOUT_REQUEST.getValue(), user);
     }
 }

@@ -15,7 +15,7 @@ import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl
 import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.async.AsyncUserSettingsService;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -30,9 +30,9 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
     @Autowired
     public TreatmentServiceImpl(TreatmentRepository repository, AuthServiceImpl authService,
                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                SynchronizableStaffQueueMessageService<Long, TreatmentDataModel> synchronizableStaffQueueMessageService,
+                                SynchronizableTopicMessageService<Long, TreatmentDataModel> synchronizableTopicMessageService,
                                 UserSettingsServiceImpl userSettingsService, AsyncUserSettingsService asyncUserSettingsService) {
-        super(repository, authService, clockService, synchronizableStaffQueueMessageService, logAPIErrorService);
+        super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.userSettingsService = userSettingsService;
         this.asyncUserSettingsService = asyncUserSettingsService;
     }

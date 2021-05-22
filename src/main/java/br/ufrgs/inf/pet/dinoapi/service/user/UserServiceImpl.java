@@ -15,8 +15,9 @@ import br.ufrgs.inf.pet.dinoapi.service.auth.StaffServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.utils.Pair;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -134,14 +135,19 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     }
 
     public User saveNew(String name, String email, String pictureUrl) {
-        User user = this.findUserByEmail(email);
+        User user = new User();
 
-        if (user == null) {
-            user = new User();
+        final Pair<PermissionEnum, Staff> result = this.getUserPermission(email);
+        final PermissionEnum permission = result.getFirst();
+        user.setPermission(permission.getValue());
+        user = this.saveUser(name, email, pictureUrl, user);
+
+        if (permission.equals(PermissionEnum.STAFF)) {
+            final Staff staff = result.getSecond();
+            staffService.updateStaffUser(staff, user);
         }
 
-        this.setUserPermission(user, email);
-        return this.saveUser(name, email, pictureUrl, user);
+        return user;
     }
 
     public User findUserByEmail(String email) {
@@ -181,16 +187,15 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return this.repository.save(user);
     }
 
-    private void setUserPermission(User user, String email) {
-        final Staff staffSearch = staffService.findStaffByEmail(user.getEmail());
+    private Pair<PermissionEnum, Staff> getUserPermission(String email) {
+        final Staff staffSearch = staffService.findStaffByEmail(email);
 
         if(staffSearch != null) {
-            staffService.updateStaffUser(staffSearch, user, authService.getCurrentAuth());
-            user.setPermission(PermissionEnum.STAFF.getValue());
+            return new Pair<>(PermissionEnum.STAFF, staffSearch);
         } else if (email.equals(AuthConstants.ADMIN)) {
-            user.setPermission(PermissionEnum.ADMIN.getValue());
+            return new Pair<>(PermissionEnum.ADMIN, null);
         } else {
-            user.setPermission(PermissionEnum.USER.getValue());
+            return new Pair<>(PermissionEnum.USER, null);
         }
     }
 

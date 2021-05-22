@@ -1,22 +1,21 @@
-package br.ufrgs.inf.pet.dinoapi.websocket.service.queue;
+package br.ufrgs.inf.pet.dinoapi.websocket.service;
 
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 
 @Service
-public class GenericQueueMessageService {
+public class GenericMessageService {
     private final SimpMessagingTemplate simpMessagingTemplate;
 
     private final AuthServiceImpl authService;
 
     @Autowired
-    public GenericQueueMessageService(SimpMessagingTemplate simpMessagingTemplate,
-                                      AuthServiceImpl authService) {
+    public GenericMessageService(SimpMessagingTemplate simpMessagingTemplate,
+                                 AuthServiceImpl authService) {
         this.simpMessagingTemplate = simpMessagingTemplate;
         this.authService = authService;
     }

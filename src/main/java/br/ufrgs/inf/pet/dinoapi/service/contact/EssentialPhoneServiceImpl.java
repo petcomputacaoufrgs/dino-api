@@ -16,7 +16,7 @@ import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialPhoneService
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -34,10 +34,10 @@ public class EssentialPhoneServiceImpl
     @Autowired
     public EssentialPhoneServiceImpl(EssentialPhoneRepository repository, AuthServiceImpl authService,
                                      ClockServiceImpl clock, EssentialContactServiceImpl essentialContactService,
-                                     SynchronizableStaffQueueMessageService<Long, EssentialPhoneDataModel> synchronizableStaffQueueMessageService,
+                                     SynchronizableTopicMessageService<Long, EssentialPhoneDataModel> synchronizableTopicMessageService,
                                      LogAPIErrorServiceImpl logAPIErrorService, AsyncEssentialPhoneService asyncEssentialPhoneService,
                                      PhoneServiceImpl phoneService) {
-        super(repository, authService, clock, synchronizableStaffQueueMessageService, logAPIErrorService);
+        super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.essentialContactService = essentialContactService;
         this.asyncEssentialPhoneService = asyncEssentialPhoneService;
         this.phoneService = phoneService;

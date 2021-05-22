@@ -18,7 +18,7 @@ import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialContactServi
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableStaffQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -37,10 +37,10 @@ public class EssentialContactServiceImpl extends
     @Autowired
     public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository,
                                        AuthServiceImpl authService, ClockServiceImpl clock, LogAPIErrorServiceImpl logAPIErrorService,
-                                       SynchronizableStaffQueueMessageService<Long, EssentialContactDataModel> synchronizableStaffQueueMessageService,
+                                       SynchronizableTopicMessageService<Long, EssentialContactDataModel> synchronizableTopicMessageService,
                                        AsyncEssentialContactService asyncEssentialContactService,
                                        ContactRepository contactRepository) {
-        super(repository, authService, clock, synchronizableStaffQueueMessageService, logAPIErrorService);
+        super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;
         this.asyncEssentialContactService = asyncEssentialContactService;
         this.contactRepository = contactRepository;
