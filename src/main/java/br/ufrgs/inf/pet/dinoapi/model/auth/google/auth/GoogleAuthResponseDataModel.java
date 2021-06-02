@@ -2,6 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.model.auth.google.auth;
 
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthResponseDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.google.GoogleScopeDataModel;
+import br.ufrgs.inf.pet.dinoapi.model.kids_space.KidsSpaceSettingsModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 
 import java.time.ZonedDateTime;
@@ -15,6 +16,8 @@ public class GoogleAuthResponseDataModel extends AuthResponseDataModel {
     private List<GoogleScopeDataModel> scopes;
 
     private UserSettingsDataModel settings;
+
+    private KidsSpaceSettingsModel kidsSpaceSettings;
 
     public String getGoogleAccessToken() {
         return googleAccessToken;
@@ -46,5 +49,13 @@ public class GoogleAuthResponseDataModel extends AuthResponseDataModel {
 
     public void setSettings(UserSettingsDataModel settings) {
         this.settings = settings;
+    }
+
+    public KidsSpaceSettingsModel getKidsSpaceSettings() {
+        return kidsSpaceSettings;
+    }
+
+    public void setKidsSpaceSettings(KidsSpaceSettingsModel kidsSpaceSettings) {
+        this.kidsSpaceSettings = kidsSpaceSettings;
     }
 }

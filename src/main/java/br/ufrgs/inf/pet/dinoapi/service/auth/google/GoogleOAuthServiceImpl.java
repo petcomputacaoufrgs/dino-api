@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
+import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
@@ -25,6 +26,7 @@ import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.auth.google.GoogleAuthRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.kids_space.KidsSpaceSettingsServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
@@ -45,6 +47,8 @@ import java.util.stream.Collectors;
 @Service
 public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthService {
 
+    private final KidsSpaceSettingsServiceImpl kidsSpaceSettingsService;
+
     private final UserServiceImpl userService;
 
     private final OAuthServiceImpl authService;
@@ -60,12 +64,14 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
     private final ClockServiceImpl clockService;
 
     @Autowired
-    public GoogleOAuthServiceImpl(UserServiceImpl userService, OAuthServiceImpl authService,
+    public GoogleOAuthServiceImpl(KidsSpaceSettingsServiceImpl kidsSpaceSettingsService,
+                                  UserServiceImpl userService, OAuthServiceImpl authService,
                                   GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
                                   GoogleOAuthCommunicationImpl googleAPICommunicationImpl,
                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                   UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
+        this.kidsSpaceSettingsService = kidsSpaceSettingsService;
         this.userService = userService;
         this.authService = authService;
         this.googleAuthRepository = googleAuthRepository;
@@ -113,7 +119,10 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
                     auth = authService.generateAuth(googleAuth.getUser());
                     user = this.updateUser(payload, auth);
-                    dataResponse.setSettings(userSettingsService.createUserSettingsDataModel(user.getUserAppSettings()));
+                    dataResponse.setSettings(
+                            userSettingsService.createUserSettingsDataModel(user.getUserAppSettings()));
+                    dataResponse.setKidsSpaceSettings(
+                            kidsSpaceSettingsService.createUserSettingsDataModel(user.getKidsSpaceSettings()));
                 } else {
                     if (this.isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError(response, payload);
@@ -137,7 +146,18 @@ public class GoogleOAuthServiceImpl extends LogUtilsBase implements GoogleOAuthS
 
                     userSettings = userSettingsService.saveOnDatabase(userSettings);
 
-                    dataResponse.setSettings(userSettingsService.createUserSettingsDataModel(userSettings));
+                    dataResponse.setSettings(
+                            userSettingsService.createUserSettingsDataModel(userSettings));
+
+                    KidsSpaceSettings kidsSpaceSettings = new KidsSpaceSettings();
+                    kidsSpaceSettings.setUser(user);
+                    kidsSpaceSettings.setColor("default");
+                    kidsSpaceSettings.setFirstSettingsDone(false);
+
+                    kidsSpaceSettings = kidsSpaceSettingsService.saveOnDatabase(kidsSpaceSettings);
+
+                    dataResponse.setKidsSpaceSettings(
+                            kidsSpaceSettingsService.createUserSettingsDataModel(kidsSpaceSettings));
                 }
 
                 final ClockServiceImpl clock = new ClockServiceImpl();
