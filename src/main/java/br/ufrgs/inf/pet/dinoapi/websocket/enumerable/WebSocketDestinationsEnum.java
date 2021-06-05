@@ -16,8 +16,9 @@ public enum WebSocketDestinationsEnum {
     TREATMENT_QUESTION("treatment_question"),
     LOGOUT_REQUEST("logout_request"),
     STAFF("staff");
+    KIDS_SPACE_SETTINGS("kids_space_settings");
 
-    private String value;
+    private final String value;
 
     WebSocketDestinationsEnum(String value) {
         this.value = value;

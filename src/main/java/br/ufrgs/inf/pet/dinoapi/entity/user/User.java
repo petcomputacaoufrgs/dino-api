@@ -3,13 +3,15 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
+import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.UserConstants.*;
@@ -35,32 +37,32 @@ public class User extends SynchronizableEntity<Long> {
     @OneToOne(mappedBy = "user")
     private UserSettings userSettings;
 
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private final List<Auth> auths;
+    @OneToOne(mappedBy = "user")
+    private KidsSpaceSettings kidsSpaceSettings;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Auth> auths;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<NoteColumn> noteColumns;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Contact> contacts;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<TreatmentQuestion> treatmentQuestions;
-
-    public User() {
-        this.auths = new ArrayList<>();
-        this.contacts = new ArrayList<>();
-        this.noteColumns = new ArrayList<>();
-    }
+    
+    public User() { }
 
     public User(String name, String email, String pictureURL) {
         this.name = name;
         this.email = email;
         this.pictureURL = pictureURL;
         this.lastUpdate = LocalDateTime.now();
-        this.auths = new ArrayList<>();
-        this.contacts = new ArrayList<>();
-        this.noteColumns = new ArrayList<>();
     }
 
     public boolean hasGoogleAuth() {
@@ -107,12 +109,12 @@ public class User extends SynchronizableEntity<Long> {
         this.userSettings = userSettings;
     }
 
-    public List<NoteColumn> getNoteColumns() {
-        return noteColumns;
+    public KidsSpaceSettings getKidsSpaceSettings() {
+        return kidsSpaceSettings;
     }
 
-    public void setNoteColumns(List<NoteColumn> noteColumns) {
-        this.noteColumns = noteColumns;
+    public void setKidsSpaceSettings(KidsSpaceSettings kidsSpaceSettings) {
+        this.kidsSpaceSettings = kidsSpaceSettings;
     }
 
     public void setContacts(List<Contact> contacts) {

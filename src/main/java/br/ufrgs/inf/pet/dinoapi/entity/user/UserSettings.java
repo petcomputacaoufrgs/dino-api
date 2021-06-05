@@ -2,12 +2,14 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
+import static br.ufrgs.inf.pet.dinoapi.constants.UserSettingsConstants.PASSWORD_MAX;
 
 @Entity
 @Table(name = "user_settings")
 public class UserSettings extends SynchronizableEntity<Long> {
-
     @Column(name = "language")
     private Integer language;
 
@@ -29,19 +31,22 @@ public class UserSettings extends SynchronizableEntity<Long> {
     @Column(name = "settings_step", nullable = false)
     private Integer step;
 
+    @Column(name = "parents_area_password", length = PASSWORD_MAX)
+    private String parentsAreaPassword;
+
     @Column(name = "sync_google_contacts", nullable = false)
     private Boolean shouldSyncGoogleContacts;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "treatment_id")
     private Treatment treatment;
 
-    public UserSettings() {
-    }
+    public UserSettings() { }
 
     public Integer getLanguage() {
         return language;
@@ -121,5 +126,13 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     public void setShouldSyncGoogleContacts(boolean syncGoogleContacts) {
         this.shouldSyncGoogleContacts = syncGoogleContacts;
+    }
+
+    public String getParentsAreaPassword() {
+        return parentsAreaPassword;
+    }
+
+    public void setParentsAreaPassword(String parentsAreaPassword) {
+        this.parentsAreaPassword = parentsAreaPassword;
     }
 }

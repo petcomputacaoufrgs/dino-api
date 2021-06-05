@@ -49,6 +49,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
         model.setStep(entity.getStep());
+        model.setParentsAreaPassword(entity.getParentsAreaPassword());
 
         if (entity.getTreatment() != null) {
             model.setTreatmentId(entity.getTreatment().getId());
@@ -76,6 +77,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setColorTheme(model.getColorTheme());
         userSettings.setFontSize(model.getFontSize());
         userSettings.setUser(auth.getUser());
+        userSettings.setParentsAreaPassword(model.getParentsAreaPassword());
         modelToEntity(userSettings, model, auth);
         return userSettings;
     }
@@ -197,6 +199,11 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
 
     public void saveAllDirectly(List<UserSettings> userSettings) {
         this.repository.saveAll(userSettings);
+    }
+
+    public boolean saveContactsOnGoogleAPI(User user) {
+        final UserSettings settings = user.getUserAppSettings();
+        return !settings.getDeclineGoogleContacts();
     }
 
     private void validSettings(UserSettingsDataModel model) throws ConvertModelToEntityException {

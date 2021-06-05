@@ -31,8 +31,7 @@ public class EssentialContact extends SynchronizableEntity<Long> {
             inverseJoinColumns = {@JoinColumn(name = "treatment_id")})
     private List<Treatment> treatments;
 
-    public EssentialContact() {
-    }
+    public EssentialContact() { }
 
     public List<Treatment> getTreatments() {
         return treatments;

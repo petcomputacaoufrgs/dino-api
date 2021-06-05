@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.configuration;
 
-import br.ufrgs.inf.pet.dinoapi.configuration.application_properties.AppConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.AppConfig;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
 import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -28,8 +29,8 @@ import java.util.concurrent.Executor;
 
 @Configuration
 @EnableWebSecurity
-@EnableAsync
-@EnableGlobalMethodSecurity(prePostEnabled = true)
+@EnableAsync(proxyTargetClass = true)
+@EnableScheduling
 public class SpringConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService dinoUserDetailsService;
 
@@ -89,30 +90,13 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
-    /**
-     * Generic thread pool
-     */
-    @Bean(name = "threadPool")
+    @Bean(name = "defaultThreadPoolTaskExecutor")
     public Executor threadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(8);
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(Integer.MAX_VALUE);
-        executor.setThreadNamePrefix("DinoAPI-Thread-");
-        executor.initialize();
-        return executor;
-    }
-
-    /**
-     * Single thread pool for contacts
-     */
-    @Bean(name = "contactsThreadPool")
-    public Executor essentialContactsThreadPoolTaskExecutor() {
-        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(1);
-        executor.setMaxPoolSize(1);
-        executor.setQueueCapacity(Integer.MAX_VALUE);
-        executor.setThreadNamePrefix("DinoAPI-Contacts-");
+        executor.setThreadNamePrefix("dino-api-thread-");
         executor.initialize();
         return executor;
     }

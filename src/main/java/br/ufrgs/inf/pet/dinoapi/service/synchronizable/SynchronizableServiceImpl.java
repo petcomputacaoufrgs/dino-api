@@ -122,6 +122,20 @@ public abstract class SynchronizableServiceImpl<
     }
 
     /**
+     * Override it to treat a model without id before save process
+     * @param model entity data model
+     */
+    protected void treatBeforeSave(DATA_MODEL model) { }
+
+    /**
+     * Override it to treat models without id before save all process
+     * @param models list of entities data models
+     */
+    protected List<DATA_MODEL> treatBeforeSaveAll(List<DATA_MODEL> models) {
+        return models;
+    }
+
+    /**
      * Define a list of authorities, to edit entity user mus have one of them.
      * Default is empty list without restrictions
      * @return List of authorities
@@ -256,7 +270,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model) {
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> syncSave(SynchronizableSaveSyncModel<ID, DATA_MODEL> model) {
         final SynchronizableSyncResponseModel<ID, DATA_MODEL> response = new SynchronizableSyncResponseModel<>();
 
         try {
@@ -286,6 +300,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     protected DATA_MODEL internalSave(DATA_MODEL model, Auth auth) throws AuthNullException, ConvertModelToEntityException {
+        this.treatBeforeSave(model);
         final ENTITY entity = this.getEntityToEdit(model.getId(), auth);
         final DATA_MODEL result;
 
@@ -309,6 +324,8 @@ public abstract class SynchronizableServiceImpl<
         final List<DATA_MODEL> updateData = new ArrayList<>();
         final List<DATA_MODEL> saveData = new ArrayList<>();
 
+        models = this.treatBeforeSaveAll(models);
+
         models.forEach(model -> {
             if (model.getId() != null) {
                 updateData.add(model);
@@ -317,14 +334,15 @@ public abstract class SynchronizableServiceImpl<
             }
         });
 
-        final Tuple2<List<DATA_MODEL>, Tuple2<List<DATA_MODEL>, List<ENTITY>>> updateResult = this.updateAllItems(updateData, auth);
+        final Tuple2<List<DATA_MODEL>, Tuple2<Tuple2<List<DATA_MODEL>, List<ENTITY>>, List<DATA_MODEL>>>
+                updateResult = this.updateAllItems(updateData, auth);
         final List<DATA_MODEL> createdData = this.createEntities(newData, auth);
 
         saveData.addAll(updateResult.getFirst());
-        saveData.addAll(updateResult.getSecond().getFirst());
+        saveData.addAll(updateResult.getSecond().getFirst().getFirst());
         saveData.addAll(createdData);
         this.sendUpdateMessage(saveData, auth);
-
+        saveData.addAll(updateResult.getSecond().getSecond());
         return saveData;
     }
 
@@ -473,10 +491,12 @@ public abstract class SynchronizableServiceImpl<
         return this.findEntitiesByIdThatUserCanEdit(ids, auth);
     }
 
-    protected Tuple2<List<DATA_MODEL>, Tuple2<List<DATA_MODEL>, List<ENTITY>>>
+    protected Tuple2<List<DATA_MODEL>, Tuple2<Tuple2<List<DATA_MODEL>, List<ENTITY>>, List<DATA_MODEL>>>
     updateAllItems(List<DATA_MODEL> items, Auth auth) throws AuthNullException, ConvertModelToEntityException {
         final List<ENTITY> entitiesToCreate = new ArrayList<>();
         final List<ENTITY> entitiesToUpdate = new ArrayList<>();
+        final List<ENTITY> notUpdatedEntities = new ArrayList<>();
+        final List<DATA_MODEL> notUpdatedModels = new ArrayList<>();
 
         final List<DATA_MODEL> orderedData = items.stream()
                 .filter(ListUtils.distinctByKey(DATA_MODEL::getId))
@@ -496,6 +516,7 @@ public abstract class SynchronizableServiceImpl<
         final List<DATA_MODEL> modelsInUpdateList = new ArrayList<>();
 
         for (DATA_MODEL model : orderedData) {
+            this.treatBeforeSaveAll(orderedData);
             if (count < orderedEntitiesSize) {
                 final ENTITY entity = orderedEntities.get(count);
                 final ID entityId = entity.getId();
@@ -506,8 +527,10 @@ public abstract class SynchronizableServiceImpl<
                         entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
                         entitiesToUpdate.add(entity);
                         modelsInUpdateList.add(model);
+                    } else {
+                        notUpdatedEntities.add(entity);
+                        notUpdatedModels.add(model);
                     }
-
                     count++;
                     continue;
                 }
@@ -520,10 +543,29 @@ public abstract class SynchronizableServiceImpl<
             modelsInCreateList.add(model);
         }
 
-        final Tuple2<List<DATA_MODEL>, Tuple2<List<DATA_MODEL>, List<ENTITY>>> result = new Tuple2<>();
+        final Tuple2<List<DATA_MODEL>, Tuple2<Tuple2<List<DATA_MODEL>, List<ENTITY>>, List<DATA_MODEL>>>
+                result = new Tuple2<>();
 
         result.setFirst(saveEntitiesAndUpdateModels(entitiesToCreate, modelsInCreateList, auth, true).getFirst());
         result.setSecond(saveEntitiesAndUpdateModels(entitiesToUpdate, modelsInUpdateList, auth, false));
+
+        final Tuple2<List<DATA_MODEL>, List<ENTITY>> updateResult = saveEntitiesAndUpdateModels(entitiesToUpdate, modelsInUpdateList);
+        final List<DATA_MODEL> notUpdateResult = new ArrayList<>();
+
+        count = 0;
+
+        for (ENTITY notUpdatedEntity : notUpdatedEntities) {
+            final DATA_MODEL notUpdatedModel = this.completeConvertEntityToModel(notUpdatedEntity);
+            notUpdatedModel.setLocalId(notUpdatedModels.get(count).getLocalId());
+            notUpdateResult.add(notUpdatedModel);
+            count++;
+        }
+
+        final Tuple2<Tuple2<List<DATA_MODEL>, List<ENTITY>>, List<DATA_MODEL>> secondResult = new Tuple2<>();
+        secondResult.setFirst(updateResult);
+        secondResult.setSecond(notUpdateResult);
+
+        result.setSecond(secondResult);
 
         return result;
     }
@@ -546,7 +588,6 @@ public abstract class SynchronizableServiceImpl<
     private DATA_MODEL create(DATA_MODEL model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         ENTITY entity = this.completeConvertModelToEntity(model, auth);
         entity.setLastUpdate(model.getLastUpdate().toLocalDateTime());
-
         entity = repository.save(entity);
 
         afterDataCreated(entity, auth);
@@ -582,9 +623,9 @@ public abstract class SynchronizableServiceImpl<
     private List<DATA_MODEL> createEntities(List<DATA_MODEL> items, Auth auth) throws AuthNullException, ConvertModelToEntityException {
         final List<ENTITY> entitiesToSave = new ArrayList<>();
         final List<DATA_MODEL> modelsInSaveList = new ArrayList<>();
+        this.treatBeforeSaveAll(items);
         for (DATA_MODEL item : items) {
             final ENTITY entity = this.completeConvertModelToEntity(item, auth);
-            entity.setLastUpdate(item.getLastUpdate().toLocalDateTime());
             entitiesToSave.add(entity);
             modelsInSaveList.add(item);
         }

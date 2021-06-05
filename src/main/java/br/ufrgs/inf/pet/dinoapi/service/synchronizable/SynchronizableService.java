@@ -144,5 +144,5 @@ public interface SynchronizableService<
     /**
      * Implements sync method of {@link br.ufrgs.inf.pet.dinoapi.controller.synchronizable.SynchronizableController}
      */
-    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> syncSave(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
 }

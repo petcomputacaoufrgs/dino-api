@@ -8,8 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,18 +24,18 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
     }
 
     @Override
-    public ResponseEntity<?> save(LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Void> save(LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
         final String userAgent = httpServletRequest.getHeader("User-Agent");
 
         LogAppError error = this.generateError(model, userAgent);
 
         logAppErrorRepository.save(error);
 
-        return new ResponseEntity<>("Log saved.", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @Override
-    public ResponseEntity<?> saveAll(LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Void> saveAll(LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
         final String userAgent = httpServletRequest.getHeader("User-Agent");
 
         List<LogAppError> items = model.getItems().stream().map(item ->
@@ -43,7 +43,12 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
 
         logAppErrorRepository.saveAll(items);
 
-        return new ResponseEntity<>("Logs saved.", HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Override
+    public void deleteOldItems(LocalDateTime deadline) {
+        logAppErrorRepository.deleteAllByDate(deadline);
     }
 
     private LogAppError generateError(LogAppErrorRequestModel model, String userAgent) {
@@ -55,5 +60,4 @@ public class LogAppErrorServiceImpl implements LogAppErrorService {
         error.setUserAgent(userAgent);
         return error;
     }
-
 }

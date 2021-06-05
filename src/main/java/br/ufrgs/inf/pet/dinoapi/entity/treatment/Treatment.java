@@ -19,7 +19,7 @@ public class Treatment extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "treatment", fetch = FetchType.LAZY)
     private List<UserSettings> userSettings;
 
-    @ManyToMany(mappedBy = "treatments", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @ManyToMany(mappedBy = "treatments",fetch = FetchType.LAZY)
     private List<EssentialContact> essentialContacts;
 
     @OneToMany(mappedBy = "treatment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -32,6 +32,8 @@ public class Treatment extends SynchronizableEntity<Long> {
         this.items = new ArrayList<>();
         this.treatmentQuestions = new ArrayList<>();
     }
+    
+    public Treatment() { }
 
     public String getName() {
         return name;
@@ -39,13 +41,5 @@ public class Treatment extends SynchronizableEntity<Long> {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<UserSettings> getUserSettings() {
-        return userSettings;
-    }
-
-    public void setUserSettings(List<UserSettings> userSettings) {
-        this.userSettings = userSettings;
     }
 }

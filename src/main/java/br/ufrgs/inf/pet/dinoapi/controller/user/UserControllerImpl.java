@@ -6,15 +6,24 @@ import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("private/user/")
 public class UserControllerImpl extends SynchronizableControllerImpl<User, Long, UserDataModel,
-        UserRepository, UserServiceImpl> {
+        UserRepository, UserServiceImpl> implements UserController {
+
     @Autowired
     public UserControllerImpl(UserServiceImpl userService) {
         super(userService);
+    }
+
+    @Override
+    @DeleteMapping("delete_account/")
+    public ResponseEntity<Boolean> deleteAccount() {
+        return this.service.deleteAccount();
     }
 }

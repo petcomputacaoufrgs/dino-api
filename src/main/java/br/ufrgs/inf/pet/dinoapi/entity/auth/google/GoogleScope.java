@@ -15,8 +15,7 @@ public class GoogleScope extends SynchronizableEntity<Long> {
     @JoinColumn(name = "google_auth_id", nullable = false)
     private GoogleAuth googleAuth;
 
-    public GoogleScope() {
-    }
+    public GoogleScope() { }
 
     public String getName() {
         return name;

@@ -70,6 +70,8 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
                 this.save(googleContact);
             }
         }
+
+        entity.setSavedOnGoogleAPI(model.getSavedOnGoogleAPI());
     }
 
     public void deleteGoogleContact(String resourceName, User user) {

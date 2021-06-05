@@ -4,9 +4,13 @@ import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_M
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
 @Entity
 @Table(name = "contact")
@@ -28,15 +32,15 @@ public class Contact extends SynchronizableEntity<Long> {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Phone> phones;
 
-    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<GoogleContact> googleContacts;
 
-    public Contact() {
-        this.phones = new ArrayList<>();
-    }
+    public Contact() { }
 
     public Long getId() {
         return id;
@@ -52,14 +56,6 @@ public class Contact extends SynchronizableEntity<Long> {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public List<Phone> getPhones() {
-        return phones;
-    }
-
-    public void setPhones(List<Phone> phones) {
-        this.phones = phones;
     }
 
     public String getDescription() {
@@ -84,14 +80,6 @@ public class Contact extends SynchronizableEntity<Long> {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public List<GoogleContact> getGoogleContacts() {
-        return googleContacts;
-    }
-
-    public void setGoogleContacts(List<GoogleContact> googleContacts) {
-        this.googleContacts = googleContacts;
     }
 
     public EssentialContact getEssentialContact() {

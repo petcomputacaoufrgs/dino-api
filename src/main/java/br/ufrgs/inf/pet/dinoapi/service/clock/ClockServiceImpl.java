@@ -7,27 +7,29 @@ import java.util.Date;
 @Service
 public class ClockServiceImpl implements ClockService {
     public Date now() {
-        return new Date();
+        final LocalDateTime date = LocalDateTime.now();
+        final Instant instant = date.toInstant(ZoneOffset.UTC);
+        final ZonedDateTime zonedResult = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        return Date.from(zonedResult.toInstant());
     }
 
     public Date nowPlusMinutes(long minutes) {
         final LocalDateTime date = LocalDateTime.now().plusMinutes(minutes);
-        final ZonedDateTime zonedResult = date.atZone(ZoneId.systemDefault());
+        final Instant instant = date.toInstant(ZoneOffset.UTC);
+        final ZonedDateTime zonedResult = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
         return Date.from(zonedResult.toInstant());
     }
 
     public LocalDateTime toLocalDateTime(Date date) {
-        return date.toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
-    }
+        final Instant instant = date.toInstant();
+        final ZonedDateTime zonedResult = ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
 
-    public LocalDateTime toLocalDateTime(Long millis) {
-        return LocalDateTime.ofInstant(Instant.ofEpochMilli(millis * 1000), ZoneId.systemDefault());
+        return zonedResult.toLocalDateTime();
     }
 
     public ZonedDateTime toUTCZonedDateTime(LocalDateTime date) {
-        return ZonedDateTime.of(date, ZoneId.systemDefault()).withZoneSameInstant(ZoneOffset.UTC);
+        final Instant instant = date.toInstant(ZoneOffset.UTC);
+        return ZonedDateTime.ofInstant(instant, ZoneId.of("UTC"));
     }
 
     public ZonedDateTime getUTCZonedDateTime() {

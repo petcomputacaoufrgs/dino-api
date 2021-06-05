@@ -1,10 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.repository.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 

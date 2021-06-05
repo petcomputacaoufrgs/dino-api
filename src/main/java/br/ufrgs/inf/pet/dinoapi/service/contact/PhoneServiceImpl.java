@@ -14,7 +14,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialPhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncPhoneService;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncPhoneServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;

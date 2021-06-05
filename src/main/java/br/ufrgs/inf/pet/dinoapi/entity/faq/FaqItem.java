@@ -22,8 +22,7 @@ public class FaqItem extends SynchronizableEntity<Long> {
     @JoinColumn(name = "treatment_id", nullable = false)
     private Treatment treatment;
 
-    public FaqItem() {
-    }
+    public FaqItem() { }
 
     public String getQuestion() {
         return question;

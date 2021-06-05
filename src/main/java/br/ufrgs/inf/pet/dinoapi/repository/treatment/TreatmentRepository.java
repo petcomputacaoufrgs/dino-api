@@ -20,7 +20,7 @@ public interface TreatmentRepository extends CrudRepository<Treatment, Long> {
     @Query("SELECT te FROM Treatment te WHERE te.id IN :ids")
     List<Treatment> findAllByIds(@Param("ids") List<Long> ids);
 
-    @Query("SELECT te FROM Treatment te WHERE te.id IN :ids")
+    @Query("SELECT te FROM Treatment te WHERE te.id NOT IN :ids")
     List<Treatment> findAllExcludingIds(@Param("ids") List<Long> ids);
 
     @Query("SELECT ec.treatments FROM EssentialContact ec WHERE ec.id = :essentialContactId ")

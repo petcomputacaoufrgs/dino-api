@@ -2,6 +2,9 @@ package br.ufrgs.inf.pet.dinoapi.entity.auth.google;
 
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,20 +34,22 @@ public class GoogleAuth {
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
+    @OneToOne(mappedBy = "googleAuth")
+    private GoogleAccessToken googleAccessToken;
+
     @OneToMany(mappedBy = "googleAuth", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private List<GoogleScope> googleScopes;
 
-    public GoogleAuth() {
-        this.googleScopes = new ArrayList<>();
-    }
+    public GoogleAuth() { }
 
     public GoogleAuth(String googleId, String refreshToken, User user) {
         this.googleId = googleId;
         this.refreshToken = refreshToken;
         this.user = user;
-        this.googleScopes = new ArrayList<>();
     }
 
     public Long getId() {
@@ -73,14 +78,6 @@ public class GoogleAuth {
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public List<GoogleScope> getGoogleScopes() {
-        return googleScopes;
-    }
-
-    public void setGoogleScopes(List<GoogleScope> googleScopes) {
-        this.googleScopes = googleScopes;
     }
 
     public String getAccessToken() {
