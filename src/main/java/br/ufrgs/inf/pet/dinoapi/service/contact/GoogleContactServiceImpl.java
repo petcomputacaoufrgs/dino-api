@@ -64,14 +64,11 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
                             user, contact.getName(), contact.getDescription(),
                             phoneNumbers, googleContact
                     );
-
             if (googlePeopleModel != null) {
                 googleContact.setResourceName(googleContact.getResourceName());
                 this.save(googleContact);
             }
         }
-
-        entity.setSavedOnGoogleAPI(model.getSavedOnGoogleAPI());
     }
 
     public void deleteGoogleContact(String resourceName, User user) {

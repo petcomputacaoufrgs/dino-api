@@ -23,13 +23,13 @@ public class LogAppErrorControllerImpl implements LogAppErrorController {
 
     @Override
     @PostMapping("private/log_app_error/")
-    public ResponseEntity<?> save(@Valid @RequestBody LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Void> save(@Valid @RequestBody LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
         return logAppErrorService.save(model, httpServletRequest);
     }
 
     @Override
     @PostMapping("private/log_app_error/all/")
-    public ResponseEntity<?> saveAll(@Valid @RequestBody LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<Void> saveAll(@Valid @RequestBody LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
         return logAppErrorService.saveAll(model, httpServletRequest);
     }
 }

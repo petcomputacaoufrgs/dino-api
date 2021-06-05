@@ -32,8 +32,6 @@ public class Treatment extends SynchronizableEntity<Long> {
         this.items = new ArrayList<>();
         this.treatmentQuestions = new ArrayList<>();
     }
-    
-    public Treatment() { }
 
     public String getName() {
         return name;

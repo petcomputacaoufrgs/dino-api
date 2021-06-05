@@ -14,7 +14,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialContactServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -31,18 +31,17 @@ public class EssentialContactServiceImpl extends
         SynchronizableServiceImpl<EssentialContact, Long, EssentialContactDataModel, EssentialContactRepository> {
 
     private final TreatmentRepository treatmentRepository;
-    private final AsyncEssentialContactServiceImpl asyncEssentialContactServiceImpl;
+    private final AsyncEssentialContactService asyncEssentialContactService;
     private final ContactRepository contactRepository;
 
     @Autowired
     public EssentialContactServiceImpl(TreatmentRepository treatmentRepository, EssentialContactRepository repository,
                                        AuthServiceImpl authService, ClockServiceImpl clock, LogAPIErrorServiceImpl logAPIErrorService,
                                        SynchronizableTopicMessageService<Long, EssentialContactDataModel> synchronizableTopicMessageService,
-                                       AsyncEssentialContactServiceImpl asyncEssentialContactServiceImpl,
-                                       ContactRepository contactRepository) {
+                                       AsyncEssentialContactService asyncEssentialContactService, ContactRepository contactRepository) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;
-        this.asyncEssentialContactServiceImpl = asyncEssentialContactServiceImpl;
+        this.asyncEssentialContactService = asyncEssentialContactService;
         this.contactRepository = contactRepository;
     }
 

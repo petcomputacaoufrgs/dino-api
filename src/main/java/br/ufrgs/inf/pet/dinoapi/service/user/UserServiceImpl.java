@@ -176,7 +176,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     @Override
     public ResponseEntity<Boolean> deleteAccount() {
         try {
-            final User user = authService.getPrincipal().getUser();
+            final User user = authService.getCurrentAuth().getUser();
             this.repository.delete(user);
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (Exception e) {

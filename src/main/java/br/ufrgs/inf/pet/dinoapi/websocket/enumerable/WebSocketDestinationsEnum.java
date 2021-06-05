@@ -15,7 +15,7 @@ public enum WebSocketDestinationsEnum {
     FAQ_ITEM("faq_item"),
     TREATMENT_QUESTION("treatment_question"),
     LOGOUT_REQUEST("logout_request"),
-    STAFF("staff");
+    STAFF("staff"),
     KIDS_SPACE_SETTINGS("kids_space_settings");
 
     private final String value;

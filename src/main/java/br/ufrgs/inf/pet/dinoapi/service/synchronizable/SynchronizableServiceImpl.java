@@ -59,30 +59,12 @@ public abstract class SynchronizableServiceImpl<
     }
 
     /**
-     * Override it to do something before a entity be deleted
-     *
-     * @param entity deleted entity
-     * @param auth authentication of user that fire the event
-     */
-    protected void beforeDataCreated(ENTITY entity, Auth auth) {
-    }
-
-    /**
      * Override it to do something after a new entity is created
      *
      * @param entity created entity
      * @param auth authentication of user that fire the event
      */
     protected void afterDataCreated(ENTITY entity, Auth auth) {
-    }
-
-    /**
-     * Override it to do something before a entity be deleted
-     *
-     * @param entity deleted entity
-     * @param auth authentication of user that fire the event
-     */
-    protected void beforeDataUpdated(ENTITY entity, Auth auth) {
     }
 
     /**
@@ -547,9 +529,9 @@ public abstract class SynchronizableServiceImpl<
                 result = new Tuple2<>();
 
         result.setFirst(saveEntitiesAndUpdateModels(entitiesToCreate, modelsInCreateList, auth, true).getFirst());
-        result.setSecond(saveEntitiesAndUpdateModels(entitiesToUpdate, modelsInUpdateList, auth, false));
 
-        final Tuple2<List<DATA_MODEL>, List<ENTITY>> updateResult = saveEntitiesAndUpdateModels(entitiesToUpdate, modelsInUpdateList);
+        final Tuple2<List<DATA_MODEL>, List<ENTITY>> updateResult =
+                saveEntitiesAndUpdateModels(entitiesToUpdate, modelsInUpdateList, auth, false);
         final List<DATA_MODEL> notUpdateResult = new ArrayList<>();
 
         count = 0;

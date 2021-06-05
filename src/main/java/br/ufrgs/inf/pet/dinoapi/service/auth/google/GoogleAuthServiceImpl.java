@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.constants.GoogleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleScope;
+import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.*;
@@ -29,6 +30,7 @@ import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+import br.ufrgs.inf.pet.dinoapi.service.kids_space.KidsSpaceSettingsServiceImpl;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,6 +43,7 @@ import java.util.stream.Collectors;
 
 @Service
 public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthService {
+    private final KidsSpaceSettingsServiceImpl kidsSpaceSettingsService;
     private final UserServiceImpl userService;
     private final AuthServiceImpl authService;
     private final UserSettingsServiceImpl userSettingsService;
@@ -50,12 +53,14 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
     private final ClockServiceImpl clockService;
 
     @Autowired
-    public GoogleAuthServiceImpl(UserServiceImpl userService, AuthServiceImpl authService,
-                                 GoogleAuthRepository googleAuthRepository, GoogleScopeServiceImpl googleScopeService,
+    public GoogleAuthServiceImpl(KidsSpaceSettingsServiceImpl kidsSpaceSettingsService, UserServiceImpl userService,
+                                 AuthServiceImpl authService, GoogleAuthRepository googleAuthRepository,
+                                 GoogleScopeServiceImpl googleScopeService,
                                  GoogleOAuthCommunicationImpl googleAPICommunicationImpl,
                                  ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                  UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
+        this.kidsSpaceSettingsService = kidsSpaceSettingsService;
         this.userService = userService;
         this.authService = authService;
         this.googleAuthRepository = googleAuthRepository;
@@ -103,7 +108,11 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
                     auth = authService.generateAuth(googleAuth.getUser());
                     user = this.updateUser(payload, auth);
-                    dataResponse.setSettings(userSettingsService.createUserSettingsDataModel(user.getUserAppSettings()));
+                    dataResponse.setSettings(
+                            userSettingsService.createUserSettingsDataModel(user.getUserAppSettings()));
+                    userSettingsService.createUserSettingsDataModel(user.getUserAppSettings());
+                    dataResponse.setKidsSpaceSettings(
+                            kidsSpaceSettingsService.createUserSettingsDataModel(user.getKidsSpaceSettings()));
                 } else {
                     if (this.isWithRefreshTokenEmpty(refreshToken)) {
                         return getRefreshTokenError(response, payload);
@@ -130,6 +139,18 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                     userSettings = userSettingsService.saveOnDatabase(userSettings);
 
                     dataResponse.setSettings(userSettingsService.createUserSettingsDataModel(userSettings));
+
+                    userSettingsService.createUserSettingsDataModel(userSettings);
+
+                    KidsSpaceSettings kidsSpaceSettings = new KidsSpaceSettings();
+                    kidsSpaceSettings.setUser(user);
+                    kidsSpaceSettings.setColor("default");
+                    kidsSpaceSettings.setFirstSettingsDone(false);
+
+                    kidsSpaceSettings = kidsSpaceSettingsService.saveOnDatabase(kidsSpaceSettings);
+
+                    dataResponse.setKidsSpaceSettings(
+                            kidsSpaceSettingsService.createUserSettingsDataModel(kidsSpaceSettings));
                 }
 
                 final ClockServiceImpl clock = new ClockServiceImpl();
@@ -138,7 +159,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
 
                 final List<GoogleScopeDataModel> savedScopes = this.saveAllScopes(currentScopes, auth);
 
-                UserDataModel userData = userService.convertEntityToModel(user);
+                final UserDataModel userData = userService.convertEntityToModel(user);
 
                 final String accessToken = tokenResponse.getAccessToken();
 
