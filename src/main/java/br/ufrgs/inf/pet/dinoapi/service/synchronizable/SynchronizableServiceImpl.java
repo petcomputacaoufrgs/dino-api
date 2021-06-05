@@ -252,7 +252,7 @@ public abstract class SynchronizableServiceImpl<
     }
 
     @Override
-    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> syncSave(SynchronizableSaveSyncModel<ID, DATA_MODEL> model) {
+    public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model) {
         final SynchronizableSyncResponseModel<ID, DATA_MODEL> response = new SynchronizableSyncResponseModel<>();
 
         try {

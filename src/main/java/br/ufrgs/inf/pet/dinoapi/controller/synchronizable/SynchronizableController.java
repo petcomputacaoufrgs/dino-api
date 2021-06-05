@@ -99,5 +99,5 @@ public interface SynchronizableController<
      * Sync items (only create and update) respecting saveAll rules and returning localId of received models
      * @return model with all items
      */
-    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> syncSave(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
+    ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>> sync(SynchronizableSaveSyncModel<ID, DATA_MODEL> model);
 }
