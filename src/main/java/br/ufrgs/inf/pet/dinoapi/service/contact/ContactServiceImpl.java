@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
@@ -136,8 +137,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
 
     @Override
     public boolean shouldDelete(Contact contact, SynchronizableDeleteModel<Long> model) {
-        Integer phoneCount = phoneRepository
-                .countByNoteColumnAndLastUpdateGreaterOrEqual(contact.getId(), model.getLastUpdate().toLocalDateTime());
+        final Integer phoneCount = phoneRepository.countByContactId(contact.getId());
 
         return phoneCount == 0;
     }
@@ -167,5 +167,10 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
 
     public List<Contact> findAllByEssentialContact(EssentialContact essentialContact) {
         return this.repository.findAllByEssentialContactId(essentialContact.getId());
+    }
+
+    public List<Contact> findAllWhichShouldHaveEssentialPhoneButDoesnt(EssentialPhone essentialPhone) {
+        final EssentialContact essentialContact = essentialPhone.getEssentialContact();
+        return this.repository.findAllWhichShouldHaveEssentialPhoneButDoesnt(essentialContact, essentialPhone);
     }
 }

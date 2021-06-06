@@ -3,6 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
@@ -186,13 +187,26 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
-    public List<User> findUsersThatCanHaveEssentialContacts() {
-        return this.repository.findBySaveEssentialContactsAndPermission(PermissionEnum.USER.getValue());
+    public List<User> findWhoCanHaveEssentialContacts() {
+        return this.repository.findWhoCanHaveEssentialContacts(PermissionEnum.USER.getValue());
     }
 
-    public List<User> findUsersThatCanHaveEssentialContactsByTreatments(List<Treatment> treatments) {
-        return this.repository.findBySaveEssentialContactsAndTreatmentsAndPermission(treatments, PermissionEnum.USER.getValue());
+    public List<User> findWhoCanHaveEssentialContacts(List<Treatment> treatments) {
+        return this.repository
+                .findWhoCanHaveEssentialContacts(treatments, PermissionEnum.USER.getValue());
     }
+
+    public List<User> findWhoCanHaveEssentialContactsButDontHave
+            (List<Treatment> treatments, EssentialContact essentialContact) {
+        return this.repository.findWhoCanHaveEssentialContactsButDontHave(treatments, essentialContact,
+                PermissionEnum.USER.getValue());
+    }
+
+    public List<User> findWhoCanHaveEssentialContactsButDontHave(EssentialContact essentialContact) {
+        return this.repository.findWhoCanHaveEssentialContactsButDontHave(essentialContact,
+                PermissionEnum.USER.getValue());
+    }
+
 
     private User saveUser(String name, String email, String pictureUrl, User user) {
         user.setPictureURL(pictureUrl);

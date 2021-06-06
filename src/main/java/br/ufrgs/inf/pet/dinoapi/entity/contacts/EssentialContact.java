@@ -22,9 +22,6 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
     private List<Contact> contacts;
 
-    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
-    private List<EssentialPhone> essentialPhones;
-
     @ManyToMany
     @JoinTable(name = "essential_contact__treatment",
             joinColumns = {@JoinColumn(name = "essential_contact_id")},
@@ -32,10 +29,6 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     private List<Treatment> treatments;
 
     public EssentialContact() { }
-
-    public List<Treatment> getTreatments() {
-        return treatments;
-    }
 
     public String getName() {
         return name;
@@ -65,8 +58,8 @@ public class EssentialContact extends SynchronizableEntity<Long> {
         return contacts;
     }
 
-    public List<EssentialPhone> getEssentialPhones() {
-        return essentialPhones;
+    public List<Treatment> getTreatments() {
+        return treatments;
     }
 
     public void setTreatments(List<Treatment> treatments) {

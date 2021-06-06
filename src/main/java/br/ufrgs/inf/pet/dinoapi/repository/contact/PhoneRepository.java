@@ -33,6 +33,6 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
     @Query("SELECT p FROM Phone p WHERE p.id = :id AND p.contact.user.id = :userId")
     Optional<Phone> findByIdAndUserId(@Param("id") Long id, @Param("userId") Long userId);
 
-    @Query("SELECT COUNT(p) FROM Phone p WHERE p.contact.id = :contactId AND p.lastUpdate >= :lastUpdate")
-    Integer countByNoteColumnAndLastUpdateGreaterOrEqual(@Param("contactId") Long contactId, @Param("lastUpdate") LocalDateTime lastUpdate);
+    @Query("SELECT COUNT(p) FROM Phone p WHERE p.contact.id = :contactId")
+    Integer countByContactId(@Param("contactId") Long contactId);
 }

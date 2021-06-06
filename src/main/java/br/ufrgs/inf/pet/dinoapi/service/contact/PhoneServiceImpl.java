@@ -169,6 +169,13 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
         this.internalDelete(model, fakeAuth);
     }
 
+    public void deleteAllByUser(List<SynchronizableDeleteModel<Long>> models, User user) throws AuthNullException {
+        final Auth fakeAuth = new Auth();
+        fakeAuth.setUser(user);
+
+        this.internalDeleteAll(models, fakeAuth);
+    }
+
     public List<Phone> findAllByContactId(Long contactId) {
         return repository.findAllByContactId(contactId);
     }

@@ -41,19 +41,27 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
         this.phoneService = phoneService;
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void createUsersPhones(EssentialPhone entity) {
         try {
             final Optional<EssentialContact> essentialContactSearch = essentialContactService.findById(entity.getEssentialContact().getId());
 
-            essentialContactSearch.ifPresent(essentialContact -> this.createPhones(entity, essentialContact));
+            essentialContactSearch.ifPresent(essentialContact -> {
+                final List<Contact> contacts = contactService.findAllByEssentialContact(essentialContact);
+                this.createPhones(entity, contacts);
+            });
         } catch (Exception e) {
             this.logAPIError(e);
         }
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void updateUsersPhones(EssentialPhone entity) {
+        final List<Contact> contactsWithoutPhone = contactService.findAllWhichShouldHaveEssentialPhoneButDoesnt(entity);
+        if (contactsWithoutPhone.size() > 0) {
+            this.createPhones(entity, contactsWithoutPhone);
+        }
+
         final List<Phone> phones = phoneService.findAllByEssentialPhone(entity);
         for (Phone phone : phones) {
             try {
@@ -67,7 +75,7 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
         }
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void deleteUsersPhones(List<Phone> phones) {
         for (Phone phone : phones) {
             try {
@@ -85,9 +93,7 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
         }
     }
 
-    private void createPhones(EssentialPhone essentialPhone, EssentialContact essentialContact) {
-        final List<Contact> contacts = contactService.findAllByEssentialContact(essentialContact);
-
+    private void createPhones(EssentialPhone essentialPhone, List<Contact> contacts) {
         for (Contact contact : contacts) {
             try {
                 final User user = contact.getUser();

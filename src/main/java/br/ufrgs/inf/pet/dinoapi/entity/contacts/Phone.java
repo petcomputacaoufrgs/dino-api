@@ -1,6 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NUMBER_MAX;
 
@@ -15,6 +17,7 @@ public class Phone extends SynchronizableEntity<Long> {
 
     @ManyToOne
     @JoinColumn(name = "contact_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Contact contact;
 
     @ManyToOne(fetch = FetchType.LAZY)

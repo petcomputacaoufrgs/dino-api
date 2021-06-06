@@ -22,14 +22,14 @@ public class AsyncContactService extends LogUtilsBase {
         this.googleContactService = googleContactService;
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void createContactOnGoogleAPI(Contact entity, Auth auth) {
         final User user = auth.getUser();
 
         googleContactService.createNewGoogleContact(entity, user);
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void updateContactOnGoogleAPI(Contact entity, Auth auth) {
         final User user = auth.getUser();
 
@@ -42,7 +42,7 @@ public class AsyncContactService extends LogUtilsBase {
         }
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void deleteContactOnGoogleAPI(String resourceName, Auth auth) {
         final User user = auth.getUser();
         final boolean hasUserPermission = user.getPermission().equals(PermissionEnum.USER.getValue());

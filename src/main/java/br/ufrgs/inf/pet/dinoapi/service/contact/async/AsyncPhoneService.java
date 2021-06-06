@@ -37,7 +37,7 @@ public class AsyncPhoneService extends LogUtilsBase {
         this.googleScopeService = googleScopeService;
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void updateGoogleContactPhones(User user, Phone phone) {
         if (googleScopeService.hasGoogleContactScope(user)) {
             final Contact contact = phone.getContact();

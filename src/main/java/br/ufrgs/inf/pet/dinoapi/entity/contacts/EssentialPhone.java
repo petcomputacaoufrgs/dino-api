@@ -19,9 +19,6 @@ public class EssentialPhone extends SynchronizableEntity<Long> {
     @JoinColumn(name = "essential_contact_id")
     private EssentialContact essentialContact;
 
-    @OneToMany(mappedBy = "essentialPhone", fetch = FetchType.LAZY)
-    private List<Phone> phones;
-
     public short getType() {
         return type;
     }
@@ -44,9 +41,5 @@ public class EssentialPhone extends SynchronizableEntity<Long> {
 
     public void setEssentialContact(EssentialContact essentialContact) {
         this.essentialContact = essentialContact;
-    }
-
-    public List<Phone> getPhones() {
-        return phones;
     }
 }

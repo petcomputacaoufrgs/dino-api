@@ -15,6 +15,6 @@ public interface EssentialPhoneRepository extends CrudRepository<EssentialPhone,
     @Query("SELECT ep FROM EssentialPhone ep WHERE ep.id IN :ids")
     List<EssentialPhone> findAllById(@Param("ids") List<Long> ids);
 
-    @Query("SELECT ec FROM EssentialContact ec WHERE ec.id NOT IN :ids")
+    @Query("SELECT ep FROM EssentialPhone ep WHERE ep.id NOT IN :ids")
     List<EssentialPhone> findAllExcludingIds(@Param("ids") List<Long> ids);
 }

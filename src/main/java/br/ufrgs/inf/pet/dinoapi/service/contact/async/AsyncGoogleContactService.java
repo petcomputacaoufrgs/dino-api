@@ -28,7 +28,7 @@ public class AsyncGoogleContactService extends LogUtilsBase {
         this.googleContactService = googleContactService;
     }
 
-    @Async("contactsThreadPool")
+    @Async("contactThreadPoolTaskExecutor")
     public void updateUserGoogleContacts(User user) {
         try {
             final List<Contact> contacts = contactRepository.findAllByUserOrderById(user.getId());

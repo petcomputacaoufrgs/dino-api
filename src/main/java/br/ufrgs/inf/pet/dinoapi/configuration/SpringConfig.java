@@ -90,13 +90,24 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         return source;
     }
 
+    @Bean(name = "contactThreadPoolTaskExecutor")
+    public Executor contactThreadPoolTaskExecutor() {
+        final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setMaxPoolSize(Integer.MAX_VALUE);
+        executor.setQueueCapacity(Integer.MAX_VALUE);
+        executor.setThreadNamePrefix("dino-api-contact-thread-");
+        executor.initialize();
+        return executor;
+    }
+
     @Bean(name = "defaultThreadPoolTaskExecutor")
-    public Executor threadPoolTaskExecutor() {
+    public Executor defaultThreadPoolTaskExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(8);
         executor.setMaxPoolSize(8);
         executor.setQueueCapacity(Integer.MAX_VALUE);
-        executor.setThreadNamePrefix("dino-api-thread-");
+        executor.setThreadNamePrefix("dino-api-default-thread-");
         executor.initialize();
         return executor;
     }
