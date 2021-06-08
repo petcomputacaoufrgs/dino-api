@@ -54,8 +54,8 @@ public class SynchronizableControllerIntegrationTest {
     @Autowired
     private GlossaryControllerImpl glossaryController;
 
-    static final String SAVE_PATH = "/public/glossary/save/";
-    static final String GET_PATH = "/public/glossary/get/";
+    static final String SAVE_PATH = "/private/glossary/save/";
+    static final String GET_PATH = "/private/glossary/get/";
 
     private void saveItem(GlossaryItemDataModel model) throws Exception {
         final ResponseEntity<SynchronizableDataResponseModelImpl<Long, GlossaryItemDataModel>> result = glossaryController.save(model);

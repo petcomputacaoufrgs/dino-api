@@ -8,8 +8,10 @@ import br.ufrgs.inf.pet.dinoapi.service.note.NoteServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.NOTE;
+
 @RestController
-@RequestMapping("/user/note/")
+@RequestMapping(NOTE)
 public class NoteControllerImpl extends SynchronizableControllerImpl<
         Note, Long, NoteDataModel, NoteRepository, NoteServiceImpl> {
 

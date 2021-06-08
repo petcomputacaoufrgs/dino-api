@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.STAFF;
+
 @RestController
-@RequestMapping("/admin/staff/")
+@RequestMapping(STAFF)
 public class StaffControllerImpl extends SynchronizableControllerImpl<
         Staff, Long, StaffDataModel, StaffRepository, StaffServiceImpl> {
 

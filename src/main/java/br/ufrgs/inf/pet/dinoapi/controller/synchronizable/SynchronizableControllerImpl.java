@@ -12,6 +12,8 @@ import javax.validation.Valid;
 import java.io.Serializable;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.*;
+
 /**
  * Base Controller with get, getAll, save/update and delete for synchronizable entity
  *
@@ -36,48 +38,48 @@ public abstract class SynchronizableControllerImpl<
     }
 
     @Override
-    @GetMapping("get/")
+    @GetMapping(GET)
     public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> get(
             @Valid @RequestBody SynchronizableGetModel<ID> model) {
         return service.get(model);
     }
 
     @Override
-    @PostMapping("save/")
+    @PostMapping(SAVE)
     public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> save(
             @Valid @RequestBody DATA_MODEL model) {
         return service.save(model);
     }
 
     @Override
-    @DeleteMapping("delete/")
+    @DeleteMapping(DELETE)
     public ResponseEntity<SynchronizableDataResponseModelImpl<ID, DATA_MODEL>> delete(
             @Valid @RequestBody SynchronizableDeleteModel<ID> model) {
         return service.delete(model);
     }
 
     @Override
-    @GetMapping("get/all/")
+    @GetMapping(GET_ALL)
     public ResponseEntity<SynchronizableListDataResponseModelImpl<ID, DATA_MODEL>> getAll() {
         return service.getAll();
     }
 
     @Override
-    @PostMapping("save/all/")
+    @PostMapping(SAVE_ALL)
     public ResponseEntity<SynchronizableSaveAllResponseModel<ID, DATA_MODEL>>
     saveAll(@Valid @RequestBody SynchronizableSaveAllModel<ID, DATA_MODEL> model) {
         return service.saveAll(model);
     }
 
     @Override
-    @DeleteMapping("delete/all/")
+    @DeleteMapping(DELETE_ALL)
     public  ResponseEntity<SynchronizableGenericDataResponseModelImpl<List<ID>>>
     deleteAll(@Valid @RequestBody SynchronizableDeleteAllListModel<ID> model) {
         return service.deleteAll(model);
     }
 
     @Override
-    @PutMapping("sync/")
+    @PutMapping(SYNC)
     public ResponseEntity<SynchronizableSyncResponseModel<ID, DATA_MODEL>>
     sync(@Valid @RequestBody SynchronizableSaveSyncModel<ID, DATA_MODEL> model){
         return service.sync(model);

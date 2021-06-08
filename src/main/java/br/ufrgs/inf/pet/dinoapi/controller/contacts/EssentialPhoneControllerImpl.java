@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.ESSENTIAL_PHONE;
+
 @RestController
-@RequestMapping("/private/essential_phone/")
+@RequestMapping(ESSENTIAL_PHONE)
 public class EssentialPhoneControllerImpl extends SynchronizableControllerImpl<
         EssentialPhone, Long, EssentialPhoneDataModel, EssentialPhoneRepository, EssentialPhoneServiceImpl> {
 
