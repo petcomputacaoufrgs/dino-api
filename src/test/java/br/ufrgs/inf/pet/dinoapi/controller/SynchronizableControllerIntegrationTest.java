@@ -27,6 +27,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.ArrayList;
 import java.util.List;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.*;
 import static br.ufrgs.inf.pet.dinoapi.utils.PatternUtils.*;
 import static br.ufrgs.inf.pet.dinoapi.utils.PatternUtils.generateSyncExistsPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -54,9 +55,6 @@ public class SynchronizableControllerIntegrationTest {
     @Autowired
     private GlossaryControllerImpl glossaryController;
 
-    static final String SAVE_PATH = "/private/glossary/save/";
-    static final String GET_PATH = "/private/glossary/get/";
-
     private void saveItem(GlossaryItemDataModel model) throws Exception {
         final ResponseEntity<SynchronizableDataResponseModelImpl<Long, GlossaryItemDataModel>> result = glossaryController.save(model);
         if (result.getBody() != null && result.getBody().getData() != null && result.getBody().getData().getId() != null) {
@@ -83,7 +81,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -117,7 +115,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModelTwo = new SynchronizableGetModel<>();
         getModelTwo.setId(saveModelTwo.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModelOne, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -126,7 +124,7 @@ public class SynchronizableControllerIntegrationTest {
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath(generateExistsPattern(saveModelOne, true)).isNotEmpty());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModelTwo, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -160,7 +158,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModelTwo = new SynchronizableGetModel<>();
         getModelTwo.setId(saveModelTwo.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModelTwo, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -169,7 +167,7 @@ public class SynchronizableControllerIntegrationTest {
                 .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
                 .andExpect(jsonPath(generateExistsPattern(saveModelTwo, true)).isNotEmpty());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModelOne, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -186,7 +184,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModelOne = new SynchronizableGetModel<>();
         getModelOne.setId(99999999999999999L);
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModelOne, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -203,7 +201,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModelOne = new SynchronizableGetModel<>();
         getModelOne.setId(null);
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModelOne, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -223,7 +221,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -247,7 +245,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -271,7 +269,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -295,7 +293,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -319,7 +317,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -481,7 +479,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -494,7 +492,7 @@ public class SynchronizableControllerIntegrationTest {
         getModel.setId(updateModel.getId());
 
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -524,7 +522,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -536,7 +534,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -566,7 +564,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -578,7 +576,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -610,7 +608,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -622,7 +620,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -652,7 +650,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -664,7 +662,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -694,7 +692,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -706,7 +704,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -736,7 +734,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -748,7 +746,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -778,7 +776,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime().minusDays(1));
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -790,7 +788,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -820,7 +818,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(saveModel.getLastUpdate());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -832,7 +830,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -862,7 +860,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusSeconds(1));
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -874,7 +872,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -904,7 +902,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusMinutes(1));
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -916,7 +914,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -946,7 +944,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusHours(1));
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -958,7 +956,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -988,7 +986,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusDays(1));
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1000,7 +998,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1030,7 +1028,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusWeeks(1));
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1042,7 +1040,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1072,7 +1070,7 @@ public class SynchronizableControllerIntegrationTest {
         updateModel.setLastUpdate(saveModel.getLastUpdate().plusYears(1));
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1084,7 +1082,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(updateModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1128,7 +1126,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1172,7 +1170,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1216,7 +1214,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1254,7 +1252,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1291,7 +1289,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1329,7 +1327,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1374,7 +1372,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1412,7 +1410,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1450,7 +1448,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1488,7 +1486,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1526,7 +1524,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1540,7 +1538,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -1586,7 +1584,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1630,7 +1628,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1673,7 +1671,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1716,7 +1714,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableSaveAllModel<Long, GlossaryItemDataModel> saveModel = new SynchronizableSaveAllModel<>();
         saveModel.setData(data);
 
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1762,7 +1760,7 @@ public class SynchronizableControllerIntegrationTest {
         saveModel.setData(data);
 
         modelTwo.setId(modelOne.getId());
-        mvc.perform(post("/public/glossary/save/all/")
+        mvc.perform(post(GLOSSARY + SAVE_ALL)
                 .content(JsonUtils.convertToJson(saveModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -1796,7 +1794,7 @@ public class SynchronizableControllerIntegrationTest {
 
         this.saveItem(saveModelTwo);
 
-        mvc.perform(get("/public/glossary/get/all/"))
+        mvc.perform(get(GLOSSARY + GET_ALL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
@@ -1810,7 +1808,7 @@ public class SynchronizableControllerIntegrationTest {
 
     @Test
     public void getAllWithZeroItems() throws Exception {
-        mvc.perform(get("/public/glossary/get/all/"))
+        mvc.perform(get(GLOSSARY + GET_ALL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
@@ -1867,7 +1865,7 @@ public class SynchronizableControllerIntegrationTest {
 
         this.saveItem(saveModelFive);
 
-        mvc.perform(get("/public/glossary/get/all/"))
+        mvc.perform(get(GLOSSARY + GET_ALL))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.success").value("true"))
                 .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
@@ -1959,7 +1957,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -2048,7 +2046,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -2136,7 +2134,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -2183,7 +2181,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -2223,7 +2221,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -2261,7 +2259,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -2281,7 +2279,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -2349,7 +2347,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -2428,7 +2426,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -2500,7 +2498,7 @@ public class SynchronizableControllerIntegrationTest {
         final SynchronizableDeleteAllListModel<Long> model = new SynchronizableDeleteAllListModel<>();
         model.setData(data);
 
-        mvc.perform(delete("/public/glossary/delete/all/")
+        mvc.perform(delete(GLOSSARY + DELETE_ALL)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())

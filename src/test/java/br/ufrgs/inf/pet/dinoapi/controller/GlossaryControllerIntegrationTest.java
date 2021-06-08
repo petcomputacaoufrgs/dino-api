@@ -24,6 +24,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.*;
 import static br.ufrgs.inf.pet.dinoapi.utils.PatternUtils.generateExistsPattern;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -48,9 +49,6 @@ public class GlossaryControllerIntegrationTest {
     @Autowired
     private GlossaryControllerImpl glossaryController;
 
-    static final String SAVE_PATH = "/public/glossary/save/";
-    static final String GET_PATH = "/public/glossary/get/";
-
     private void saveItem(GlossaryItemDataModel model) throws Exception {
         final ResponseEntity<SynchronizableDataResponseModelImpl<Long, GlossaryItemDataModel>> result = glossaryController.save(model);
         if (result.getBody() != null && result.getBody().getData() != null && result.getBody().getData().getId() != null) {
@@ -71,7 +69,7 @@ public class GlossaryControllerIntegrationTest {
         model.setText("M".repeat(GlossaryConstants.TEXT_MAX));
         model.setFullText("M".repeat(GlossaryConstants.FULLTEXT_MAX));
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -91,7 +89,7 @@ public class GlossaryControllerIntegrationTest {
         model.setText("Mock text");
         model.setFullText("Mock fulltext");
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -105,7 +103,7 @@ public class GlossaryControllerIntegrationTest {
         model.setSubtitle("Mock subtitle");
         model.setText("Mock text");
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -123,7 +121,7 @@ public class GlossaryControllerIntegrationTest {
         model.setFullText("Mock full text");
         model.setText("Mock text");
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -141,7 +139,7 @@ public class GlossaryControllerIntegrationTest {
         model.setFullText("Mock full text");
         model.setSubtitle("Mock subtitle");
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -155,7 +153,7 @@ public class GlossaryControllerIntegrationTest {
         model.setFullText("Mock full text");
         model.setSubtitle("Mock subtitle");
         model.setText("Mock text");
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -171,7 +169,7 @@ public class GlossaryControllerIntegrationTest {
         model.setFullText("Mock full text");
         model.setSubtitle("Mock subtitle");
         model.setText("Mock text");
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -185,7 +183,7 @@ public class GlossaryControllerIntegrationTest {
         model.setFullText("Mock full text");
         model.setSubtitle("Mock subtitle");
         model.setText(" ");
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -202,7 +200,7 @@ public class GlossaryControllerIntegrationTest {
         model.setSubtitle("Mock subtitle");
         model.setText("Mock text");
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -217,7 +215,7 @@ public class GlossaryControllerIntegrationTest {
         model.setSubtitle("Mock subtitle");
         model.setText("M".repeat(GlossaryConstants.TEXT_MAX + 1));
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -232,7 +230,7 @@ public class GlossaryControllerIntegrationTest {
         model.setSubtitle("M".repeat(GlossaryConstants.SUBTITLE_MAX + 1));
         model.setText("Mock text");
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -247,7 +245,7 @@ public class GlossaryControllerIntegrationTest {
         model.setText("Mock text");
         model.setFullText("M".repeat(GlossaryConstants.FULLTEXT_MAX + 1));
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest());
@@ -264,7 +262,7 @@ public class GlossaryControllerIntegrationTest {
         model.setText("Mock text");
         model.setFullText(null);
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -295,7 +293,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("Mock text updated");
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime());
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -308,7 +306,7 @@ public class GlossaryControllerIntegrationTest {
         getModel.setId(saveModel.getId());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + GET)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -337,7 +335,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("Mock text updated");
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime().plusMonths(1));
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -350,7 +348,7 @@ public class GlossaryControllerIntegrationTest {
         getModel.setId(saveModel.getId());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + GET)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -379,7 +377,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setFullText(null);
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime().plusMonths(1));
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -392,7 +390,7 @@ public class GlossaryControllerIntegrationTest {
         getModel.setId(saveModel.getId());
         updateModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + GET)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -421,7 +419,7 @@ public class GlossaryControllerIntegrationTest {
         updateModel.setText("Mock text updated");
         updateModel.setLastUpdate(clockService.getUTCZonedDateTime().minusDays(1));
 
-        mvc.perform(post(SAVE_PATH)
+        mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(updateModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -433,7 +431,7 @@ public class GlossaryControllerIntegrationTest {
         final SynchronizableGetModel<Long> getModel = new SynchronizableGetModel<>();
         getModel.setId(saveModel.getId());
 
-        mvc.perform(get(GET_PATH)
+        mvc.perform(get(GLOSSARY + GET)
                 .content(JsonUtils.convertToJson(getModel, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
