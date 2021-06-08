@@ -196,13 +196,13 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
                 .findWhoCanHaveEssentialContacts(treatments, PermissionEnum.USER.getValue());
     }
 
-    public List<User> findWhoCanHaveEssentialContactsButDontHave
+    public List<User> findWhoCanHaveEssentialContactsButDoesnt
             (List<Treatment> treatments, EssentialContact essentialContact) {
         return this.repository.findWhoCanHaveEssentialContactsButDontHave(treatments, essentialContact,
                 PermissionEnum.USER.getValue());
     }
 
-    public List<User> findWhoCanHaveEssentialContactsButDontHave(EssentialContact essentialContact) {
+    public List<User> findWhoCanHaveEssentialContactsButDoesnt(EssentialContact essentialContact) {
         return this.repository.findWhoCanHaveEssentialContactsButDontHave(essentialContact,
                 PermissionEnum.USER.getValue());
     }

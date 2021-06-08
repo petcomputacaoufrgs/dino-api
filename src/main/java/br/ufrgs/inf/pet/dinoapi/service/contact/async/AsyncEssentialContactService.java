@@ -65,9 +65,9 @@ public class AsyncEssentialContactService extends LogUtilsBase {
 
         List<User> users;
         if (contactTreatments.size() > 0) {
-            users = userService.findWhoCanHaveEssentialContactsButDontHave(contactTreatments, entity);
+            users = userService.findWhoCanHaveEssentialContactsButDoesnt(contactTreatments, entity);
         } else {
-            users = userService.findWhoCanHaveEssentialContactsButDontHave(entity);
+            users = userService.findWhoCanHaveEssentialContactsButDoesnt(entity);
         }
 
         if (users.size() > 0) {
