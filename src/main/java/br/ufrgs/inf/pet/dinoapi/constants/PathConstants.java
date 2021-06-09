@@ -9,8 +9,11 @@ public final class PathConstants {
     public final static String DELETE_ALL = DELETE + "all/";
     public final static String SYNC = "sync/";
 
+    // td autenticado AUTH
     public final static String ROUTE_PRIVATE = "/private/";
+    // staff n pode CLIENT
     public final static String ROUTE_USER = "/user/";
+    // só admin
     public final static String ROUTE_ADMIN = "/admin/";
 
     public final static String GLOSSARY =           ROUTE_PRIVATE + "glossary/";

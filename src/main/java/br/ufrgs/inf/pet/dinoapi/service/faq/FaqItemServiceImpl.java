@@ -49,20 +49,20 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
         final FaqItemDataModel model = new FaqItemDataModel();
         model.setAnswer(entity.getAnswer());
         model.setQuestion(entity.getQuestion());
-        model.setTreatmentId(entity.getId());
+        model.setTreatmentId(entity.getTreatment().getId());
 
         return model;
     }
 
     @Override
     public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-        final Optional<Treatment> faq = treatmentService.getEntityById(model.getTreatmentId());
+        final Optional<Treatment> treatment = treatmentService.getEntityById(model.getTreatmentId());
 
-        if (faq.isPresent()) {
+        if (treatment.isPresent()) {
             final FaqItem entity = new FaqItem();
             entity.setQuestion(model.getQuestion());
             entity.setAnswer(model.getAnswer());
-            entity.setTreatment(faq.get());
+            entity.setTreatment(treatment.get());
 
             return entity;
         } else {
