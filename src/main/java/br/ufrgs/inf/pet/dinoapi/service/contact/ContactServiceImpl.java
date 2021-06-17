@@ -69,13 +69,12 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
             entity.setUser(auth.getUser());
 
             if (model.getEssentialContactId() != null) {
-                final Optional<EssentialContact> eContactSearch = essentialContactRepository.findById(model.getEssentialContactId());
-                eContactSearch.ifPresent(entity::setEssentialContact);
+                essentialContactRepository
+                        .findById(model.getEssentialContactId())
+                        .ifPresent(entity::setEssentialContact);
             }
             return entity;
-        } else {
-            throw new AuthNullException();
-        }
+        } else throw new AuthNullException();
     }
 
     @Override
@@ -84,9 +83,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
             entity.setName(model.getName());
             entity.setDescription(model.getDescription());
             entity.setColor(model.getColor());
-        } else {
-            throw new AuthNullException();
-        }
+        } else throw new AuthNullException();
     }
 
     @Override
@@ -169,7 +166,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         return this.repository.findAllByEssentialContactId(essentialContact.getId());
     }
 
-    public List<Contact> findAllWhichShouldHaveEssentialPhoneButDoesnt(EssentialPhone essentialPhone) {
+    public List<Contact> findAllWhichShouldHaveEssentialPhoneButDont(EssentialPhone essentialPhone) {
         final EssentialContact essentialContact = essentialPhone.getEssentialContact();
         return this.repository.findAllWhichShouldHaveEssentialPhoneButDoesnt(essentialContact, essentialPhone);
     }

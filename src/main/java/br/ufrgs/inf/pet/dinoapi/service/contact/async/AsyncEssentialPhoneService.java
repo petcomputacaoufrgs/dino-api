@@ -57,7 +57,7 @@ public class AsyncEssentialPhoneService extends LogUtilsBase {
 
     @Async("contactThreadPoolTaskExecutor")
     public void updateUsersPhones(EssentialPhone entity) {
-        final List<Contact> contactsWithoutPhone = contactService.findAllWhichShouldHaveEssentialPhoneButDoesnt(entity);
+        final List<Contact> contactsWithoutPhone = contactService.findAllWhichShouldHaveEssentialPhoneButDont(entity);
         if (contactsWithoutPhone.size() > 0) {
             this.createPhones(entity, contactsWithoutPhone);
         }

@@ -10,8 +10,6 @@ public final class FaqConstants {
     public final static String QUESTION_SIZE_MESSAGE = "question should be between " + QUESTION_MIN + " and " + QUESTION_MAX;
     public final static String QUESTION_NULL_MESSAGE = "question should not be null.";
 
-    public final static int TREATMENT_USER_QUESTION_MAX = 200;
-
     public final static int ANSWER_MIN = 1;
     public final static int ANSWER_MAX = 1000;
     public final static String ANSWER_MESSAGE = "answer should be between " + ANSWER_MIN + " and " + ANSWER_MAX;

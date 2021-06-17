@@ -258,7 +258,9 @@ public abstract class SynchronizableServiceImpl<
         try {
             final Auth auth = authService.getCurrentAuth();
             final boolean hasEditPermission = this.hasEditPermission(auth);
-            final List<DATA_MODEL> data = hasEditPermission ? this.syncWithEdit(auth, model) : this.syncWithoutEdit(auth);
+            final List<DATA_MODEL> data = hasEditPermission
+                    ? this.syncWithEdit(auth, model)
+                    : this.syncWithoutEdit(auth);
             response.setData(data);
             response.setSuccess(true);
             return this.createResponse(response);

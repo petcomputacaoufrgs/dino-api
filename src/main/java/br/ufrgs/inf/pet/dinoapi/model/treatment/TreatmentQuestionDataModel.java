@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.model.treatment;
 
+import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 
 import javax.validation.constraints.NotNull;
@@ -12,7 +13,7 @@ public class TreatmentQuestionDataModel extends SynchronizableDataLocalIdModel<L
     private Long treatmentId;
 
     @NotNull(message = QUESTION_NULL_MESSAGE)
-    @Size(min = 1, max = TREATMENT_USER_QUESTION_MAX, message = QUESTION_SIZE_MESSAGE)
+    @Size(min = 1, max = FaqConstants.QUESTION_MAX, message = QUESTION_SIZE_MESSAGE)
     private String question;
 
     public TreatmentQuestionDataModel() {
