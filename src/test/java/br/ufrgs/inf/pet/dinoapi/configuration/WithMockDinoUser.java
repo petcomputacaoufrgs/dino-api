@@ -5,8 +5,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
 import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.security.DinoGrantedAuthority;
-import br.ufrgs.inf.pet.dinoapi.security.DinoUserDetails;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -24,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Retention(RetentionPolicy.RUNTIME)
-@WithSecurityContext(factory = WithAdminSecurityContextFactory.class)
+@WithSecurityContext(factory = WithDinoSecurityContextFactory.class)
 public @interface WithMockDinoUser {
     String email();
 
@@ -35,11 +33,11 @@ public @interface WithMockDinoUser {
     boolean firstSettingsDone() default true;
 }
 
-final class WithAdminSecurityContextFactory implements WithSecurityContextFactory<WithMockDinoUser> {
+final class WithDinoSecurityContextFactory implements WithSecurityContextFactory<WithMockDinoUser> {
     private final BeanFactory beans;
 
     @Autowired
-    public WithAdminSecurityContextFactory(BeanFactory beans) {
+    public WithDinoSecurityContextFactory(BeanFactory beans) {
         this.beans = beans;
     }
 
