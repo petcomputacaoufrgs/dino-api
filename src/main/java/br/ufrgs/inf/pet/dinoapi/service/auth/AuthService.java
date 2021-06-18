@@ -5,7 +5,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.auth.AuthRefreshRequestModel;
 import br.ufrgs.inf.pet.dinoapi.model.auth.web_socket.WebSocketAuthResponseModel;
 import br.ufrgs.inf.pet.dinoapi.security.DinoCredentials;
-import br.ufrgs.inf.pet.dinoapi.security.DinoUser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.jsonwebtoken.Claims;
 import org.springframework.http.ResponseEntity;

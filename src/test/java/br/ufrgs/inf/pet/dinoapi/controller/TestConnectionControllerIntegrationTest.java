@@ -25,7 +25,7 @@ public class TestConnectionControllerIntegrationTest {
     private MockMvc mvc;
 
     @Test
-    @WithUserDetails("basicuser@dinoapp.com")
+    @WithUserDetails("user@dinoapp.com")
     public void isApplicationConnected() throws Exception {
         mvc.perform(
                 get("/public/test_connection/")

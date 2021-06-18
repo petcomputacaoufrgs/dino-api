@@ -32,12 +32,12 @@ public class DinoUserDetailsService implements UserDetailsService {
     }
 
     @Override
-    public DinoUser loadUserByUsername(String email) throws UsernameNotFoundException {
+    public DinoUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         final User user = userService.findUserByEmail(email);
 
         if (user != null) {
             final DinoGrantedAuthority dinoAuthority = new DinoGrantedAuthority(user.getPermission());
-            return new DinoUser(user, Collections.singletonList(dinoAuthority));
+            return new DinoUserDetails(user, Collections.singletonList(dinoAuthority));
         }
 
         throw new UsernameNotFoundException(AuthConstants.INVALID_EMAIL + ": " + email);

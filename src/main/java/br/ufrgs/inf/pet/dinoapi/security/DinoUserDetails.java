@@ -5,12 +5,12 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.List;
 
-public class DinoUser implements UserDetails {
+public class DinoUserDetails implements UserDetails {
     private final List<GrantedAuthority> authorities;
 
     private final User user;
 
-    public DinoUser(User user, List<GrantedAuthority> authorities) {
+    public DinoUserDetails(User user, List<GrantedAuthority> authorities) {
         this.user = user;
         this.authorities = authorities;
     }

@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.controller;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.SpringTestConfig;
+import br.ufrgs.inf.pet.dinoapi.configuration.WithMockDinoUser;
 import br.ufrgs.inf.pet.dinoapi.constants.GlossaryConstants;
 import br.ufrgs.inf.pet.dinoapi.controller.glossary.GlossaryControllerImpl;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemDataModel;
@@ -9,7 +10,9 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.response.SynchronizableData
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonMapperUtils;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
+import br.ufrgs.inf.pet.dinoapi.utils.MvcResultUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.lang.Assert;
 import org.hamcrest.core.IsNull;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,6 +26,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.*;
 import static br.ufrgs.inf.pet.dinoapi.utils.PatternUtils.generateExistsPattern;
@@ -30,15 +34,19 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
+final class GlossaryDataModel extends SynchronizableDataResponseModelImpl<Long, GlossaryItemDataModel> { }
+
 @RunWith(SpringRunner.class)
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         classes = SpringTestConfig.class
 )
-@TestPropertySource(locations="classpath:test.properties")
 @AutoConfigureMockMvc
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@TestPropertySource(locations="classpath:test.properties")
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@WithMockDinoUser(email = "admin@dinoapp.com")
 public class GlossaryControllerIntegrationTest {
     @Autowired
     private MockMvc mvc;
@@ -69,14 +77,23 @@ public class GlossaryControllerIntegrationTest {
         model.setText("M".repeat(GlossaryConstants.TEXT_MAX));
         model.setFullText("M".repeat(GlossaryConstants.FULLTEXT_MAX));
         model.setLastUpdate(clockService.getUTCZonedDateTime());
-        mvc.perform(post(GLOSSARY + SAVE)
+        final MvcResult result = mvc.perform(post(GLOSSARY + SAVE)
                 .content(JsonUtils.convertToJson(model, mapper))
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.success").value("true"))
-                .andExpect(jsonPath("$.error").value(IsNull.nullValue()))
-                .andExpect(jsonPath("$.errorCode").value(IsNull.nullValue()))
-                .andExpect(jsonPath(generateExistsPattern(model)).isNotEmpty());
+                .andExpect(status().isOk()).andReturn();
+
+        final GlossaryDataModel response = MvcResultUtils.getResponseBodyFromResult(result, GlossaryDataModel.class);
+
+        Assert.isTrue(response.isSuccess());
+        Assert.isNull(response.getError());
+
+        GlossaryItemDataModel resultModel = response.getData();
+
+        Assert.isTrue(resultModel.getFullText().equals(model.getFullText()));
+        Assert.isTrue(resultModel.getSubtitle().equals(model.getSubtitle()));
+        Assert.isTrue(resultModel.getText().equals(model.getText()));
+        Assert.isTrue(resultModel.getTitle().equals(model.getTitle()));
+        Assert.isTrue(resultModel.getLastUpdate().equals(model.getLastUpdate()));
     }
 
     // SAVE: ATTRIBUTES NULL VALUES ------------------------------------------------------------------------------------
