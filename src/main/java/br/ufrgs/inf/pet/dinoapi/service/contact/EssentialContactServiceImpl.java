@@ -143,6 +143,6 @@ public class EssentialContactServiceImpl extends
         if (treatmentIds != null && treatmentIds.size() != 0) {
             final List<Treatment> treatmentSearch = treatmentRepository.findAllByIds(treatmentIds);
             entity.setTreatments(treatmentSearch);
-        }
+        } else entity.setTreatments(new ArrayList<>());
     }
 }

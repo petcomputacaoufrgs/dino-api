@@ -27,7 +27,7 @@ public class AsyncUserSettingsService extends LogUtilsBase {
         this.clockService = clockService;
     }
 
-    @Async("threadPool")
+    @Async("defaultThreadPoolTaskExecutor")
     public void removeUserSettingsTreatments(List<UserSettings> userSettingsList) {
         userSettingsList.forEach(settings -> {
             final UserSettingsDataModel model = userSettingsService.convertEntityToModel(settings);
