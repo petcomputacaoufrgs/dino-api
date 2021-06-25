@@ -5,21 +5,19 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
-import br.ufrgs.inf.pet.dinoapi.enumerable.ColorThemeEnum;
-import br.ufrgs.inf.pet.dinoapi.enumerable.FontSizeEnum;
-import br.ufrgs.inf.pet.dinoapi.enumerable.IntEnumInterface;
-import br.ufrgs.inf.pet.dinoapi.enumerable.LanguageEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.*;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
+import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.util.Arrays;
@@ -28,14 +26,17 @@ import java.util.Optional;
 
 @Service
 public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, UserSettingsDataModel, UserSettingsRepository> {
-    private final TreatmentServiceImpl treatmentService;
+    private final TreatmentRepository treatmentRepository;
+    private final AsyncGoogleContactService asyncGoogleContactService;
 
     @Autowired
-    public UserSettingsServiceImpl(UserSettingsRepository repository, OAuthServiceImpl authService, TreatmentServiceImpl treatmentService,
+    public UserSettingsServiceImpl(UserSettingsRepository repository, AuthServiceImpl authService,
                                    SynchronizableQueueMessageService<Long, UserSettingsDataModel> synchronizableQueueMessageService,
-                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService) {
+                                   ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                                   TreatmentRepository treatmentRepository, AsyncGoogleContactService asyncGoogleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
-        this.treatmentService = treatmentService;
+        this.treatmentRepository = treatmentRepository;
+        this.asyncGoogleContactService = asyncGoogleContactService;
     }
 
     @Override
@@ -47,7 +48,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setIncludeEssentialContact(entity.getIncludeEssentialContact());
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
-        model.setSettingsStep(entity.getSettingsStep());
+        model.setStep(entity.getStep());
         model.setParentsAreaPassword(entity.getParentsAreaPassword());
 
         if (entity.getTreatment() != null) {
@@ -67,7 +68,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         this.validSettings(model);
 
         if (model.getTreatmentId() != null) {
-            final Optional<Treatment> treatmentSearch = treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
+            final Optional<Treatment> treatmentSearch = treatmentRepository.findById(model.getTreatmentId());
 
             treatmentSearch.ifPresent(userSettings::setTreatment);
         }
@@ -75,13 +76,9 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setLanguage(model.getLanguage());
         userSettings.setColorTheme(model.getColorTheme());
         userSettings.setFontSize(model.getFontSize());
-        userSettings.setIncludeEssentialContact(model.getIncludeEssentialContact());
-        userSettings.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
         userSettings.setUser(auth.getUser());
-        userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
-        userSettings.setSettingsStep(model.getSettingsStep());
         userSettings.setParentsAreaPassword(model.getParentsAreaPassword());
-
+        modelToEntity(userSettings, model, auth);
         return userSettings;
     }
 
@@ -96,20 +93,35 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         if (model.getTreatmentId() != null) {
             if (entity.getTreatment() == null || !entity.getTreatment().getId().equals(model.getTreatmentId())) {
                 final Optional<Treatment> treatment =
-                        treatmentService.findEntityByIdThatUserCanRead(model.getTreatmentId(), auth);
+                        treatmentRepository.findById(model.getTreatmentId());
 
                 treatment.ifPresent(entity::setTreatment);
             }
+        } else {
+            entity.setTreatment(null);
         }
 
         entity.setColorTheme(model.getColorTheme());
         entity.setFontSize(model.getFontSize());
         entity.setLanguage(model.getLanguage());
         entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
-        entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+        modelToEntity(entity, model, auth);
+    }
+
+    private void modelToEntity(UserSettings entity, UserSettingsDataModel model, Auth auth) {
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
-        entity.setSettingsStep(model.getSettingsStep());
-        entity.setParentsAreaPassword(model.getParentsAreaPassword());
+        entity.setStep(model.getStep());
+
+        final String permission = auth.getUser().getPermission();
+        final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
+        if(hasUserPermission) {
+            final boolean acceptedGoogleContacts = entity.getDeclineGoogleContacts() && !model.getDeclineGoogleContacts();
+            entity.setShouldSyncGoogleContacts(acceptedGoogleContacts);
+            entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+            entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
+        } else {
+            entity.setDeclineGoogleContacts(true);
+        }
     }
 
     @Override
@@ -162,12 +174,31 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         return WebSocketDestinationsEnum.USER_SETTINGS;
     }
 
+    @Override
+    protected void afterDataUpdated(UserSettings entity, Auth auth) {
+        if (entity.shouldSyncGoogleContacts()) {
+            final User user = auth.getUser();
+            user.setUserAppSettings(entity);
+            entity.setShouldSyncGoogleContacts(false);
+            this.repository.save(entity);
+            asyncGoogleContactService.updateUserGoogleContacts(user);
+        }
+    }
+
     public UserSettings saveOnDatabase(UserSettings userSettings) {
         return this.repository.save(userSettings);
     }
 
     public UserSettingsDataModel createUserSettingsDataModel(UserSettings userSettings) {
         return this.completeConvertEntityToModel(userSettings);
+    }
+
+    public List<UserSettings> findAllByTreatment(Treatment treatment) {
+        return this.repository.findAllByTreatmentId(treatment.getId());
+    }
+
+    public void saveAllDirectly(List<UserSettings> userSettings) {
+        this.repository.saveAll(userSettings);
     }
 
     public boolean saveContactsOnGoogleAPI(User user) {
@@ -194,6 +225,6 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
             return false;
         }
 
-        return Arrays.stream(enumerables).noneMatch(enumerable -> selected == enumerable.getValue());
+        return Arrays.stream(enumerables).noneMatch(enumerable -> selected.equals(enumerable.getValue()));
     }
 }

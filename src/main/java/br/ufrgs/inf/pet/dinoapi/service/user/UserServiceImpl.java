@@ -1,23 +1,29 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
+import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.StaffServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.utils.Pair;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -26,11 +32,16 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> implements  UserService {
 
+    StaffServiceImpl staffService;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, OAuthServiceImpl authService,
+    public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                           @Lazy StaffServiceImpl staffService,
                            SynchronizableQueueMessageService<Long, UserDataModel> synchronizableQueueMessageService) {
         super(userRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
+
+        this.staffService = staffService;
     }
 
     @Override
@@ -39,6 +50,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         userDataModel.setEmail(entity.getEmail());
         userDataModel.setName(entity.getName());
         userDataModel.setPictureURL(entity.getPictureURL());
+        userDataModel.setPermission(entity.getPermission());
 
         return userDataModel;
     }
@@ -49,6 +61,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
             throw new AuthNullException();
         }
         final User user = auth.getUser();
+        user.setPermission(model.getPermission());
         user.setPictureURL(model.getPictureURL());
         return user;
     }
@@ -125,32 +138,34 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     }
 
     public User saveNew(String name, String email, String pictureUrl) {
-        User user = this.findUserByEmail(email);
+        User user = new User();
 
-        if (user == null) {
-            user = new User();
+        final Pair<PermissionEnum, Staff> result = this.getUserPermission(email);
+        final PermissionEnum permission = result.getFirst();
+        user.setPermission(permission.getValue());
+        user = this.saveUser(name, email, pictureUrl, user);
+
+        if (permission.equals(PermissionEnum.STAFF)) {
+            final Staff staff = result.getSecond();
+            staffService.updateStaffUser(staff, user);
         }
 
-        return this.saveUser(name, email, pictureUrl, user);
-    }
-
-    private User saveUser(String name, String email, String pictureUrl, User user) {
-        user.setPictureURL(pictureUrl);
-        user.setEmail(email);
-        user.setName(name);
-
-        return this.repository.save(user);
-    }
-
-    private void sendUpdateMessage(User user, Auth auth) {
-        final UserDataModel model = this.completeConvertEntityToModel(user);
-
-        this.sendUpdateMessage(model, auth);
+        return user;
     }
 
     public User findUserByEmail(String email) {
         if (email != null) {
             final Optional<User> queryResult = this.repository.findByEmail(email);
+            if (queryResult.isPresent()) {
+                return queryResult.get();
+            }
+        }
+        return null;
+    }
+
+    public User findUserById(Long id) {
+        if (id != null) {
+            final Optional<User> queryResult = this.repository.findById(id);
             if (queryResult.isPresent()) {
                 return queryResult.get();
             }
@@ -162,7 +177,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
     @Override
     public ResponseEntity<Boolean> deleteAccount() {
         try {
-            final User user = authService.getPrincipal().getUser();
+            final User user = authService.getCurrentAuth().getUser();
             this.repository.delete(user);
             return new ResponseEntity<>(true, HttpStatus.OK);
         } catch (Exception e) {
@@ -172,11 +187,50 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return new ResponseEntity<>(false, HttpStatus.OK);
     }
 
-    public List<User> findUserBySaveEssentialContacts() {
-        return this.repository.findUserBySaveEssentialContacts();
+    public List<User> findWhoCanHaveEssentialContacts() {
+        return this.repository.findWhoCanHaveEssentialContacts(PermissionEnum.USER.getValue());
     }
 
-    public List<User> findUserBySaveEssentialContactsAndTreatments(List<Treatment> treatments) {
-        return this.repository.findUserBySaveEssentialContactsAndTreatments(treatments);
+    public List<User> findWhoCanHaveEssentialContacts(List<Treatment> treatments) {
+        return this.repository
+                .findWhoCanHaveEssentialContacts(treatments, PermissionEnum.USER.getValue());
+    }
+
+    public List<User> findWhoCanHaveEssentialContactsButDoesnt
+            (List<Treatment> treatments, EssentialContact essentialContact) {
+        return this.repository.findWhoCanHaveEssentialContactsButDontHave(treatments, essentialContact,
+                PermissionEnum.USER.getValue());
+    }
+
+    public List<User> findWhoCanHaveEssentialContactsButDoesnt(EssentialContact essentialContact) {
+        return this.repository.findWhoCanHaveEssentialContactsButDontHave(essentialContact,
+                PermissionEnum.USER.getValue());
+    }
+
+
+    private User saveUser(String name, String email, String pictureUrl, User user) {
+        user.setPictureURL(pictureUrl);
+        user.setEmail(email);
+        user.setName(name);
+
+        return this.repository.save(user);
+    }
+
+    private Pair<PermissionEnum, Staff> getUserPermission(String email) {
+        final Staff staffSearch = staffService.findStaffByEmail(email);
+
+        if(staffSearch != null) {
+            return new Pair<>(PermissionEnum.STAFF, staffSearch);
+        } else if (email.equals(AuthConstants.ADMIN)) {
+            return new Pair<>(PermissionEnum.ADMIN, null);
+        } else {
+            return new Pair<>(PermissionEnum.USER, null);
+        }
+    }
+
+    private void sendUpdateMessage(User user, Auth auth) {
+        final UserDataModel model = this.completeConvertEntityToModel(user);
+
+        this.sendUpdateMessage(model, auth);
     }
 }

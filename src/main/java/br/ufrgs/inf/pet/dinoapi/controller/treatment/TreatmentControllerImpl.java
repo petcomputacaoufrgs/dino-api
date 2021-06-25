@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.TREATMENT;
+
 @RestController
-@RequestMapping("/public/treatment/")
+@RequestMapping(TREATMENT)
 public class TreatmentControllerImpl extends SynchronizableControllerImpl<
         Treatment, Long, TreatmentDataModel, TreatmentRepository, TreatmentServiceImpl> {
 

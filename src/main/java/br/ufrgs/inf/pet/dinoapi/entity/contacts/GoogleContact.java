@@ -3,25 +3,32 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 import br.ufrgs.inf.pet.dinoapi.constants.GoogleContactConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 
+import static javax.persistence.GenerationType.AUTO;
+
 @Entity
 @Table(name = "google_contact")
-public class GoogleContact extends SynchronizableEntity<Long> {
+public class GoogleContact {
+    @Id
+    @GeneratedValue(strategy = AUTO)
+    @Column(name = "id", nullable = false)
+    protected Long id;
 
     @Column(name = "resource_name", length = GoogleContactConstants.RESOURCE_NAME_MAX)
     private String resourceName;
 
     @ManyToOne
     @JoinColumn(name = "contact_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Contact contact;
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    private Boolean savedOnGoogleAPI;
 
     public GoogleContact() { }
 
@@ -57,11 +64,4 @@ public class GoogleContact extends SynchronizableEntity<Long> {
         this.user = user;
     }
 
-    public Boolean getSavedOnGoogleAPI() {
-        return savedOnGoogleAPI;
-    }
-
-    public void setSavedOnGoogleAPI(Boolean savedOnGoogleAPI) {
-        this.savedOnGoogleAPI = savedOnGoogleAPI;
-    }
 }

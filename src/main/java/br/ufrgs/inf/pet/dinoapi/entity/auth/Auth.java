@@ -93,4 +93,6 @@ public class Auth {
     public void setLastTokenRefresh(LocalDateTime lastTokenRefresh) {
         this.lastTokenRefresh = lastTokenRefresh;
     }
+
+
 }

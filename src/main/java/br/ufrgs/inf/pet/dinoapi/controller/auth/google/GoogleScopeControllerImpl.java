@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.GOOGLE_SCOPE;
+
 @RestController
-@RequestMapping("/auth/google/scope/")
+@RequestMapping(GOOGLE_SCOPE)
 public class GoogleScopeControllerImpl extends SynchronizableControllerImpl<
         GoogleScope, Long, GoogleScopeDataModel, GoogleScopeRepository, GoogleScopeServiceImpl> {
 

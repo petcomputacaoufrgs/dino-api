@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.websocket.interceptor;
 
 import br.ufrgs.inf.pet.dinoapi.security.DinoAuthenticationToken;
-import br.ufrgs.inf.pet.dinoapi.security.DinoGrantedAuthority;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -9,10 +8,9 @@ import java.util.Collection;
 import java.util.List;
 
 public class WebSocketUser implements UserDetails {
+    private final List<GrantedAuthority> authorityList;
 
-    private List<DinoGrantedAuthority> authorityList;
-
-    private String username;
+    private final String username;
 
     public WebSocketUser(DinoAuthenticationToken dinoAuthenticationToken) {
         this.username = dinoAuthenticationToken.getCredentials().getAuth().getWebSocketToken();
@@ -20,8 +18,8 @@ public class WebSocketUser implements UserDetails {
     }
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+    public Collection<GrantedAuthority> getAuthorities() {
+        return this.authorityList;
     }
 
     @Override

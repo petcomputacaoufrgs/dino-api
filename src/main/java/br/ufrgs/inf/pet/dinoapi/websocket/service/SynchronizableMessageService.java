@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.websocket.service;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.websocket.model.SynchronizableWSGenericModel;
@@ -20,11 +20,11 @@ public abstract class SynchronizableMessageService<
 
     protected final SimpMessagingTemplate simpMessagingTemplate;
 
-    protected final OAuthServiceImpl authService;
+    protected final AuthServiceImpl authService;
 
 
     public SynchronizableMessageService(SimpMessagingTemplate simpMessagingTemplate,
-                                        OAuthServiceImpl authService) {
+                                        AuthServiceImpl authService) {
         this.authService = authService;
         this.simpMessagingTemplate = simpMessagingTemplate;
     }
@@ -57,5 +57,14 @@ public abstract class SynchronizableMessageService<
 
     protected abstract <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, Auth auth);
 
-    protected abstract <TYPE> void sendModel(SynchronizableWSGenericModel<TYPE> data, String url, User user);
+    protected <TYPE> void send(SynchronizableWSGenericModel<TYPE> data, String url, List<String> webSocketTokens) {
+        final String dest = this.generateQueueDest(url);
+        webSocketTokens.forEach(token ->
+                this.simpMessagingTemplate.convertAndSendToUser(token, dest, data)
+        );
+    }
+
+    protected String generateQueueDest(String url) {
+        return "/queue/" + url;
+    }
 }

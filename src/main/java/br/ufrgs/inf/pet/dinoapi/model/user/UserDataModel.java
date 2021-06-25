@@ -1,7 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.model.user;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -11,6 +11,9 @@ public class UserDataModel extends SynchronizableDataLocalIdModel<Long> {
     private String name;
 
     private String email;
+
+    @NotBlank(message = PERMISSION_BLANK)
+    private String permission;
 
     @NotNull(message = PICTURE_URL_NULL_MESSAGE)
     @Size(max = PICTURE_URL_MAX, message = PICTURE_URL_MAX_MESSAGE)
@@ -38,5 +41,13 @@ public class UserDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     public void setPictureURL(String pictureURL) {
         this.pictureURL = pictureURL;
+    }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
     }
 }

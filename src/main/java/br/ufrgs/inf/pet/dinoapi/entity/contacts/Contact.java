@@ -1,14 +1,12 @@
 package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
-import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
 @Entity
 @Table(name = "contact")
@@ -28,15 +26,8 @@ public class Contact extends SynchronizableEntity<Long> {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
-
-    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<Phone> phones;
-
-    @OneToMany(mappedBy = "contact", fetch = FetchType.LAZY)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<GoogleContact> googleContacts;
 
     public Contact() { }
 

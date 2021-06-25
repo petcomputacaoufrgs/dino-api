@@ -27,7 +27,7 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> 
     private Boolean firstSettingsDone;
 
     @NotNull(message = UserSettingsConstants.SETTINGS_STEP_NULL_MESSAGE)
-    private Integer settingsStep;
+    private Integer step;
 
     @Size(min = UserSettingsConstants.PASSWORD_MIN, max = UserSettingsConstants.PASSWORD_MAX, message = UserSettingsConstants.PASSWORD_SIZE_MESSAGE)
     private String parentsAreaPassword;
@@ -88,12 +88,12 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> 
         this.firstSettingsDone = firstSettingsDone;
     }
 
-    public Integer getSettingsStep() {
-        return settingsStep;
+    public Integer getStep() {
+        return step;
     }
 
-    public void setSettingsStep(Integer settingsStep) {
-        this.settingsStep = settingsStep;
+    public void setStep(Integer step) {
+        this.step = step;
     }
 
     public String getParentsAreaPassword() {

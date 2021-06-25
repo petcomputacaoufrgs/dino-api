@@ -12,7 +12,7 @@ import java.util.List;
 public class SynchronizableGenericListModel<ID extends Comparable<ID> & Serializable, DATA_TYPE extends SynchronizableModel<ID>> {
     @Valid
     @NotNull(message = SynchronizableConstants.DATA_CANNOT_BE_NULL)
-    @Size(min = 1, message = SynchronizableConstants.LIST_DATA_CANNOT_BE_EMPTY)
+    @Size(min = 1)
     private List<DATA_TYPE> data;
 
     public List<DATA_TYPE> getData() {

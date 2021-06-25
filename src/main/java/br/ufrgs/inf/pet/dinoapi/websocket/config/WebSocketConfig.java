@@ -29,7 +29,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         final String origin = appConfig.getOrigin();
         registry
-                .addEndpoint("/websocket")
+                .addEndpoint("/private/websocket")
                 .setHandshakeHandler(new WebSocketUserInterceptor())
                 .setAllowedOrigins(origin)
                 .withSockJS();

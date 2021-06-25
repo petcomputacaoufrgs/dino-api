@@ -2,10 +2,8 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
-
 import javax.persistence.*;
 import java.util.List;
-
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
@@ -22,9 +20,6 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     private Byte color;
 
     @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
-    private List<Phone> phones;
-
-    @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
     private List<Contact> contacts;
 
     @ManyToMany
@@ -34,14 +29,6 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     private List<Treatment> treatments;
 
     public EssentialContact() { }
-
-    public List<Treatment> getTreatments() {
-        return treatments;
-    }
-
-    public void setTreatments(List<Treatment> treatments) {
-        this.treatments = treatments;
-    }
 
     public String getName() {
         return name;
@@ -65,5 +52,17 @@ public class EssentialContact extends SynchronizableEntity<Long> {
 
     public void setColor(Byte color) {
         this.color = color;
+    }
+
+    public List<Contact> getContacts() {
+        return contacts;
+    }
+
+    public List<Treatment> getTreatments() {
+        return treatments;
+    }
+
+    public void setTreatments(List<Treatment> treatments) {
+        this.treatments = treatments;
     }
 }

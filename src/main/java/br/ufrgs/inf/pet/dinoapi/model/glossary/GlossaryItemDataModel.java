@@ -25,6 +25,8 @@ public class GlossaryItemDataModel extends SynchronizableDataLocalIdModel<Long> 
     @Size(max = GlossaryConstants.FULLTEXT_MAX, message = GlossaryConstants.FULLTEXT_MESSAGE)
     private String fullText;
 
+    public GlossaryItemDataModel() {}
+
     public String getTitle() {
         return title;
     }

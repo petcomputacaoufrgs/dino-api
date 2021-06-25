@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.repository.user;
 
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -21,4 +22,7 @@ public interface UserSettingsRepository extends CrudRepository<UserSettings, Lon
 
     @Query("SELECT us FROM UserSettings us WHERE us.id NOT IN :ids AND us.user.id = :userId")
     List<UserSettings> findAllByUserIdExcludingIds(@Param("userId") Long userID, @Param("ids") List<Long> ids);
+
+    @Query("SELECT us FROM UserSettings us WHERE us.treatment.id = :treatmentId")
+    List<UserSettings> findAllByTreatmentId(@Param("treatmentId") Long treatmentId);
 }

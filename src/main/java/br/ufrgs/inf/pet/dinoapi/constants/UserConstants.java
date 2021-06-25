@@ -8,4 +8,8 @@ public class UserConstants {
     public final static int NAME_MAX = 100;
 
     public final static int EMAIL_MAX = 100;
+
+    public final static int PERMISSION_MAX = 5;
+
+    public final static String PERMISSION_BLANK = "permission can not be blank";
 }

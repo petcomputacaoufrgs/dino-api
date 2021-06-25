@@ -12,7 +12,7 @@ public class GoogleScope extends SynchronizableEntity<Long> {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "google_scope", nullable = false)
+    @JoinColumn(name = "google_auth_id", nullable = false)
     private GoogleAuth googleAuth;
 
     public GoogleScope() { }

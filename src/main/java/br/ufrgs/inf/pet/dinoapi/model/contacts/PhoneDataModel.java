@@ -2,7 +2,6 @@ package br.ufrgs.inf.pet.dinoapi.model.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -17,9 +16,7 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     private Long contactId;
 
-    private Long essentialContactId;
-
-    private Long originalEssentialPhoneId;
+    private Long essentialPhoneId;
 
     public short getType() {
         return type;
@@ -45,19 +42,11 @@ public class PhoneDataModel extends SynchronizableDataLocalIdModel<Long> {
         this.contactId = contactId;
     }
 
-    public Long getEssentialContactId() {
-        return essentialContactId;
+    public Long getEssentialPhoneId() {
+        return essentialPhoneId;
     }
 
-    public void setEssentialContactId(Long essentialContactId) {
-        this.essentialContactId = essentialContactId;
-    }
-
-    public Long getOriginalEssentialPhoneId() {
-        return originalEssentialPhoneId;
-    }
-
-    public void setOriginalEssentialPhoneId(Long originalEssentialPhoneId) {
-        this.originalEssentialPhoneId = originalEssentialPhoneId;
+    public void setEssentialPhoneId(Long essentialPhoneId) {
+        this.essentialPhoneId = essentialPhoneId;
     }
 }

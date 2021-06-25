@@ -2,34 +2,45 @@ package br.ufrgs.inf.pet.dinoapi.service.faq;
 
 import br.ufrgs.inf.pet.dinoapi.constants.FaqConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.Faq;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqItem;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.faq.FaqItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.faq.FaqItemRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.treatment.TreatmentServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long, FaqItemDataModel, FaqItemRepository> {
 
-    private final FaqServiceImpl faqService;
+    private final TreatmentServiceImpl treatmentService;
 
     @Autowired
-    public FaqItemServiceImpl(FaqItemRepository repository, OAuthServiceImpl authService, FaqServiceImpl faqService,
+    public FaqItemServiceImpl(FaqItemRepository repository, AuthServiceImpl authService, TreatmentServiceImpl treatmentService,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                               SynchronizableTopicMessageService<Long, FaqItemDataModel> synchronizableTopicMessageService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
-        this.faqService = faqService;
+        this.treatmentService = treatmentService;
+    }
+
+    @Override
+    public List<PermissionEnum> getNecessaryPermissionsToEdit() {
+        final List<PermissionEnum> authorities = new ArrayList<>();
+        authorities.add(PermissionEnum.ADMIN);
+        authorities.add(PermissionEnum.STAFF);
+        return authorities;
     }
 
 
@@ -38,36 +49,36 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
         final FaqItemDataModel model = new FaqItemDataModel();
         model.setAnswer(entity.getAnswer());
         model.setQuestion(entity.getQuestion());
-        model.setFaqId(entity.getFaq().getId());
+        model.setTreatmentId(entity.getTreatment().getId());
 
         return model;
     }
 
     @Override
     public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-        final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
+        final Optional<Treatment> treatment = treatmentService.getEntityById(model.getTreatmentId());
 
-        if (faq.isPresent()) {
+        if (treatment.isPresent()) {
             final FaqItem entity = new FaqItem();
             entity.setQuestion(model.getQuestion());
             entity.setAnswer(model.getAnswer());
-            entity.setFaq(faq.get());
+            entity.setTreatment(treatment.get());
 
             return entity;
         } else {
-            throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+            throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
         }
     }
 
     @Override
     public void updateEntity(FaqItem entity, FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-        if (!entity.getFaq().getId().equals(model.getFaqId())) {
-            final Optional<Faq> faq = faqService.getEntityById(model.getFaqId());
+        if (!entity.getId().equals(model.getTreatmentId())) {
+            final Optional<Treatment> faq = treatmentService.getEntityById(model.getTreatmentId());
 
             if (faq.isPresent()) {
-                entity.setFaq(faq.get());
+                entity.setTreatment(faq.get());
             } else {
-                throw new ConvertModelToEntityException(FaqConstants.INVALID_FAQ);
+                throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
             }
         }
 
