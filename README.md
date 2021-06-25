@@ -29,7 +29,7 @@ spring.jpa.show-sql=true
 spring.jpa.generate-ddl=true
 spring.jpa.hibernate.ddl-auto=update
 
-#Configuração do app
+#Configuração gerais
 app.origin={Endereço onde está o DinoApp}
 app.adminEmail={Endereço de email do Google que será o Staff}
 
