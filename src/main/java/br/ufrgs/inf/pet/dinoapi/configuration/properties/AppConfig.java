@@ -8,8 +8,18 @@ import org.springframework.stereotype.Component;
 public class AppConfig {
     private String origin;
 
+    private String adminEmail;
+
     public void setOrigin(String origin) {
         this.origin = origin;
+    }
+
+    public String getAdminEmail() {
+        return adminEmail;
+    }
+
+    public void setAdminEmail(String adminEmail) {
+        this.adminEmail = adminEmail;
     }
 
     public String getOrigin() {

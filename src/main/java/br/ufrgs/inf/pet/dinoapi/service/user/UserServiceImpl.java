@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.user;
 
-import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
+import br.ufrgs.inf.pet.dinoapi.configuration.properties.AppConfig;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
@@ -24,6 +24,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -32,16 +33,19 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserDataModel, UserRepository> implements  UserService {
 
-    StaffServiceImpl staffService;
+    private final StaffServiceImpl staffService;
+
+    private final AppConfig appConfig;
 
     @Autowired
     public UserServiceImpl(UserRepository userRepository, AuthServiceImpl authService,
                            ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                           @Lazy StaffServiceImpl staffService,
+                           @Lazy StaffServiceImpl staffService, AppConfig appConfig,
                            SynchronizableQueueMessageService<Long, UserDataModel> synchronizableQueueMessageService) {
         super(userRepository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
 
         this.staffService = staffService;
+        this.appConfig = appConfig;
     }
 
     @Override
@@ -221,7 +225,7 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
 
         if(staffSearch != null) {
             return new Pair<>(PermissionEnum.STAFF, staffSearch);
-        } else if (email.equals(AuthConstants.ADMIN)) {
+        } else if (email.equals(appConfig.getAdminEmail())) {
             return new Pair<>(PermissionEnum.ADMIN, null);
         } else {
             return new Pair<>(PermissionEnum.USER, null);
