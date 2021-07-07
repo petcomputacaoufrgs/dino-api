@@ -49,34 +49,33 @@ public class FaqItemServiceImpl extends SynchronizableServiceImpl<FaqItem, Long,
         final FaqItemDataModel model = new FaqItemDataModel();
         model.setAnswer(entity.getAnswer());
         model.setQuestion(entity.getQuestion());
-        model.setTreatmentId(entity.getTreatment().getId());
+        if(entity.getTreatment() != null) {
+            model.setTreatmentId(entity.getTreatment().getId());
+        }
 
         return model;
     }
 
     @Override
     public FaqItem convertModelToEntity(FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-        final Optional<Treatment> treatment = treatmentService.getEntityById(model.getTreatmentId());
 
-        if (treatment.isPresent()) {
-            final FaqItem entity = new FaqItem();
-            entity.setQuestion(model.getQuestion());
-            entity.setAnswer(model.getAnswer());
-            entity.setTreatment(treatment.get());
-
-            return entity;
-        } else {
-            throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
+        final FaqItem entity = new FaqItem();
+        entity.setQuestion(model.getQuestion());
+        entity.setAnswer(model.getAnswer());
+        if(model.getTreatmentId() != null) {
+            entity.setTreatment(treatmentService.getEntityById(model.getTreatmentId()).orElseGet(() -> null));
         }
+
+        return entity;
     }
 
     @Override
     public void updateEntity(FaqItem entity, FaqItemDataModel model, Auth auth) throws ConvertModelToEntityException {
-        if (!entity.getId().equals(model.getTreatmentId())) {
-            final Optional<Treatment> faq = treatmentService.getEntityById(model.getTreatmentId());
+        if (!entity.getTreatment().getId().equals(model.getTreatmentId())) { //TODO ver com joão...
+            final Optional<Treatment> treatmentSearch = treatmentService.getEntityById(model.getTreatmentId());
 
-            if (faq.isPresent()) {
-                entity.setTreatment(faq.get());
+            if (treatmentSearch.isPresent()) {
+                entity.setTreatment(treatmentSearch.get());
             } else {
                 throw new ConvertModelToEntityException(FaqConstants.INVALID_TREATMENT);
             }

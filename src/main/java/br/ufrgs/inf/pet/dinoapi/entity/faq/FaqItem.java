@@ -19,7 +19,7 @@ public class FaqItem extends SynchronizableEntity<Long> {
     private String answer;
 
     @ManyToOne
-    @JoinColumn(name = "treatment_id", nullable = false)
+    @JoinColumn(name = "treatment_id")
     private Treatment treatment;
 
     public FaqItem() { }
