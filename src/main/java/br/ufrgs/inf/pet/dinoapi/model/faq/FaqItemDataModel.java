@@ -15,7 +15,6 @@ public class FaqItemDataModel extends SynchronizableDataLocalIdModel<Long> {
     @Size(min = FaqConstants.ANSWER_MIN, max = FaqConstants.ANSWER_MAX, message = FaqConstants.ANSWER_MESSAGE)
     private String answer;
 
-    @NotNull(message = FaqConstants.TREATMENT_ID_NULL_MESSAGE)
     private Long treatmentId;
 
     public FaqItemDataModel() {
