@@ -19,25 +19,23 @@ Para autenticação é utilizada a API OAuth 2.0 do Google. Para mais detalhes a
 ## Configuração
 ### Para executar crie o arquivo "application.properties" em "resources" com o seguinte conteúdo:
 ```java
-#Configurações do banco de dados
+#Database
 spring.datasource.url=jdbc:postgresql://localhost:5432/{Nome do banco de dados}
 spring.datasource.username={Seu usuário}
 spring.datasource.password={Sua senha}
-
-#Configurações opcionais de desenvolvimento
 spring.jpa.show-sql=true
 spring.jpa.generate-ddl=true
 spring.jpa.hibernate.ddl-auto=update
 
-#Configuração gerais
+#App
 app.origin={Endereço onde está o DinoApp}
 app.adminEmail={Endereço de email do Google que será o Staff}
 
-#Configurações do Google
+#Google
 googleoauth2.clientid={Google Cloud Client Id}
 googleoauth2.clientsecret={Google Cloud Client Secret}
 
-#Configuração de porta
+#Port
 server.port=${PORT:5000}
 
 #Log
