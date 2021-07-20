@@ -13,6 +13,16 @@ public class KidsSpaceSettingsModel extends SynchronizableDataLocalIdModel<Long>
     @NotBlank(message = KidsSpaceConstants.COLOR_BLANK_MESSAGE)
     private String color;
 
+    private String hat;
+
+    public String getHat() {
+        return hat;
+    }
+
+    public void setHat(String hat) {
+        this.hat = hat;
+    }
+
     public Boolean getFirstSettingsDone() {
         return firstSettingsDone;
     }
