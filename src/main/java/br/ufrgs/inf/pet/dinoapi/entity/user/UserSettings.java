@@ -28,9 +28,6 @@ public class UserSettings extends SynchronizableEntity<Long> {
     @Column(name = "first_settings_done", nullable = false)
     private Boolean firstSettingsDone;
 
-    @Column(name = "settings_step", nullable = false)
-    private Integer step;
-
     @Column(name = "parents_area_password", length = PASSWORD_MAX)
     private String parentsAreaPassword;
 
@@ -110,14 +107,6 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     public void setFirstSettingsDone(Boolean firstSettingsDone) {
         this.firstSettingsDone = firstSettingsDone;
-    }
-
-    public Integer getStep() {
-        return step;
-    }
-
-    public void setStep(Integer step) {
-        this.step = step;
     }
 
     public boolean shouldSyncGoogleContacts() {

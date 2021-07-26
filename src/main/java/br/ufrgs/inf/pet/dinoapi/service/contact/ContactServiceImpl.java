@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
@@ -20,6 +19,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -156,18 +156,5 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         googleContactSearch.ifPresent(googleContact -> {
             asyncContactService.deleteContactOnGoogleAPI(googleContact.getResourceName(), auth);
         });
-    }
-
-    public Contact saveDirectly(Contact contact) {
-        return this.repository.save(contact);
-    }
-
-    public List<Contact> findAllByEssentialContact(EssentialContact essentialContact) {
-        return this.repository.findAllByEssentialContactId(essentialContact.getId());
-    }
-
-    public List<Contact> findAllWhichShouldHaveEssentialPhoneButDont(EssentialPhone essentialPhone) {
-        final EssentialContact essentialContact = essentialPhone.getEssentialContact();
-        return this.repository.findAllWhichShouldHaveEssentialPhoneButDoesnt(essentialContact, essentialPhone);
     }
 }

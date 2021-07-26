@@ -48,7 +48,6 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setIncludeEssentialContact(entity.getIncludeEssentialContact());
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
-        model.setStep(entity.getStep());
         model.setParentsAreaPassword(entity.getParentsAreaPassword());
 
         if (entity.getTreatment() != null) {
@@ -78,6 +77,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setFontSize(model.getFontSize());
         userSettings.setUser(auth.getUser());
         userSettings.setParentsAreaPassword(model.getParentsAreaPassword());
+        userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
         modelToEntity(userSettings, model, auth);
         return userSettings;
     }
@@ -110,7 +110,6 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
 
     private void modelToEntity(UserSettings entity, UserSettingsDataModel model, Auth auth) {
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
-        entity.setStep(model.getStep());
 
         final String permission = auth.getUser().getPermission();
         final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
