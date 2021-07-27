@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-public class UserSettingsConstants {
+public final class UserSettingsConstants {
 
     public final static String LANGUAGE_NULL_MESSAGE = "language cannot be null";
 
