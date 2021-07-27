@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-public class SynchronizableConstants {
+public final class SynchronizableConstants {
     public final static String OK = "ok";
 
     public final static String NOT_FOUND = "not found";

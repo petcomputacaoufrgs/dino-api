@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-public class TreatmentConstants {
+public final class TreatmentConstants {
     public final static int NAME_MIN = 1;
 
     public final static int NAME_MAX = 100;
