@@ -7,7 +7,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 public class KidsSpaceSettingsModel extends SynchronizableDataLocalIdModel<Long> {
-    @NotNull(message = KidsSpaceConstants.FIRST_SETTING_DONE_NULL_MESSAGE)
+    @NotNull(message = KidsSpaceConstants.KIDS_FIRST_SETTING_DONE_NULL_MESSAGE)
     private Boolean firstSettingsDone;
 
     @NotBlank(message = KidsSpaceConstants.COLOR_BLANK_MESSAGE)
