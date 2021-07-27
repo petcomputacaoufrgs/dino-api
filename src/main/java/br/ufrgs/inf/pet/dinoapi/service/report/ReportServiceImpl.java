@@ -24,8 +24,8 @@ public class ReportServiceImpl extends SynchronizableServiceImpl<Report, Long, R
 
     private final UserServiceImpl userService;
 
-    public ReportServiceImpl(UserServiceImpl userService, ReportRepository repository, AuthServiceImpl authService, ClockServiceImpl clock, SynchronizableMessageService<Long, ReportDataModel> synchronizableMessageService, LogAPIErrorServiceImpl logAPIErrorService) {
-        super(repository, authService, clock, synchronizableMessageService, logAPIErrorService);
+    public ReportServiceImpl(UserServiceImpl userService, ReportRepository repository, AuthServiceImpl authService, ClockServiceImpl clock, SynchronizableMessageService<Long, ReportDataModel> synchronizableTopicMessageService, LogAPIErrorServiceImpl logAPIErrorService) {
+        super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.userService = userService;
     }
 

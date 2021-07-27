@@ -5,11 +5,10 @@ import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 
 import javax.persistence.*;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.ReportConstants.WHAT_HOW_MAX;
-import static br.ufrgs.inf.pet.dinoapi.constants.ReportConstants.WHERE_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.ReportConstants.*;
 
 @Entity
-@Table(name = "report")
+@Table(name = "report_bug")
 public class Report extends SynchronizableEntity<Long> {
 
     @Column(name = "what", length = WHAT_HOW_MAX, nullable = false)
