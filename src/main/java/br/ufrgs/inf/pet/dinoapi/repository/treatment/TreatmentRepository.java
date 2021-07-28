@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.repository.treatment;
 
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -21,4 +22,7 @@ public interface TreatmentRepository extends CrudRepository<Treatment, Long> {
 
     @Query("SELECT te FROM Treatment te WHERE te.id NOT IN :ids")
     List<Treatment> findAllExcludingIds(@Param("ids") List<Long> ids);
+
+    @Query("SELECT ec.treatments FROM EssentialContact ec WHERE ec.id = :essentialContactId ")
+    List<Treatment> findAllByEssentialContact(@Param("essentialContactId") Long essentialContactId);
 }

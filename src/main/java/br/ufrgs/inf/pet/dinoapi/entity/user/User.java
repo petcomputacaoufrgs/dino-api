@@ -4,7 +4,8 @@ import br.ufrgs.inf.pet.dinoapi.constants.ResponsibleAuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.faq.FaqUserQuestion;
+import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import org.hibernate.annotations.OnDelete;
@@ -28,6 +29,9 @@ public class User extends SynchronizableEntity<Long> {
     @Column(name = "picture_url", length = PICTURE_URL_MAX, nullable = false)
     private String pictureURL;
 
+    @Column(name = "permission", length = PERMISSION_MAX, nullable = false)
+    private String permission;
+
     @OneToOne(mappedBy = "user")
     private GoogleAuth googleAuth;
 
@@ -43,6 +47,9 @@ public class User extends SynchronizableEntity<Long> {
     @Column(name = "responsible_iv", length = ResponsibleAuthConstants.RESPONSIBLE_CODE_LENGTH)
     private String responsibleIV;
 
+    @OneToOne(mappedBy = "user")
+    private KidsSpaceSettings kidsSpaceSettings;
+
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Auth> auths;
@@ -57,8 +64,8 @@ public class User extends SynchronizableEntity<Long> {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
-    private List<FaqUserQuestion> faqUserQuestions;
-
+    private List<TreatmentQuestion> treatmentQuestions;
+    
     public User() { }
 
     public User(String name, String email, String pictureURL) {
@@ -134,5 +141,27 @@ public class User extends SynchronizableEntity<Long> {
 
     public void setResponsibleIV(String responsibleIV) {
         this.responsibleIV = responsibleIV;
+    }
+
+    public KidsSpaceSettings getKidsSpaceSettings() {
+        return kidsSpaceSettings;
+    }
+
+    public void setKidsSpaceSettings(KidsSpaceSettings kidsSpaceSettings) {
+        this.kidsSpaceSettings = kidsSpaceSettings;
+    }
+
+    public void setContacts(List<Contact> contacts) {
+        this.contacts = contacts;
+    }
+
+    public List<Contact> getContacts() { return contacts; }
+
+    public String getPermission() {
+        return permission;
+    }
+
+    public void setPermission(String permission) {
+        this.permission = permission;
     }
 }

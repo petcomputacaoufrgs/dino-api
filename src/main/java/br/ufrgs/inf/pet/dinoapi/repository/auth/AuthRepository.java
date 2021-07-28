@@ -21,9 +21,32 @@ public interface AuthRepository extends CrudRepository<Auth, Long> {
     @Query("SELECT a FROM Auth a WHERE a.webSocketToken = :webSocketToken")
     Optional<Auth> findByWebSocketToken(@Param("webSocketToken") String webSocketToken);
 
-    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a WHERE a.user = :user AND a.webSocketToken IS NOT NULL AND a.webSocketToken NOT LIKE :webSocketToken")
+    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a " +
+            "WHERE a.user = :user " +
+            "AND a.webSocketToken IS NOT NULL " +
+            "AND a.webSocketToken NOT LIKE :webSocketToken")
     List<AuthWebSocketToken> findAllByUserExceptWithThisWebSocketToken(@Param("user") User user, @Param("webSocketToken") String webSocketToken);
 
-    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a WHERE a.user = :user AND a.webSocketToken IS NOT NULL")
+    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a " +
+            "WHERE a.user = :user " +
+            "AND a.webSocketToken IS NOT NULL")
     List<AuthWebSocketToken> findAllByUser(@Param("user") User user);
+
+    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a " +
+            "WHERE a.webSocketToken IS NOT NULL " +
+            "AND a.webSocketToken NOT LIKE :webSocketToken")
+    List<AuthWebSocketToken> findAllExceptOneWebSocketToken(@Param("webSocketToken") String webSocketToken);
+
+    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a " +
+            "WHERE a.user.permission = :permission " +
+            "AND a.webSocketToken IS NOT NULL " +
+            "AND a.webSocketToken NOT LIKE :webSocketToken")
+    List<AuthWebSocketToken> findAllExceptOneWebSocketTokenByPermission(@Param("webSocketToken") String webSocketToken, @Param("permission") String permission);
+
+    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a " +
+            "WHERE a.user.permission = :permission")
+    List<AuthWebSocketToken> findAllByPermission(@Param("permission") String permission);
+
+    @Query("SELECT a.webSocketToken as webSocketToken FROM Auth a WHERE a.webSocketToken IS NOT NULL")
+    List<AuthWebSocketToken> findAllTokens();
 }

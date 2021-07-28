@@ -8,8 +8,10 @@ import br.ufrgs.inf.pet.dinoapi.service.glossary.GlossaryServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.GLOSSARY;
+
 @RestController
-@RequestMapping("/public/glossary/")
+@RequestMapping(GLOSSARY)
 public class GlossaryControllerImpl extends SynchronizableControllerImpl<
         GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository, GlossaryServiceImpl> {
 

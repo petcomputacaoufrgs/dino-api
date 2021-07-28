@@ -2,14 +2,15 @@ package br.ufrgs.inf.pet.dinoapi.service.glossary;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.glossary.GlossaryItem;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.model.glossary.GlossaryItemDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.glossary.GlossaryItemRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.topic.SynchronizableTopicMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,10 +20,18 @@ import java.util.stream.Collectors;
 @Service
 public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem, Long, GlossaryItemDataModel, GlossaryItemRepository> {
     @Autowired
-    public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, OAuthServiceImpl authService,
+    public GlossaryServiceImpl(GlossaryItemRepository glossaryItemRepository, AuthServiceImpl authService,
                                ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                SynchronizableTopicMessageService<Long, GlossaryItemDataModel> synchronizableTopicMessageService) {
         super(glossaryItemRepository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
+    }
+
+    @Override
+    public List<PermissionEnum> getNecessaryPermissionsToEdit() {
+        final List<PermissionEnum> authorities = new ArrayList<>();
+        authorities.add(PermissionEnum.ADMIN);
+        authorities.add(PermissionEnum.STAFF);
+        return authorities;
     }
 
     @Override
@@ -37,9 +46,7 @@ public class GlossaryServiceImpl extends SynchronizableServiceImpl<GlossaryItem,
     @Override
     protected void treatBeforeSave(GlossaryItemDataModel model) {
         final Optional<GlossaryItem> entitySearch = this.repository.findByTitle(model.getTitle());
-        entitySearch.ifPresent(entity -> {
-            model.setId(entity.getId());
-        });
+        entitySearch.ifPresent(entity -> model.setId(entity.getId()));
     }
 
     @Override

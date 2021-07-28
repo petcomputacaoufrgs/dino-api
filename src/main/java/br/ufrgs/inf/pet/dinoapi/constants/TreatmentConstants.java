@@ -3,7 +3,7 @@ package br.ufrgs.inf.pet.dinoapi.constants;
 public class TreatmentConstants {
     public final static int NAME_MIN = 1;
 
-    public final static int NAME_MAX = 250;
+    public final static int NAME_MAX = 100;
 
     public final static String NAME_NULL_MESSAGE = "name cannot be null.";
 

@@ -15,8 +15,7 @@ public class FaqItemDataModel extends SynchronizableDataLocalIdModel<Long> {
     @Size(min = FaqConstants.ANSWER_MIN, max = FaqConstants.ANSWER_MAX, message = FaqConstants.ANSWER_MESSAGE)
     private String answer;
 
-    @NotNull(message = FaqConstants.FAQ_ID_NULL_MESSAGE)
-    private Long faqId;
+    private Long treatmentId;
 
     public FaqItemDataModel() {
     }
@@ -37,11 +36,11 @@ public class FaqItemDataModel extends SynchronizableDataLocalIdModel<Long> {
         this.answer = answer;
     }
 
-    public Long getFaqId() {
-        return faqId;
+    public Long getTreatmentId() {
+        return treatmentId;
     }
 
-    public void setFaqId(Long faqId) {
-        this.faqId = faqId;
+    public void setTreatmentId(Long faqId) {
+        this.treatmentId = faqId;
     }
 }

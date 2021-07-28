@@ -19,24 +19,23 @@ Para autenticação é utilizada a API OAuth 2.0 do Google. Para mais detalhes a
 ## Configuração
 ### Para executar crie o arquivo "application.properties" em "resources" com o seguinte conteúdo:
 ```java
-#Configurações do banco de dados
+#Database
 spring.datasource.url=jdbc:postgresql://localhost:5432/{Nome do banco de dados}
 spring.datasource.username={Seu usuário}
 spring.datasource.password={Sua senha}
-
-#Configurações opcionais de desenvolvimento
 spring.jpa.show-sql=true
 spring.jpa.generate-ddl=true
 spring.jpa.hibernate.ddl-auto=update
 
-#Configuração do cliente
+#App
 app.origin={Endereço onde está o DinoApp}
+app.adminEmail={Endereço de email do Google que será o Staff}
 
-#Configurações do Google
-googleoauth2.clientid={Google Cloud Client Id}
-googleoauth2.clientsecret={Google Cloud Client Secret}
+#Google
+googleoauth2.clientid={Google Development Client Id}
+googleoauth2.clientsecret={Google Development Client Secret}
 
-#Configuração de porta
+#Port
 server.port=${PORT:5000}
 
 #Log
@@ -84,3 +83,29 @@ https://support.google.com/accounts/answer/185833
 	4.2) Volte ao terminal e execute "java -jar target/{nome do arquivo}". Exemplo: "java -jar target/dinoapi-0.0.1-SNAPSHOT.jar".
 ```
 
+## Executar Projeto (Debian)
+```java
+1) Instale o Java 11:
+	1.1) mkdir -p /usr/share/man/man1mkdir -p /usr/share/man/man1
+	1.2) apt-get update -y
+	1.3) apt-get install openjdk-11-jdk -y 
+2) Instale o Maven:
+	2.1) apt-get install maven -y
+3) Compile a aplicação
+	3.1) mvn package -Dmaven.test.skip=true 
+4) Execute
+	4.1) java -jar ./target/*.jar
+```
+
+## Deploy PETServer [branch staging]
+O PET possui um servidor Kubernetes para teste de aplicações construído sobre máquinas ARM.
+O arquivo Dockerfile possui as configurações necessárias para gerar a imagem de produção.
+Com o Docker instalado e conectado na conta do DockerHub execute o comando abaixo na pasta raiz.
+```cmd
+docker buildx build --platform linux/arm/v7 -t petcompufrgs/dinoapp:staging --push .
+```
+
+O arquivo config.yaml configura o deploy da aplicação no servidor. Copie o conteúdo deste arquivo para o servidor e execute o comando abaixo.
+```cmd
+kubectl apply -f config.yaml
+```

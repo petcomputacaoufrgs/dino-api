@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.validation.Valid;
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.SETTINGS;
 
 @RestController
-@RequestMapping("/user_settings/")
+@RequestMapping(SETTINGS)
 public class UserSettingsControllerImpl extends SynchronizableControllerImpl<UserSettings, Long,
         UserSettingsDataModel, UserSettingsRepository, UserSettingsServiceImpl> {
 

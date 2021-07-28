@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.USER;
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.USER_DELETE_ACCOUNT;
+
 @RestController
-@RequestMapping("/user/")
+@RequestMapping(USER)
 public class UserControllerImpl extends SynchronizableControllerImpl<User, Long, UserDataModel,
         UserRepository, UserServiceImpl> implements UserController {
 
@@ -22,7 +25,7 @@ public class UserControllerImpl extends SynchronizableControllerImpl<User, Long,
     }
 
     @Override
-    @DeleteMapping("delete_account/")
+    @DeleteMapping(USER_DELETE_ACCOUNT)
     public ResponseEntity<Boolean> deleteAccount() {
         return this.service.deleteAccount();
     }

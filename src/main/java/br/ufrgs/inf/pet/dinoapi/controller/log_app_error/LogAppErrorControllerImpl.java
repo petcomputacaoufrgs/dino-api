@@ -8,9 +8,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.LOG_APP_ERROR;
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.LOG_APP_ERROR_ALL;
 
 @Controller
 public class LogAppErrorControllerImpl implements LogAppErrorController {
@@ -23,13 +25,13 @@ public class LogAppErrorControllerImpl implements LogAppErrorController {
     }
 
     @Override
-    @PostMapping("log_app_error/")
+    @PostMapping(LOG_APP_ERROR)
     public ResponseEntity<Void> save(@Valid @RequestBody LogAppErrorRequestModel model, HttpServletRequest httpServletRequest) {
         return logAppErrorService.save(model, httpServletRequest);
     }
 
     @Override
-    @PostMapping("log_app_error/all/")
+    @PostMapping(LOG_APP_ERROR_ALL)
     public ResponseEntity<Void> saveAll(@Valid @RequestBody LogAppErroListRequestModel model, HttpServletRequest httpServletRequest) {
         return logAppErrorService.saveAll(model, httpServletRequest);
     }

@@ -3,23 +3,23 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
+import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
-import br.ufrgs.inf.pet.dinoapi.service.auth.OAuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
-import br.ufrgs.inf.pet.dinoapi.websocket.service.queue.SynchronizableQueueMessageService;
+import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
 
@@ -28,14 +28,19 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
 
     private final EssentialContactRepository essentialContactRepository;
     private final PhoneRepository phoneRepository;
+    private final AsyncContactService asyncContactService;
+    private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository repository, OAuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
+    public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService, PhoneRepository phoneRepository,
-                              SynchronizableQueueMessageService<Long, ContactDataModel> synchronizableQueueMessageService) {
+                              SynchronizableQueueMessageService<Long, ContactDataModel> synchronizableQueueMessageService,
+                              AsyncContactService asyncContactService, GoogleContactServiceImpl googleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.essentialContactRepository = essentialContactRepository;
         this.phoneRepository = phoneRepository;
+        this.asyncContactService = asyncContactService;
+        this.googleContactService = googleContactService;
     }
 
     @Override
@@ -63,18 +68,13 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
             entity.setColor(model.getColor());
             entity.setUser(auth.getUser());
 
-            final Long essentialContactId = model.getEssentialContactId();
-
-            if (essentialContactId != null) {
-                final Optional<EssentialContact> essentialContactSearch = essentialContactRepository.findById(essentialContactId);
-
-                essentialContactSearch.ifPresent(entity::setEssentialContact);
+            if (model.getEssentialContactId() != null) {
+                essentialContactRepository
+                        .findById(model.getEssentialContactId())
+                        .ifPresent(entity::setEssentialContact);
             }
-
             return entity;
-        } else {
-            throw new AuthNullException();
-        }
+        } else throw new AuthNullException();
     }
 
     @Override
@@ -83,9 +83,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
             entity.setName(model.getName());
             entity.setDescription(model.getDescription());
             entity.setColor(model.getColor());
-        } else {
-            throw new AuthNullException();
-        }
+        } else throw new AuthNullException();
     }
 
     @Override
@@ -136,40 +134,40 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
 
     @Override
     public boolean shouldDelete(Contact contact, SynchronizableDeleteModel<Long> model) {
-        Integer phoneCount = phoneRepository
-                .countByNoteColumnAndLastUpdateGreaterOrEqual(contact.getId(), model.getLastUpdate().toLocalDateTime());
+        final Integer phoneCount = phoneRepository.countByContactId(contact.getId());
 
         return phoneCount == 0;
     }
 
-    public Optional<Contact> findContactByIdAndUser(Long id, User user) {
-        return this.repository.findByIdAndUserId(id, user.getId());
+    @Override
+    protected void afterDataCreated(Contact entity, Auth auth) {
+        asyncContactService.createContactOnGoogleAPI(entity, auth);
     }
 
-    public ContactDataModel saveByUser(ContactDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
-        final Auth fakeAuth = this.getFakeAuth(user);
-
-        return this.internalSave(contactDataModel, fakeAuth);
+    @Override
+    protected void afterDataUpdated(Contact entity, Auth auth) {
+        asyncContactService.updateContactOnGoogleAPI(entity, auth);
     }
 
-    public void deleteByUser(SynchronizableDeleteModel<Long> model, User user) throws AuthNullException {
-        final Auth fakeAuth = this.getFakeAuth(user);
+    @Override
+    protected void beforeDataDeleted(Contact entity, Auth auth) {
+        final Optional<GoogleContact> googleContactSearch = this.googleContactService.findByContactId(entity.getId());
 
-        this.internalDelete(model, fakeAuth);
+        googleContactSearch.ifPresent(googleContact -> {
+            asyncContactService.deleteContactOnGoogleAPI(googleContact.getResourceName(), auth);
+        });
     }
 
-    public List<Contact> findAllByEssentialContactId(Long essentialContactId) {
-        return this.repository.findAllByEssentialContactId(essentialContactId);
+    public Contact saveDirectly(Contact contact) {
+        return this.repository.save(contact);
     }
 
-    public Optional<Contact> findById(Long id) {
-        return this.repository.findById(id);
+    public List<Contact> findAllByEssentialContact(EssentialContact essentialContact) {
+        return this.repository.findAllByEssentialContactId(essentialContact.getId());
     }
 
-    private Auth getFakeAuth(User user) {
-        final Auth fakeAuth = new Auth();
-        fakeAuth.setUser(user);
-
-        return fakeAuth;
+    public List<Contact> findAllWhichShouldHaveEssentialPhoneButDont(EssentialPhone essentialPhone) {
+        final EssentialContact essentialContact = essentialPhone.getEssentialContact();
+        return this.repository.findAllWhichShouldHaveEssentialPhoneButDoesnt(essentialContact, essentialPhone);
     }
 }

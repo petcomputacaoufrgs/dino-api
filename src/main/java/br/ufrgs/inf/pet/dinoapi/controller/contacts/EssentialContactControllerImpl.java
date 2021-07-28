@@ -9,8 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import static br.ufrgs.inf.pet.dinoapi.constants.PathConstants.ESSENTIAL_CONTACT;
+
 @RestController
-@RequestMapping("/public/essential_contact/")
+@RequestMapping(ESSENTIAL_CONTACT)
 public class EssentialContactControllerImpl extends SynchronizableControllerImpl<
         EssentialContact, Long, EssentialContactDataModel, EssentialContactRepository, EssentialContactServiceImpl> {
 
@@ -18,5 +20,4 @@ public class EssentialContactControllerImpl extends SynchronizableControllerImpl
     public EssentialContactControllerImpl(EssentialContactServiceImpl service) {
         super(service);
     }
-
 }

@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.security;
 
+import br.ufrgs.inf.pet.dinoapi.constants.AuthConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserServiceImpl;
@@ -7,8 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
+import java.util.Collections;
 
 @Service
 public class DinoUserDetailsService implements UserDetailsService {
@@ -22,24 +22,24 @@ public class DinoUserDetailsService implements UserDetailsService {
 
     public DinoAuthenticationToken loadDinoUserByAuth(Auth auth) throws UsernameNotFoundException {
         if (auth != null) {
-            final DinoUser dinoUser = new DinoUser(auth.getUser());
+            final User user = auth.getUser();
+            final DinoGrantedAuthority dinoAuthority = new DinoGrantedAuthority(user.getPermission());
             final DinoCredentials dinoCredentials = new DinoCredentials(auth);
-            return new DinoAuthenticationToken(dinoUser, dinoCredentials, new ArrayList<>());
+            return new DinoAuthenticationToken(user, dinoCredentials, Collections.singletonList(dinoAuthority));
         }
 
-        throw new UsernameNotFoundException("Autenticação vazia.");
+        throw new UsernameNotFoundException(AuthConstants.EMPTY_AUTH);
     }
 
     @Override
-    public DinoUser loadUserByUsername(String email) throws UsernameNotFoundException {
-        final User userDB = userService.findUserByEmail(email);
+    public DinoUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        final User user = userService.findUserByEmail(email);
 
-        if (userDB != null) {
-            final DinoUser dinoUser = new DinoUser(userDB);
-
-            return dinoUser;
+        if (user != null) {
+            final DinoGrantedAuthority dinoAuthority = new DinoGrantedAuthority(user.getPermission());
+            return new DinoUserDetails(user, Collections.singletonList(dinoAuthority));
         }
 
-        throw new UsernameNotFoundException("Email inválido: " + email);
+        throw new UsernameNotFoundException(AuthConstants.INVALID_EMAIL + ": " + email);
     }
 }
