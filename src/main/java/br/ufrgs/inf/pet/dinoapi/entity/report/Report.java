@@ -8,16 +8,16 @@ import javax.persistence.*;
 import static br.ufrgs.inf.pet.dinoapi.constants.ReportConstants.*;
 
 @Entity
-@Table(name = "report_bug")
+@Table(name = "report")
 public class Report extends SynchronizableEntity<Long> {
 
-    @Column(name = "what", length = WHAT_HOW_MAX, nullable = false)
+    @Column(name = "report_what", length = WHAT_HOW_MAX, nullable = false)
     private String what;
 
-    @Column(name = "how", length = WHAT_HOW_MAX)
+    @Column(name = "report_how", length = WHAT_HOW_MAX)
     private String how;
 
-    @Column(name = "where", length = WHERE_MAX)
+    @Column(name = "report_where", length = WHERE_MAX)
     private String where;
 
     @ManyToOne
