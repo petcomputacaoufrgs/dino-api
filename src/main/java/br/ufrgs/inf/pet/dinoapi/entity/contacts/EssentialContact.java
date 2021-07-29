@@ -2,8 +2,10 @@ package br.ufrgs.inf.pet.dinoapi.entity.contacts;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
+
 import javax.persistence.*;
 import java.util.List;
+
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
 
@@ -20,7 +22,7 @@ public class EssentialContact extends SynchronizableEntity<Long> {
     private Byte color;
 
     @OneToMany(mappedBy = "essentialContact", fetch = FetchType.LAZY)
-    private List<Contact> contacts;
+    private List<EssentialPhone> essentialPhones;
 
     @ManyToMany
     @JoinTable(name = "essential_contact__treatment",
@@ -52,10 +54,6 @@ public class EssentialContact extends SynchronizableEntity<Long> {
 
     public void setColor(Byte color) {
         this.color = color;
-    }
-
-    public List<Contact> getContacts() {
-        return contacts;
     }
 
     public List<Treatment> getTreatments() {

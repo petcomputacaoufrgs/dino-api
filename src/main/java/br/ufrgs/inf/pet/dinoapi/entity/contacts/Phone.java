@@ -20,10 +20,6 @@ public class Phone extends SynchronizableEntity<Long> {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Contact contact;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "essential_phone_id")
-    private EssentialPhone essentialPhone;
-
     public Phone() { }
 
     public Long getId() {
@@ -52,13 +48,5 @@ public class Phone extends SynchronizableEntity<Long> {
 
     public void setType(short type) {
         this.type = type;
-    }
-
-    public EssentialPhone getEssentialPhone() {
-        return essentialPhone;
-    }
-
-    public void setEssentialPhone(EssentialPhone essentialPhone) {
-        this.essentialPhone = essentialPhone;
     }
 }

@@ -101,6 +101,7 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
         userSettings.forEach(settings -> settings.setTreatment(null));
         userSettingsService.saveAllDirectly(userSettings);
         asyncUserSettingsService.removeUserSettingsTreatments(userSettings);
+        //add essential contact, faq item, treatment question
     }
 
     public Optional<Treatment> getEntityById(Long id) {
