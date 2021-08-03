@@ -6,7 +6,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,9 +19,6 @@ public interface PhoneRepository extends CrudRepository<Phone, Long> {
 
     @Query("SELECT p FROM Phone p WHERE p.contact.user.id = :userId")
     List<Phone> findAllByUserId(@Param("userId") Long userId);
-
-    @Query("SELECT p FROM Phone p WHERE p.essentialPhone.id = :essentialPhoneId")
-    List<Phone> findAllByEssentialPhoneId(@Param("essentialPhoneId") Long essentialPhoneId);
 
     @Query("SELECT p FROM Phone p WHERE p.contact.id = :contactId")
     List<Phone> findAllByContactId(@Param("contactId") Long contactId);

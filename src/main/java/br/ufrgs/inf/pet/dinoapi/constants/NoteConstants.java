@@ -17,7 +17,8 @@ public final class NoteConstants {
     public final static String COLUMN_ID_NULL_MESSAGE = "column id cannot be null";
 
     public final static String COLUMN_TITLE_NULL_MESSAGE = "columnTitle cannot be null.";
-    public final static int COLUMN_TITLE_MAX = 250;
+    public final static int COLUMN_TITLE_MAX = 50;
+
     public final static int COLUMN_TITLE_MIN = 1;
     public final static String COLUMN_TITLE_SIZE_MESSAGE = "title should be between " + COLUMN_TITLE_MIN + " and " + COLUMN_TITLE_MAX + ".";
 

@@ -3,7 +3,6 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
@@ -22,6 +21,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageServ
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -49,10 +49,6 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
         model.setNumber(entity.getNumber());
         model.setType(entity.getType());
         model.setContactId(entity.getContact().getId());
-        final EssentialPhone ePhone = entity.getEssentialPhone();
-        if (ePhone != null) {
-            model.setEssentialPhoneId(ePhone.getId());
-        }
 
         return model;
     }
@@ -67,13 +63,6 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
             final Phone entity = new Phone();
             entity.setNumber(model.getNumber());
             entity.setType(model.getType());
-
-            final Long essentialContactId = model.getEssentialPhoneId();
-
-            if (essentialContactId != null) {
-                final Optional<EssentialPhone> ePhoneSearch = essentialPhoneRepository.findById(essentialContactId);
-                ePhoneSearch.ifPresent(entity::setEssentialPhone);
-            }
 
             searchContact(entity, contactId, auth);
 
@@ -142,10 +131,6 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
     @Override
     protected void afterDataDeleted(Phone entity, Auth auth) {
         asyncPhoneService.updateGoogleContactPhones(auth.getUser(), entity);
-    }
-
-    public List<Phone> findAllByEssentialPhone(EssentialPhone essentialPhone) {
-        return this.repository.findAllByEssentialPhoneId(essentialPhone.getId());
     }
 
     public void saveByUser(PhoneDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {
