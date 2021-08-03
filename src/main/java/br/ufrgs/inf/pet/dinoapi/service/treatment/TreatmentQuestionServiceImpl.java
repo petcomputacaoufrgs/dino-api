@@ -78,9 +78,7 @@ public class TreatmentQuestionServiceImpl extends SynchronizableServiceImpl<Trea
             }
 
             entity.setQuestion(model.getQuestion());
-        } else {
-            throw new AuthNullException();
-        }
+        } else throw new AuthNullException();
     }
 
     @Override

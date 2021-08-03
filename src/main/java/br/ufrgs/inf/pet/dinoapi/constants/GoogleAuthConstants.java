@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-public class GoogleAuthConstants {
+public final class GoogleAuthConstants {
     public final static String SCOPE_LIST_MAX_SIZE = "Min of 1 and max of 10 scopes per request.";
 
     public final static String INTERNAL_AUTH_ERROR = "Internal auth error.";

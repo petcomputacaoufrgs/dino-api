@@ -23,6 +23,7 @@ public final class PathConstants {
     public final static String ESSENTIAL_PHONE =    ROUTE_PRIVATE + "essential_phone/";
     public final static String TREATMENT =          ROUTE_PRIVATE + "treatment/";
     public final static String TREATMENT_QUESTION = ROUTE_PRIVATE + "treatment_question/";
+    public final static String REPORT =             ROUTE_PRIVATE + "report/";
     public final static String USER =               ROUTE_PRIVATE + "user/";
     public final static String SETTINGS =           ROUTE_PRIVATE + "settings/";
     public final static String LOG_APP_ERROR =      ROUTE_PRIVATE + "log_app_error/";
