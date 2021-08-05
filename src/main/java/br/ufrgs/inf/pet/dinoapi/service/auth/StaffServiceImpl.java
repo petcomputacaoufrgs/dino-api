@@ -38,13 +38,36 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
         return Collections.singletonList(PermissionEnum.ADMIN);
     }
 
+    protected void treatBeforeSave(StaffDataModel model) {
+        Optional<User> userSearch = userService.findUserByEmail(model.getEmail());
+        userSearch.ifPresent(user -> model.setUserId(user.getId()));
+    }
+
+    protected void afterDataCreated(Staff entity, Auth auth) {
+        User user = entity.getUser();
+        if(user != null) {
+            user.setPermission(PermissionEnum.STAFF.getValue());
+            userService.saveDirectly(user);
+        }
+    }
+
+    protected void beforeDataDeleted(Staff staff, Auth auth) {
+        Optional<User> userSearch = userService.findUserById(staff.getUser().getId());
+        if (userSearch.isPresent()) {
+            User user = userSearch.get();
+            user.setPermission(PermissionEnum.USER.getValue());
+            userService.saveDirectly(user);
+        }
+    }
+
     @Override
     public StaffDataModel convertEntityToModel(Staff entity) {
         final StaffDataModel model = new StaffDataModel();
         model.setEmail(entity.getEmail());
         model.setSentInvitationDate(clock.toUTCZonedDateTime(entity.getSentInvitationDate()));
-        model.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
-
+        if(entity.getUser() != null) {
+            model.setUserId(entity.getUser().getId());
+        }
         return model;
     }
 
@@ -55,7 +78,7 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
         entity.setSentInvitationDate(model.getSentInvitationDate().toLocalDateTime());
 
         if(model.getUserId() != null) {
-            final User user = userService.findUserById(model.getUserId());
+            final User user = userService.findUserById(model.getUserId()).orElseGet(() -> null);
             entity.setUser(user);
         }
 
@@ -68,33 +91,48 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
         entity.setSentInvitationDate(model.getSentInvitationDate().toLocalDateTime());
 
         if(model.getUserId() != null) {
-            final User user = userService.findUserById(model.getUserId());
+            final User user = userService.findUserById(model.getUserId()).orElseGet(() -> null);
             entity.setUser(user);
         }
     }
 
     @Override
     public Optional<Staff> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         return this.repository.findById(id);
     }
 
     @Override
     public Optional<Staff> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         return this.repository.findById(id);
     }
 
     @Override
     public List<Staff> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         return (List<Staff>) this.repository.findAll();
     }
 
     @Override
     public List<Staff> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         return (List<Staff>) this.repository.findAllById(ids);
     }
 
     @Override
     public List<Staff> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
         return this.repository.findAllExcludingIds(ids);
     }
 
@@ -124,5 +162,8 @@ public class StaffServiceImpl extends SynchronizableServiceImpl<Staff, Long, Sta
         } catch (AuthNullException | ConvertModelToEntityException e) {
             this.logAPIError(e);
         }
+
     }
+
+
 }
