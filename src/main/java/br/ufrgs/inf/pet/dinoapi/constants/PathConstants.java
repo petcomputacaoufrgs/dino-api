@@ -13,8 +13,7 @@ public final class PathConstants {
     public final static String ROUTE_PRIVATE = "/private/";
     // staff n pode CLIENT
     public final static String ROUTE_USER = "/user/";
-    // só admin
-    public final static String ROUTE_ADMIN = "/admin/";
+    public final static String ROUTE_STAFF = "/staff/";
 
     public final static String GLOSSARY =           ROUTE_PRIVATE + "glossary/";
     public final static String FAQ_ITEM =           ROUTE_PRIVATE + "faq_item/";
@@ -35,7 +34,7 @@ public final class PathConstants {
     public final static String NOTE_COLUMN =    ROUTE_USER + "note_column/";
     public final static String NOTE =           ROUTE_USER + "note/";
 
-    public final static String STAFF = ROUTE_ADMIN + "staff/";
+    public final static String STAFF = ROUTE_STAFF + "staff_management/";
 
     public final static String KIDS_SPACE_SETTINGS = "/kids_space_settings/";
 }

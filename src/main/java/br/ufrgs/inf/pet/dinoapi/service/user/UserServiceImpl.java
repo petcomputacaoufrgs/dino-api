@@ -73,6 +73,9 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         if (!user.getPictureURL().equals(model.getPictureURL())) {
             user.setPictureURL(model.getPictureURL());
         }
+        if(!user.getPermission().equals(model.getPermission())) {
+            user.setPermission(model.getPermission());
+        }
     }
 
     @Override
@@ -155,25 +158,12 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         return user;
     }
 
-    public User findUserByEmail(String email) {
-        if (email != null) {
-            final Optional<User> queryResult = this.repository.findByEmail(email);
-            if (queryResult.isPresent()) {
-                return queryResult.get();
-            }
-        }
-        return null;
+    public Optional<User> findUserByEmail(String email) {
+        return this.repository.findByEmail(email);
     }
 
-    public User findUserById(Long id) {
-        if (id != null) {
-            final Optional<User> queryResult = this.repository.findById(id);
-            if (queryResult.isPresent()) {
-                return queryResult.get();
-            }
-        }
-
-        return null;
+    public Optional<User> findUserById(Long id) {
+        return this.repository.findById(id);
     }
 
     @Override
@@ -213,5 +203,9 @@ public class UserServiceImpl extends SynchronizableServiceImpl<User, Long, UserD
         final UserDataModel model = this.completeConvertEntityToModel(user);
 
         this.sendUpdateMessage(model, auth);
+    }
+
+    public void saveDirectly(User user) {
+        this.repository.save(user);
     }
 }

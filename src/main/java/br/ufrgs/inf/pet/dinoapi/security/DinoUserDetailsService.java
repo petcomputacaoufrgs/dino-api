@@ -33,7 +33,7 @@ public class DinoUserDetailsService implements UserDetailsService {
 
     @Override
     public DinoUserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        final User user = userService.findUserByEmail(email);
+        final User user = userService.findUserByEmail(email).orElseGet(()-> null);
 
         if (user != null) {
             final DinoGrantedAuthority dinoAuthority = new DinoGrantedAuthority(user.getPermission());
