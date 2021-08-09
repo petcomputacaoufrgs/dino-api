@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeURLEnum;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
@@ -39,7 +40,7 @@ public class AsyncPhoneService extends LogUtilsBase {
 
     @Async("contactThreadPoolTaskExecutor")
     public void updateGoogleContactPhones(User user, Phone phone) {
-        if (googleScopeService.hasGoogleContactScope(user)) {
+        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT)) {
             final Contact contact = phone.getContact();
             final Optional<GoogleContact> googleContactSearch = googleContactService.findByContactId(contact.getId());
 

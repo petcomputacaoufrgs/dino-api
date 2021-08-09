@@ -136,9 +136,9 @@ public class GoogleScopeServiceImpl extends SynchronizableServiceImpl<GoogleScop
         return this.completeConvertEntitiesToModels(googleScopes);
     }
 
-    public boolean hasGoogleContactScope(User user) {
+    public boolean hasGoogleScope(User user, GoogleScopeURLEnum googleScopeURLEnum) {
         final Optional<GoogleScope> contactGoogleScopeSearch =
-                this.repository.findByName(user.getId(), GoogleScopeURLEnum.SCOPE_CONTACT.getValue());
+                this.repository.findByName(user.getId(), googleScopeURLEnum.getValue());
 
         return contactGoogleScopeSearch.isPresent();
     }

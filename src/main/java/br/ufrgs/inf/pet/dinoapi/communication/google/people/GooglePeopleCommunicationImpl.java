@@ -53,13 +53,16 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     public GooglePeopleModel getContact(
             User user, String resourceName
     ) throws IOException, InterruptedException, URISyntaxException {
-        final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
+
+        final GoogleAuth googleAuth = this.getGoogleAuth(user);
 
         if (googleAuth == null) return null;
 
-        final String accessToken = this.validateGrantAndGetAccessToken(googleAuth, GoogleScopeURLEnum.SCOPE_CONTACT);
+        final String accessToken = this.getAccessTokenAndSaveScopes(googleAuth);
 
         if (accessToken == null || resourceName == null) return null;
+
+        if(!validGoogleContactScopeAndUserGrant(user)) return null;
 
         final HttpRequest request = this.createBaseRequest(accessToken)
                 .uri(new URI(
@@ -81,13 +84,16 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             User user, String name, String description, List<String> phoneNumbers
     ) {
         try {
-            final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
+
+            final GoogleAuth googleAuth = this.getGoogleAuth(user);
 
             if (googleAuth == null) return null;
 
-            final String accessToken = this.validateGrantAndGetAccessToken(googleAuth, GoogleScopeURLEnum.SCOPE_CONTACT);
+            final String accessToken = this.getAccessTokenAndSaveScopes(googleAuth);
 
             if (accessToken == null) return null;
+
+            if(!validGoogleContactScopeAndUserGrant(user)) return null;
 
             return this.createNewGoogleContact(accessToken, name, description, phoneNumbers);
         } catch (URISyntaxException | IOException | InterruptedException e) {
@@ -103,13 +109,16 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     ) {
         try {
             final String resourceName = googleContact.getResourceName();
-            final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
+
+            final GoogleAuth googleAuth = this.getGoogleAuth(user);
 
             if (googleAuth == null) return null;
 
-            final String accessToken = this.validateGrantAndGetAccessToken(googleAuth, GoogleScopeURLEnum.SCOPE_CONTACT);
+            final String accessToken = this.getAccessTokenAndSaveScopes(googleAuth);
 
             if (accessToken == null) return null;
+
+            if(!validGoogleContactScopeAndUserGrant(user)) return null;
 
             final GooglePeopleModel currentPeopleModel = this.getContact(user, resourceName);
 
@@ -146,13 +155,16 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
     @Override
     public boolean deleteContact(User user, String resourceName) {
         try {
-            final GoogleAuth googleAuth = this.validateGrantsAndGetGoogleAuth(user);
+
+            final GoogleAuth googleAuth = this.getGoogleAuth(user);
 
             if (googleAuth == null) return false;
 
-            final String accessToken = this.validateGrantAndGetAccessToken(googleAuth, GoogleScopeURLEnum.SCOPE_CONTACT);
+            final String accessToken = this.getAccessTokenAndSaveScopes(googleAuth);
 
             if (accessToken == null) return false;
+
+            if(!validGoogleContactScopeAndUserGrant(user)) return false;
 
             final HttpRequest request = this.createBaseRequest(accessToken)
                     .uri(new URI(
@@ -232,9 +244,8 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return model;
     }
 
-    private String validateGrantAndGetAccessToken(
-            GoogleAuth googleAuth,
-            GoogleScopeURLEnum scopeURLEnum
+    private String getAccessTokenAndSaveScopes(
+            GoogleAuth googleAuth
     ) throws AuthNullException, ConvertModelToEntityException {
         if (googleAuth.getAccessToken() == null
                 || LocalDateTime.now().isAfter(googleAuth.getAccessTokenExpiresDate())) {
@@ -249,11 +260,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
             googleAuth.setAccessTokenExpiresDate(expiresDate);
             googleAuthService.save(googleAuth);
 
-            List<String> currentScopes = this.saveAllScopes(
-                    googleTokenResponse, googleAuth.getUser()
-            );
-
-            if (!hasScope(currentScopes, scopeURLEnum)) return null;
+            this.saveAllScopes(googleTokenResponse, googleAuth.getUser());
 
             return accessToken;
         }
@@ -261,22 +268,21 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return googleAuth.getAccessToken();
     }
 
-    private GoogleAuth validateGrantsAndGetGoogleAuth(User user) {
+    private GoogleAuth getGoogleAuth(User user) {
         final GoogleAuth googleAuth = user.getGoogleAuth();
 
-        if (googleAuth == null) return null;
-        if (googleAuth.getRefreshToken() == null) return null;
+        if (googleAuth == null || googleAuth.getRefreshToken() == null) return null;
+
+        return googleAuth;
+    }
+
+    private boolean validGoogleContactScopeAndUserGrant(User user) {
 
         final UserSettings userSettings = user.getUserAppSettings();
 
-        if (userSettings.getDeclineGoogleContacts()) return null;
+        if (userSettings.getDeclineGoogleContacts()) return false;
 
-        final boolean hasContactGrant =
-                googleScopeService.hasGoogleContactScope(user);
-
-        if (!hasContactGrant) return null;
-
-        return googleAuth;
+        return googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT);
     }
 
     private List<String> saveAllScopes(
@@ -290,13 +296,5 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         googleAuthService.saveAllScopes(currentScopes, fakeAuth);
 
         return currentScopes;
-    }
-
-    private boolean hasScope(List<String> currentScopes, GoogleScopeURLEnum scopeURLEnum) {
-        final Optional<String> googleContactScope = currentScopes.stream().filter(
-                scope -> scope.equals(scopeURLEnum.getValue())
-        ).findFirst();
-
-        return googleContactScope.isPresent();
     }
 }

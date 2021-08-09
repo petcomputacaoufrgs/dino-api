@@ -5,6 +5,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeURLEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.GoogleContactRepository;
@@ -36,7 +37,7 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
     }
 
     public void createNewGoogleContact(Contact entity, User user) {
-        if (googleScopeService.hasGoogleContactScope(user)) {
+        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT)) {
             final List<String> phoneNumbers = phoneRepository.findAllPhoneNumbersByContactId(entity.getId());
 
             final GooglePeopleModel googlePeopleModel =
@@ -56,7 +57,7 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
 
     public void updateGoogleContact(Contact contact, GoogleContact googleContact) {
         final User user = contact.getUser();
-        if (googleScopeService.hasGoogleContactScope(user)) {
+        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT)) {
             final List<String> phoneNumbers = phoneRepository.findAllPhoneNumbersByContactId(contact.getId());
 
             final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.
@@ -72,7 +73,7 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
     }
 
     public void deleteGoogleContact(String resourceName, User user) {
-        if (googleScopeService.hasGoogleContactScope(user)) {
+        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT)) {
             googlePeopleCommunication.deleteContact(user, resourceName);
         }
     }
