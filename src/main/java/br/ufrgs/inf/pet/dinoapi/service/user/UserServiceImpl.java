@@ -2,7 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.user;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.properties.AppConfig;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
+import br.ufrgs.inf.pet.dinoapi.entity.staff.Staff;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDelet
 import br.ufrgs.inf.pet.dinoapi.model.user.UserDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.auth.StaffServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.staff.StaffServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
