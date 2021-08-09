@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.entity.auth;
+package br.ufrgs.inf.pet.dinoapi.entity.staff;
 
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;

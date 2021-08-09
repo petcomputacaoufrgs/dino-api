@@ -1,13 +1,14 @@
-package br.ufrgs.inf.pet.dinoapi.service.auth;
+package br.ufrgs.inf.pet.dinoapi.service.staff;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.auth.Staff;
+import br.ufrgs.inf.pet.dinoapi.entity.staff.Staff;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
-import br.ufrgs.inf.pet.dinoapi.model.auth.staff.StaffDataModel;
-import br.ufrgs.inf.pet.dinoapi.repository.auth.StaffRepository;
+import br.ufrgs.inf.pet.dinoapi.model.staff.StaffDataModel;
+import br.ufrgs.inf.pet.dinoapi.repository.staff.StaffRepository;
+import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;

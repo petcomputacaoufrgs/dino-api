@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.auth.staff;
+package br.ufrgs.inf.pet.dinoapi.model.staff;
 
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 
