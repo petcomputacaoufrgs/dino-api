@@ -16,6 +16,7 @@
 .idea/
 
 /local.properties
+system.properties
 
 /*.classpath
 /.classpath
