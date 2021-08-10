@@ -18,6 +18,8 @@ public final class UserSettingsConstants {
 
     public final static String DECLINE_GOOGLE_CONTACTS_NULL_MESSAGE = "declineGoogleContacts cannot be null";
 
+    public final static String DECLINE_GOOGLE_CALENDAR_NULL_MESSAGE = "declineGoogleCalendar cannot be null";
+
     public final static String FIRST_SETTINGS_DONE_NULL_MESSAGE = "firstSettingsDone cannot be null";
 
     public final static int PASSWORD_MAX = 24;

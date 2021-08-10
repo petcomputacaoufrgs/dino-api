@@ -25,6 +25,9 @@ public class UserSettings extends SynchronizableEntity<Long> {
     @Column(name = "decline_google_contacts", nullable = false)
     private Boolean declineGoogleContacts;
 
+    @Column(name = "decline_google_calendar", nullable = false)
+    private Boolean declineGoogleCalendar;
+
     @Column(name = "first_settings_done", nullable = false)
     private Boolean firstSettingsDone;
 
@@ -33,6 +36,9 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     @Column(name = "sync_google_contacts", nullable = false)
     private Boolean shouldSyncGoogleContacts;
+
+    @Column(name = "google_calendar_id")
+    private String googleCalendarId;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -44,6 +50,18 @@ public class UserSettings extends SynchronizableEntity<Long> {
     private Treatment treatment;
 
     public UserSettings() { }
+
+    public String getGoogleCalendarId() {
+        return googleCalendarId;
+    }
+
+    public void setGoogleCalendarId(String googleCalendarId) {
+        this.googleCalendarId = googleCalendarId;
+    }
+
+    public void setDeclineGoogleCalendar(Boolean declineGoogleCalendar) {
+        this.declineGoogleCalendar = declineGoogleCalendar;
+    }
 
     public Integer getLanguage() {
         return language;
@@ -99,6 +117,10 @@ public class UserSettings extends SynchronizableEntity<Long> {
 
     public void setDeclineGoogleContacts(Boolean declineGoogleContacts) {
         this.declineGoogleContacts = declineGoogleContacts;
+    }
+
+    public Boolean getDeclineGoogleCalendar() {
+        return declineGoogleContacts;
     }
 
     public Boolean getFirstSettingsDone() {

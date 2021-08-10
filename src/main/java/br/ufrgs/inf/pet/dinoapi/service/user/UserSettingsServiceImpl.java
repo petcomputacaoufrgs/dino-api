@@ -47,6 +47,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setFontSize(entity.getFontSize());
         model.setIncludeEssentialContact(entity.getIncludeEssentialContact());
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
+        model.setDeclineGoogleCalendar(entity.getDeclineGoogleCalendar());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
         model.setParentsAreaPassword(entity.getParentsAreaPassword());
 
@@ -78,7 +79,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setUser(auth.getUser());
         userSettings.setParentsAreaPassword(model.getParentsAreaPassword());
         userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
-        modelToEntity(userSettings, model, auth);
+        modelToEntityUserGrants(userSettings, model, auth);
         return userSettings;
     }
 
@@ -105,10 +106,10 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setFontSize(model.getFontSize());
         entity.setLanguage(model.getLanguage());
         entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
-        modelToEntity(entity, model, auth);
+        modelToEntityUserGrants(entity, model, auth);
     }
 
-    private void modelToEntity(UserSettings entity, UserSettingsDataModel model, Auth auth) {
+    private void modelToEntityUserGrants(UserSettings entity, UserSettingsDataModel model, Auth auth) {
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
 
         final String permission = auth.getUser().getPermission();
@@ -117,9 +118,12 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
             final boolean acceptedGoogleContacts = entity.getDeclineGoogleContacts() && !model.getDeclineGoogleContacts();
             entity.setShouldSyncGoogleContacts(acceptedGoogleContacts);
             entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+            entity.setDeclineGoogleCalendar(model.getDeclineGoogleCalendar());
             entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
+            entity.setGoogleCalendarId(model.getGoogleCalendarId());
         } else {
             entity.setDeclineGoogleContacts(true);
+            entity.setDeclineGoogleCalendar(true);
         }
     }
 

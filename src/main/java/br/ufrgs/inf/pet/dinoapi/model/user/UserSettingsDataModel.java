@@ -23,11 +23,32 @@ public class UserSettingsDataModel extends SynchronizableDataLocalIdModel<Long> 
     @NotNull(message = UserSettingsConstants.DECLINE_GOOGLE_CONTACTS_NULL_MESSAGE)
     private Boolean declineGoogleContacts;
 
+    @NotNull(message = UserSettingsConstants.DECLINE_GOOGLE_CALENDAR_NULL_MESSAGE)
+    private Boolean declineGoogleCalendar;
+
+    private String googleCalendarId;
+
     @NotNull(message = UserSettingsConstants.FIRST_SETTINGS_DONE_NULL_MESSAGE)
     private Boolean firstSettingsDone;
 
     @Size(min = UserSettingsConstants.PASSWORD_MIN, max = UserSettingsConstants.PASSWORD_MAX, message = UserSettingsConstants.PASSWORD_SIZE_MESSAGE)
     private String parentsAreaPassword;
+
+    public String getGoogleCalendarId() {
+        return googleCalendarId;
+    }
+
+    public void setGoogleCalendarId(String googleCalendarId) {
+        this.googleCalendarId = googleCalendarId;
+    }
+
+    public Boolean getDeclineGoogleCalendar() {
+        return declineGoogleCalendar;
+    }
+
+    public void setDeclineGoogleCalendar(Boolean declineGoogleCalendar) {
+        this.declineGoogleCalendar = declineGoogleCalendar;
+    }
 
     public Integer getLanguage() {
         return language;
