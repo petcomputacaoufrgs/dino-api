@@ -12,6 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.calendar.AsyncGoogleCalendarService;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -20,6 +21,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -28,15 +30,17 @@ import java.util.Optional;
 public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, UserSettingsDataModel, UserSettingsRepository> {
     private final TreatmentRepository treatmentRepository;
     private final AsyncGoogleContactService asyncGoogleContactService;
-
+private final AsyncGoogleCalendarService asyncGoogleCalendarService;
     @Autowired
     public UserSettingsServiceImpl(UserSettingsRepository repository, AuthServiceImpl authService,
                                    SynchronizableQueueMessageService<Long, UserSettingsDataModel> synchronizableQueueMessageService,
                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
+                                   AsyncGoogleCalendarService asyncGoogleCalendarService,
                                    TreatmentRepository treatmentRepository, AsyncGoogleContactService asyncGoogleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;
         this.asyncGoogleContactService = asyncGoogleContactService;
+        this.asyncGoogleCalendarService = asyncGoogleCalendarService;
     }
 
     @Override
@@ -105,25 +109,32 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setColorTheme(model.getColorTheme());
         entity.setFontSize(model.getFontSize());
         entity.setLanguage(model.getLanguage());
-        entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         modelToEntityUserGrants(entity, model, auth);
     }
 
     private void modelToEntityUserGrants(UserSettings entity, UserSettingsDataModel model, Auth auth) {
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
 
-        final String permission = auth.getUser().getPermission();
+        final User user = auth.getUser();
+        final String permission = user.getPermission();
         final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
         if(hasUserPermission) {
             final boolean acceptedGoogleContacts = entity.getDeclineGoogleContacts() && !model.getDeclineGoogleContacts();
             entity.setShouldSyncGoogleContacts(acceptedGoogleContacts);
             entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
+
             entity.setDeclineGoogleCalendar(model.getDeclineGoogleCalendar());
+            if(!model.getDeclineGoogleCalendar() && entity.getGoogleCalendarId() == null) {
+                asyncGoogleCalendarService.updateGoogleCalendar(user);
+            } else {
+                entity.setGoogleCalendarId(model.getGoogleCalendarId());
+            }
             entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
-            entity.setGoogleCalendarId(model.getGoogleCalendarId());
+            entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         } else {
             entity.setDeclineGoogleContacts(true);
             entity.setDeclineGoogleCalendar(true);
+            entity.setIncludeEssentialContact(false);
         }
     }
 
@@ -200,13 +211,12 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         return this.repository.findAllByTreatmentId(treatment.getId());
     }
 
-    public void saveAllDirectly(List<UserSettings> userSettings) {
-        this.repository.saveAll(userSettings);
+    public void saveAllDirectly(List<UserSettings> userSettingsList) {
+        this.repository.saveAll(userSettingsList);
     }
 
-    public boolean saveContactsOnGoogleAPI(User user) {
-        final UserSettings settings = user.getUserAppSettings();
-        return !settings.getDeclineGoogleContacts();
+    public UserSettings saveDirectly(UserSettings userSettings) {
+        return this.repository.save(userSettings);
     }
 
     private void validSettings(UserSettingsDataModel model) throws ConvertModelToEntityException {

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 public class GoogleOAuth2Config {
     private String clientid;
     private String clientsecret;
+    private String apikey;
 
     public String getClientsecret() {
         return clientsecret;
@@ -23,5 +24,13 @@ public class GoogleOAuth2Config {
 
     public void setClientid(String clientid) {
         this.clientid = clientid;
+    }
+
+    public String getAPIkey() {
+        return apikey;
+    }
+
+    public void setAPIkey(String apikey) {
+        this.apikey = apikey;
     }
 }

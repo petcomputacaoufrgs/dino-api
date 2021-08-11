@@ -1,14 +1,13 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.people;
 
+import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleCommunication;
 import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
-import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
-import br.ufrgs.inf.pet.dinoapi.enumerable.*;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAPIURLEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeURLEnum;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleBiographiesModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeopleNameModel;
@@ -16,37 +15,32 @@ import br.ufrgs.inf.pet.dinoapi.model.google.people.GooglePeoplePhoneNumberModel
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
-import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class GooglePeopleCommunicationImpl extends LogUtilsBase implements GooglePeopleCommunication  {
-    private final GoogleOAuthCommunicationImpl googleOAuthCommunication;
+public class GooglePeopleCommunicationImpl extends GoogleCommunication implements GooglePeopleCommunication  {
     private final GoogleScopeServiceImpl googleScopeService;
-    private final GoogleAuthServiceImpl googleAuthService;
+
 
     @Autowired
     public GooglePeopleCommunicationImpl(GoogleOAuthCommunicationImpl googleOAuthCommunication,
                                          GoogleScopeServiceImpl googleScopeService,
                                          LogAPIErrorServiceImpl logAPIErrorService,
                                          GoogleAuthServiceImpl googleAuthService) {
-        super(logAPIErrorService);
-        this.googleOAuthCommunication = googleOAuthCommunication;
+        super(logAPIErrorService, googleOAuthCommunication, googleAuthService);
         this.googleScopeService = googleScopeService;
-        this.googleAuthService = googleAuthService;
     }
 
     @Override
@@ -204,20 +198,6 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return null;
     }
 
-    private HttpRequest.Builder createBaseRequest(String accessToken) {
-        return HttpRequest.newBuilder()
-                .version(HttpClient.Version.HTTP_1_1)
-                .header(GoogleAPIHeaderEnum.AUTHORIZATION.getValue(), "Bearer " + accessToken)
-                .header(HttpHeaderEnum.CONTENT_TYPE.getValue(), HttpContentTypeEnum.JSON.getValue());
-    }
-
-    private HttpResponse<String> send(HttpRequest request) throws IOException, InterruptedException {
-        return HttpClient
-                .newBuilder()
-                .build()
-                .send(request, HttpResponse.BodyHandlers.ofString());
-    }
-
     private GooglePeopleModel getGooglePeopleModel(String name, String description, List<String> phoneNumbers) {
         final GooglePeopleModel model = new GooglePeopleModel();
 
@@ -244,37 +224,7 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return model;
     }
 
-    private String getAccessTokenAndSaveScopes(
-            GoogleAuth googleAuth
-    ) throws AuthNullException, ConvertModelToEntityException {
-        if (googleAuth.getAccessToken() == null
-                || LocalDateTime.now().isAfter(googleAuth.getAccessTokenExpiresDate())) {
-            final GoogleTokenResponse googleTokenResponse =
-                    googleOAuthCommunication.getNewAccessTokenWithRefreshToken(googleAuth);
 
-            if (googleTokenResponse == null) return null;
-
-            final String accessToken = googleTokenResponse.getAccessToken();
-            final LocalDateTime expiresDate = googleAuthService.getExpiresDateFromToken(googleTokenResponse);
-            googleAuth.setAccessToken(accessToken);
-            googleAuth.setAccessTokenExpiresDate(expiresDate);
-            googleAuthService.save(googleAuth);
-
-            this.saveAllScopes(googleTokenResponse, googleAuth.getUser());
-
-            return accessToken;
-        }
-
-        return googleAuth.getAccessToken();
-    }
-
-    private GoogleAuth getGoogleAuth(User user) {
-        final GoogleAuth googleAuth = user.getGoogleAuth();
-
-        if (googleAuth == null || googleAuth.getRefreshToken() == null) return null;
-
-        return googleAuth;
-    }
 
     private boolean validGoogleContactScopeAndUserGrant(User user) {
 
@@ -285,16 +235,5 @@ public class GooglePeopleCommunicationImpl extends LogUtilsBase implements Googl
         return googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT);
     }
 
-    private List<String> saveAllScopes(
-            GoogleTokenResponse googleTokenResponse, User user
-    ) throws AuthNullException, ConvertModelToEntityException {
-        final List<String> currentScopes = Arrays.asList(googleTokenResponse.getScope().split(" "));
 
-        final Auth fakeAuth = new Auth();
-        fakeAuth.setUser(user);
-
-        googleAuthService.saveAllScopes(currentScopes, fakeAuth);
-
-        return currentScopes;
-    }
 }
