@@ -1,11 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.communication.google.calendar;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.GoogleCommunication;
+import br.ufrgs.inf.pet.dinoapi.communication.google.oauth.GoogleOAuthCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.configuration.properties.GoogleOAuth2Config;
+import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAPIURLEnum;
 import br.ufrgs.inf.pet.dinoapi.model.calendar.GoogleCalendarModel;
-import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleAuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.utils.JsonUtils;
@@ -22,28 +25,29 @@ import java.net.http.HttpResponse;
 public class GoogleCalendarCommunicationImpl extends GoogleCommunication {
 
     final UserSettingsServiceImpl userSettingsService;
-    final AuthServiceImpl authService;
     final GoogleOAuth2Config googleOAuth2Config;
 
-    public GoogleCalendarCommunicationImpl(LogAPIErrorServiceImpl logAPIErrorService,
-                                           AuthServiceImpl authService,
+    public GoogleCalendarCommunicationImpl(GoogleOAuthCommunicationImpl googleOAuthCommunication,
+                                           GoogleAuthServiceImpl googleAuthService,
+                                           GoogleOAuth2Config googleOAuth2Config,
                                            UserSettingsServiceImpl userSettingsService,
-                                           GoogleOAuth2Config googleOAuth2Config) {
-        super(logAPIErrorService);
+                                           LogAPIErrorServiceImpl logAPIErrorService) {
+        super(logAPIErrorService, googleOAuthCommunication, googleAuthService);
         this.userSettingsService = userSettingsService;
-        this.authService = authService;
         this.googleOAuth2Config = googleOAuth2Config;
-
     }
 
-    public GoogleCalendarModel createAndListNewGoogleCalendar() {
+
+    public void createAndListNewGoogleCalendar(User user) {
         try {
+            final GoogleAuth googleAuth = this.getGoogleAuth(user);
 
-            String accessToken = authService.getCurrentAuth().getAccessToken();
+            final String accessToken = this.getAccessTokenAndSaveScopes(googleAuth);
 
-            if(accessToken == null) return null;
+            if (accessToken == null) return;
 
-            GoogleCalendarModel newGoogleCalendarModel = new GoogleCalendarModel("Test DinoApp Calendar");
+            GoogleCalendarModel newGoogleCalendarModel = new GoogleCalendarModel();
+            newGoogleCalendarModel.setSummary("[Test] DinoApp");
 
             final String jsonModel = JsonUtils.convertToJson(newGoogleCalendarModel);
 
@@ -60,43 +64,13 @@ public class GoogleCalendarCommunicationImpl extends GoogleCommunication {
 
                 final GoogleCalendarModel createdCalendar = JsonUtils.convertJsonToObj(response.body(), GoogleCalendarModel.class);
 
-                final UserSettings settings = authService.getCurrentAuth().getUser().getUserAppSettings();
+                final UserSettings settings = user.getUserAppSettings();
                 settings.setGoogleCalendarId(createdCalendar.getId());
                 userSettingsService.saveDirectly(settings);
-
-                return listNewGoogleCalendar(createdCalendar, accessToken);
             }
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
             this.logAPIError(e);
         }
-
-        return null;
     }
-
-    private GoogleCalendarModel listNewGoogleCalendar (GoogleCalendarModel model, String accessToken
-    ) {
-        try {
-            final String jsonModel = JsonUtils.convertToJson(model);
-
-            final HttpRequest request = this.createBaseRequest(accessToken)
-                    .uri(new URI(
-                            GoogleAPIURLEnum.CALENDAR_LIST.getValue()
-                                    + "?key=" + googleOAuth2Config.getAPIkey()))
-                    .method("POST", HttpRequest.BodyPublishers.ofString(jsonModel))
-                    .build();
-
-            final HttpResponse<String> response = this.send(request);
-
-            if (response.statusCode() == HttpStatus.OK.value()) {
-                return JsonUtils.convertJsonToObj(response.body(), GoogleCalendarModel.class);
-            }
-
-            } catch (URISyntaxException | IOException | InterruptedException e) {
-                this.logAPIError(e);
-            }
-
-        return null;
-    }
-
 }

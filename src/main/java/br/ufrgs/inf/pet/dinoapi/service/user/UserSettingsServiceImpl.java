@@ -125,11 +125,11 @@ private final AsyncGoogleCalendarService asyncGoogleCalendarService;
 
             entity.setDeclineGoogleCalendar(model.getDeclineGoogleCalendar());
             if(!model.getDeclineGoogleCalendar() && entity.getGoogleCalendarId() == null) {
-                asyncGoogleCalendarService.updateGoogleCalendar();
+                asyncGoogleCalendarService.updateGoogleCalendar(user);
+            } else {
+                entity.setGoogleCalendarId(model.getGoogleCalendarId());
             }
-
             entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
-            entity.setGoogleCalendarId(model.getGoogleCalendarId());
             entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         } else {
             entity.setDeclineGoogleContacts(true);
@@ -215,8 +215,8 @@ private final AsyncGoogleCalendarService asyncGoogleCalendarService;
         this.repository.saveAll(userSettingsList);
     }
 
-    public void saveDirectly(UserSettings userSettings) {
-        this.repository.save(userSettings);
+    public UserSettings saveDirectly(UserSettings userSettings) {
+        return this.repository.save(userSettings);
     }
 
     private void validSettings(UserSettingsDataModel model) throws ConvertModelToEntityException {

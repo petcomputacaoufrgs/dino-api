@@ -1,6 +1,7 @@
 package br.ufrgs.inf.pet.dinoapi.service.calendar;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.calendar.GoogleCalendarCommunicationImpl;
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,9 @@ public class AsyncGoogleCalendarService extends LogUtilsBase {
     }
 
     //    @Async("defaultThreadPoolTaskExecutor")
-        public void updateGoogleCalendar() {
+        public void updateGoogleCalendar(User user) {
             try {
-                googleCalendarCommunication.createAndListNewGoogleCalendar();
+                googleCalendarCommunication.createAndListNewGoogleCalendar(user);
             } catch (Exception e) {
                 this.logAPIError(e);
             }

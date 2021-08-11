@@ -1,21 +1,14 @@
 package br.ufrgs.inf.pet.dinoapi.model.calendar;
 
-import javax.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GoogleCalendarModel {
 
     private String id;
-
-    @NotBlank
     private String summary;
-
     private String description;
-
     private String timeZone;
-
-    public GoogleCalendarModel(@NotBlank String summary) {
-        this.summary = summary;
-    }
 
     public String getId() {
         return id;
