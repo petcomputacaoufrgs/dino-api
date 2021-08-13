@@ -5,6 +5,9 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import static br.ufrgs.inf.pet.dinoapi.constants.KidsSpaceConstants.*;
 
 public class KidsSpaceSettingsModel extends SynchronizableDataLocalIdModel<Long> {
     @NotNull(message = KidsSpaceConstants.KIDS_FIRST_SETTING_DONE_NULL_MESSAGE)
@@ -14,6 +17,9 @@ public class KidsSpaceSettingsModel extends SynchronizableDataLocalIdModel<Long>
     private String color;
 
     private String hat;
+
+    @Size(min = PASSWORD_MIN, max = PASSWORD_MAX, message = PASSWORD_SIZE_MESSAGE)
+    private String parentsAreaPassword;
 
     public String getHat() {
         return hat;
@@ -37,5 +43,13 @@ public class KidsSpaceSettingsModel extends SynchronizableDataLocalIdModel<Long>
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public String getParentsAreaPassword() {
+        return parentsAreaPassword;
+    }
+
+    public void setParentsAreaPassword(String parentsAreaPassword) {
+        this.parentsAreaPassword = parentsAreaPassword;
     }
 }

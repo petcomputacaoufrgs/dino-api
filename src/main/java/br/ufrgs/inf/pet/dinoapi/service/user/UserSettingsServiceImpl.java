@@ -48,7 +48,6 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         model.setIncludeEssentialContact(entity.getIncludeEssentialContact());
         model.setDeclineGoogleContacts(entity.getDeclineGoogleContacts());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
-        model.setParentsAreaPassword(entity.getParentsAreaPassword());
 
         if (entity.getTreatment() != null) {
             model.setTreatmentId(entity.getTreatment().getId());
@@ -76,7 +75,6 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         userSettings.setColorTheme(model.getColorTheme());
         userSettings.setFontSize(model.getFontSize());
         userSettings.setUser(auth.getUser());
-        userSettings.setParentsAreaPassword(model.getParentsAreaPassword());
         userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
         modelToEntity(userSettings, model, auth);
         return userSettings;

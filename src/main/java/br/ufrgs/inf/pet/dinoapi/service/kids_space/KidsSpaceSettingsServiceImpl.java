@@ -4,7 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.kids_space.KidsSpaceSettingsModel;
 import br.ufrgs.inf.pet.dinoapi.repository.kids_space.KidsSpaceSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -15,6 +14,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -34,11 +34,12 @@ public class KidsSpaceSettingsServiceImpl extends SynchronizableServiceImpl<Kids
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
         model.setColor(entity.getColor());
         model.setHat(entity.getHat());
+        model.setParentsAreaPassword(entity.getParentsAreaPassword());
         return model;
     }
 
     @Override
-    public KidsSpaceSettings convertModelToEntity(KidsSpaceSettingsModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public KidsSpaceSettings convertModelToEntity(KidsSpaceSettingsModel model, Auth auth) throws AuthNullException {
         if (auth == null) {
             throw new AuthNullException();
         }
@@ -48,16 +49,18 @@ public class KidsSpaceSettingsServiceImpl extends SynchronizableServiceImpl<Kids
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
         entity.setColor(model.getColor());
         entity.setHat(model.getHat());
+        entity.setParentsAreaPassword(model.getParentsAreaPassword());
         entity.setUser(user);
 
         return entity;
     }
 
     @Override
-    public void updateEntity(KidsSpaceSettings entity, KidsSpaceSettingsModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public void updateEntity(KidsSpaceSettings entity, KidsSpaceSettingsModel model, Auth auth) {
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
         entity.setColor(model.getColor());
         entity.setHat(model.getHat());
+        entity.setParentsAreaPassword(model.getParentsAreaPassword());
     }
 
     @Override
