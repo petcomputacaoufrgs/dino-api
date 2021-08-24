@@ -32,8 +32,8 @@ app.origin={Endereço onde está o DinoApp}
 app.adminEmail={Endereço de email do Google que será o Staff}
 
 #Google
-googleoauth2.clientid={Google Cloud Client Id}
-googleoauth2.clientsecret={Google Cloud Client Secret}
+googleoauth2.clientid={Google Development Client Id}
+googleoauth2.clientsecret={Google Development Client Secret}
 
 #Port
 server.port=${PORT:5000}

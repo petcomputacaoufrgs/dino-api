@@ -8,6 +8,7 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.KidsSpaceConstants.COLOR_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.KidsSpaceConstants.HAT_MAX;
 
 @Entity
 @Table(name = "kids_space_settings")
@@ -17,6 +18,9 @@ public class KidsSpaceSettings extends SynchronizableEntity<Long> {
 
     @Column(name = "color", length = COLOR_MAX)
     private String color;
+
+    @Column(name="hat", length = HAT_MAX)
+    private String hat;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -47,5 +51,13 @@ public class KidsSpaceSettings extends SynchronizableEntity<Long> {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public String getHat() {
+        return hat;
+    }
+
+    public void setHat(String hat) {
+        this.hat = hat;
     }
 }

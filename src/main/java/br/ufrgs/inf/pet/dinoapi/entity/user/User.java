@@ -4,6 +4,7 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
+import br.ufrgs.inf.pet.dinoapi.entity.report.Report;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
@@ -55,7 +56,11 @@ public class User extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<TreatmentQuestion> treatmentQuestions;
-    
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Report> reports;
+
     public User() { }
 
     public User(String name, String email, String pictureURL) {

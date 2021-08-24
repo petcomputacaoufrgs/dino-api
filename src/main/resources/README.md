@@ -1,1 +1,0 @@
-## Diretório para configurações locais do projeto

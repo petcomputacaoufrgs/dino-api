@@ -2,14 +2,11 @@ package br.ufrgs.inf.pet.dinoapi.service.contact;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.GoogleContact;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.model.contacts.ContactDataModel;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.request.SynchronizableDeleteModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
-import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
@@ -20,24 +17,23 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableQueueMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, ContactDataModel, ContactRepository> {
 
-    private final EssentialContactRepository essentialContactRepository;
     private final PhoneRepository phoneRepository;
     private final AsyncContactService asyncContactService;
     private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
-    public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService, EssentialContactRepository essentialContactRepository,
+    public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService, PhoneRepository phoneRepository,
                               SynchronizableQueueMessageService<Long, ContactDataModel> synchronizableQueueMessageService,
                               AsyncContactService asyncContactService, GoogleContactServiceImpl googleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
-        this.essentialContactRepository = essentialContactRepository;
         this.phoneRepository = phoneRepository;
         this.asyncContactService = asyncContactService;
         this.googleContactService = googleContactService;
@@ -49,12 +45,6 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         model.setName(entity.getName());
         model.setDescription(entity.getDescription());
         model.setColor(entity.getColor());
-
-        final EssentialContact essentialContact = entity.getEssentialContact();
-
-        if (essentialContact != null) {
-            model.setEssentialContactId(essentialContact.getId());
-        }
 
         return model;
     }
@@ -68,11 +58,6 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
             entity.setColor(model.getColor());
             entity.setUser(auth.getUser());
 
-            if (model.getEssentialContactId() != null) {
-                essentialContactRepository
-                        .findById(model.getEssentialContactId())
-                        .ifPresent(entity::setEssentialContact);
-            }
             return entity;
         } else throw new AuthNullException();
     }
@@ -156,18 +141,5 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         googleContactSearch.ifPresent(googleContact -> {
             asyncContactService.deleteContactOnGoogleAPI(googleContact.getResourceName(), auth);
         });
-    }
-
-    public Contact saveDirectly(Contact contact) {
-        return this.repository.save(contact);
-    }
-
-    public List<Contact> findAllByEssentialContact(EssentialContact essentialContact) {
-        return this.repository.findAllByEssentialContactId(essentialContact.getId());
-    }
-
-    public List<Contact> findAllWhichShouldHaveEssentialPhoneButDont(EssentialPhone essentialPhone) {
-        final EssentialContact essentialContact = essentialPhone.getEssentialContact();
-        return this.repository.findAllWhichShouldHaveEssentialPhoneButDoesnt(essentialContact, essentialPhone);
     }
 }

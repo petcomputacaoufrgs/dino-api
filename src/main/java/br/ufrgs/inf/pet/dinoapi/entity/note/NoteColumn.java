@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.note;
 
-import br.ufrgs.inf.pet.dinoapi.constants.NoteColumnConstants;
+import br.ufrgs.inf.pet.dinoapi.constants.NoteConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import org.hibernate.annotations.OnDelete;
@@ -12,7 +12,7 @@ import java.util.List;
 @Entity
 @Table(name = "note_column")
 public class NoteColumn extends SynchronizableEntity<Long> {
-    @Column(name = "title", length = NoteColumnConstants.TITLE_MAX, nullable = false)
+    @Column(name = "title", length = NoteConstants.COLUMN_TITLE_MAX, nullable = false)
     private String title;
 
     @Column(name = "n_order", nullable = false)

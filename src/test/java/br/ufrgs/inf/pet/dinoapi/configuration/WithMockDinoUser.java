@@ -60,7 +60,6 @@ final class WithDinoSecurityContextFactory implements WithSecurityContextFactory
         user.setPermission(grantedAuthorities.get(0).getAuthority());
 
         final UserSettings userSettings = new UserSettings();
-        userSettings.setStep(0);
         userSettings.setFontSize(0);
         userSettings.setColorTheme(0);
         userSettings.setLanguage(0);

@@ -1,6 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.constants;
 
-public class SynchronizableConstants {
+public final class SynchronizableConstants {
     public final static String OK = "ok";
 
     public final static String NOT_FOUND = "not found";
@@ -14,8 +14,6 @@ public class SynchronizableConstants {
     public final static String LAST_UPDATE_CANNOT_BE_NULL = "last update cannot be null";
 
     public final static String DATA_CANNOT_BE_NULL = "data cannot be null";
-
-    public final static String LIST_DATA_CANNOT_BE_EMPTY = "data list cannot be empty";
 
     public final static String UNKNOWN_ERROR = "unknown error in API, log saved for analysis.";
 }

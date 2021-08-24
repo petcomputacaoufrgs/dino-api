@@ -1,7 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.service.treatment;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.treatment.Treatment;
 import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
@@ -10,6 +9,7 @@ import br.ufrgs.inf.pet.dinoapi.model.treatment.TreatmentDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.contact.EssentialContactServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
@@ -18,6 +18,7 @@ import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -26,15 +27,18 @@ import java.util.Optional;
 public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, Long, TreatmentDataModel, TreatmentRepository> {
     private final UserSettingsServiceImpl userSettingsService;
     private final AsyncUserSettingsService asyncUserSettingsService;
+    private final EssentialContactServiceImpl essentialContactService;
 
     @Autowired
     public TreatmentServiceImpl(TreatmentRepository repository, AuthServiceImpl authService,
                                 ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
                                 SynchronizableTopicMessageService<Long, TreatmentDataModel> synchronizableTopicMessageService,
-                                UserSettingsServiceImpl userSettingsService, AsyncUserSettingsService asyncUserSettingsService) {
+                                UserSettingsServiceImpl userSettingsService, AsyncUserSettingsService asyncUserSettingsService,
+                                EssentialContactServiceImpl essentialContactService) {
         super(repository, authService, clockService, synchronizableTopicMessageService, logAPIErrorService);
         this.userSettingsService = userSettingsService;
         this.asyncUserSettingsService = asyncUserSettingsService;
+        this.essentialContactService = essentialContactService;
     }
 
     @Override
@@ -105,9 +109,5 @@ public class TreatmentServiceImpl extends SynchronizableServiceImpl<Treatment, L
 
     public Optional<Treatment> getEntityById(Long id) {
         return this.repository.findById(id);
-    }
-
-    public List<Treatment> getEntitiesByEssentialContact(EssentialContact essentialContact) {
-        return this.repository.findAllByEssentialContact(essentialContact.getId());
     }
 }

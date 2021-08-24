@@ -33,6 +33,7 @@ public class KidsSpaceSettingsServiceImpl extends SynchronizableServiceImpl<Kids
         final KidsSpaceSettingsModel model = new KidsSpaceSettingsModel();
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
         model.setColor(entity.getColor());
+        model.setHat(entity.getHat());
         return model;
     }
 
@@ -46,6 +47,7 @@ public class KidsSpaceSettingsServiceImpl extends SynchronizableServiceImpl<Kids
         final KidsSpaceSettings entity = new KidsSpaceSettings();
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
         entity.setColor(model.getColor());
+        entity.setHat(model.getHat());
         entity.setUser(user);
 
         return entity;
@@ -55,6 +57,7 @@ public class KidsSpaceSettingsServiceImpl extends SynchronizableServiceImpl<Kids
     public void updateEntity(KidsSpaceSettings entity, KidsSpaceSettingsModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
         entity.setFirstSettingsDone(model.getFirstSettingsDone());
         entity.setColor(model.getColor());
+        entity.setHat(model.getHat());
     }
 
     @Override

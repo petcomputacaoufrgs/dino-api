@@ -1,8 +1,8 @@
 package br.ufrgs.inf.pet.dinoapi.configuration;
 
 import br.ufrgs.inf.pet.dinoapi.configuration.properties.AppConfig;
-import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.enumerable.HeaderEnum;
+import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.security.AuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
 import java.util.Collections;
 import java.util.concurrent.Executor;
 
@@ -56,7 +57,6 @@ public class SpringConfig extends WebSecurityConfigurerAdapter {
         final String userAuthority = PermissionEnum.USER.getValue();
         httpSecurity.authorizeRequests()
                 .antMatchers("/google1da5cc70ff16112c.html").permitAll()
-                .antMatchers("/admin/**").hasAuthority(adminAuthority)
                 .antMatchers("/staff/**").hasAnyAuthority(staffAuthority, adminAuthority)
                 .antMatchers("/user/**").hasAuthority(userAuthority)
                 .antMatchers("/private/**").authenticated()

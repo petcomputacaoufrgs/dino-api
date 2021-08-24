@@ -4,7 +4,6 @@ import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialContact;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.EssentialPhone;
-import br.ufrgs.inf.pet.dinoapi.entity.contacts.Phone;
 import br.ufrgs.inf.pet.dinoapi.enumerable.PermissionEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -12,13 +11,13 @@ import br.ufrgs.inf.pet.dinoapi.model.contacts.EssentialPhoneDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialPhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncEssentialPhoneService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
 import br.ufrgs.inf.pet.dinoapi.websocket.service.SynchronizableTopicMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -28,18 +27,16 @@ public class EssentialPhoneServiceImpl
         extends SynchronizableServiceImpl<EssentialPhone, Long, EssentialPhoneDataModel, EssentialPhoneRepository> {
 
     private final EssentialContactServiceImpl essentialContactService;
-    private final AsyncEssentialPhoneService asyncEssentialPhoneService;
     private final PhoneServiceImpl phoneService;
 
     @Autowired
     public EssentialPhoneServiceImpl(EssentialPhoneRepository repository, AuthServiceImpl authService,
                                      ClockServiceImpl clock, EssentialContactServiceImpl essentialContactService,
                                      SynchronizableTopicMessageService<Long, EssentialPhoneDataModel> synchronizableTopicMessageService,
-                                     LogAPIErrorServiceImpl logAPIErrorService, AsyncEssentialPhoneService asyncEssentialPhoneService,
+                                     LogAPIErrorServiceImpl logAPIErrorService,
                                      PhoneServiceImpl phoneService) {
         super(repository, authService, clock, synchronizableTopicMessageService, logAPIErrorService);
         this.essentialContactService = essentialContactService;
-        this.asyncEssentialPhoneService = asyncEssentialPhoneService;
         this.phoneService = phoneService;
     }
 
@@ -124,22 +121,13 @@ public class EssentialPhoneServiceImpl
 
     @Override
     protected void afterDataCreated(EssentialPhone entity, Auth auth) {
-        asyncEssentialPhoneService.createUsersPhones(entity);
     }
 
     @Override
     protected void afterDataUpdated(EssentialPhone entity, Auth auth) {
-        asyncEssentialPhoneService.updateUsersPhones(entity);
     }
 
     @Override
     protected void beforeDataDeleted(EssentialPhone entity, Auth auth) {
-        List<Phone> phones = phoneService.findAllByEssentialPhone(entity);
-
-        phones.forEach(phone -> phone.setEssentialPhone(null));
-
-        phones = phoneService.saveDirectly(phones);
-
-        asyncEssentialPhoneService.deleteUsersPhones(phones);
     }
 }
