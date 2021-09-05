@@ -12,7 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.calendar.AsyncGoogleCalendarService;
+import br.ufrgs.inf.pet.dinoapi.service.calendar.AsyncGoogleCalendarServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
@@ -30,17 +30,17 @@ import java.util.Optional;
 public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, UserSettingsDataModel, UserSettingsRepository> {
     private final TreatmentRepository treatmentRepository;
     private final AsyncGoogleContactService asyncGoogleContactService;
-private final AsyncGoogleCalendarService asyncGoogleCalendarService;
+private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
     @Autowired
     public UserSettingsServiceImpl(UserSettingsRepository repository, AuthServiceImpl authService,
                                    SynchronizableQueueMessageService<Long, UserSettingsDataModel> synchronizableQueueMessageService,
                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                   AsyncGoogleCalendarService asyncGoogleCalendarService,
+                                   AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl,
                                    TreatmentRepository treatmentRepository, AsyncGoogleContactService asyncGoogleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;
         this.asyncGoogleContactService = asyncGoogleContactService;
-        this.asyncGoogleCalendarService = asyncGoogleCalendarService;
+        this.asyncGoogleCalendarServiceImpl = asyncGoogleCalendarServiceImpl;
     }
 
     @Override
@@ -125,7 +125,7 @@ private final AsyncGoogleCalendarService asyncGoogleCalendarService;
 
             entity.setDeclineGoogleCalendar(model.getDeclineGoogleCalendar());
             if(!model.getDeclineGoogleCalendar() && entity.getGoogleCalendarId() == null) {
-                asyncGoogleCalendarService.updateGoogleCalendar(user);
+                asyncGoogleCalendarServiceImpl.updateGoogleCalendar(user);
             } else {
                 entity.setGoogleCalendarId(model.getGoogleCalendarId());
             }

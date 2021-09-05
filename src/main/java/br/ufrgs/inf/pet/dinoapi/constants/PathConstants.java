@@ -15,6 +15,8 @@ public final class PathConstants {
     public final static String ROUTE_USER = "/user/";
     public final static String ROUTE_STAFF = "/staff/";
 
+    public final static String EVENT =              ROUTE_PRIVATE + "event/";
+    public final static String EVENT_TYPE =         ROUTE_PRIVATE + "event_type/";
     public final static String GLOSSARY =           ROUTE_PRIVATE + "glossary/";
     public final static String FAQ_ITEM =           ROUTE_PRIVATE + "faq_item/";
     public final static String GOOGLE_SCOPE =       ROUTE_PRIVATE + "auth/google/scope/";

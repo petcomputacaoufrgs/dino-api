@@ -9,13 +9,13 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AsyncGoogleCalendarService extends LogUtilsBase {
+public class AsyncGoogleCalendarServiceImpl extends LogUtilsBase {
 
     final GoogleCalendarCommunicationImpl googleCalendarCommunication;
 
     @Autowired
-    public AsyncGoogleCalendarService(LogAPIErrorServiceImpl logAPIErrorService,
-                                     @Lazy GoogleCalendarCommunicationImpl googleCalendarCommunication) {
+    public AsyncGoogleCalendarServiceImpl(LogAPIErrorServiceImpl logAPIErrorService,
+                                          @Lazy GoogleCalendarCommunicationImpl googleCalendarCommunication) {
         super(logAPIErrorService);
         this.googleCalendarCommunication = googleCalendarCommunication;
     }

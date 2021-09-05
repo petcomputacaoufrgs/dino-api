@@ -2,12 +2,13 @@ package br.ufrgs.inf.pet.dinoapi.entity.user;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
+import br.ufrgs.inf.pet.dinoapi.entity.calendar.Event;
 import br.ufrgs.inf.pet.dinoapi.entity.contacts.Contact;
 import br.ufrgs.inf.pet.dinoapi.entity.kids_space.KidsSpaceSettings;
-import br.ufrgs.inf.pet.dinoapi.entity.report.Report;
-import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import br.ufrgs.inf.pet.dinoapi.entity.note.NoteColumn;
+import br.ufrgs.inf.pet.dinoapi.entity.report.Report;
 import br.ufrgs.inf.pet.dinoapi.entity.synchronizable.SynchronizableEntity;
+import br.ufrgs.inf.pet.dinoapi.entity.treatment.TreatmentQuestion;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -52,6 +53,10 @@ public class User extends SynchronizableEntity<Long> {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private List<Contact> contacts;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
+    @OnDelete(action = OnDeleteAction.CASCADE)
+    private List<Event> events;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     @OnDelete(action = OnDeleteAction.CASCADE)
