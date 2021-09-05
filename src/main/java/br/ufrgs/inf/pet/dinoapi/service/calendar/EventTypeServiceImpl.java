@@ -25,46 +25,79 @@ public class EventTypeServiceImpl extends SynchronizableServiceImpl<EventType, L
 
     @Override
     public EventTypeDataModel convertEntityToModel(EventType entity) {
-        return null;
+        final EventTypeDataModel model = new EventTypeDataModel();
+        model.setTitle(entity.getTitle());
+        model.setIcon(entity.getIcon());
+        model.setColor(entity.getColor());
+
+        return model;
     }
 
     @Override
     public EventType convertModelToEntity(EventTypeDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
-        return null;
+        if (auth != null) {
+            final EventType entity = new EventType();
+            entity.setTitle(model.getTitle());
+            entity.setColor(model.getColor());
+            entity.setIcon(model.getIcon());
+            entity.setUser(auth.getUser());
+
+            return entity;
+        } else throw new AuthNullException();
     }
 
     @Override
     public void updateEntity(EventType entity, EventTypeDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+        if (auth != null) {
+            entity.setTitle(model.getTitle());
+            entity.setColor(model.getColor());
+            entity.setIcon(model.getIcon());
+        } else throw new AuthNullException();
+    }
 
+    public Optional<EventType> findEntityByIdAndUserId(Long id, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findByIdAndUserId(id, auth.getUser().getId());
     }
 
     @Override
-    public Optional<EventType> findEntityByIdThatUserCanRead(Long aLong, Auth auth) throws AuthNullException {
-        return Optional.empty();
+    public Optional<EventType> findEntityByIdThatUserCanRead(Long id, Auth auth) throws AuthNullException {
+        return this.findEntityByIdAndUserId(id, auth);
     }
 
     @Override
-    public Optional<EventType> findEntityByIdThatUserCanEdit(Long aLong, Auth auth) throws AuthNullException {
-        return Optional.empty();
+    public Optional<EventType> findEntityByIdThatUserCanEdit(Long id, Auth auth) throws AuthNullException {
+        return this.findEntityByIdAndUserId(id, auth);
     }
 
     @Override
     public List<EventType> findEntitiesThatUserCanRead(Auth auth) throws AuthNullException {
-        return null;
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByUserId(auth.getUser().getId());
     }
 
     @Override
-    public List<EventType> findEntitiesByIdThatUserCanEdit(List<Long> longs, Auth auth) throws AuthNullException {
-        return null;
+    public List<EventType> findEntitiesByIdThatUserCanEdit(List<Long> ids, Auth auth) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByIdsAndUserId(ids, auth.getUser().getId());
     }
 
     @Override
-    public List<EventType> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> longs) throws AuthNullException {
-        return null;
+    public List<EventType> findEntitiesThatUserCanReadExcludingIds(Auth auth, List<Long> ids) throws AuthNullException {
+        if (auth == null) {
+            throw new AuthNullException();
+        }
+        return this.repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
-        return null;
+        return WebSocketDestinationsEnum.EVENT_TYPE;
     }
 }
