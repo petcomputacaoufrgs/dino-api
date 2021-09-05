@@ -6,6 +6,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.time.ZonedDateTime;
 
 import static br.ufrgs.inf.pet.dinoapi.constants.CalendarConstants.TIME_MAX;
 import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
@@ -22,7 +23,7 @@ public class Event extends SynchronizableEntity<Long> {
     private String description;
 
     @Column(name = "date", length = DESCRIPTION_MAX)
-    private String date;
+    private ZonedDateTime date;
 
     @Column(name = "endTime", length = TIME_MAX)
     private String endTime;
@@ -56,11 +57,11 @@ public class Event extends SynchronizableEntity<Long> {
         this.description = description;
     }
 
-    public String getDate() {
+    public ZonedDateTime getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(ZonedDateTime date) {
         this.date = date;
     }
 

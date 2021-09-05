@@ -6,6 +6,7 @@ import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdMo
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.time.ZonedDateTime;
 
 public class EventDataModel extends SynchronizableDataLocalIdModel<Long> {
 
@@ -16,8 +17,7 @@ public class EventDataModel extends SynchronizableDataLocalIdModel<Long> {
     @Size(max = ContactsConstants.DESCRIPTION_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
     private String description;
 
-    @Size(max = ContactsConstants.NAME_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
-    private String date;
+    private ZonedDateTime date;
 
     @Size(max = CalendarConstants.TIME_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
     private String endTime;
@@ -44,11 +44,11 @@ public class EventDataModel extends SynchronizableDataLocalIdModel<Long> {
         this.description = description;
     }
 
-    public String getDate() {
+    public ZonedDateTime getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(ZonedDateTime date) {
         this.date = date;
     }
 
