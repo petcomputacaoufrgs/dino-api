@@ -26,7 +26,7 @@ public class User extends SynchronizableEntity<Long> {
     @Column(name = "email", length = EMAIL_MAX, unique = true, nullable = false)
     private String email;
 
-    @Column(name = "picture_url", length = PICTURE_URL_MAX, nullable = false)
+    @Column(name = "picture_url", length = PICTURE_URL_MAX)
     private String pictureURL;
 
     @Column(name = "permission", length = PERMISSION_MAX, nullable = false)
