@@ -11,8 +11,7 @@ public class EventTypeDataModel extends SynchronizableDataLocalIdModel<Long> {
     @Size(max = ContactsConstants.NAME_MAX, message = ContactsConstants.NAME_MAX_MESSAGE)
     private String title;
 
-    @Size(max = ContactsConstants.DESCRIPTION_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
-    private String color;
+    private Byte color;
 
     @Size(max = ContactsConstants.DESCRIPTION_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
     private String icon;
@@ -28,11 +27,11 @@ public class EventTypeDataModel extends SynchronizableDataLocalIdModel<Long> {
         this.title = title;
     }
 
-    public String getColor() {
+    public Byte getColor() {
         return color;
     }
 
-    public void setColor(String color) {
+    public void setColor(Byte color) {
         this.color = color;
     }
 

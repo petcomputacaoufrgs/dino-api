@@ -18,7 +18,7 @@ public class EventType extends SynchronizableEntity<Long> {
     private String title;
 
     @Column(name = "color", length = DESCRIPTION_MAX)
-    private String color;
+    private Byte color;
 
     @Column(name = "icon", length = DESCRIPTION_MAX)
     private String icon;
@@ -49,11 +49,11 @@ public class EventType extends SynchronizableEntity<Long> {
         this.title = title;
     }
 
-    public String getColor() {
+    public Byte getColor() {
         return color;
     }
 
-    public void setColor(String color) {
+    public void setColor(Byte color) {
         this.color = color;
     }
 
