@@ -119,17 +119,21 @@ private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
         final String permission = user.getPermission();
         final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
         if(hasUserPermission) {
+
             final boolean acceptedGoogleContacts = entity.getDeclineGoogleContacts() && !model.getDeclineGoogleContacts();
             entity.setShouldSyncGoogleContacts(acceptedGoogleContacts);
             entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
 
+            final boolean acceptedGoogleCalendar = entity.getDeclineGoogleCalendar() && !model.getDeclineGoogleCalendar();
+            entity.setShouldSyncGoogleCalendar(acceptedGoogleCalendar);
             entity.setDeclineGoogleCalendar(model.getDeclineGoogleCalendar());
+
             if(!model.getDeclineGoogleCalendar() && entity.getGoogleCalendarId() == null) {
                 asyncGoogleCalendarServiceImpl.updateGoogleCalendar(user);
             } else {
                 entity.setGoogleCalendarId(model.getGoogleCalendarId());
             }
-            entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
+
             entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         } else {
             entity.setDeclineGoogleContacts(true);
