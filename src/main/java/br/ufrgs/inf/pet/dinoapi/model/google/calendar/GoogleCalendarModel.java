@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.model.calendar;
+package br.ufrgs.inf.pet.dinoapi.model.google.calendar;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -8,7 +8,7 @@ public class GoogleCalendarModel {
     private String id;
     private String summary;
     private String description;
-    private String timeZone;
+    private String timeZone; /*TODO ver se isso precisa*/
 
     public String getId() {
         return id;

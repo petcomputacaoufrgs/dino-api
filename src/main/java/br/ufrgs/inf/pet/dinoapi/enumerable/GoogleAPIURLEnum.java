@@ -7,10 +7,7 @@ public enum GoogleAPIURLEnum {
     GET_CONTACT_BASE("https://people.googleapis.com/v1/"),
     DELETE_CONTACT_BASE("https://people.googleapis.com/v1/"),
 
-    CALENDARS("https://www.googleapis.com/calendar/v3/calendars"),
-    CALENDAR_LIST("https://www.googleapis.com/calendar/v3/users/me/calendarList");
-
-
+    CALENDARS("https://www.googleapis.com/calendar/v3/calendars");
     private String value;
 
     GoogleAPIURLEnum(String value) {

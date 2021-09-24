@@ -129,7 +129,7 @@ private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
             entity.setDeclineGoogleCalendar(model.getDeclineGoogleCalendar());
 
             if(!model.getDeclineGoogleCalendar() && entity.getGoogleCalendarId() == null) {
-                asyncGoogleCalendarServiceImpl.updateGoogleCalendar(user);
+                asyncGoogleCalendarServiceImpl.createGoogleCalendar(user);
             } else {
                 entity.setGoogleCalendarId(model.getGoogleCalendarId());
             }

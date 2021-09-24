@@ -8,15 +8,13 @@ import org.hibernate.annotations.OnDeleteAction;
 import javax.persistence.*;
 import java.time.ZonedDateTime;
 
-import static br.ufrgs.inf.pet.dinoapi.constants.CalendarConstants.TIME_MAX;
-import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.DESCRIPTION_MAX;
-import static br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants.NAME_MAX;
+import static br.ufrgs.inf.pet.dinoapi.constants.CalendarConstants.*;
 
 @Entity
 @Table(name = "event")
 public class Event extends SynchronizableEntity<Long> {
 
-    @Column(name = "title", length = NAME_MAX, nullable = false)
+    @Column(name = "title", length = TITLE_MAX, nullable = false)
     private String title;
 
     @Column(name = "description", length = DESCRIPTION_MAX)
@@ -26,7 +24,7 @@ public class Event extends SynchronizableEntity<Long> {
     private ZonedDateTime date;
 
     @Column(name = "endTime", length = TIME_MAX)
-    private String endTime;
+    private ZonedDateTime endTime;
 
     @OneToOne
     @JoinColumn(name = "type_id", nullable = false)
@@ -37,6 +35,7 @@ public class Event extends SynchronizableEntity<Long> {
     @JoinColumn(name = "user_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
+
 
     public Event() {
     }
@@ -65,11 +64,11 @@ public class Event extends SynchronizableEntity<Long> {
         this.date = date;
     }
 
-    public String getEndTime() {
+    public ZonedDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(String endTime) {
+    public void setEndTime(ZonedDateTime endTime) {
         this.endTime = endTime;
     }
 

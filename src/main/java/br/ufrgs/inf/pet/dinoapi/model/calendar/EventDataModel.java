@@ -1,6 +1,5 @@
 package br.ufrgs.inf.pet.dinoapi.model.calendar;
 
-import br.ufrgs.inf.pet.dinoapi.constants.CalendarConstants;
 import br.ufrgs.inf.pet.dinoapi.constants.ContactsConstants;
 import br.ufrgs.inf.pet.dinoapi.model.synchronizable.SynchronizableDataLocalIdModel;
 
@@ -19,8 +18,7 @@ public class EventDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     private ZonedDateTime date;
 
-    @Size(max = CalendarConstants.TIME_MAX, message = ContactsConstants.DESCRIPTION_MAX_MESSAGE)
-    private String endTime;
+    private ZonedDateTime endTime;
 
     @NotNull(message = ContactsConstants.NAME_NULL_MESSAGE)
     private Long typeId;
@@ -52,11 +50,11 @@ public class EventDataModel extends SynchronizableDataLocalIdModel<Long> {
         this.date = date;
     }
 
-    public String getEndTime() {
+    public ZonedDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(String endTime) {
+    public void setEndTime(ZonedDateTime endTime) {
         this.endTime = endTime;
     }
 
