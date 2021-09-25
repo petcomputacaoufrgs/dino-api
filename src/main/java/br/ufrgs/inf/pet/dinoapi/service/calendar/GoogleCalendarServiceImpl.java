@@ -15,7 +15,6 @@ import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,11 +37,7 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
     public void createNewGoogleEvent(Event entity, User user) {
         if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CALENDAR)) {
 
-
-            final GoogleEventModel googleEventModel =
-                    googleCalendarCommunication.createNewEvent(
-                            user, entity
-                    );
+            final GoogleEventModel googleEventModel = googleCalendarCommunication.insertGoogleEvent(user, entity);
 
             if (googleEventModel != null) {
                 final GoogleEvent googleEvent = new GoogleEvent();
@@ -53,32 +48,29 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
         }
     }
 
-    /*
 
-    public void updateGoogleContact(Contact contact, GoogleContact googleContact) {
-        final User user = contact.getUser();
-        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT)) {
-            final List<String> phoneNumbers = phoneRepository.findAllPhoneNumbersByContactId(contact.getId());
 
-            final GooglePeopleModel googlePeopleModel = googlePeopleCommunication.
-                    updateContact(
-                            user, contact.getName(), contact.getDescription(),
-                            phoneNumbers, googleContact
-                    );
-            if (googlePeopleModel != null) {
-                googleContact.setResourceName(googleContact.getResourceName());
-                this.save(googleContact);
+    public void updateGoogleContact(Event event, GoogleEvent googleEvent) {
+        final User user = event.getUser();
+        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CALENDAR)) {
+
+            final GoogleEventModel googleEventModel = googleCalendarCommunication.updateGoogleEvent(user, event, googleEvent);
+
+            if (googleEventModel != null) {
+                googleEvent.setGoogleId(googleEventModel.getId());
+                this.save(googleEvent);
             }
         }
     }
 
-    public void deleteGoogleContact(String resourceName, User user) {
-        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT)) {
-            googlePeopleCommunication.deleteContact(user, resourceName);
+    public void deleteGoogleContact(User user, GoogleEvent googleEvent) {
+        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CALENDAR)) {
+            googleCalendarCommunication.deleteGoogleEvent(user, googleEvent);
         }
+
+        this.delete(googleEvent);
     }
 
-     */
 
     public void save(GoogleEvent entity) {
         try {

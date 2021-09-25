@@ -7,6 +7,11 @@ public class Tuple2<K, V> {
     public Tuple2() {
     }
 
+    public Tuple2(K first, V second) {
+        this.first = first;
+        this.second = second;
+    }
+
     public K getFirst() {
         return first;
     }
