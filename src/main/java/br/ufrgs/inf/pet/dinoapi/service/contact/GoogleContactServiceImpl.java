@@ -72,10 +72,9 @@ public class GoogleContactServiceImpl extends LogUtilsBase {
         }
     }
 
-    public void deleteGoogleContact(String resourceName, User user) {
-        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CONTACT)) {
-            googlePeopleCommunication.deleteContact(user, resourceName);
-        }
+    public void deleteGoogleContact(GoogleContact googleContact, User user) {
+        googlePeopleCommunication.deleteContact(user, googleContact.getResourceName());
+        this.delete(googleContact);
     }
 
     public void save(GoogleContact entity) {

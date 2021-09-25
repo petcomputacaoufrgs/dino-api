@@ -43,12 +43,12 @@ public class AsyncContactService extends LogUtilsBase {
     }
 
     @Async("contactThreadPoolTaskExecutor")
-    public void deleteContactOnGoogleAPI(String resourceName, Auth auth) {
+    public void deleteContactOnGoogleAPI(GoogleContact googleContact, Auth auth) {
         final User user = auth.getUser();
         final boolean hasUserPermission = user.getPermission().equals(PermissionEnum.USER.getValue());
 
         if (hasUserPermission) {
-            googleContactService.deleteGoogleContact(resourceName, user);
+            googleContactService.deleteGoogleContact(googleContact, user);
         }
     }
 }

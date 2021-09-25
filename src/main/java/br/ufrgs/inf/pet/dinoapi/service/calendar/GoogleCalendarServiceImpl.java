@@ -64,10 +64,7 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
     }
 
     public void deleteGoogleContact(User user, GoogleEvent googleEvent) {
-        if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CALENDAR)) {
-            googleCalendarCommunication.deleteGoogleEvent(user, googleEvent);
-        }
-
+        googleCalendarCommunication.deleteGoogleEvent(user, googleEvent);
         this.delete(googleEvent);
     }
 

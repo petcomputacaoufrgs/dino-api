@@ -139,7 +139,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         final Optional<GoogleContact> googleContactSearch = this.googleContactService.findByContactId(entity.getId());
 
         googleContactSearch.ifPresent(googleContact -> {
-            asyncContactService.deleteContactOnGoogleAPI(googleContact.getResourceName(), auth);
+            asyncContactService.deleteContactOnGoogleAPI(googleContact, auth);
         });
     }
 }
