@@ -35,8 +35,8 @@ public class EventServiceImpl extends SynchronizableServiceImpl<Event, Long, Eve
         final EventDataModel model = new EventDataModel();
         model.setTitle(entity.getTitle());
         model.setDescription(entity.getDescription());
-        model.setDate(entity.getDate());
-        model.setEndTime(entity.getEndTime());
+        model.setStart(entity.getStart());
+        model.setEnd(entity.getEnd());
         model.setTypeId(entity.getType().getId());
 
         return model;
@@ -48,7 +48,8 @@ public class EventServiceImpl extends SynchronizableServiceImpl<Event, Long, Eve
             final Event entity = new Event();
             entity.setTitle(model.getTitle());
             entity.setDescription(model.getDescription());
-            entity.setDate(model.getDate());
+            entity.setStart(model.getStart());
+            entity.setEnd(model.getEnd());
             entity.setUser(auth.getUser());
 
             if(model.getTypeId() != null) {
@@ -65,7 +66,8 @@ public class EventServiceImpl extends SynchronizableServiceImpl<Event, Long, Eve
         if (auth != null) {
             entity.setTitle(model.getTitle());
             entity.setDescription(model.getDescription());
-            entity.setDate(model.getDate());
+            entity.setStart(model.getStart());
+            entity.setEnd(model.getEnd());
             entity.setUser(auth.getUser());
 
             if(model.getTypeId() != null && !model.getTypeId().equals(entity.getType().getId())) {
