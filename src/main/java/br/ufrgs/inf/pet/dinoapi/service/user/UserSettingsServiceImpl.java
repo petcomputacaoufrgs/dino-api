@@ -28,19 +28,21 @@ import java.util.Optional;
 
 @Service
 public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSettings, Long, UserSettingsDataModel, UserSettingsRepository> {
+
     private final TreatmentRepository treatmentRepository;
     private final AsyncGoogleContactService asyncGoogleContactService;
-private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
+    private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarService;
+
     @Autowired
     public UserSettingsServiceImpl(UserSettingsRepository repository, AuthServiceImpl authService,
                                    SynchronizableQueueMessageService<Long, UserSettingsDataModel> synchronizableQueueMessageService,
                                    ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                                   AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl,
+                                   AsyncGoogleCalendarServiceImpl asyncGoogleCalendarService,
                                    TreatmentRepository treatmentRepository, AsyncGoogleContactService asyncGoogleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.treatmentRepository = treatmentRepository;
         this.asyncGoogleContactService = asyncGoogleContactService;
-        this.asyncGoogleCalendarServiceImpl = asyncGoogleCalendarServiceImpl;
+        this.asyncGoogleCalendarService = asyncGoogleCalendarService;
     }
 
     @Override
@@ -54,6 +56,7 @@ private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
         model.setDeclineGoogleCalendar(entity.getDeclineGoogleCalendar());
         model.setFirstSettingsDone(entity.getFirstSettingsDone());
         model.setParentsAreaPassword(entity.getParentsAreaPassword());
+        model.setGoogleCalendarId(entity.getGoogleCalendarId());
 
         if (entity.getTreatment() != null) {
             model.setTreatmentId(entity.getTreatment().getId());
@@ -83,6 +86,7 @@ private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
         userSettings.setUser(auth.getUser());
         userSettings.setParentsAreaPassword(model.getParentsAreaPassword());
         userSettings.setFirstSettingsDone(model.getFirstSettingsDone());
+        userSettings.setGoogleCalendarId(model.getGoogleCalendarId());
         modelToEntityUserGrants(userSettings, model, auth);
         return userSettings;
     }
@@ -113,26 +117,18 @@ private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
     }
 
     private void modelToEntityUserGrants(UserSettings entity, UserSettingsDataModel model, Auth auth) {
-        entity.setFirstSettingsDone(model.getFirstSettingsDone());
-
         final User user = auth.getUser();
         final String permission = user.getPermission();
         final boolean hasUserPermission = permission.equals(PermissionEnum.USER.getValue());
         if(hasUserPermission) {
 
             final boolean acceptedGoogleContacts = entity.getDeclineGoogleContacts() && !model.getDeclineGoogleContacts();
-            entity.setShouldSyncGoogleContacts(acceptedGoogleContacts);
+            entity.setShouldSyncGoogleContactsNow(acceptedGoogleContacts);
             entity.setDeclineGoogleContacts(model.getDeclineGoogleContacts());
 
             final boolean acceptedGoogleCalendar = entity.getDeclineGoogleCalendar() && !model.getDeclineGoogleCalendar();
-            entity.setShouldSyncGoogleCalendar(acceptedGoogleCalendar);
+            entity.setShouldSyncGoogleCalendarNow(acceptedGoogleCalendar);
             entity.setDeclineGoogleCalendar(model.getDeclineGoogleCalendar());
-
-            if(!model.getDeclineGoogleCalendar() && entity.getGoogleCalendarId() == null) {
-                asyncGoogleCalendarServiceImpl.createGoogleCalendar(user);
-            } else {
-                entity.setGoogleCalendarId(model.getGoogleCalendarId());
-            }
 
             entity.setIncludeEssentialContact(model.getIncludeEssentialContact());
         } else {
@@ -194,13 +190,19 @@ private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarServiceImpl;
 
     @Override
     protected void afterDataUpdated(UserSettings entity, Auth auth) {
+        final User user = auth.getUser();
+        //user.setUserAppSettings(entity);
+
         if (entity.shouldSyncGoogleContacts()) {
-            final User user = auth.getUser();
-            user.setUserAppSettings(entity);
-            entity.setShouldSyncGoogleContacts(false);
-            this.repository.save(entity);
-            asyncGoogleContactService.updateUserGoogleContacts(user);
+            entity.setShouldSyncGoogleContactsNow(false);
+            asyncGoogleContactService.asyncUpdateAllUserGoogleContacts(user);
         }
+        if(entity.shouldSyncGoogleCalendarNow()) {
+            entity.setShouldSyncGoogleCalendarNow(false);
+            asyncGoogleCalendarService.asyncUpdateAllUserGoogleEvents(user);
+        }
+
+        this.repository.save(entity);
     }
 
     public UserSettings saveOnDatabase(UserSettings userSettings) {

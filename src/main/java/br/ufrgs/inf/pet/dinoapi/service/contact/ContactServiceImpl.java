@@ -10,7 +10,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.ContactRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncContactService;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -25,17 +25,17 @@ import java.util.Optional;
 public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long, ContactDataModel, ContactRepository> {
 
     private final PhoneRepository phoneRepository;
-    private final AsyncContactService asyncContactService;
+    private final AsyncGoogleContactService asyncGoogleContactService;
     private final GoogleContactServiceImpl googleContactService;
 
     @Autowired
     public ContactServiceImpl(ContactRepository repository, AuthServiceImpl authService,
                               ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService, PhoneRepository phoneRepository,
                               SynchronizableQueueMessageService<Long, ContactDataModel> synchronizableQueueMessageService,
-                              AsyncContactService asyncContactService, GoogleContactServiceImpl googleContactService) {
+                              AsyncGoogleContactService asyncGoogleContactService, GoogleContactServiceImpl googleContactService) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.phoneRepository = phoneRepository;
-        this.asyncContactService = asyncContactService;
+        this.asyncGoogleContactService = asyncGoogleContactService;
         this.googleContactService = googleContactService;
     }
 
@@ -126,12 +126,12 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
 
     @Override
     protected void afterDataCreated(Contact entity, Auth auth) {
-        asyncContactService.createContactOnGoogleAPI(entity, auth);
+        asyncGoogleContactService.createContact(entity, auth);
     }
 
     @Override
     protected void afterDataUpdated(Contact entity, Auth auth) {
-        asyncContactService.updateContactOnGoogleAPI(entity, auth);
+        asyncGoogleContactService.updateContact(entity, auth);
     }
 
     @Override
@@ -139,7 +139,7 @@ public class ContactServiceImpl extends SynchronizableServiceImpl<Contact, Long,
         final Optional<GoogleContact> googleContactSearch = this.googleContactService.findByContactId(entity.getId());
 
         googleContactSearch.ifPresent(googleContact -> {
-            asyncContactService.deleteContactOnGoogleAPI(googleContact, auth);
+            asyncGoogleContactService.deleteContact(googleContact, auth);
         });
     }
 }

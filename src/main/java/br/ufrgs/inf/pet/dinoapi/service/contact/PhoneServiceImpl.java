@@ -13,7 +13,7 @@ import br.ufrgs.inf.pet.dinoapi.repository.contact.EssentialPhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.contact.PhoneRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncPhoneService;
+import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGooglePhoneService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.websocket.enumerable.WebSocketDestinationsEnum;
@@ -28,18 +28,18 @@ import java.util.Optional;
 @Service
 public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, PhoneDataModel, PhoneRepository> {
     private final ContactServiceImpl contactService;
-    private final AsyncPhoneService asyncPhoneService;
+    private final AsyncGooglePhoneService asyncGooglePhoneService;
     private final EssentialPhoneRepository essentialPhoneRepository;
 
     @Autowired
     public PhoneServiceImpl(PhoneRepository repository, AuthServiceImpl authService,
                             SynchronizableQueueMessageService<Long, PhoneDataModel> synchronizableQueueMessageService,
                             ClockServiceImpl clockService, LogAPIErrorServiceImpl logAPIErrorService,
-                            ContactServiceImpl contactService, AsyncPhoneService asyncPhoneService,
+                            ContactServiceImpl contactService, AsyncGooglePhoneService asyncGooglePhoneService,
                             EssentialPhoneRepository essentialPhoneRepository) {
         super(repository, authService, clockService, synchronizableQueueMessageService, logAPIErrorService);
         this.contactService = contactService;
-        this.asyncPhoneService = asyncPhoneService;
+        this.asyncGooglePhoneService = asyncGooglePhoneService;
         this.essentialPhoneRepository = essentialPhoneRepository;
     }
 
@@ -120,17 +120,17 @@ public class PhoneServiceImpl extends SynchronizableServiceImpl<Phone, Long, Pho
 
     @Override
     protected void afterDataCreated(Phone entity, Auth auth) {
-        asyncPhoneService.updateGoogleContactPhones(auth.getUser(), entity);
+        asyncGooglePhoneService.updateGoogleContactPhones(auth.getUser(), entity);
     }
 
     @Override
     protected void afterDataUpdated(Phone entity, Auth auth) {
-        asyncPhoneService.updateGoogleContactPhones(auth.getUser(), entity);
+        asyncGooglePhoneService.updateGoogleContactPhones(auth.getUser(), entity);
     }
 
     @Override
     protected void afterDataDeleted(Phone entity, Auth auth) {
-        asyncPhoneService.updateGoogleContactPhones(auth.getUser(), entity);
+        asyncGooglePhoneService.updateGoogleContactPhones(auth.getUser(), entity);
     }
 
     public void saveByUser(PhoneDataModel contactDataModel, User user) throws AuthNullException, ConvertModelToEntityException {

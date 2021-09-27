@@ -7,7 +7,6 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.google.GoogleAuth;
 import br.ufrgs.inf.pet.dinoapi.entity.calendar.Event;
 import br.ufrgs.inf.pet.dinoapi.entity.calendar.GoogleEvent;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
-import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleAPIURLEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
@@ -47,13 +46,13 @@ public class GoogleCalendarCommunicationImpl extends GoogleCommunication {
     }
 
 
-    public void createAndListNewGoogleCalendar(User user) {
+    public GoogleCalendarModel createAndListNewGoogleCalendar(User user) {
         try {
             final GoogleAuth googleAuth = this.getGoogleAuth(user);
 
             final String accessToken = this.getAccessTokenAndSaveScopes(googleAuth);
 
-            if (accessToken == null) return;
+            if (accessToken == null) return null;
 
             GoogleCalendarModel newGoogleCalendarModel = new GoogleCalendarModel();
             newGoogleCalendarModel.setSummary("DinoApp Calendar");
@@ -71,16 +70,13 @@ public class GoogleCalendarCommunicationImpl extends GoogleCommunication {
 
             if (response.statusCode() == HttpStatus.OK.value()) {
 
-                final GoogleCalendarModel createdCalendar = JsonUtils.convertJsonToObj(response.body(), GoogleCalendarModel.class);
-
-                final UserSettings settings = user.getUserAppSettings();
-                settings.setGoogleCalendarId(createdCalendar.getId());
-                userSettingsService.saveDirectly(settings);
+                return JsonUtils.convertJsonToObj(response.body(), GoogleCalendarModel.class);
             }
 
         } catch (URISyntaxException | IOException | InterruptedException e) {
             this.logAPIError(e);
         }
+        return null;
     }
 
     private GoogleEventModel makeGoogleEventModel(Event event) {

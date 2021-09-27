@@ -5,13 +5,16 @@ import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.calendar.Event;
 import br.ufrgs.inf.pet.dinoapi.entity.calendar.GoogleEvent;
 import br.ufrgs.inf.pet.dinoapi.entity.user.User;
+import br.ufrgs.inf.pet.dinoapi.entity.user.UserSettings;
 import br.ufrgs.inf.pet.dinoapi.enumerable.GoogleScopeURLEnum;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
+import br.ufrgs.inf.pet.dinoapi.model.google.calendar.GoogleCalendarModel;
 import br.ufrgs.inf.pet.dinoapi.model.google.calendar.GoogleEventModel;
 import br.ufrgs.inf.pet.dinoapi.repository.calendar.GoogleEventRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.google.GoogleScopeServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogUtilsBase;
+import br.ufrgs.inf.pet.dinoapi.service.user.UserSettingsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,18 +26,35 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
     private final GoogleEventRepository repository;
     private final GoogleScopeServiceImpl googleScopeService;
     private final GoogleCalendarCommunicationImpl googleCalendarCommunication;
+    private final UserSettingsServiceImpl userSettingsService;
 
     @Autowired
     public GoogleCalendarServiceImpl(GoogleEventRepository repository, LogAPIErrorServiceImpl logAPIErrorService,
                                      GoogleScopeServiceImpl googleScopeService,
-                                     GoogleCalendarCommunicationImpl googleCalendarCommunication) {
+                                     GoogleCalendarCommunicationImpl googleCalendarCommunication,
+                                     UserSettingsServiceImpl userSettingsService) {
         super(logAPIErrorService);
         this.repository = repository;
         this.googleScopeService = googleScopeService;
         this.googleCalendarCommunication = googleCalendarCommunication;
+        this.userSettingsService = userSettingsService;
     }
 
-    public void createNewGoogleEvent(Event entity, User user) {
+    public void createGoogleCalendar(User user) {
+        try {
+            GoogleCalendarModel createdCalendar = googleCalendarCommunication.createAndListNewGoogleCalendar(user);
+            if(createdCalendar != null) {
+                final UserSettings settings = user.getUserAppSettings();
+                settings.setGoogleCalendarId(createdCalendar.getId());
+                userSettingsService.saveDirectly(settings);
+            }
+
+        } catch (Exception e) {
+            this.logAPIError(e);
+        }
+    }
+
+    public void createGoogleEvent(Event entity, User user) {
         if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CALENDAR)) {
 
             final GoogleEventModel googleEventModel = googleCalendarCommunication.insertGoogleEvent(user, entity);
@@ -48,9 +68,7 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
         }
     }
 
-
-
-    public void updateGoogleContact(Event event, GoogleEvent googleEvent) {
+    public void updateGoogleEvent(Event event, GoogleEvent googleEvent) {
         final User user = event.getUser();
         if (googleScopeService.hasGoogleScope(user, GoogleScopeURLEnum.SCOPE_CALENDAR)) {
 
@@ -63,13 +81,14 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
         }
     }
 
-    public void deleteGoogleContact(User user, GoogleEvent googleEvent) {
+    //TODO onde chamar
+    public void deleteGoogleEvent(GoogleEvent googleEvent, User user) {
         googleCalendarCommunication.deleteGoogleEvent(user, googleEvent);
         this.delete(googleEvent);
     }
 
 
-    public void save(GoogleEvent entity) {
+    private void save(GoogleEvent entity) {
         try {
             this.repository.save(entity);
         } catch (Exception e) {
@@ -77,7 +96,7 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
         }
     }
 
-    public void delete(GoogleEvent entity) {
+    private void delete(GoogleEvent entity) {
         try {
             this.repository.delete(entity);
         } catch (Exception e) {
@@ -121,7 +140,11 @@ public class GoogleCalendarServiceImpl extends LogUtilsBase {
         return repository.findAllByUserIdExcludingIds(auth.getUser().getId(), ids);
     }
 
-    public Optional<GoogleEvent> findByContactId(Long eventId) {
+    public Optional<GoogleEvent> findByEventId(Long eventId) {
         return repository.findByEventId(eventId);
+    }
+
+    public List<GoogleEvent> findAllByUserOrderByEventId(User user) {
+        return repository.findAllByUserOrderByEventId(user.getId());
     }
 }

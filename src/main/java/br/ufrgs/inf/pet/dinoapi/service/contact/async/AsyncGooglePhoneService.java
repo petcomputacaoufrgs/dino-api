@@ -20,17 +20,17 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class AsyncPhoneService extends LogUtilsBase {
+public class AsyncGooglePhoneService extends LogUtilsBase {
     private final PhoneRepository phoneRepository;
     private final GoogleContactServiceImpl googleContactService;
     private final GooglePeopleCommunicationImpl googlePeopleCommunication;
     private final GoogleScopeServiceImpl googleScopeService;
 
     @Autowired
-    public AsyncPhoneService(PhoneRepository phoneRepository, GoogleScopeServiceImpl googleScopeService,
-                             GoogleContactServiceImpl googleContactService,
-                             GooglePeopleCommunicationImpl googlePeopleCommunication,
-                             LogAPIErrorServiceImpl logAPIErrorService) {
+    public AsyncGooglePhoneService(PhoneRepository phoneRepository, GoogleScopeServiceImpl googleScopeService,
+                                   GoogleContactServiceImpl googleContactService,
+                                   GooglePeopleCommunicationImpl googlePeopleCommunication,
+                                   LogAPIErrorServiceImpl logAPIErrorService) {
         super(logAPIErrorService);
         this.phoneRepository = phoneRepository;
         this.googleContactService = googleContactService;

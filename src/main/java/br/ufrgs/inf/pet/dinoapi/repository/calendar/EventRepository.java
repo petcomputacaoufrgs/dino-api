@@ -21,4 +21,7 @@ public interface EventRepository extends CrudRepository<Event, Long> {
 
     @Query("SELECT e FROM Event e WHERE e.user.id = :userId")
     List<Event> findAllByUserId(Long userId);
+
+    @Query("SELECT e FROM Event e WHERE e.user.id = :userId ORDER BY e.id")
+    List<Event> findAllByUserOrderById(Long userId);
 }

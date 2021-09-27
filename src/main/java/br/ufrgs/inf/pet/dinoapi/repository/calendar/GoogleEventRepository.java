@@ -26,4 +26,7 @@ public interface GoogleEventRepository extends CrudRepository<GoogleEvent, Long>
     @Query("SELECT n FROM GoogleEvent n WHERE n.event.id = :eventId")
     Optional<GoogleEvent> findByEventId(@Param("eventId") Long eventId);
 
+    @Query("SELECT n FROM GoogleEvent n WHERE n.user.id = :userId ORDER BY n.event.id")
+    List<GoogleEvent> findAllByUserOrderByEventId(@Param("userId") Long userId);
+
 }

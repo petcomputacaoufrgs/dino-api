@@ -35,10 +35,10 @@ public class UserSettings extends SynchronizableEntity<Long> {
     private String parentsAreaPassword;
 
     @Column(name = "sync_google_contacts", nullable = false)
-    private Boolean shouldSyncGoogleContacts;
+    private Boolean shouldSyncGoogleContactsNow;
 
     @Column(name = "sync_google_calendar", nullable = false)
-    private Boolean shouldSyncGoogleCalendar;
+    private Boolean shouldSyncGoogleCalendarNow;
 
     @Column(name = "google_calendar_id")
     private String googleCalendarId;
@@ -135,19 +135,19 @@ public class UserSettings extends SynchronizableEntity<Long> {
     }
 
     public boolean shouldSyncGoogleContacts() {
-        return shouldSyncGoogleContacts;
+        return shouldSyncGoogleContactsNow;
     }
 
-    public void setShouldSyncGoogleContacts(boolean syncGoogleContacts) {
-        this.shouldSyncGoogleContacts = syncGoogleContacts;
+    public void setShouldSyncGoogleContactsNow(boolean syncGoogleContacts) {
+        this.shouldSyncGoogleContactsNow = syncGoogleContacts;
     }
 
-    public Boolean getShouldSyncGoogleCalendar() {
-        return shouldSyncGoogleCalendar;
+    public Boolean shouldSyncGoogleCalendarNow() {
+        return shouldSyncGoogleCalendarNow;
     }
 
-    public void setShouldSyncGoogleCalendar(Boolean shouldSyncGoogleCalendar) {
-        this.shouldSyncGoogleCalendar = shouldSyncGoogleCalendar;
+    public void setShouldSyncGoogleCalendarNow(Boolean shouldSyncGoogleCalendarNow) {
+        this.shouldSyncGoogleCalendarNow = shouldSyncGoogleCalendarNow;
     }
 
     public String getParentsAreaPassword() {
