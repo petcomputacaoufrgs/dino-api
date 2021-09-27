@@ -23,10 +23,10 @@ public class Event extends SynchronizableEntity<Long> {
     private String description;
 
     @Column(name = "date", length = DESCRIPTION_MAX)
-    private ZonedDateTime date;
+    private ZonedDateTime start;
 
     @Column(name = "endTime", length = TIME_MAX)
-    private String endTime;
+    private ZonedDateTime end;
 
     @OneToOne
     @JoinColumn(name = "type_id", nullable = false)
@@ -57,20 +57,20 @@ public class Event extends SynchronizableEntity<Long> {
         this.description = description;
     }
 
-    public ZonedDateTime getDate() {
-        return date;
+    public ZonedDateTime getStart() {
+        return start;
     }
 
-    public void setDate(ZonedDateTime date) {
-        this.date = date;
+    public void setStart(ZonedDateTime start) {
+        this.start = start;
     }
 
-    public String getEndTime() {
-        return endTime;
+    public ZonedDateTime getEnd() {
+        return end;
     }
 
-    public void setEndTime(String endTime) {
-        this.endTime = endTime;
+    public void setEnd(ZonedDateTime end) {
+        this.end = end;
     }
 
     public EventType getType() {

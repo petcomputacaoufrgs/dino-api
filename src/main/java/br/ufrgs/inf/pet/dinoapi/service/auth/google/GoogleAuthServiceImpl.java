@@ -132,6 +132,7 @@ public class GoogleAuthServiceImpl extends LogUtilsBase implements GoogleAuthSer
                     userSettings.setDeclineGoogleContacts(true);
                     userSettings.setDeclineGoogleCalendar(true);
                     userSettings.setShouldSyncGoogleContacts(false);
+                    userSettings.setShouldSyncGoogleCalendar(false);
                     userSettings.setIncludeEssentialContact(hasUserPermission);
                     userSettings.setColorTheme(ColorThemeEnum.DEVICE.getValue());
                     userSettings.setFontSize(FontSizeEnum.DEFAULT.getValue());
