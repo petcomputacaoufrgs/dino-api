@@ -1,5 +1,6 @@
 package br.ufrgs.inf.pet.dinoapi.entity.calendar;
 
+import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -23,6 +24,10 @@ public class GoogleEvent {
     @JoinColumn(name = "event_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Event event;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     public String getGoogleId() {
         return googleId;

@@ -27,7 +27,7 @@ public class AsyncGoogleCalendarServiceImpl extends LogUtilsBase {
     public AsyncGoogleCalendarServiceImpl(LogAPIErrorServiceImpl logAPIErrorService,
                                           @Lazy GoogleCalendarCommunicationImpl googleCalendarCommunication,
                                           EventRepository eventRepository,
-                                          GoogleCalendarServiceImpl googleCalendarService) {
+                                          @Lazy GoogleCalendarServiceImpl googleCalendarService) {
         super(logAPIErrorService);
         this.googleCalendarCommunication = googleCalendarCommunication;
         this.eventRepository = eventRepository;
