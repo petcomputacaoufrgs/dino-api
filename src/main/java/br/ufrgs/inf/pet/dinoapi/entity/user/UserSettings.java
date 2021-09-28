@@ -34,10 +34,10 @@ public class UserSettings extends SynchronizableEntity<Long> {
     @Column(name = "parents_area_password", length = PASSWORD_MAX)
     private String parentsAreaPassword;
 
-    @Column(name = "sync_google_contacts", nullable = false)
+    @Column(name = "should_sync_google_contacts", nullable = false)
     private Boolean shouldSyncGoogleContactsNow;
 
-    @Column(name = "sync_google_calendar", nullable = false)
+    @Column(name = "should_sync_google_calendar", nullable = false)
     private Boolean shouldSyncGoogleCalendarNow;
 
     @Column(name = "google_calendar_id")

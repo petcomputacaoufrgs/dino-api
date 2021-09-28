@@ -20,25 +20,23 @@ public class Event extends SynchronizableEntity<Long> {
     @Column(name = "description", length = DESCRIPTION_MAX)
     private String description;
 
-    @Column(name = "start", length = DESCRIPTION_MAX)
+    @Column(name = "start_datetime", length = DESCRIPTION_MAX)
     private ZonedDateTime start;
 
-    @Column(name = "end", length = TIME_MAX)
+    @Column(name = "end_datetime", length = TIME_MAX)
     private ZonedDateTime end;
 
     @OneToOne
-    @JoinColumn(name = "type_id", nullable = false)
+    @JoinColumn(name = "type_id")
     @OnDelete(action = OnDeleteAction.CASCADE)
     private EventType type;
 
     @ManyToOne
-    @JoinColumn(name = "user_id")
+    @JoinColumn(name = "user_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private User user;
 
-
-    public Event() {
-    }
+    public Event() {}
 
     public String getTitle() {
         return title;
