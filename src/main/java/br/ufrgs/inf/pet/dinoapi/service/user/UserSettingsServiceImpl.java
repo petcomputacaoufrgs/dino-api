@@ -12,7 +12,7 @@ import br.ufrgs.inf.pet.dinoapi.model.user.UserSettingsDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.treatment.TreatmentRepository;
 import br.ufrgs.inf.pet.dinoapi.repository.user.UserSettingsRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
-import br.ufrgs.inf.pet.dinoapi.service.calendar.AsyncGoogleCalendarServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.calendar.google.AsyncGoogleCalendarServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.contact.async.AsyncGoogleContactService;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;

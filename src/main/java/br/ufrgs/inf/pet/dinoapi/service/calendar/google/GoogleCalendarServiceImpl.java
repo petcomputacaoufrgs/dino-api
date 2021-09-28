@@ -1,4 +1,4 @@
-package br.ufrgs.inf.pet.dinoapi.service.calendar;
+package br.ufrgs.inf.pet.dinoapi.service.calendar.google;
 
 import br.ufrgs.inf.pet.dinoapi.communication.google.calendar.GoogleCalendarCommunicationImpl;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;

@@ -3,11 +3,14 @@ package br.ufrgs.inf.pet.dinoapi.service.calendar;
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.calendar.Event;
 import br.ufrgs.inf.pet.dinoapi.entity.calendar.EventType;
+import br.ufrgs.inf.pet.dinoapi.entity.calendar.GoogleEvent;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.calendar.EventDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.calendar.EventRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.calendar.google.AsyncGoogleCalendarServiceImpl;
+import br.ufrgs.inf.pet.dinoapi.service.calendar.google.GoogleCalendarServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.clock.ClockServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.log_error.LogAPIErrorServiceImpl;
 import br.ufrgs.inf.pet.dinoapi.service.synchronizable.SynchronizableServiceImpl;
@@ -22,12 +25,18 @@ import java.util.Optional;
 public class EventServiceImpl extends SynchronizableServiceImpl<Event, Long, EventDataModel, EventRepository> {
 
     private final EventTypeServiceImpl eventTypeServiceImpl;
+    private final AsyncGoogleCalendarServiceImpl asyncGoogleCalendarService;
+    private final GoogleCalendarServiceImpl googleCalendarService;
 
 
     public EventServiceImpl(EventTypeServiceImpl eventTypeServiceImpl,
+                            AsyncGoogleCalendarServiceImpl asyncGoogleCalendarService,
+                            GoogleCalendarServiceImpl googleCalendarService,
                             EventRepository repository, AuthServiceImpl authService, ClockServiceImpl clock, SynchronizableQueueMessageService<Long, EventDataModel> synchronizableQueueMessageService, LogAPIErrorServiceImpl logAPIErrorService) {
         super(repository, authService, clock, synchronizableQueueMessageService, logAPIErrorService);
         this.eventTypeServiceImpl = eventTypeServiceImpl;
+        this.asyncGoogleCalendarService = asyncGoogleCalendarService;
+        this.googleCalendarService = googleCalendarService;
     }
 
     @Override
@@ -120,5 +129,24 @@ public class EventServiceImpl extends SynchronizableServiceImpl<Event, Long, Eve
 
     @Override
     public WebSocketDestinationsEnum getWebSocketDestination() {
-        return WebSocketDestinationsEnum.EVENT;    }
+        return WebSocketDestinationsEnum.EVENT;
+    }
+
+    @Override
+    protected void afterDataCreated(Event entity, Auth auth) {
+        asyncGoogleCalendarService.createEventOnGoogleAPI(entity, auth);
+    }
+
+    @Override
+    protected void afterDataUpdated(Event entity, Auth auth) {
+        asyncGoogleCalendarService.updateEventOnGoogleAPI(entity, auth);
+    }
+
+    @Override
+    protected void beforeDataDeleted(Event entity, Auth auth) {
+        final Optional<GoogleEvent> googleEventSearch = this.googleCalendarService.findByEventId(entity.getId());
+
+        googleEventSearch.ifPresent(googleEvent ->
+                asyncGoogleCalendarService.deleteEventOnGoogleAPI(googleEvent, auth));
+    }
 }

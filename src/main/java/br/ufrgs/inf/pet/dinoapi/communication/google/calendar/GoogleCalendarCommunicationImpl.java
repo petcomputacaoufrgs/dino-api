@@ -81,18 +81,18 @@ public class GoogleCalendarCommunicationImpl extends GoogleCommunication {
 
     private GoogleEventModel makeGoogleEventModel(Event event) {
 
-        String timeZone = ZoneId.SHORT_IDS.get(event.getDate().getZone().getId());
+        String timeZone = ZoneId.SHORT_IDS.get(event.getStart().getZone().getId());
 
         GoogleEventModel newGoogleEventModel = new GoogleEventModel();
         newGoogleEventModel.setSummary(event.getTitle());
         newGoogleEventModel.setDescription(event.getDescription());
 
         GoogleEventDateTimeModel start = new GoogleEventDateTimeModel();
-        start.setDateTime(new DateTime(event.getDate().toLocalDateTime().toString()));
+        start.setDateTime(new DateTime(event.getStart().toLocalDateTime().toString()));
         start.setTimeZone(timeZone);
 
         GoogleEventDateTimeModel end = new GoogleEventDateTimeModel();
-        end.setDateTime(new DateTime(event.getEndTime().toLocalDateTime().toString()));
+        end.setDateTime(new DateTime(event.getEnd().toLocalDateTime().toString()));
         end.setTimeZone(timeZone);
 
         newGoogleEventModel.setStart(start);
