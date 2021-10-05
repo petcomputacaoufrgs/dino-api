@@ -2,9 +2,7 @@ package br.ufrgs.inf.pet.dinoapi.service.report;
 
 import br.ufrgs.inf.pet.dinoapi.entity.auth.Auth;
 import br.ufrgs.inf.pet.dinoapi.entity.report.Report;
-import br.ufrgs.inf.pet.dinoapi.entity.user.User;
 import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.AuthNullException;
-import br.ufrgs.inf.pet.dinoapi.exception.synchronizable.ConvertModelToEntityException;
 import br.ufrgs.inf.pet.dinoapi.model.report.ReportDataModel;
 import br.ufrgs.inf.pet.dinoapi.repository.report.ReportRepository;
 import br.ufrgs.inf.pet.dinoapi.service.auth.AuthServiceImpl;
@@ -41,15 +39,13 @@ public class ReportServiceImpl extends SynchronizableServiceImpl<Report, Long, R
     }
 
     @Override
-    public Report convertModelToEntity(ReportDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public Report convertModelToEntity(ReportDataModel model, Auth auth) throws AuthNullException {
         if (auth != null) {
-            final Optional<User> userSearch = userService.findEntityByIdThatUserCanRead(model.getUserId(), auth);
-
             final Report entity = new Report();
             entity.setWhat(model.getWhat());
             entity.setHow(model.getHow());
             entity.setWhere(model.getWhere());
-            entity.setUser(userSearch.orElse(null));
+            entity.setUser(auth.getUser());
 
             return entity;
         }
@@ -58,14 +54,8 @@ public class ReportServiceImpl extends SynchronizableServiceImpl<Report, Long, R
     }
 
     @Override
-    public void updateEntity(Report entity, ReportDataModel model, Auth auth) throws ConvertModelToEntityException, AuthNullException {
+    public void updateEntity(Report entity, ReportDataModel model, Auth auth) throws AuthNullException {
         if (auth != null) {
-
-            if (!entity.getUser().getId().equals(model.getUserId())) {
-                final Optional<User> userSearch = userService.findEntityByIdThatUserCanRead(model.getUserId(), auth);
-                entity.setUser(userSearch.orElse(null));
-            }
-
             entity.setWhat(model.getWhat());
             entity.setHow(model.getHow());
             entity.setWhere(model.getWhere());
