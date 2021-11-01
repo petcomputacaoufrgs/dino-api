@@ -113,6 +113,7 @@ public class UserSettingsServiceImpl extends SynchronizableServiceImpl<UserSetti
         entity.setColorTheme(model.getColorTheme());
         entity.setFontSize(model.getFontSize());
         entity.setLanguage(model.getLanguage());
+        entity.setFirstSettingsDone(model.getFirstSettingsDone());
         modelToEntityUserGrants(entity, model, auth);
     }
 
