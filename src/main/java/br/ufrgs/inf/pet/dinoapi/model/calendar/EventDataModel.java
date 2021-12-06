@@ -20,7 +20,6 @@ public class EventDataModel extends SynchronizableDataLocalIdModel<Long> {
 
     private ZonedDateTime end;
 
-    @NotNull(message = ContactsConstants.NAME_NULL_MESSAGE)
     private Long typeId;
 
     public EventDataModel() {
